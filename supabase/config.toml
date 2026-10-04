@@ -419,6 +419,15 @@ enabled = true
 
 [functions.verify-sensitive-action]
 verify_jwt = false
+
+[functions.finalize-memory]
+verify_jwt = false
+
+[functions.get-memory-media]
+verify_jwt = false
+
+[functions.cleanup]
+verify_jwt = false
 # Directory under `supabase/` where declarative files are written.
 # declarative_schema_path = "./schemas"
 # JSON string passed through to pg-delta SQL formatting. When omitted, SQL is
