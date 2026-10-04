@@ -1,0 +1,25 @@
+import { useId } from 'react';
+import { StyleSheet, Text, TextInput, View, type TextInputProps } from 'react-native';
+import { theme } from '../../theme';
+
+export type FieldProps = TextInputProps & { label: string; error?: string; hint?: string };
+
+export function Field({ label, error, hint, style, ...props }: FieldProps) {
+  const id = useId();
+  return <View style={styles.container}>
+    <Text nativeID={id} style={styles.label}>{label}</Text>
+    <TextInput {...props} accessibilityLabel={label} accessibilityLabelledBy={id} accessibilityHint={error ?? hint}
+      placeholderTextColor={theme.colors.muted} selectionColor={theme.colors.focus}
+      style={[styles.input, props.multiline && styles.multiline, !!error && styles.invalid, style]} />
+    {error ? <Text accessibilityRole="alert" accessibilityLiveRegion="polite" style={styles.error}>{error}</Text>
+      : hint ? <Text style={theme.typography.secondary}>{hint}</Text> : null}
+  </View>;
+}
+
+const styles = StyleSheet.create({
+  container: { gap: 8 }, label: { ...theme.typography.body, fontWeight: '600' },
+  input: { ...theme.typography.body, minHeight: 48, padding: 12, backgroundColor: theme.colors.surface,
+    borderWidth: 1, borderColor: theme.colors.control, borderRadius: theme.radius.control },
+  multiline: { minHeight: 112, textAlignVertical: 'top' }, invalid: { borderColor: theme.colors.danger },
+  error: { ...theme.typography.secondary, color: theme.colors.danger },
+});

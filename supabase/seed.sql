@@ -1,0 +1,1 @@
+-- Tests create synthetic accounts through local Auth. No default account credentials.

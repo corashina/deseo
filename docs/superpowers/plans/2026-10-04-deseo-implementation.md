@@ -10,7 +10,9 @@
 
 **Spec:** [Product design](../specs/2026-10-04-deseo-design.md), [screens](../../product/SCREENS.md), [data](../../architecture/DATA.md), [architecture](../../architecture/ARCHITECTURE.md).
 
-**Status:** Draft implementation plan for owner review. No steps have run.
+**Status:** Tasks 1–5 have core source and mobile checks. Backend and device acceptance remain pending.
+
+The Chat 01 handoff records partial coverage. Unchecked acceptance items must pass before parallel work starts.
 
 **Multi-chat execution:** Use the [eight-chat guide](../../implementation/CHAT_GUIDE.md) for order, prerequisites, materials, and prompts.
 

@@ -1,8 +1,8 @@
 # Documentation
 
-Status: Draft for owner review. Platform choice, visual direction, and icon choice are confirmed.
+Status: Core source implemented. Backend and native device checks remain pending.
 
-The product and technical details below are proposed decisions. No product implementation has started.
+The saved design defines the accepted scope. The core handoff records implementation evidence and remaining checks.
 
 ## Product and design
 

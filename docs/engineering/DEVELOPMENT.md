@@ -1,24 +1,35 @@
 # Development workflow
 
-Status: Setup contract for implementation. There is no package manifest or runnable app yet.
+Status: The native core is implemented. Local database and device checks remain pending.
 
-Do not run the planned npm commands until Task 1 creates their scripts.
+The owner deferred Docker setup on 2026-10-04. Run mobile checks now; complete backend checks before Chats 02–04.
 
-## 1. Before scaffolding
+## 1. Installed workspace
 
 Read AGENTS.md, STYLE.md, the product design, DATA.md, and the implementation task.
 
-Confirm the written design and plan with the owner. Keep existing design assets intact.
+The saved design and Tasks 1–5 are the accepted core scope. Keep existing design assets intact.
 
-Initialize Git when product scaffolding starts. Use a focused branch and preserve unrelated local work.
+The integration branch is `codex/deseo-integration`. The initial documentation commit is `17095fa`.
 
-Select a supported Node LTS release using the current Expo and Astro requirements.
+Use Node `24.18.0` and npm `11.16.0`, as pinned in `.node-version` and `package.json`.
 
-Pin the Node and npm versions in project configuration. Record the actual Expo SDK and React Native versions here.
+The app uses Expo `57.0.26`, React Native `0.86.3`, React `19.2.3`, and Expo Router `57.0.24`.
 
-Use npm workspaces for mobile and site. Install native libraries with Expo's compatibility-aware installer.
+Run `npm ci` from the repository root. The workspace currently contains only `apps/mobile`.
 
 Add dependencies only when their feature task needs them. Keep exact versions and one root lockfile.
+
+Run `npm run verify:mobile` without Docker. This runs TypeScript, ESLint, and Jest.
+
+Copy `apps/mobile/.env.example` to `.env.local` inside that folder before connecting to a local backend.
+Use an API URL reachable from the device. A phone's loopback address refers to that phone.
+The Android emulator normally reaches the host through `10.0.2.2`; a physical device needs a reachable host address.
+
+Run `npm run dev:mobile` after installing a development build. MMKV requires native code; Expo Go cannot run this app.
+Build Android with `npm run android --workspace @deseo/mobile` when Android tooling is available.
+Build iOS with `npm run ios --workspace @deseo/mobile` on macOS with Xcode.
+No EAS project, remote backend, build submission, or device installation was created during Chat 01.
 
 ## 2. Local environment
 
@@ -48,28 +59,42 @@ Local seed data uses synthetic names and photos. Never copy a real couple's cont
 
 Use `.env.example` files with names and explanations. Never put usable secret values in examples or documentation.
 
-Read environment settings once during module initialization. Validate required settings before launching the relevant build.
+The Supabase client validates settings at first use. Missing settings produce an error; they never activate sample data.
 
 Use separate native identifiers and backend projects for development and production.
 
-## 4. Planned command contract
+## 4. Available commands
 
-Task 1 must create and verify these scripts. These are target commands, not current capabilities.
+Run root scripts from the repository root. Run Expo checks from `apps/mobile`.
 
 | Command | Required behavior |
 |---|---|
 | `npm ci` | Install the committed workspace lockfile |
 | `npm run dev:mobile` | Start the Expo development server |
-| `npm run dev:site` | Start the public site's development server |
-| `npm run typecheck` | Check mobile, site, and applicable shared TypeScript |
+| `npm run typecheck` | Check current workspace TypeScript |
 | `npm run lint` | Check source and module import rules |
 | `npm run test:mobile -- <path>` | Run targeted Jest Expo tests |
 | `npm run test:db` | Run the local Supabase SQL test suite |
-| `npm run test:db:race` | Run real concurrent pairing/worker transaction checks |
-| `npm run test:functions` | Run backend function tests in their supported runtime |
-| `npm run test:site` | Run Playwright public-page flows |
-| `npm run build:site` | Produce the static public site |
-| `npm run verify` | Run typecheck, lint, relevant test suites, and static site build |
+| `npm run test:db:race` | Run concurrent requests with real local Auth accounts |
+| `npm run verify:mobile` | Run typecheck, lint, and mobile tests |
+| `npm run verify` | Run mobile, SQL, and race checks; requires local Supabase |
+| `npx expo-doctor@1.20.4` | Check native dependency and configuration compatibility |
+| `npx expo export --platform android --platform ios --output-dir dist` | Produce native JavaScript bundles; does not compile native binaries |
+
+The race script uses Node's built-in TypeScript support. Set its local test keys before running it.
+See [the backend guide](../../supabase/README.md) for ports, keys, SQL tests, advisors, and schema generation.
+
+Typecheck the Edge function from the root:
+
+```powershell
+npm exec --yes --package deno@2.9.6 -- deno check --frozen --config supabase/functions/verify-sensitive-action/deno.json supabase/functions/verify-sensitive-action/index.ts
+```
+
+Typecheck the race harness from the root:
+
+```powershell
+node_modules/.bin/tsc.cmd --noEmit --target es2022 --module esnext --moduleResolution bundler --types node --strict --skipLibCheck supabase/tests/pairing-races.test.ts
+```
 
 Device builds and Maestro runs have separate environment requirements. Record the exact working commands after setup.
 
@@ -82,6 +107,9 @@ Use local development first. Review RLS, constraints, grants, and execution righ
 Create migration filenames through the installed Supabase CLI. Use the task's named migration label.
 
 Generate and inspect database types after changing the schema.
+
+`apps/mobile/src/lib/database.types.ts` remains pending until the local migrations run.
+Runtime Zod schemas validate current responses. A hand-written file must not claim to be generated schema output.
 
 Run SQL tests and advisors. Rebuild the local database from the migration history to verify reproducibility.
 
@@ -113,5 +141,8 @@ Do not duplicate server state in a separate global store.
 Use a feature public interface for cross-feature reads. Lint against imports into another feature's internals.
 
 Do not add backend abstractions to make a hypothetical provider replacement easier.
+
+Run `npm audit` before release. The current tree has unresolved upstream advisories recorded in the core handoff.
+Do not use `npm audit fix --force` to replace the compatible Expo stack with older major versions.
 
 Use the [architecture review](../architecture/REVIEW.md) when reviewing module structure.

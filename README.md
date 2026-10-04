@@ -2,13 +2,13 @@
 
 A private app for two people to plan their days, share messages, and keep memories.
 
-**Platform:** Android and iOS. **App:** Expo and TypeScript. **Stage:** Design and implementation planning.
+**Platform:** Android and iOS. **App:** Expo and TypeScript. **Stage:** Core implementation, pending backend and device checks.
 
-The repository contains documentation and a visual reference. It does not contain a working product yet.
+The repository contains native core screens, Supabase migrations, and automated tests. The complete two-device flow remains unverified.
 
 Confirmed choices: Expo, TypeScript, Android, iOS, pastel styling, and icon 05.
 
-Proposed choices: Supabase, email-code sign-in, encrypted drafts, and a small static Astro website.
+The core uses Supabase, email-code sign-in, and encrypted drafts. Later chats add the static Astro website.
 
 ## Product
 
@@ -46,15 +46,16 @@ AGENTS.md                 Contributor rules
 STYLE.md                  Visual rules
 GLOSSARY.md               Product terms
 docs/                     Existing documentation and design assets
-apps/mobile/              Planned Expo application
+apps/mobile/              Expo application and mobile tests
 apps/site/                Planned static public website
-supabase/                 Planned database, functions, and access tests
-brand/                    Planned shared color tokens and approved icon assets
+supabase/                 Database migrations, function, and access tests
+brand/                    Shared color tokens and icon assets
 ```
 
-The implementation plan defines future files. Runtime folders and package manifests are not scaffolded yet.
+Use Node 24.18.0 and npm 11.16.0. Run `npm ci`, then `npm run verify:mobile`.
 
-Use one npm workspace and one lockfile when implementation starts. Keep native screens separate from public website markup.
+Mobile checks do not need Docker. Local backend checks require a running Supabase stack.
+See [development setup](docs/engineering/DEVELOPMENT.md) for commands and current limits.
 
 ## Preview the current design
 
@@ -73,7 +74,7 @@ Selected icon: [05, Two voices](docs/design/icons-round-2/icon-05-two-voices.png
 
 These stages define product acceptance. The [chat guide](docs/implementation/CHAT_GUIDE.md) defines implementation order and safe parallel work.
 
-Run Chat 01, then Chats 02–04 together, then Chats 05–08 in order.
+Finish Chat 01 security checks before starting Chats 02–04. Then run Chats 05–08 in order.
 Use separate worktrees for concurrent chats. Each chat writes a committed handoff for the next chat.
 
 ## Scope limits

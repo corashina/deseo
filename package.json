@@ -1,0 +1,36 @@
+{
+  "name": "deseo",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "apps/*"
+  ],
+  "packageManager": "npm@11.16.0",
+  "engines": {
+    "node": "24.18.0",
+    "npm": "11.16.0"
+  },
+  "scripts": {
+    "dev:mobile": "npm run start --workspace @deseo/mobile",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "lint": "eslint apps/mobile/src",
+    "test:mobile": "npm run test --workspace @deseo/mobile --",
+    "test:db": "supabase test db",
+    "test:db:race": "node --experimental-strip-types --test supabase/tests/pairing-races.test.ts",
+    "verify:mobile": "npm run typecheck && npm run lint && npm run test:mobile",
+    "verify": "npm run verify:mobile && npm run test:db && npm run test:db:race"
+  },
+  "devDependencies": {
+    "eslint": "10.12.0",
+    "supabase": "2.119.0",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.71.0"
+  },
+  "overrides": {
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "react-native": "0.86.3",
+    "react-native-worklets": "0.10.1",
+    "react-native-reanimated": "4.5.1"
+  }
+}
