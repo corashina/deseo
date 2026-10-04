@@ -1,5 +1,5 @@
 // Importance: 98. Desired completion and stable retries protect shared work.
-import { createTask, updateTask, setTaskCompleted, createList } from './commands';
+import { createTask, updateTask, setTaskCompleted, createList, renameList } from './commands';
 import { taskInputSchema } from './schema';
 import { getSupabase } from '../../lib/supabase';
 
@@ -41,4 +41,12 @@ it('trims list names and preserves the command UUID', async () => {
   rpc.mockReturnValue({ abortSignal: () => Promise.resolve({ data: { ok: true, data: { id: command, pair_id: pairId, name: 'Groceries', is_general: false, created_by: id, version: 1 } }, error: null }) });
   expect((await createList(pairId, ' Groceries ', command)).ok).toBe(true);
   expect(rpc).toHaveBeenCalledWith('create_list', { p_pair_id: pairId, p_name: 'Groceries', p_command_id: command });
+});
+// Importance: 95. A rename must carry the version that the user reviewed.
+it('sends and validates the expected list version', async () => {
+  rpc.mockReturnValue({ abortSignal: () => Promise.resolve({ data: { ok: true, data: { id: listId, pair_id: pairId, name: 'Shopping', is_general: false, created_by: id, version: 4 } }, error: null }) });
+  expect((await renameList(listId, ' Shopping ', 3, command)).ok).toBe(true);
+  expect(rpc).toHaveBeenCalledWith('rename_list', { p_list_id: listId, p_name: 'Shopping', p_expected_version: 3, p_command_id: command });
+  expect((await renameList(listId, 'Shopping', 0, command)).ok).toBe(false);
+  expect(rpc).toHaveBeenCalledTimes(1);
 });

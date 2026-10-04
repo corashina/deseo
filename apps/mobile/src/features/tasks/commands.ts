@@ -48,8 +48,8 @@ export async function createList(pairId: string, name: string, commandId: string
   try { uuid.parse(pairId); return command('create_list', { p_pair_id: pairId, p_name: listNameSchema.parse(name), p_command_id: commandId }, listRowSchema); }
   catch (error) { return errorResult(error); }
 }
-export async function renameList(id: string, name: string, commandId: string): Promise<Result<TaskList>> {
-  try { uuid.parse(id); return command('rename_list', { p_list_id: id, p_name: listNameSchema.parse(name), p_command_id: commandId }, listRowSchema); }
+export async function renameList(id: string, name: string, expectedVersion: number, commandId: string): Promise<Result<TaskList>> {
+  try { uuid.parse(id); version.parse(expectedVersion); return command('rename_list', { p_list_id: id, p_name: listNameSchema.parse(name), p_expected_version: expectedVersion, p_command_id: commandId }, listRowSchema); }
   catch (error) { return errorResult(error); }
 }
 export async function moveListTasksToGeneral(id: string, commandId: string): Promise<Result<{ id: string; generalListId: string; moved: number }>> {

@@ -7,7 +7,7 @@ const actionSchema = z.discriminatedUnion('kind', [
   z.object({ kind: z.literal('complete'), id: uuid, commandId: uuid, expectedVersion: version, completed: z.boolean() }),
   z.object({ kind: z.literal('deleteTask'), id: uuid, commandId: uuid, expectedVersion: version }),
   z.object({ kind: z.literal('createList'), commandId: uuid, name: z.string() }),
-  z.object({ kind: z.literal('renameList'), id: uuid, commandId: uuid, name: z.string() }),
+  z.object({ kind: z.literal('renameList'), id: uuid, commandId: uuid, name: z.string(), expectedVersion: version }),
   z.object({ kind: z.literal('moveList'), id: uuid, commandId: uuid }),
   z.object({ kind: z.literal('deleteList'), id: uuid, commandId: uuid }),
 ]);

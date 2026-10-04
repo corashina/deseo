@@ -10,6 +10,7 @@ type Account = { id: string; client: SupabaseClient };
 type Task = { id: string; list_id: string; version: number; completed_at: string | null };
 type Idea = { id: string; state: string; linked_event_id: string | null; version: number };
 type Event = { id: string; version: number };
+type TaskList = { id: string; name: string; version: number };
 const base = process.env.SUPABASE_TEST_URL ?? 'http://127.0.0.1:54321';
 const publicKey = process.env.SUPABASE_TEST_PUBLISHABLE_KEY;
 const serverKey = process.env.SUPABASE_TEST_SERVICE_ROLE_KEY;
@@ -108,6 +109,32 @@ test('shared planning concurrency and account isolation', { timeout: 180_000 }, 
     const list = success(await rpc<{ id: string }>(a.client, 'create_list', {
       p_pair_id: pairId, p_name: 'Race list', p_command_id: randomUUID(),
     }));
+    // Importance: 98. Two authenticated partners must not overwrite the same saved name.
+    const renameTarget = success(await rpc<TaskList>(a.client, 'create_list', {
+      p_pair_id: pairId, p_name: 'Rename race', p_command_id: randomUUID(),
+    }));
+    const renameIntents = [a, b].map((_actor, index) => ({ p_list_id: renameTarget.id, p_name: `Partner name ${index}`,
+      p_expected_version: renameTarget.version, p_command_id: randomUUID() }));
+    const renames = await Promise.all([a, b].map((actor, index) => rpc<TaskList>(actor.client, 'rename_list', renameIntents[index])));
+    assert.equal(renames.filter((result) => result.ok).length, 1, 'Only one partner can rename a saved version.');
+    assert.ok(renames.some((result) => !result.ok && result.error.code === 'CONFLICT'));
+    const winnerIndex = renames.findIndex((result) => result.ok);
+    const winner = [a, b][winnerIndex];
+    const renamed = success(renames[winnerIndex]);
+    assert.equal(renamed.version, renameTarget.version + 1);
+    const savedName = (await rows<TaskList>(b.client, 'task_lists', pairId)).find((row) => row.id === renameTarget.id)!;
+    assert.equal(savedName.name, renameIntents[winnerIndex].p_name, 'The stale partner cannot replace the winner name.');
+    assert.equal(savedName.version, renamed.version);
+    assert.deepEqual(await rpc<TaskList>(winner.client, 'rename_list', renameIntents[winnerIndex]), renames[winnerIndex],
+      'An uncertain rename retry preserves its original command and expected version.');
+    const changedRenameIntent = await rpc(winner.client, 'rename_list', { ...renameIntents[winnerIndex], p_expected_version: renamed.version });
+    assert.ok(!changedRenameIntent.ok && changedRenameIntent.error.code === 'CONFLICT', 'A receipt binds the original expected version.');
+    const reviewed = success(await rpc<TaskList>(b.client, 'rename_list', { p_list_id: renameTarget.id, p_name: 'Reviewed rename',
+      p_expected_version: renamed.version, p_command_id: randomUUID() }));
+    assert.equal(reviewed.version, renamed.version + 1);
+    assert.deepEqual(await rpc<TaskList>(winner.client, 'rename_list', renameIntents[winnerIndex]), renames[winnerIndex]);
+    assert.equal((await rows<TaskList>(a.client, 'task_lists', pairId)).find((row) => row.id === renameTarget.id)?.name, 'Reviewed rename',
+      'Receipt replay must not replace a later reviewed name.');
     const input = { id: randomUUID(), pair_id: pairId, list_id: list.id, title: 'Original', assignee_id: a.id, due_date: '2099-10-04' };
     const signals = await planningSignals(b.client, 'tasks', pairId, true);
     await planningSignals(outsider.client, 'tasks', pairId, false);
@@ -230,6 +257,9 @@ test('shared planning concurrency and account isolation', { timeout: 180_000 }, 
     assert.deepEqual(await rows(a.client, 'date_ideas', pairId), [], 'Closure removes normal idea access.');
     const replayAfterClosure = await rpc(a.client, 'set_task_completed', completion);
     assert.ok(!replayAfterClosure.ok && replayAfterClosure.error.code === 'FORBIDDEN', 'Receipt replay must recheck current access.');
+    // Importance: 100. List rename receipt replay must also recheck current membership.
+    const renameAfterClosure = await rpc(winner.client, 'rename_list', renameIntents[winnerIndex]);
+    assert.ok(!renameAfterClosure.ok && renameAfterClosure.error.code === 'FORBIDDEN', 'Closed pairs cannot replay a list rename receipt.');
   } finally {
     // Remove only this run's synthetic pairs and Auth accounts, even after an assertion fails.
     const failures: string[] = [];

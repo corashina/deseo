@@ -1,9 +1,12 @@
 -- Importance: 100. Pair access, versions, retry receipts, and list invariants protect shared data.
 begin;
 \ir fixtures/setup.sql
-select plan(51);
+select plan(67);
 select has_table('public','task_lists');
 select has_table('public','tasks');
+-- Importance: 95. Remove the obsolete unversioned RPC.
+select has_function('public','rename_list',array['uuid','text','integer','uuid'],'Versioned list rename RPC exists');
+select hasnt_function('public','rename_list',array['uuid','text','uuid'],'Unversioned list rename RPC is absent');
 select is((select count(*)::integer from public.task_lists where is_general),2,'General exists for active fixture pairs');
 select ok(not has_table_privilege('authenticated','public.tasks','INSERT'),'No direct task inserts');
 select ok(not has_table_privilege('authenticated','public.tasks','UPDATE'),'No direct task updates');
@@ -21,8 +24,24 @@ create temporary table list_saved as select public.create_list('30000000-0000-40
 select ok((select (result->>'ok')::boolean from list_saved),'Create list');
 select is(public.create_list('30000000-0000-4000-8000-000000000001','Groceries','60000000-0000-4000-8000-000000000001'),(select result from list_saved),'List retry');
 select is(public.create_list('30000000-0000-4000-8000-000000000001','gROCERIES','60000000-0000-4000-8000-000000000002')->'error'->>'code','CONFLICT','Case-insensitive names');
-select is(public.rename_list((select id from general),'Daily','50000000-0000-4000-8000-000000000001')->'error'->>'code','FORBIDDEN','General cannot be renamed');
+select is(public.rename_list((select id from general),'Daily',1,'50000000-0000-4000-8000-000000000001')->'error'->>'code','FORBIDDEN','General cannot be renamed');
 select is(public.delete_empty_list((select id from general),'50000000-0000-4000-8000-000000000002')->'error'->>'code','FORBIDDEN','General cannot be deleted');
+-- Importance: 98. Stale names must conflict, and retries must preserve their original version.
+create temporary table rename_fixture as select public.create_list('30000000-0000-4000-8000-000000000001','Rename fixture','60000000-0000-4000-8000-000000000003') result;
+create temporary table rename_saved as select public.rename_list('60000000-0000-4000-8000-000000000003','First name',1,'50000000-0000-4000-8000-000000000040') result;
+select is((select result->'data'->>'version' from rename_saved),'2','Rename advances the saved version once');
+select pg_temp.as_user(2);
+select is(public.rename_list('60000000-0000-4000-8000-000000000003','Second name',1,'50000000-0000-4000-8000-000000000041')->'error'->>'code','CONFLICT','Partner stale name conflicts');
+select is((select name from public.task_lists where id='60000000-0000-4000-8000-000000000003'),'First name','Stale rename preserves the winner name');
+select is((select version from public.task_lists where id='60000000-0000-4000-8000-000000000003'),2,'Stale rename preserves the winner version');
+select pg_temp.as_user(1);
+select is(public.rename_list('60000000-0000-4000-8000-000000000003','First name',1,'50000000-0000-4000-8000-000000000040'),(select result from rename_saved),'Rename retry replays the original receipt');
+select is(public.rename_list('60000000-0000-4000-8000-000000000003','First name',2,'50000000-0000-4000-8000-000000000040')->'error'->>'code','CONFLICT','Rename receipt binds the expected version');
+select is(public.rename_list('60000000-0000-4000-8000-000000000003','No version',null,'50000000-0000-4000-8000-000000000042')->'error'->>'code','CONFLICT','Rename requires an expected version');
+select is(public.rename_list('60000000-0000-4000-8000-000000000003','Invalid version',0,'50000000-0000-4000-8000-000000000043')->'error'->>'code','CONFLICT','Rename rejects invalid versions');
+select is(public.rename_list('60000000-0000-4000-8000-000000000003','Groceries',2,'50000000-0000-4000-8000-000000000044')->'error'->>'field','name','Name collision identifies the name field');
+select is(public.rename_list('60000000-0000-4000-8000-000000000003','Reviewed name',2,'50000000-0000-4000-8000-000000000045')->'data'->>'version','3','Reviewed version permits a new rename command');
+select is(public.rename_list('60000000-0000-4000-8000-000000000003','First name',1,'50000000-0000-4000-8000-000000000040'),(select result from rename_saved),'Late retry returns its original receipt without overwriting');
 create temporary table input as select '{"id":"40000000-0000-4000-8000-000000000001","pair_id":"30000000-0000-4000-8000-000000000001","list_id":"60000000-0000-4000-8000-000000000001","title":"Buy bread","assignee_id":null,"due_date":"2026-10-04"}'::jsonb value;
 create temporary table task_saved as select public.create_task((select value from input),'50000000-0000-4000-8000-000000000010') result;
 select ok((select (result->>'ok')::boolean from task_saved),'Create task');
@@ -72,12 +91,15 @@ update public.profiles set account_status='disabled' where user_id='10000000-000
 set local role authenticated;
 select is((select count(*)::integer from public.tasks),0,'Disabled account cannot read tasks');
 select is(public.create_task((select value from input),'50000000-0000-4000-8000-000000000010')->'error'->>'code','FORBIDDEN','Disabled account cannot replay receipt');
+-- Importance: 100. Rename receipts must recheck current access.
+select is(public.rename_list('60000000-0000-4000-8000-000000000003','First name',1,'50000000-0000-4000-8000-000000000040')->'error'->>'code','FORBIDDEN','Disabled account cannot replay rename');
 reset role;
 update public.profiles set account_status='active' where user_id='10000000-0000-4000-8000-000000000001';
 delete from auth.sessions where id='20000000-0000-4000-8000-000000000001';
 set local role authenticated;
 select is((select count(*)::integer from public.tasks),0,'Revoked session cannot read tasks');
 select is(public.create_task((select value from input),'50000000-0000-4000-8000-000000000010')->'error'->>'code','UNAUTHENTICATED','Revoked session cannot replay receipt');
+select is(public.rename_list('60000000-0000-4000-8000-000000000003','First name',1,'50000000-0000-4000-8000-000000000040')->'error'->>'code','UNAUTHENTICATED','Revoked session cannot replay rename');
 reset role;
 insert into auth.sessions(id,user_id,created_at,updated_at) values('20000000-0000-4000-8000-000000000001','10000000-0000-4000-8000-000000000001',now(),now());
 insert into public.pairs(id,state,timezone) values('30000000-0000-4000-8000-000000000003','pending','Europe/Warsaw');
@@ -90,5 +112,6 @@ update public.pairs set state='ended',ended_at=now() where id='30000000-0000-400
 set local role authenticated;
 select is((select count(*)::integer from public.tasks),0,'Ended pair cannot read tasks');
 select is(public.create_task((select value from input),'50000000-0000-4000-8000-000000000010')->'error'->>'code','FORBIDDEN','Current membership required before receipt replay');
+select is(public.rename_list('60000000-0000-4000-8000-000000000003','First name',1,'50000000-0000-4000-8000-000000000040')->'error'->>'code','FORBIDDEN','Ended pair cannot replay rename');
 select * from finish();
 rollback;

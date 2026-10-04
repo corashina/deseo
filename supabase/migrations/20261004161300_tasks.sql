@@ -181,10 +181,10 @@ exception
 end;
 $$;
 
-create function private.list_command(p_action text,p_list_id uuid,p_pair_id uuid,p_name text,p_command_id uuid)
+create function private.list_command(p_action text,p_list_id uuid,p_pair_id uuid,p_name text,p_expected_version integer,p_command_id uuid)
 returns jsonb language plpgsql security definer set search_path='' as $$
 declare actor uuid; pair uuid; previous public.task_lists; result public.task_lists; replay jsonb; general uuid; moved integer;
-  request jsonb:=jsonb_build_object('id',p_list_id,'pair',p_pair_id,'name',p_name);
+  request jsonb:=jsonb_build_object('id',p_list_id,'pair',p_pair_id,'name',p_name,'version',p_expected_version);
 begin
   actor:=private.require_actor();
   if p_action not in('create','rename','move','delete') then return private.error('VALIDATION'); end if;
@@ -209,6 +209,7 @@ begin
     return private.save_receipt(actor,p_command_id,'list_create',pair,request,to_jsonb(previous));
   end if;
   if p_action<>'create' and (previous.id is null or previous.is_general) then return private.error('FORBIDDEN'); end if;
+  if p_action='rename' and (p_expected_version is null or p_expected_version<>previous.version) then return private.error('CONFLICT'); end if;
   if p_action='move' then
     select id into general from public.task_lists where pair_id=pair and is_general;
     if general is null then return private.error('RETRYABLE'); end if;
@@ -242,20 +243,20 @@ as $$select private.task_command('complete',p_task_id,null,p_completed,p_expecte
 create function public.delete_task(p_task_id uuid,p_expected_version integer,p_command_id uuid) returns jsonb language sql security invoker set search_path=''
 as $$select private.task_command('delete',p_task_id,null,null,p_expected_version,p_command_id);$$;
 create function public.create_list(p_pair_id uuid,p_name text,p_command_id uuid) returns jsonb language sql security invoker set search_path=''
-as $$select private.list_command('create',null,p_pair_id,p_name,p_command_id);$$;
-create function public.rename_list(p_list_id uuid,p_name text,p_command_id uuid) returns jsonb language sql security invoker set search_path=''
-as $$select private.list_command('rename',p_list_id,null,p_name,p_command_id);$$;
+as $$select private.list_command('create',null,p_pair_id,p_name,null,p_command_id);$$;
+create function public.rename_list(p_list_id uuid,p_name text,p_expected_version integer,p_command_id uuid) returns jsonb language sql security invoker set search_path=''
+as $$select private.list_command('rename',p_list_id,null,p_name,p_expected_version,p_command_id);$$;
 create function public.move_list_tasks_to_general(p_list_id uuid,p_command_id uuid) returns jsonb language sql security invoker set search_path=''
-as $$select private.list_command('move',p_list_id,null,null,p_command_id);$$;
+as $$select private.list_command('move',p_list_id,null,null,null,p_command_id);$$;
 create function public.delete_empty_list(p_list_id uuid,p_command_id uuid) returns jsonb language sql security invoker set search_path=''
-as $$select private.list_command('delete',p_list_id,null,null,p_command_id);$$;
+as $$select private.list_command('delete',p_list_id,null,null,null,p_command_id);$$;
 revoke all on function private.create_general_list(),private.task_identity(),private.check_task_assignee(),private.protect_general_list(),private.task_change_signal(),
-private.task_command(text,uuid,jsonb,boolean,integer,uuid),private.list_command(text,uuid,uuid,text,uuid) from public,anon,authenticated;
-grant execute on function private.task_command(text,uuid,jsonb,boolean,integer,uuid),private.list_command(text,uuid,uuid,text,uuid) to authenticated;
+private.task_command(text,uuid,jsonb,boolean,integer,uuid),private.list_command(text,uuid,uuid,text,integer,uuid) from public,anon,authenticated;
+grant execute on function private.task_command(text,uuid,jsonb,boolean,integer,uuid),private.list_command(text,uuid,uuid,text,integer,uuid) to authenticated;
 revoke all on function public.create_task(jsonb,uuid),public.update_task(uuid,jsonb,integer,uuid),public.set_task_completed(uuid,boolean,integer,uuid),public.delete_task(uuid,integer,uuid),
-public.create_list(uuid,text,uuid),public.rename_list(uuid,text,uuid),public.move_list_tasks_to_general(uuid,uuid),public.delete_empty_list(uuid,uuid) from public,anon,authenticated;
+public.create_list(uuid,text,uuid),public.rename_list(uuid,text,integer,uuid),public.move_list_tasks_to_general(uuid,uuid),public.delete_empty_list(uuid,uuid) from public,anon,authenticated;
 grant execute on function public.create_task(jsonb,uuid),public.update_task(uuid,jsonb,integer,uuid),public.set_task_completed(uuid,boolean,integer,uuid),public.delete_task(uuid,integer,uuid),
-public.create_list(uuid,text,uuid),public.rename_list(uuid,text,uuid),public.move_list_tasks_to_general(uuid,uuid),public.delete_empty_list(uuid,uuid) to authenticated;
+public.create_list(uuid,text,uuid),public.rename_list(uuid,text,integer,uuid),public.move_list_tasks_to_general(uuid,uuid),public.delete_empty_list(uuid,uuid) to authenticated;
 
 
 
