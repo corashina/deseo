@@ -1,0 +1,3 @@
+import { useLocalSearchParams } from 'expo-router';
+import { TaskFormScreen } from '../../../features/tasks';
+export default function EditTask() { const { taskId } = useLocalSearchParams<{ taskId: string }>(); return <TaskFormScreen taskId={taskId} />; }

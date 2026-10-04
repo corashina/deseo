@@ -8,6 +8,9 @@ jest.mock('../../lib/supabase', () => ({ getSupabase: jest.fn() }));
 jest.mock('../calendar/screens/CalendarScreen', () => ({}));
 jest.mock('../calendar/screens/EventDetailScreen', () => ({}));
 jest.mock('../calendar/screens/EventFormScreen', () => ({}));
+jest.mock('../calendar/screens/IdeaListScreen', () => ({}));
+jest.mock('../calendar/screens/IdeaFormScreen', () => ({}));
+jest.mock('../calendar/screens/IdeaDetailScreen', () => ({}));
 jest.mock('../calendar/revocation', () => ({}));
 jest.mock('../../lib/query-client', () => ({
   queryClient: new (jest.requireActual('@tanstack/react-query').QueryClient)({ defaultOptions: { queries: { gcTime: Infinity } } }),

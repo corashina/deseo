@@ -35,3 +35,20 @@ it('removes only the confirmed event draft', async () => {
   await removeEventDraft('account', 'pair', 'key');
   expect(removeDraft).toHaveBeenCalledWith('account', 'pair', 'key');
 });
+it('restores idea source version, event ID, command ID, and unknown input after restart', async () => {
+  const pairId = '30000000-0000-4000-8000-000000000001';
+  const ideaId = '41000000-0000-4000-8000-000000000001';
+  const draft = { ...ids, values, sourceIdea: { id: ideaId, version: 4 },
+    submission: { id: ids.id, pairId, title: 'Dinner', owner: 'together' as const, visibility: 'shared' as const, timezone: 'Europe/Warsaw', temporal: { kind: 'allDay' as const, startDate: '2027-01-01', endDateExclusive: '2027-01-02' } },
+    preservedValues: { ...values, title: 'My first draft' } };
+  const key = `calendar:idea-plan:${ideaId}`;
+  await writeEventDraft('account', pairId, key, draft); getDraft.mockResolvedValue(setDraft.mock.calls[0][3]);
+  expect(await readEventDraft('account', pairId, key)).toEqual(draft);
+  await expect(writeEventDraft('account', pairId, 'calendar:new', draft)).rejects.toThrow('idea draft scope');
+});
+it('rejects a restored submission from another pair without deleting it', async () => {
+  const draft = { ...ids, values, submission: { id: ids.id, pairId: ids.id, title: 'Dinner', owner: 'a', visibility: 'shared', timezone: 'Europe/Warsaw', temporal: { kind: 'allDay', startDate: '2027-01-01', endDateExclusive: '2027-01-02' } } };
+  getDraft.mockResolvedValue(JSON.stringify(draft));
+  await expect(readEventDraft('account', 'other-pair', 'calendar:new')).rejects.toThrow('draft scope');
+  expect(removeDraft).not.toHaveBeenCalled();
+});
