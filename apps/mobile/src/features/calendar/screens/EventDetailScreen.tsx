@@ -9,6 +9,7 @@ import { Screen } from '../../../components/ui/Screen';
 import { Status } from '../../../components/ui/Status';
 import { theme, ui } from '../../../theme';
 import { useCore } from '../../pair';
+import { ReminderControl } from '../../notifications';
 import { captureQueryScope } from '../../../lib/query-client';
 import type { CommandError } from '../../../lib/result';
 import { eventDateLabel } from '../components/EventRow';
@@ -69,6 +70,7 @@ function ActiveDetail({ eventId, account, pair, online, refresh }: { eventId: st
     </View>
     {error && <Status tone="error" message={error.code === 'CONFLICT' ? 'Your partner changed this event. Reload it before you delete it.' : 'We could not delete this event.'}
       actionLabel={error.code === 'CONFLICT' ? 'Reload saved version' : 'Retry delete'} onAction={() => { void (error.code === 'CONFLICT' ? reload() : remove()); }} />}
+    <ReminderControl eventId={event.id} sourceVersion={event.version} timezone={event.timezone} allDay={event.temporal.kind === 'allDay'} />
     <Button label={event.repeat === 'yearly' ? 'Edit series' : 'Edit event'} disabled={!online || deleting} onPress={() => router.push({ pathname: '/events/[eventId]/edit', params: { eventId } })} />
     <Button label="Delete event" variant="danger" disabled={!online || deleting} loading={deleting} onPress={() => Alert.alert(`Delete “${event.title}”?`, 'You will remove this event.', [
       { text: 'Cancel', style: 'cancel' }, { text: 'Delete event', style: 'destructive', onPress: () => { void remove(); } },

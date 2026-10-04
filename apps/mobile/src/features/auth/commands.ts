@@ -8,6 +8,7 @@ import { AppError, errorResult, resultSchema, toAppError, type Result } from '..
 import { accountSchema, emailCodeSchema, emailSchema, profileSchema, sensitiveActionSchema } from './schema';
 import { notifySessionReset } from './session-events';
 import type { Account, ProfileInput, SensitiveAction } from './types';
+import { revokeCurrentDevice } from '../notifications';
 
 export async function requestEmailCode(email: string): Promise<Result<{ retryAt: string }>> {
   try {
@@ -66,9 +67,12 @@ export function verifySensitiveAction(action: SensitiveAction, code: string): Pr
 export async function signOut(scope: 'local' | 'global'): Promise<void> {
   const client = await getSupabase();
   const { data } = await client.auth.getSession();
+  let failure: unknown;
+  if (data.session) {
+    try { await revokeCurrentDevice(scope === 'global'); } catch (error) { failure = error; }
+  }
   notifySessionReset();
   await resetPrivateQueries();
-  let failure: unknown;
   try {
     const { error } = await client.auth.signOut({ scope });
     if (error) failure = error;

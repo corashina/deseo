@@ -4,6 +4,8 @@ jest.mock('../../lib/supabase', () => ({ getSupabase: jest.fn(), resetSupabaseCl
 jest.mock('../../lib/private-storage', () => ({ getPrivateStorage: jest.fn() }));
 jest.mock('../../lib/query-client', () => ({ resetPrivateQueries: jest.fn(), captureQueryScope: () => ({ assertCurrent: jest.fn() }) }));
 jest.mock('../../lib/links', () => ({ clearPendingInvite: jest.fn() }));
+jest.mock('../notifications', () => ({ revokeCurrentDevice: jest.fn().mockResolvedValue(undefined) }));
+import { revokeCurrentDevice } from '../notifications';
 import { getSupabase } from '../../lib/supabase';
 import { FunctionsHttpError } from '@supabase/supabase-js';
 import { getPrivateStorage } from '../../lib/private-storage';
@@ -62,6 +64,19 @@ test('sign-out after expiry removes drafts for the last signed-in account', asyn
   await signOut('local');
   expect(store.purgeAccountDrafts).toHaveBeenCalledWith(id);
   expect(store.removeIntent).toHaveBeenCalledWith('lastAccount');
+});
+// Importance: 100. Device ownership must end before the session is removed.
+test('sign-out revokes only this installation for local scope', async () => {
+  await signOut('local');
+  expect(revokeCurrentDevice).toHaveBeenCalledWith(false);
+  expect(jest.mocked(revokeCurrentDevice).mock.invocationCallOrder[0]).toBeLessThan(client.auth.signOut.mock.invocationCallOrder[0]!);
+});
+test('global sign-out revokes all devices even when Auth also fails', async () => {
+  jest.mocked(revokeCurrentDevice).mockRejectedValueOnce(new Error('offline'));
+  await expect(signOut('global')).rejects.toBeTruthy();
+  expect(revokeCurrentDevice).toHaveBeenCalledWith(true);
+  expect(client.auth.signOut).toHaveBeenCalledWith({ scope: 'global' });
+  expect(store.clearSession).toHaveBeenCalled();
 });
 // Importance: 95. Proof responses must preserve server rejection codes and UTC timestamps.
 test('action proof accepts the database offset timestamp without replacing the device session', async () => {

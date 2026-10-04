@@ -47,6 +47,7 @@ export function PairSettingsScreen() {
     setBusy(false);
   };
   return <Screen title="Your pair">
+    <Button label="Notification preferences" variant="text" onPress={() => router.push('/settings/notifications')} />
     {pair.status === 'active' && <>
       {pair.members.map(member => <Badge key={member.userId} owner={member.slot} label={member.displayName} />)}
       <Text style={theme.typography.body}>Either person can end this pair. Shared access stops for both people. Your next pair starts empty.</Text>

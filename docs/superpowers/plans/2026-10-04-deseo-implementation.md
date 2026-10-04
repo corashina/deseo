@@ -190,6 +190,9 @@ Add `verifySensitiveAction(action,code): Promise<Result<{proof:string,expiresAt:
 
 ## Stage B: Daily planning and reminders
 
+Chat 05 source checks: 200 mobile tests and 33 Edge-function tests pass. Backend and device acceptance remain unverified.
+The “At start” option conflicts with strict event-start expiry. The owner must resolve this before Chat 05 can finish.
+
 ### Task 6: Shared lists and tasks
 
 **Files:** `src/features/tasks/{commands,queries,schema,types,index}.ts`; task screens/components/routes; migration `tasks`; `supabase/tests/tasks.test.sql`.
@@ -202,7 +205,7 @@ Also produce `deleteTask(id,expectedVersion,commandId)`, `renameList(id,name,com
 - [ ] Create General lists through an active-pair trigger. Initialize lists for existing pairs when introducing the task schema.
 - [ ] Build quick add, task details, assignment, optional due date, completed group, and Undo.
 - [ ] Add task deletion and safe list rename, move, and empty-list deletion.
-- [ ] Add Tasks to the tab shell and due tasks to Today.
+- [x] Add Tasks to the tab shell and due tasks to Today.
 - [ ] Write duplicate completion, reopen, concurrent title edit, and invalid assignee tests. Importance: 95.
 - [ ] Verify checkbox semantics and large text in native task rows. Importance: 93.
 - [ ] Run task checks and verify both devices show confirmed changes after restart.
@@ -227,8 +230,8 @@ Also produce `deleteTask(id,expectedVersion,commandId)`, `renameList(id,name,com
 **Interfaces:** `registerDevice(input): Promise<Result<{deviceId:Id}>>`; `saveNotificationPreferences(input)`; `setReminder(input,commandId)`; `revokeDevice(installationId)`.
 
 - [ ] Add per-user preferences, devices, and one-owner reminders.
-- [ ] Request operating system permission only after the person chooses a reminder or enables message alerts.
-- [ ] Show denied, allowed, and not-requested states; add a settings link.
+- [x] Request operating system permission only after the person chooses a reminder or enables message alerts.
+- [x] Show denied, allowed, and not-requested states; add a settings link.
 - [ ] Bind tokens to account and installation; revoke them on local or global sign-out.
 - [ ] Write token reassignment, account switching, and denied-permission tests. Importance: 98.
 - [ ] Verify permission flows on real Android and iOS development builds.
@@ -255,10 +258,10 @@ Also produce `deleteTask(id,expectedVersion,commandId)`, `renameList(id,name,com
 
 **Interfaces:** `listNotifications(cursor): Promise<Page<Notification>>`; `markNotificationRead(id)`; `resolveNotification(id): Promise<Result<AllowedDestination>>`.
 
-- [ ] Add a small notification list and deep links that fetch current authorized source data.
+- [x] Add a small notification list and deep links that fetch current authorized source data.
 - [ ] Show unavailable content after deletion or disconnect; never restore it from a push payload.
-- [ ] Add notification state to event/task details without implying the partner enabled reminders.
-- [ ] Test forged destinations and stale notification IDs. Importance: 98.
+- [x] Add notification state to event/task details without implying the partner enabled reminders.
+- [ ] Test forged destinations and stale notification IDs. Importance: 98. Forged-route client tests pass; live stale-ID checks remain pending.
 - [ ] Complete Stage B on two devices, including a denied-permission device.
 
 **Stage B exit:** Calendar, tasks, important dates, date ideas, and reminders work without the app staying open.
@@ -287,7 +290,7 @@ Also produce `deleteTask(id,expectedVersion,commandId)`, `renameList(id,name,com
 
 - [ ] Enforce one own pinned message per member, with atomic replacement.
 - [ ] Add Pin as note and unpin controls; show both notes in Messages.
-- [ ] Show the newest pin on Today without duplicating message content.
+- [x] Show the newest pin on Today without duplicating message content.
 - [ ] Test concurrent pin replacement, deletion, and unauthorized partner-message pinning. Importance: 94.
 - [ ] Verify note updates and revoked access on both devices.
 

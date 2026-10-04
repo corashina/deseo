@@ -9,7 +9,7 @@ type Result<T> = { ok: true; data: T } | { ok: false; error: { code: string } };
 type Photo = { id: string; fullBytes: number; thumbBytes: number; width: number; height: number; thumbWidth: number; thumbHeight: number };
 type Memory = { id: string; version: number; photos: Array<Photo & { fullPath: string; thumbPath: string }> };
 type Job = { id: string; memoryId: string; bucket: string; paths: string[]; leaseToken: string };
-const base = process.env.SUPABASE_TEST_URL ?? 'http://127.0.0.1:54321';
+const base = process.env.SUPABASE_TEST_URL ?? 'http://127.0.0.1:55621';
 const publicKey = process.env.SUPABASE_TEST_PUBLISHABLE_KEY;
 const secretKey = process.env.SUPABASE_TEST_SERVICE_ROLE_KEY;
 assert.ok(['localhost', '127.0.0.1', '[::1]'].includes(new URL(base).hostname), 'Use a local disposable stack');

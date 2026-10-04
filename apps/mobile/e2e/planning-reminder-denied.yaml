@@ -1,0 +1,33 @@
+# Importance: 98. Denied permission must preserve planning and a saved personal reminder.
+# Requires an authenticated pair and EVENT_ID for a future shared event in the disposable stack.
+appId: dev.deseo.mobile
+---
+- launchApp:
+    permissions:
+      notifications: deny
+- openLink: deseo-dev://events/${EVENT_ID}
+- scrollUntilVisible:
+    element:
+      text: Your reminder
+    direction: DOWN
+- assertVisible: Reminders are off on this device.
+- scrollUntilVisible:
+    element:
+      text: One hour before
+    direction: DOWN
+- tapOn: One hour before
+- scrollUntilVisible:
+    element:
+      text: Save reminder
+    direction: DOWN
+- tapOn: Save reminder
+- assertVisible: Your reminder is on.
+- launchApp:
+    permissions:
+      notifications: deny
+- openLink: deseo-dev://events/${EVENT_ID}
+- scrollUntilVisible:
+    element:
+      text: Your reminder is on.
+    direction: DOWN
+- assertVisible: Reminders are off on this device.

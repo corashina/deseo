@@ -1,0 +1,9 @@
+# Importance: 100. Stale notifications cannot restore revoked source content.
+# Requires an authenticated pair and NOTIFICATION_ID for a deleted source owned by the viewer.
+appId: dev.deseo.mobile
+---
+- launchApp:
+    permissions:
+      notifications: deny
+- openLink: deseo-dev://notifications?notificationId=${NOTIFICATION_ID}
+- assertVisible: This content is unavailable. It may have been deleted or your pair changed.

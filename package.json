@@ -16,12 +16,15 @@
     "lint": "eslint apps/mobile/src",
     "test:mobile": "npm run test --workspace @deseo/mobile --",
     "test:db": "supabase test db",
-    "test:db:race": "node --experimental-strip-types --test supabase/tests/pairing-races.test.ts supabase/tests/planning-races.test.ts",
+    "test:db:race": "node --experimental-strip-types --test supabase/tests/pairing-races.test.ts supabase/tests/planning-races.test.ts supabase/tests/messages-races.test.ts",
     "test:memories:functions": "npm exec --yes --package deno@2.9.6 -- deno test --allow-env --frozen --config supabase/functions/deno.json supabase/functions/finalize-memory/validate-jpeg.test.ts supabase/functions/memories.test.ts",
     "typecheck:memories:functions": "npm exec --yes --package deno@2.9.6 -- deno check --frozen --config supabase/functions/deno.json supabase/functions/finalize-memory/index.ts supabase/functions/get-memory-media/index.ts supabase/functions/cleanup/index.ts",
+    "test:notifications:functions": "npm exec --yes --package deno@2.9.6 -- deno test --allow-env --frozen --config supabase/functions/deno.json supabase/functions/notifications.test.ts",
+    "typecheck:notifications:functions": "npm exec --yes --package deno@2.9.6 -- deno check --frozen --config supabase/functions/deno.json supabase/functions/dispatch-notifications/index.ts supabase/functions/check-push-receipts/index.ts",
     "test:memories:race": "node --experimental-strip-types --test supabase/tests/memories-races.test.ts",
+    "test:notifications:race": "node --experimental-strip-types --test supabase/tests/notification-races.test.ts",
     "verify:mobile": "npm run typecheck && npm run lint && npm run test:mobile",
-    "verify": "npm run verify:mobile && npm run typecheck:memories:functions && npm run test:memories:functions && npm run test:db && npm run test:db:race && npm run test:memories:race"
+    "verify": "npm run verify:mobile && npm run typecheck:memories:functions && npm run test:memories:functions && npm run typecheck:notifications:functions && npm run test:notifications:functions && npm run test:db && npm run test:db:race && npm run test:memories:race && npm run test:notifications:race"
   },
   "devDependencies": {
     "eslint": "10.12.0",

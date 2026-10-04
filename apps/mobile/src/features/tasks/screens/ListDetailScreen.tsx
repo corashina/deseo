@@ -23,7 +23,7 @@ function Detail({ listId, pairId }: { listId: string; pairId: string }) {
   return <Screen title={list?.name ?? 'List'}>
     {!core.online && <Status message="You are offline. You can keep a list name draft." />}
     {!list && <Status message="This list is unavailable." />}
-    <ListManager accountId={core.account.id} pairId={pairId} listId={listId} list={list} online={core.online} onSaved={() => router.replace('/tasks')} />
-    <Button label="See tasks" variant="secondary" onPress={() => router.replace('/tasks')} />
+    <ListManager accountId={core.account.id} pairId={pairId} listId={listId} list={list} online={core.online} onSaved={() => router.replace('/(tabs)/tasks')} />
+    <Button label="See tasks" variant="secondary" onPress={() => router.replace('/(tabs)/tasks')} />
   </Screen>;
 }

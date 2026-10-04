@@ -1,6 +1,6 @@
 # Documentation
 
-Status: Core source implemented. Backend and native device checks remain pending.
+Status: Chat 05 source integrated. A reminder timing decision, backend checks, and native device checks remain pending.
 
 The saved design defines the accepted scope. The core handoff records implementation evidence and remaining checks.
 

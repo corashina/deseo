@@ -2,9 +2,9 @@
 
 A private app for two people to plan their days, share messages, and keep memories.
 
-**Platform:** Android and iOS. **App:** Expo and TypeScript. **Stage:** Core implementation, pending backend and device checks.
+**Platform:** Android and iOS. **App:** Expo and TypeScript. **Stage:** Integrated source, pending reminder decision and acceptance checks.
 
-The repository contains native core screens, Supabase migrations, and automated tests. The complete two-device flow remains unverified.
+The integration branch contains five tabs, Today content, reminder controls, and push workers. Backend and two-device flows remain unverified.
 
 Confirmed choices: Expo, TypeScript, Android, iOS, pastel styling, and icon 05.
 
