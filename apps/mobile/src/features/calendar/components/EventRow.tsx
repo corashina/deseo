@@ -35,6 +35,7 @@ export function EventRow({ event, viewerTimezone, ownerNames, onPress }: EventRo
       <Text style={theme.typography.section}>{event.title}</Text>
       <View style={styles.metadata}>
         <Badge owner={event.owner} label={ownerName} />
+        {event.importantDate && <Text style={theme.typography.secondary}>Important date{event.repeat === 'yearly' ? ' · Yearly' : ''}</Text>}
         {event.visibility === 'private' && <View style={styles.metadata}><Ionicons name="lock-closed-outline" size={16} color={theme.colors.muted} /><Text style={theme.typography.secondary}>Private</Text></View>}
       </View>
       {event.location ? <Text style={theme.typography.secondary}>{event.location}</Text> : null}

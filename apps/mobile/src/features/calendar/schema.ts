@@ -15,23 +15,27 @@ export const eventInputSchema = z.object({
   owner: z.enum(['a', 'b', 'together']), visibility: z.enum(['shared', 'private']),
   timezone: zoneSchema, temporal: temporalSchema,
   location: z.string().trim().max(200).optional(), description: z.string().trim().max(2000).optional(),
-  confirmShared: z.boolean().optional(),
+  confirmShared: z.boolean().optional(), repeat: z.enum(['none', 'yearly']).optional(), importantDate: z.boolean().optional(),
 }).strict().superRefine((value, context) => {
   const temporal = value.temporal;
   const valid = temporal.kind === 'timed'
     ? DateTime.fromISO(temporal.endsAt).toMillis() > DateTime.fromISO(temporal.startsAt).toMillis()
     : temporal.endDateExclusive > temporal.startDate;
+  if (value.importantDate && temporal.kind !== 'allDay') context.addIssue({ code: 'custom', path: ['temporal'], message: 'An important date must be all day.' });
+  if (value.repeat === 'yearly' && (temporal.kind !== 'allDay' || DateTime.fromISO(temporal.endDateExclusive).diff(DateTime.fromISO(temporal.startDate), 'days').days !== 1)) context.addIssue({ code: 'custom', path: ['temporal'], message: 'A yearly date must be one all-day date.' });
   if (!valid) context.addIssue({ code: 'custom', path: ['temporal'], message: 'End must follow start.' });
   if (value.visibility === 'private' && value.owner === 'together') context.addIssue({ code: 'custom', path: ['owner'], message: 'A private event must belong to you.' });
 });
 export const eventFormSchema = z.object({
   title: z.string().trim().min(1, 'Enter a title.').max(120, 'Use 120 characters or less.'),
-  allDay: z.boolean(), startDate: dateSchema, endDate: dateSchema,
+  allDay: z.boolean(), repeat: z.enum(['none', 'yearly']).optional(), importantDate: z.boolean().optional(), startDate: dateSchema, endDate: dateSchema,
   startTime: z.string(), endTime: z.string(),
   startOffset: z.number().optional(), endOffset: z.number().optional(),
   timezone: zoneSchema, owner: z.enum(['a', 'b', 'together']), visibility: z.enum(['shared', 'private']),
   location: z.string().max(200, 'Use 200 characters or less.'), description: z.string().max(2000, 'Use 2,000 characters or less.'),
 }).superRefine((value, context) => {
+  if (value.importantDate && !value.allDay) context.addIssue({ code: 'custom', path: ['allDay'], message: 'An important date must be all day.' });
+  if (value.repeat === 'yearly' && (!value.allDay || value.startDate !== value.endDate)) context.addIssue({ code: 'custom', path: ['endDate'], message: 'A yearly date must be one all-day date.' });
   if (value.allDay) {
     if (value.endDate < value.startDate) context.addIssue({ code: 'custom', path: ['endDate'], message: 'End must be on or after start.' });
     return;
@@ -78,7 +82,7 @@ export function toEventInput(values: EventFormValues & { id: string; pairId: str
   const parsed = eventFormSchema.parse(values);
   return eventInputSchema.parse({
     id: values.id, pairId: values.pairId, title: parsed.title, owner: parsed.owner, visibility: parsed.visibility,
-    timezone: parsed.timezone, location: parsed.location, description: parsed.description, confirmShared: values.confirmShared,
+    timezone: parsed.timezone, repeat: parsed.repeat, importantDate: parsed.importantDate || parsed.repeat === 'yearly', location: parsed.location, description: parsed.description, confirmShared: values.confirmShared,
     temporal: parsed.allDay
       ? { kind: 'allDay', startDate: parsed.startDate, endDateExclusive: DateTime.fromISO(parsed.endDate, { zone: 'UTC' }).plus({ days: 1 }).toISODate()! }
       : { kind: 'timed', startsAt: resolveWallTime(parsed.startDate, parsed.startTime, parsed.timezone, parsed.startOffset), endsAt: resolveWallTime(parsed.endDate, parsed.endTime, parsed.timezone, parsed.endOffset) },
@@ -89,9 +93,9 @@ export function eventToForm(event: Event): EventFormValues {
   const temporal = event.temporal;
   const start = temporal.kind === 'timed' ? DateTime.fromISO(temporal.startsAt).setZone(event.timezone) : null;
   const end = temporal.kind === 'timed' ? DateTime.fromISO(temporal.endsAt).setZone(event.timezone) : null;
-  return { title: event.title, allDay: temporal.kind === 'allDay',
-    startDate: temporal.kind === 'allDay' ? temporal.startDate : start!.toISODate()!,
-    endDate: temporal.kind === 'allDay' ? inclusiveEndDate(temporal.endDateExclusive) : end!.toISODate()!,
+  return { title: event.title, repeat: event.repeat, importantDate: event.importantDate, allDay: temporal.kind === 'allDay',
+    startDate: temporal.kind === 'allDay' ? (event.seriesDate ?? temporal.startDate) : start!.toISODate()!,
+    endDate: temporal.kind === 'allDay' ? (event.seriesDate ?? inclusiveEndDate(temporal.endDateExclusive)) : end!.toISODate()!,
     startTime: start?.toFormat('HH:mm') ?? '', endTime: end?.toFormat('HH:mm') ?? '',
     startOffset: start?.offset, endOffset: end?.offset, timezone: event.timezone,
     owner: event.owner, visibility: event.visibility, location: event.location ?? '', description: event.description ?? '',
@@ -102,12 +106,12 @@ export const eventRowSchema = z.object({
   id: z.string().uuid(), pair_id: z.string().uuid(), created_by: z.string().uuid(), title: z.string(),
   owner: z.enum(['a', 'b', 'together']), visibility: z.enum(['shared', 'private']), timezone: zoneSchema,
   starts_at: z.string().nullable(), ends_at: z.string().nullable(), start_date: z.string().nullable(), end_date_exclusive: z.string().nullable(),
-  location: z.string().nullable(), description: z.string().nullable(), version: z.number().int().positive(), repeat: z.literal('none'),
+  location: z.string().nullable(), description: z.string().nullable(), version: z.number().int().positive(), repeat: z.enum(['none', 'yearly']), important_date: z.boolean().default(false), repeat_month: z.number().int().nullable().optional(), repeat_day: z.number().int().nullable().optional(), occurrence_date: dateSchema.optional(),
 }).transform((row): Event => {
   const temporal = row.starts_at !== null
     ? { kind: 'timed' as const, startsAt: row.starts_at, endsAt: row.ends_at! }
-    : { kind: 'allDay' as const, startDate: row.start_date!, endDateExclusive: row.end_date_exclusive! };
+    : { kind: 'allDay' as const, startDate: row.occurrence_date ?? row.start_date!, endDateExclusive: row.occurrence_date ? DateTime.fromISO(row.occurrence_date, { zone: 'UTC' }).plus({ days: 1 }).toISODate()! : row.end_date_exclusive! };
   const input = eventInputSchema.parse({ id: row.id, pairId: row.pair_id, title: row.title, owner: row.owner, visibility: row.visibility,
-    timezone: row.timezone, temporal, location: row.location ?? undefined, description: row.description ?? undefined });
-  return { ...input, authorId: row.created_by, version: row.version };
+    timezone: row.timezone, repeat: row.repeat, importantDate: row.important_date || row.repeat === 'yearly', temporal, location: row.location ?? undefined, description: row.description ?? undefined });
+  return { ...input, authorId: row.created_by, version: row.version, ...(row.repeat === 'yearly' ? { seriesDate: row.start_date! } : {}) };
 });

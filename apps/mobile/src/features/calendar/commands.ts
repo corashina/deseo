@@ -5,9 +5,10 @@ import { errorResult, resultSchema, type Result } from '../../lib/result';
 import { eventInputSchema, eventRowSchema } from './schema';
 import type { Event, EventInput } from './types';
 
-function eventPayload(input: EventInput) {
+export function eventPayload(input: EventInput) {
   return { id: input.id, pair_id: input.pairId, title: input.title, owner: input.owner, visibility: input.visibility,
     timezone: input.timezone, location: input.location || null, description: input.description || null,
+    repeat: input.repeat ?? 'none', important_date: input.importantDate === true || input.repeat === 'yearly',
     confirm_shared: input.confirmShared === true,
     starts_at: input.temporal.kind === 'timed' ? input.temporal.startsAt : null,
     ends_at: input.temporal.kind === 'timed' ? input.temporal.endsAt : null,

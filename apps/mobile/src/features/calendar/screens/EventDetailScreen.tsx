@@ -12,6 +12,7 @@ import { useCore } from '../../pair';
 import { captureQueryScope } from '../../../lib/query-client';
 import type { CommandError } from '../../../lib/result';
 import { eventDateLabel } from '../components/EventRow';
+import { useCalendarSignals } from '../realtime';
 import { deleteEvent } from '../commands';
 import { calendarKeys, getEvent } from '../queries';
 
@@ -19,10 +20,11 @@ type Core = ReturnType<typeof useCore>;
 export function EventDetailScreen({ eventId }: { eventId: string }) {
   const core = useCore();
   if (core.pair.status !== 'active') return <Screen title="Event"><Status message="You cannot access this event." /></Screen>;
-  return <ActiveDetail key={`${core.account.id}:${core.pair.pairId}:${eventId}`} eventId={eventId} account={core.account} pair={core.pair} online={core.online} />;
+  return <ActiveDetail key={`${core.account.id}:${core.pair.pairId}:${eventId}`} eventId={eventId} account={core.account} pair={core.pair} online={core.online} refresh={core.refresh} />;
 }
-function ActiveDetail({ eventId, account, pair, online }: { eventId: string; account: Core['account']; pair: Extract<Core['pair'], { status: 'active' }>; online: boolean }) {
+function ActiveDetail({ eventId, account, pair, online, refresh }: { eventId: string; account: Core['account']; pair: Extract<Core['pair'], { status: 'active' }>; online: boolean; refresh: Core['refresh'] }) {
   const router = useRouter();
+  useCalendarSignals(account.id, pair.pairId, refresh);
   const query = useQuery({ queryKey: calendarKeys.event(account.id, pair.pairId, eventId), queryFn: () => getEvent(pair.pairId, eventId) });
   const deleteIntent = useRef<{ id: string; version: number; commandId: string } | null>(null);
   const pendingRef = useRef(false);
@@ -50,6 +52,7 @@ function ActiveDetail({ eventId, account, pair, online }: { eventId: string; acc
   if (!event) return <Screen title="Event"><Status message="This event is unavailable. It may have been deleted or made private." /></Screen>;
   const name = event.owner === 'together' ? 'Together' : pair.members.find((member) => member.slot === event.owner)!.displayName;
   return <Screen title={event.title} refreshing={query.isRefetching} onRefresh={() => { void query.refetch(); }}>
+    {event.repeat === 'yearly' && <Status message="This date repeats yearly. Edits and deletion apply to the series. February 29 uses February 28 in non-leap years." />}
     {!online && <Status message="You are offline. Reconnect before you change this event." />}
     <View style={ui.card}>
       <Text style={theme.typography.body}>{eventDateLabel(event, account.timezone)}</Text>
@@ -66,7 +69,7 @@ function ActiveDetail({ eventId, account, pair, online }: { eventId: string; acc
     </View>
     {error && <Status tone="error" message={error.code === 'CONFLICT' ? 'Your partner changed this event. Reload it before you delete it.' : 'We could not delete this event.'}
       actionLabel={error.code === 'CONFLICT' ? 'Reload saved version' : 'Retry delete'} onAction={() => { void (error.code === 'CONFLICT' ? reload() : remove()); }} />}
-    <Button label="Edit event" disabled={!online || deleting} onPress={() => router.push({ pathname: '/events/[eventId]/edit', params: { eventId } })} />
+    <Button label={event.repeat === 'yearly' ? 'Edit series' : 'Edit event'} disabled={!online || deleting} onPress={() => router.push({ pathname: '/events/[eventId]/edit', params: { eventId } })} />
     <Button label="Delete event" variant="danger" disabled={!online || deleting} loading={deleting} onPress={() => Alert.alert(`Delete “${event.title}”?`, 'You will remove this event.', [
       { text: 'Cancel', style: 'cancel' }, { text: 'Delete event', style: 'destructive', onPress: () => { void remove(); } },
     ])} />
