@@ -15,13 +15,17 @@ export type EventInput = {
   location?: string;
   description?: string;
   confirmShared?: boolean;
+  repeat?: 'none' | 'yearly';
+  importantDate?: boolean;
 };
-export type Event = Omit<EventInput, 'confirmShared'> & { authorId: string; version: number };
+export type Event = Omit<EventInput, 'confirmShared'> & { authorId: string; version: number; seriesDate?: string };
 export type AgendaItem = Event;
 export type AgendaRange = { pairId: string; from: string; to: string };
 export type EventFormValues = {
   title: string;
   allDay: boolean;
+  repeat?: 'none' | 'yearly';
+  importantDate?: boolean;
   startDate: string;
   endDate: string;
   startTime: string;

@@ -16,7 +16,7 @@
     "lint": "eslint apps/mobile/src",
     "test:mobile": "npm run test --workspace @deseo/mobile --",
     "test:db": "supabase test db",
-    "test:db:race": "node --experimental-strip-types --test supabase/tests/pairing-races.test.ts",
+    "test:db:race": "node --experimental-strip-types --test supabase/tests/pairing-races.test.ts supabase/tests/planning-races.test.ts",
     "verify:mobile": "npm run typecheck && npm run lint && npm run test:mobile",
     "verify": "npm run verify:mobile && npm run test:db && npm run test:db:race"
   },

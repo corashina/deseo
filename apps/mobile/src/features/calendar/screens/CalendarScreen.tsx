@@ -9,6 +9,8 @@ import { Status } from '../../../components/ui/Status';
 import { theme, ui } from '../../../theme';
 import { useCore } from '../../pair';
 import { EventRow } from '../components/EventRow';
+import { useCalendarSignals } from '../realtime';
+import { listImportantDates, importantDateCountdown, nextImportantDate } from '../important-dates';
 import { agendaDates, calendarKeys, listAgenda } from '../queries';
 import type { Owner } from '../types';
 
@@ -16,12 +18,17 @@ const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 export function CalendarScreen() {
   const core = useCore();
   if (core.pair.status !== 'active') return <Screen title="Calendar"><Status message="Connect with your partner to open Calendar." /></Screen>;
-  return <ActiveCalendar key={`${core.account.id}:${core.pair.pairId}`} account={core.account} pair={core.pair} online={core.online} />;
+  return <ActiveCalendar key={`${core.account.id}:${core.pair.pairId}`} account={core.account} pair={core.pair} online={core.online} refresh={core.refresh} />;
 }
 
 type Core = ReturnType<typeof useCore>;
-function ActiveCalendar({ account, pair, online }: { account: Core['account']; pair: Extract<Core['pair'], { status: 'active' }>; online: boolean }) {
+function ActiveCalendar({ account, pair, online, refresh }: { account: Core['account']; pair: Extract<Core['pair'], { status: 'active' }>; online: boolean; refresh: Core['refresh'] }) {
   const router = useRouter();
+  useCalendarSignals(account.id, pair.pairId, refresh);
+  const today = DateTime.now().setZone(pair.timezone).startOf('day');
+  const datesRange = { pairId: pair.pairId, from: today.toISODate()!, to: today.plus({ days: 366 }).toISODate()! };
+  const important = useQuery({ queryKey: [...calendarKeys.all(account.id, pair.pairId), 'important', datesRange.from, datesRange.to], queryFn: () => listImportantDates(pair.pairId, datesRange.from, datesRange.to) });
+  const nextDate = nextImportantDate(important.data ?? [], pair.timezone);
   const [month, setMonth] = useState(() => DateTime.now().setZone(account.timezone).startOf('month'));
   const [view, setView] = useState<'agenda' | 'month'>('agenda');
   const [selectedDate, setSelectedDate] = useState(() => DateTime.now().setZone(account.timezone).toISODate()!);
@@ -51,8 +58,16 @@ function ActiveCalendar({ account, pair, online }: { account: Core['account']; p
     const next = month.plus({ months: delta });
     setMonth(next); setSelectedDate(next.toISODate()!);
   };
-  return <Screen title="Calendar" refreshing={agenda.isRefetching} onRefresh={() => { void agenda.refetch(); }}>
+  return <Screen title="Calendar" refreshing={agenda.isRefetching} onRefresh={() => { void agenda.refetch(); void important.refetch(); }}>
     {!online && <Status message="You are offline. Refresh your calendar when you reconnect." />}
+    <Button label="Saved ideas" variant="text" onPress={() => router.push('/ideas')} />
+    {important.isError && <Status message="We could not load important dates." tone="error" actionLabel="Retry" onAction={() => { void important.refetch(); }} />}
+    {nextDate && nextDate.temporal.kind === 'allDay' && <View style={ui.card}>
+      <Text style={theme.typography.section}>Next important date</Text>
+      <Text style={theme.typography.body}>{nextDate.title} · {nextDate.temporal.startDate}</Text>
+      <Text style={[theme.typography.body, { fontVariant: ['tabular-nums'] }]}>{importantDateCountdown(nextDate.temporal.startDate, pair.timezone)} days · {pair.timezone}</Text>
+      <Button label="Open important date" variant="text" onPress={() => router.push({ pathname: '/events/[eventId]', params: { eventId: nextDate.id } })} />
+    </View>}
     <Button label="Add event" onPress={() => router.push('/events/new')} />
     <View style={ui.row}>
       <Button label="Previous month" variant="text" onPress={() => changeMonth(-1)} />
