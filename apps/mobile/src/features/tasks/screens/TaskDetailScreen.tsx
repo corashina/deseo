@@ -10,6 +10,7 @@ import { theme } from '../../../theme';
 import { captureQueryScope } from '../../../lib/query-client';
 import type { CommandError } from '../../../lib/result';
 import { useCore } from '../../pair';
+import { ReminderControl } from '../../notifications';
 import { TaskAccess } from '../TaskAccess';
 import { getTask, listTaskLists, taskKeys } from '../queries';
 import { deleteTask } from '../commands';
@@ -50,11 +51,11 @@ function Detail({ taskId, pairId }: { taskId: string; pairId: string }) {
     } catch { try { scope.assertCurrent(); setError({ code: 'RETRYABLE', message: 'We could not confirm deletion. Retry when connected.' }); } catch { /* Guard owns recovery. */ } }
     finally { busy.current = false; try { scope.assertCurrent(); setSaving(false); } catch { /* Guard owns recovery. */ } }
   };
-  if (deleted) return <Screen title="Task deleted"><Status message="We deleted the task." /><Button label="See tasks" onPress={() => router.replace('/tasks')} /></Screen>;
+  if (deleted) return <Screen title="Task deleted"><Status message="We deleted the task." /><Button label="See tasks" onPress={() => router.replace('/(tabs)/tasks')} /></Screen>;
   const retry = error && <Status tone="error" message={error.code === 'CONFLICT' ? 'This task changed. Reload it before you delete it.' : error.message ?? 'We could not delete this task.'} actionLabel={action ? 'Retry' : 'Reload saved version'} onAction={action ? () => { void submit(action); } : () => { void query.refetch().then(() => setError(null)); }} />;
   if (query.isPending) return <Screen title="Task"><Status message="Loading task…" /></Screen>;
   if (query.isError) return <Screen title="Task"><Status tone="error" message="We could not load this task." actionLabel="Retry" onAction={() => { void query.refetch(); }} />{retry}</Screen>;
-  if (!query.data) return <Screen title="Task"><Status message="This task is unavailable." />{retry}<Button label="See tasks" onPress={() => router.replace('/tasks')} /></Screen>;
+  if (!query.data) return <Screen title="Task"><Status message="This task is unavailable." />{retry}<Button label="See tasks" onPress={() => router.replace('/(tabs)/tasks')} /></Screen>;
   const task = query.data;
   const assignee = core.pair.status === 'active' ? core.pair.members.find(member => member.userId === task.assigneeId)?.displayName ?? 'Unassigned' : 'Unassigned';
   return <Screen title="Task" refreshing={query.isRefetching} onRefresh={() => { void query.refetch(); }}>
@@ -64,7 +65,7 @@ function Detail({ taskId, pairId }: { taskId: string; pairId: string }) {
     {lists.isError && <Status message="We could not load the list name." actionLabel="Retry" onAction={() => { void lists.refetch(); }} />}
     <Text style={theme.typography.body}>Due: {task.dueDate ?? 'No due date'}</Text>
     <Text style={theme.typography.secondary}>Pair timezone: {core.pair.status === 'active' ? core.pair.timezone : ''}</Text>
-    <Text style={theme.typography.secondary}>A due date does not add a reminder.</Text>
+    <ReminderControl taskId={task.id} sourceVersion={task.version} timezone={core.pair.status === 'active' ? core.pair.timezone : core.account.timezone} dueDate={task.dueDate} completed={task.completedAt !== null} />
     {retry}
     <Button label="Edit task" disabled={saving || !!action} onPress={() => router.push({ pathname: '/tasks/[taskId]/edit', params: { taskId } })} />
     <Button label="Delete task" variant="danger" loading={saving} disabled={!core.online || !ready || !!action || error?.code === 'CONFLICT'} onPress={() => Alert.alert(`Delete ${task.title}?`, 'Your partner will also lose this task.', [

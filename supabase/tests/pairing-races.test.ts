@@ -5,7 +5,7 @@ import { randomUUID, randomBytes } from 'node:crypto';
 
 type Account = { id: string; token: string };
 type Result<T> = { ok: true; data: T } | { ok: false; error: { code: string } };
-const base = process.env.SUPABASE_TEST_URL ?? 'http://127.0.0.1:54321';
+const base = process.env.SUPABASE_TEST_URL ?? 'http://127.0.0.1:55621';
 const publicKey = process.env.SUPABASE_TEST_PUBLISHABLE_KEY;
 const secretKey = process.env.SUPABASE_TEST_SERVICE_ROLE_KEY;
 const localUrl = new URL(base);

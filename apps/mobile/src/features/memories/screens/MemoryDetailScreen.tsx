@@ -34,7 +34,7 @@ export function MemoryDetailScreen({ memoryId }: { memoryId: string }) {
       scope.assertCurrent();
       if (!result.ok) { setError(toAppError(result.error).message); return; }
       queryClient.removeQueries({ queryKey: memoryKeys.all(account.id, pairId) });
-      router.replace('/memories');
+      router.replace('/(tabs)/memories');
     } catch (failure) { if (!scope.signal.aborted) setError(toAppError(failure).message); }
     finally { if (!scope.signal.aborted) setBusy(false); }
   };

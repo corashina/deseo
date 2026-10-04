@@ -1,5 +1,5 @@
 // Importance: 100 for send/cursor races; 94 for pin replacement and deletion.
-// Run against the isolated Messages stack: node --experimental-strip-types --test supabase/tests/messages-races.test.ts
+// Run against the disposable integration stack: node --experimental-strip-types --test supabase/tests/messages-races.test.ts
 import assert from 'node:assert/strict';
 import { randomBytes, randomUUID } from 'node:crypto';
 
@@ -7,13 +7,13 @@ type Account = { id: string; token: string };
 type Message = { id: string; pair_id: string; author_id: string; client_id: string; body: string; created_at: string; pinned_at: string | null };
 type Result<T> = { ok: true; data: T } | { ok: false; error: { code: string } };
 
-const base = process.env.SUPABASE_TEST_URL ?? 'http://127.0.0.1:55421';
+const base = process.env.SUPABASE_TEST_URL ?? 'http://127.0.0.1:55621';
 const publicKey = process.env.SUPABASE_TEST_PUBLISHABLE_KEY;
 const secretKey = process.env.SUPABASE_TEST_SERVICE_ROLE_KEY;
 const localUrl = new URL(base);
 assert.ok(localUrl.protocol === 'http:' && ['127.0.0.1', 'localhost', '[::1]'].includes(localUrl.hostname)
-  && localUrl.port === '55421' && localUrl.pathname === '/' && !localUrl.search && !localUrl.hash
-  && !localUrl.username && !localUrl.password, 'Use the isolated local Messages stack on port 55421');
+  && localUrl.port === '55621' && localUrl.pathname === '/' && !localUrl.search && !localUrl.hash
+  && !localUrl.username && !localUrl.password, 'Use the disposable integration stack on port 55621');
 assert.ok(publicKey && secretKey, 'Set local Messages test keys. Keep the server key outside the repository.');
 const users: Account[] = [];
 const pairs = new Set<string>();

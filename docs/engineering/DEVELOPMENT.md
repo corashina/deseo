@@ -1,8 +1,58 @@
 # Development workflow
 
-Status: The native core is implemented. Local database and device checks remain pending.
+Status: Chat 05 source is integrated. Local database, real push, and device checks remain pending.
 
-The owner deferred Docker setup on 2026-10-04. Run mobile checks now; complete backend checks before Chats 02–04.
+Docker is installed, but its engine pipe is unavailable. Complete backend checks before treating Chat 05 as an accepted baseline.
+
+## Chat 05 integration checks
+
+Use `codex/deseo-integration` in `.worktrees/deseo-05-integration`. The primary checkout remains separate.
+
+Run `supabase/tests/prepare-integration-stack.ps1` to prepare the disposable `deseo-integration` stack.
+Its ports use 55620–55629. The script checks listeners before writing its local configuration.
+It does not start containers or reset a database.
+
+Set `DO_NOT_TRACK=1` and `SUPABASE_TELEMETRY_DISABLED=true` for local CLI commands.
+After Docker starts, use these commands from the integration worktree:
+
+```powershell
+npx supabase --workdir .superpowers/integration-backend start
+npx supabase --workdir .superpowers/integration-backend db reset --local
+npx supabase --workdir .superpowers/integration-backend test db
+npx supabase --workdir .superpowers/integration-backend gen types --local --schema public
+```
+
+Save successful type output as `apps/mobile/src/lib/database.types.ts`. Do not save failed command output as types.
+No shared schema history was rewritten. New notification migrations follow all feature migrations.
+
+All race harnesses default to `http://127.0.0.1:55621`. Supply local test keys through environment variables.
+Run core/planning/messages races, memory races, and notification races against this disposable stack.
+Notification races require an empty notification table and never call Expo.
+
+```powershell
+npm run test:db:race
+npm run test:memories:race
+npm run test:notifications:race
+npm run test:notifications:functions
+npm run typecheck:notifications:functions
+```
+
+The notification package is `expo-notifications@57.0.21`. Rebuild native development binaries after installing it.
+Set `EXPO_PUBLIC_EAS_PROJECT_ID` to the authorized project ID. Source checks need no push credentials.
+
+Workers require `NOTIFICATION_WORKER_SECRET`, with at least 32 characters.
+Use `EXPO_ACCESS_TOKEN` when enhanced Expo push security is enabled.
+The server runtime supplies `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY`. Never put them in mobile public variables.
+Set Vault entries `notification_function_url` and `notification_worker_secret` only for an authorized environment.
+The URL points to that environment's `/functions/v1` base. Do not use a production URL for local tests.
+
+Cron invokes dispatch and receipt workers every minute. It refreshes the yearly horizon daily at 00:07 UTC.
+Each worker validates the scheduler secret. Its `verify_jwt=false` configuration does not permit anonymous work.
+
+Maestro flows under `apps/mobile/e2e` require an authenticated synthetic pair and existing fixture IDs.
+They remain unrun. Record Android and iOS results before claiming Stage B or Stage C acceptance.
+
+The “At start” choice has no delivery window under the current expiry contract. Owner resolution remains required.
 
 ## 1. Installed workspace
 

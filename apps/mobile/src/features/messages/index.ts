@@ -5,3 +5,4 @@ export { pinMessage, unpinMessage, listPinnedNotes } from './notes';
 export { encodeMessageCursor, decodeMessageCursor } from './schema';
 export { MessagesScreen } from './screens/MessagesScreen';
 export { NoteCard, type NoteCardProps } from './components/NoteCard';
+export { subscribeMessages } from './realtime';

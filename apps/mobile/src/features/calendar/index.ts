@@ -13,3 +13,4 @@ export type { DateIdea, IdeaInput, IdeaState } from './date-ideas';
 export { IdeaListScreen } from './screens/IdeaListScreen';
 export { IdeaFormScreen } from './screens/IdeaFormScreen';
 export { IdeaDetailScreen } from './screens/IdeaDetailScreen';
+export { connectCalendarSignals } from './realtime';

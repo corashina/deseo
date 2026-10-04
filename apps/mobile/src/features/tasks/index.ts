@@ -8,3 +8,4 @@ export { TaskDetailScreen } from './screens/TaskDetailScreen';
 export { ListDetailScreen } from './screens/ListDetailScreen';
 export { TaskAccess } from './TaskAccess';
 export { TaskRow, type TaskRowProps } from './components/TaskRow';
+export { connectTaskSignals } from './realtime';

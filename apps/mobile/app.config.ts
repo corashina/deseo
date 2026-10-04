@@ -15,6 +15,7 @@ const config: ExpoConfig = {
   },
   plugins: [
     'expo-router',
+    'expo-notifications',
     'expo-secure-store',
     'expo-localization',
     'expo-font',
@@ -32,6 +33,7 @@ const config: ExpoConfig = {
     ['expo-splash-screen', { image: './assets/icon.png', imageWidth: 180, backgroundColor: '#FAF7F5' }],
   ],
   experiments: { typedRoutes: true },
+  ...(process.env.EXPO_PUBLIC_EAS_PROJECT_ID ? { extra: { eas: { projectId: process.env.EXPO_PUBLIC_EAS_PROJECT_ID } } } : {}),
 };
 
 export default config;
