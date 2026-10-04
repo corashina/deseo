@@ -23,10 +23,11 @@ const users: string[] = [];
 const pairs: string[] = [];
 const channels: { client: SupabaseClient; channel: RealtimeChannel }[] = [];
 
-async function taskSignals(client: SupabaseClient, pairId: string, allowed: boolean) {
+// Importance: 100. Task and calendar topics must reject other pairs and carry no private content.
+async function planningSignals(client: SupabaseClient, topic: 'tasks' | 'calendar', pairId: string, allowed: boolean) {
   await client.realtime.setAuth();
   const messages: unknown[] = [];
-  const channel = client.channel(`tasks:${pairId}`, { config: { private: true } })
+  const channel = client.channel(`${topic}:${pairId}`, { config: { private: true } })
     .on('broadcast', { event: 'changed' }, (message) => messages.push(message.payload));
   channels.push({ client, channel });
   await new Promise<void>((resolve, reject) => {
@@ -34,10 +35,10 @@ async function taskSignals(client: SupabaseClient, pairId: string, allowed: bool
     channel.subscribe((status) => {
       if (status === 'SUBSCRIBED') {
         clearTimeout(timer);
-        if (allowed) resolve(); else reject(new Error('Another pair joined a private task channel.'));
+        if (allowed) resolve(); else reject(new Error(`Another pair joined a private ${topic} channel.`));
       } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
         clearTimeout(timer);
-        if (allowed) reject(new Error('A member could not join the task channel.')); else resolve();
+        if (allowed) reject(new Error(`A member could not join the ${topic} channel.`)); else resolve();
       }
     });
   });
@@ -50,7 +51,7 @@ async function expectSignal(messages: unknown[], previousCount: number) {
     await new Promise((resolve) => setTimeout(resolve, 50));
   }
   assert.ok(messages.length > previousCount, 'The partner must receive a confirmed change.');
-  assert.ok(messages.every((message) => JSON.stringify(message) === '{}'), 'Signals must contain no task content.');
+  assert.ok(messages.every((message) => JSON.stringify(message) === '{}'), 'Planning signals must contain no private content.');
 }
 
 async function account(): Promise<Account> {
@@ -108,8 +109,8 @@ test('shared planning concurrency and account isolation', { timeout: 180_000 }, 
       p_pair_id: pairId, p_name: 'Race list', p_command_id: randomUUID(),
     }));
     const input = { id: randomUUID(), pair_id: pairId, list_id: list.id, title: 'Original', assignee_id: a.id, due_date: '2099-10-04' };
-    const signals = await taskSignals(b.client, pairId, true);
-    await taskSignals(outsider.client, pairId, false);
+    const signals = await planningSignals(b.client, 'tasks', pairId, true);
+    await planningSignals(outsider.client, 'tasks', pairId, false);
     const signalsBeforeCreate = signals.length;
     const task = success(await rpc<Task>(a.client, 'create_task', { p_input: input, p_command_id: randomUUID() }));
     await expectSignal(signals, signalsBeforeCreate);
@@ -161,7 +162,11 @@ test('shared planning concurrency and account isolation', { timeout: 180_000 }, 
     assert.ok(afterDelete.every((row) => row.list_id === general.id));
 
     const ideaInput = { id: randomUUID(), pair_id: pairId, title: 'Evening walk', note: 'Along the river', link: null };
+    const calendarSignals = await planningSignals(b.client, 'calendar', pairId, true);
+    await planningSignals(outsider.client, 'calendar', pairId, false);
+    const calendarSignalsBeforeCreate = calendarSignals.length;
     const idea = success(await rpc<Idea>(a.client, 'create_date_idea', { p_input: ideaInput, p_command_id: randomUUID() }));
+    await expectSignal(calendarSignals, calendarSignalsBeforeCreate);
     const eventInput = { id: randomUUID(), pair_id: pairId, title: ideaInput.title, owner: 'together', visibility: 'shared',
       timezone: 'Europe/Warsaw', location: null, description: ideaInput.note, confirm_shared: false,
       starts_at: '2099-10-04T16:00:00Z', ends_at: '2099-10-04T17:00:00Z', start_date: null, end_date_exclusive: null, repeat: 'none' };

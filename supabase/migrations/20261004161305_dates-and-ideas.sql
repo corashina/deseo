@@ -9,13 +9,34 @@ alter table public.events add constraint events_yearly_fields check(
 alter table public.events add constraint events_important_fields check(not important_date or starts_at is null);
 create index events_yearly_pair on public.events(pair_id,id) where repeat='yearly';
 
+-- Check a bounded HTTPS authority. PostgreSQL validates bracketed address literals.
+create function private.valid_idea_link(p_link text) returns boolean
+language plpgsql immutable set search_path = '' as $$
+declare authority text[];
+begin
+  if p_link is null then return true; end if;
+  if char_length(p_link)>2048 then return false; end if;
+  authority:=regexp_match(p_link,
+    '^https://(?:[^/?#@[:space:]]*@)?((?:[[:alnum:]_-]+[.])*[[:alnum:]_-]+[.]?|\[[0-9a-f:.]+\])(?::([0-9]{1,5}))?(?:[/?#][^[:space:]]*)?$','i');
+  if authority is null then return false; end if;
+  if authority[2] is not null and authority[2]::integer>65535 then return false; end if;
+  if left(authority[1],1)='[' then
+    return family(substring(authority[1] from 2 for char_length(authority[1])-2)::inet)=6;
+  end if;
+  return true;
+exception when invalid_text_representation then return false;
+end;
+$$;
+revoke all on function private.valid_idea_link(text) from public,anon,authenticated;
+grant execute on function private.valid_idea_link(text) to authenticated,service_role;
+
 create table public.date_ideas (
   id uuid primary key,
   pair_id uuid not null references public.pairs(id) on delete cascade,
   created_by uuid not null,
   title text not null check(char_length(title) between 1 and 120 and title=btrim(title)),
   note text check(char_length(note)<=1000),
-  link text check(char_length(link)<=2048 and link ~ '^https://[^[:space:]/?#]+[^[:space:]]*$'),
+  link text check(private.valid_idea_link(link)),
   state text not null default 'saved' check(state in('saved','planned','archived')),
   linked_event_id uuid,
   created_at timestamptz not null default now(),
@@ -103,7 +124,7 @@ begin
     title:=btrim(p_input->>'title'); note:=nullif(btrim(p_input->>'note'),''); link:=nullif(btrim(p_input->>'link'),'');
     if title is null or char_length(title) not between 1 and 120 then return private.error('VALIDATION','title'); end if;
     if char_length(note)>1000 then return private.error('VALIDATION','note'); end if;
-    if char_length(link)>2048 or link !~ '^https://[^[:space:]/?#]+[^[:space:]]*$' then return private.error('VALIDATION','link'); end if;
+    if not private.valid_idea_link(link) then return private.error('VALIDATION','link'); end if;
     if p_action='create' then
       insert into public.date_ideas(id,pair_id,created_by,title,note,link) values(p_idea_id,pair,actor,title,note,link) returning * into result;
     else

@@ -23,6 +23,15 @@ it('rejects HTTP, missing hosts, and whitespace links before a command', async (
   expect((await createIdea({ ...input, link: 'http://example.test' }, commandId)).ok).toBe(false);
   expect(rpc).not.toHaveBeenCalled();
 });
+// Importance: 100. Server and client must agree on HTTPS scheme case and hostless authorities.
+it('accepts HTTPS authorities and rejects hostless or invalid-port links', () => {
+  for (const link of ['HTTPS://example.com', 'https://example.com:443/path', 'https://[::1]:443/path']) {
+    expect(ideaInputSchema.safeParse({ ...input, link }).success).toBe(true);
+  }
+  for (const link of ['https://:443', 'https://@', 'https://example.com:65536']) {
+    expect(ideaInputSchema.safeParse({ ...input, link }).success).toBe(false);
+  }
+});
 it('sends one atomic plan command and retains its IDs and source version on retry', async () => {
   response.mockRejectedValueOnce(new Error('timeout')).mockResolvedValue({ data: { ok: true, data: eventRow }, error: null });
   expect(await planDateIdea(id, eventInput, 7, commandId)).toMatchObject({ ok: false, error: { code: 'RETRYABLE' } });

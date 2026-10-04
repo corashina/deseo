@@ -1,7 +1,7 @@
 -- Importance: 100. Shared planning must enforce access, versions, atomic writes, and safe signal payloads.
 begin;
 \ir fixtures/setup.sql
-select plan(46);
+select plan(53);
 select has_table('public','date_ideas');
 select ok(not has_table_privilege('authenticated','public.date_ideas','INSERT'),'Only commands create ideas');
 select ok(not has_table_privilege('authenticated','public.date_ideas','UPDATE'),'Only commands edit ideas');
@@ -55,7 +55,15 @@ select ok((public.plan_date_idea('41000000-0000-4000-8000-000000000003',(select 
 select ok((public.delete_event('42000000-0000-4000-8000-000000000003',1,'51000000-0000-4000-8000-000000000017')->>'ok')::boolean,'Delete past event');
 select is((select state from public.date_ideas where id='41000000-0000-4000-8000-000000000003'),'planned','Past deletion preserves Planned');
 select ok((select linked_event_id is null from public.date_ideas where id='41000000-0000-4000-8000-000000000003'),'Past deletion clears event link');
+-- Importance: 100. Direct authenticated RPCs must validate an HTTPS host independently of the client.
+select ok((public.create_date_idea((select value||'{"id":"41000000-0000-4000-8000-000000000020","link":"HTTPS://example.com"}' from idea_input),'51000000-0000-4000-8000-000000000020')->>'ok')::boolean,'Accept case-insensitive HTTPS scheme');
+select ok((public.create_date_idea((select value||'{"id":"41000000-0000-4000-8000-000000000021","link":"https://example.com:443/path"}' from idea_input),'51000000-0000-4000-8000-000000000021')->>'ok')::boolean,'Accept HTTPS host with port');
+select ok((public.create_date_idea((select value||'{"id":"41000000-0000-4000-8000-000000000022","link":"https://[::1]:443/path"}' from idea_input),'51000000-0000-4000-8000-000000000022')->>'ok')::boolean,'Accept bracketed IPv6 authority');
+select is(public.create_date_idea((select value||'{"id":"41000000-0000-4000-8000-000000000023","link":"https://:443"}' from idea_input),'51000000-0000-4000-8000-000000000023')->'error'->>'code','VALIDATION','Reject hostless port');
+select is(public.create_date_idea((select value||'{"id":"41000000-0000-4000-8000-000000000024","link":"https://@"}' from idea_input),'51000000-0000-4000-8000-000000000024')->'error'->>'code','VALIDATION','Reject hostless userinfo');
+select is(public.create_date_idea((select value||'{"id":"41000000-0000-4000-8000-000000000025","link":"https://example.com:65536"}' from idea_input),'51000000-0000-4000-8000-000000000025')->'error'->>'code','VALIDATION','Reject port above 65535');
 reset role;
+select throws_ok($$update public.date_ideas set link='https://:443' where id='41000000-0000-4000-8000-000000000001'$$,'23514',null,'Table CHECK rejects a hostless HTTPS authority');
 insert into public.events(id,pair_id,created_by,title,owner,visibility,timezone,start_date,end_date_exclusive)
 values('42000000-0000-4000-8000-000000000004','30000000-0000-4000-8000-000000000002','10000000-0000-4000-8000-000000000003','Other pair','together','shared','America/New_York','2099-01-01','2099-01-02');
 select throws_ok($$update public.date_ideas set linked_event_id='42000000-0000-4000-8000-000000000004' where id='41000000-0000-4000-8000-000000000001'$$,'23503',null,'Composite foreign key rejects cross-pair links');
