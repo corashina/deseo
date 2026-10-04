@@ -17,8 +17,11 @@
     "test:mobile": "npm run test --workspace @deseo/mobile --",
     "test:db": "supabase test db",
     "test:db:race": "node --experimental-strip-types --test supabase/tests/pairing-races.test.ts",
+    "test:memories:functions": "npm exec --yes --package deno@2.9.6 -- deno test --allow-env --frozen --config supabase/functions/deno.json supabase/functions/finalize-memory/validate-jpeg.test.ts supabase/functions/memories.test.ts",
+    "typecheck:memories:functions": "npm exec --yes --package deno@2.9.6 -- deno check --frozen --config supabase/functions/deno.json supabase/functions/finalize-memory/index.ts supabase/functions/get-memory-media/index.ts supabase/functions/cleanup/index.ts",
+    "test:memories:race": "node --experimental-strip-types --test supabase/tests/memories-races.test.ts",
     "verify:mobile": "npm run typecheck && npm run lint && npm run test:mobile",
-    "verify": "npm run verify:mobile && npm run test:db && npm run test:db:race"
+    "verify": "npm run verify:mobile && npm run typecheck:memories:functions && npm run test:memories:functions && npm run test:db && npm run test:db:race && npm run test:memories:race"
   },
   "devDependencies": {
     "eslint": "10.12.0",

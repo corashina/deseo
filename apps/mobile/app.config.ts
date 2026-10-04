@@ -18,6 +18,17 @@ const config: ExpoConfig = {
     'expo-secure-store',
     'expo-localization',
     'expo-font',
+    ['expo-image-picker', {
+      photosPermission: 'Choose photos to share in a memory.',
+      cameraPermission: false,
+      microphonePermission: false,
+    }],
+    ['expo-media-library', {
+      photosPermission: 'Choose photos to share in a memory.',
+      savePhotosPermission: 'Save a copy of this photo to your library.',
+      granularPermissions: ['photo'],
+      isAccessMediaLocationEnabled: false,
+    }],
     ['expo-splash-screen', { image: './assets/icon.png', imageWidth: 180, backgroundColor: '#FAF7F5' }],
   ],
   experiments: { typedRoutes: true },

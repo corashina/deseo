@@ -1,6 +1,6 @@
 import tseslint from 'typescript-eslint';
 
-const features = ['auth', 'pair', 'calendar', 'today'];
+const features = ['auth', 'pair', 'calendar', 'today', 'memories'];
 export default tseslint.config(
   { ignores: ['**/node_modules/**', '**/.expo/**', '**/dist/**'] },
   ...tseslint.configs.recommended,
