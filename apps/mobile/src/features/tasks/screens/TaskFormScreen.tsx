@@ -49,7 +49,7 @@ function TaskForm({ core, pairId, lists, task, reload, listId, quick }: Props & 
   const [canRestore, setCanRestore] = useState(false); const [savedId, setSavedId] = useState<string | null>(null);
   const form = useForm<TaskDraft['values']>({ defaultValues: task ? valuesFor(task) : { title: '', listId: listId ?? lists.find(list => list.isGeneral)!.id, assigneeId: null, dueDate: '' } });
   const values = form.watch(); const locked = !ready || frozen || saving;
-  const persist = async () => { await writeTaskDraft(core.account.id, pairId, key, { ...reference.current, values: form.getValues(), submission: submission.current }); };
+  const persist = async () => { await writeTaskDraft(core.account.id, pairId, key, { ...reference.current, values: form.getValues(), submission: submission.current, preservedValues: preserved.current }); };
   useEffect(() => {
     let active = true; const scope = captureQueryScope();
     void readTaskDraft(core.account.id, pairId, key).then(draft => {
@@ -58,6 +58,7 @@ function TaskForm({ core, pairId, lists, task, reload, listId, quick }: Props & 
         if (task && (draft.id !== task.id || draft.expectedVersion === undefined)) throw new Error('The draft identity changed.');
         reference.current = { id: draft.id, commandId: draft.commandId, expectedVersion: draft.expectedVersion };
         form.reset(draft.values); submission.current = draft.submission; setFrozen(!!draft.submission);
+        preserved.current = draft.preservedValues; setCanRestore(draft.preservedValues !== undefined);
         if (draft.submission) setError({ code: 'RETRYABLE', message: 'Confirm your last save before you change this draft.' });
       }
       setReady(true);
@@ -116,7 +117,10 @@ function TaskForm({ core, pairId, lists, task, reload, listId, quick }: Props & 
       actionLabel={error.code === 'CONFLICT' ? 'Reload saved version' : frozen ? 'Retry save' : undefined}
       onAction={error.code === 'CONFLICT' ? () => { void reloadSaved(); } : frozen ? () => { if (submission.current) void submit(submission.current); } : undefined} />}
     {error?.code === 'CONFLICT' && <Button label="Return to draft" variant="secondary" onPress={() => setError(null)} />}
-    {canRestore && <Status message="Review the saved task before you save." actionLabel="Restore my draft" onAction={() => { if (preserved.current) form.reset(preserved.current); setCanRestore(false); }} />}
+    {canRestore && <Status message="Review the saved task before you save." actionLabel="Restore my draft" onAction={() => {
+      if (preserved.current) form.reset(preserved.current); preserved.current = undefined; setCanRestore(false);
+      void persist().catch(() => setStorageError('We could not save your draft. Keep this screen open.'));
+    }} />}
     <Controller control={form.control} name="title" render={({ field }) => <Field label="Title" value={field.value} onChangeText={field.onChange} editable={!locked} maxLength={200} multiline />} />
     {!quick && <>
       <Text style={theme.typography.section}>List</Text><View style={ui.row}>{lists.map(list => <Button key={list.id} label={list.name} disabled={locked} variant={values.listId === list.id ? 'primary' : 'secondary'} onPress={() => form.setValue('listId', list.id)} />)}</View>

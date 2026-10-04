@@ -2,8 +2,9 @@ import { z } from 'zod';
 import { getPrivateStorage } from '../../lib/private-storage';
 import { captureQueryScope } from '../../lib/query-client';
 import { taskInputSchema } from './schema';
+const draftValuesSchema = z.object({ title: z.string(), listId: z.string().uuid(), assigneeId: z.string().uuid().nullable(), dueDate: z.string() });
 export const taskDraftSchema = z.object({ id: z.string().uuid(), commandId: z.string().uuid(), expectedVersion: z.number().int().positive().optional(),
-  values: z.object({ title: z.string(), listId: z.string().uuid(), assigneeId: z.string().uuid().nullable(), dueDate: z.string() }), submission: taskInputSchema.optional() });
+  values: draftValuesSchema, submission: taskInputSchema.optional(), preservedValues: draftValuesSchema.optional() });
 export type TaskDraft = z.infer<typeof taskDraftSchema>;
 export async function readTaskDraft(accountId: string, pairId: string, key: string): Promise<TaskDraft | null> {
   const scope = captureQueryScope(); const storage = await getPrivateStorage(); scope.assertCurrent(); const raw = await storage.getDraft(accountId, pairId, key); scope.assertCurrent();

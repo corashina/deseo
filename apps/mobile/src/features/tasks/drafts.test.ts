@@ -23,3 +23,12 @@ it('does not silently discard unavailable storage', async () => {
   jest.mocked(getPrivateStorage).mockRejectedValue(new Error('Key unavailable'));
   await expect(readTaskDraft(account, pair, 'tasks:edit')).rejects.toThrow('Key unavailable');
 });
+// Importance: 98. Conflict review must retain local edits in encrypted storage after restart.
+it('stores both the saved review values and preserved local values', async () => {
+  const reviewing = { ...draft, values: { ...draft.values, title: 'Partner bread' }, submission: undefined,
+    preservedValues: { ...draft.values, title: 'Local bread' } };
+  await writeTaskDraft(account, pair, 'tasks:edit', reviewing);
+  expect(storage.setDraft).toHaveBeenCalledWith(account, pair, 'tasks:edit', JSON.stringify(reviewing));
+  storage.getDraft.mockResolvedValue(JSON.stringify(reviewing));
+  expect(await readTaskDraft(account, pair, 'tasks:edit')).toEqual(reviewing);
+});

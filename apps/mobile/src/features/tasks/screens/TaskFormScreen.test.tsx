@@ -6,6 +6,7 @@ import { useCore } from '../../pair';
 import { getTask } from '../queries';
 import { createTask, updateTask } from '../commands';
 import { readTaskDraft, writeTaskDraft } from '../drafts';
+import type { TaskDraft } from '../drafts';
 jest.mock('../../pair', () => ({ useCore: jest.fn() }), { virtual: true });
 jest.mock('../TaskAccess', () => ({ TaskAccess: ({ children }: { children: React.ReactNode }) => children }));
 jest.mock('../realtime', () => ({ useTaskSignals: jest.fn() }));
@@ -63,4 +64,26 @@ it('allows editing offline but disables submission', async () => {
   expect(screen.getByRole('button', { name: 'Add task' }).props.accessibilityState.disabled).toBe(true);
   await waitFor(() => expect(writeTaskDraft).toHaveBeenCalled());
   expect(createTask).not.toHaveBeenCalled();
+});
+// Importance: 98. Restart during conflict review must retain the user's local edits.
+it('restores saved-version review and local edits after remount', async () => {
+  let stored: TaskDraft | null = null;
+  jest.mocked(readTaskDraft).mockImplementation(async () => stored);
+  jest.mocked(writeTaskDraft).mockImplementation(async (_account, _pair, _key, draft) => { stored = JSON.parse(JSON.stringify(draft)) as TaskDraft; });
+  jest.mocked(updateTask).mockResolvedValue({ ok: false, error: { code: 'CONFLICT' } });
+  await mount(task.id);
+  await fireEvent.changeText(screen.getByLabelText('Title'), 'Local bread');
+  await fireEvent.press(screen.getByText('Save changes'));
+  await waitFor(() => expect(screen.getByText('Reload saved version')).toBeTruthy());
+  jest.mocked(getTask).mockResolvedValue({ ...task, title: 'Partner bread', version: 4 });
+  await fireEvent.press(screen.getByText('Reload saved version'));
+  await waitFor(() => expect(stored).toMatchObject({ expectedVersion: 4, values: { title: 'Partner bread' } }));
+  await screen.unmount();
+  await mount(task.id);
+  expect(screen.getByLabelText('Title').props.value).toBe('Partner bread');
+  await fireEvent.press(screen.getByText('Restore my draft'));
+  expect(screen.getByLabelText('Title').props.value).toBe('Local bread');
+  expect(updateTask).toHaveBeenCalledTimes(1);
+  await fireEvent.press(screen.getByText('Save changes'));
+  await waitFor(() => expect(jest.mocked(updateTask).mock.calls[1]?.[2]).toBe(4));
 });
