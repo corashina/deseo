@@ -1,7 +1,7 @@
 # Deseo web portal
 
 Date: 5 October 2026.
-Status: Draft for owner review. Product implementation has not started.
+Status: Owner approved on 5 October 2026. Product implementation has not started.
 
 ## 1. Intent and confirmed choices
 
@@ -17,7 +17,7 @@ Keep Deseo's approved pastel colors and Two voices icon.
 Create a synthetic paired couple for local testing.
 After implementation, provide screenshots of each product page and subpage.
 
-Assumptions for review:
+Approved scope assumptions:
 
 - Use English interface text and Europe/Warsaw for the sample pair.
 - Port the existing product flows, including forms and details.
@@ -41,7 +41,9 @@ The current STYLE.md and ARCHITECTURE.md restrict the product to native platform
 Implementation must replace those obsolete platform restrictions with the approved portal contract.
 
 The primary checkout has no account export or deletion implementation.
-The separate account worktree contains unfinished work. This design does not assume that work has passed acceptance.
+The account branch has a newer, integration-ready handoff with recorded automated checks.
+Its physical device checks remain pending. Those changes are not integrated into the primary checkout.
+The portal scope below remains unchanged. Execution must verify the selected baseline rather than inherit another branch's test result.
 
 ## 3. Approaches
 
