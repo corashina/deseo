@@ -16,17 +16,17 @@ export default tseslint.config(
   { files: ['packages/domain/src/**/*.ts'], rules: {
     'no-restricted-imports': ['error', { patterns: [{ group: [
       'expo', 'expo/**', 'expo-*', 'expo-*/**', '@expo/**',
-      'react-native', 'react-native/**', 'react-native-*', 'react-native-*/**', '@react-native/**',
+      'react-native', 'react-native/**', 'react-native-*', 'react-native-*/**', '@react-native/**', '@react-native-*/**',
       '@deseo/mobile', '@deseo/mobile/**', '@deseo/web', '@deseo/web/**',
       '**/apps/**', '**/mobile/**', '**/web/**',
     ], message: 'Keep domain rules independent of applications and devices.' }, {
       regex: '^@deseo/(?!domain(?:/|$))',
       message: 'Keep application imports outside domain rules.',
     }] }],
-    'no-restricted-globals': ['error', 'window', 'document', 'navigator', 'localStorage', 'sessionStorage',
+    'no-restricted-globals': ['error', 'window', 'self', 'document', 'navigator', 'localStorage', 'sessionStorage',
       'location', 'indexedDB', 'caches', 'Notification', 'HTMLElement', 'FileReader'],
     'no-restricted-syntax': ['error', {
-      selector: "MemberExpression[object.name='globalThis']:matches([property.name=/^(window|document|navigator|localStorage|sessionStorage|location|indexedDB|caches|Notification|HTMLElement|FileReader)$/], [property.value=/^(window|document|navigator|localStorage|sessionStorage|location|indexedDB|caches|Notification|HTMLElement|FileReader)$/])",
+      selector: "MemberExpression[object.name='globalThis']:matches([property.name=/^(window|self|document|navigator|localStorage|sessionStorage|location|indexedDB|caches|Notification|HTMLElement|FileReader)$/], [property.value=/^(window|self|document|navigator|localStorage|sessionStorage|location|indexedDB|caches|Notification|HTMLElement|FileReader)$/])",
       message: 'Keep browser state outside domain rules.',
     }],
   } },
