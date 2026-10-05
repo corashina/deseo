@@ -154,35 +154,43 @@ function EventEditor({ event, idea }: { event?: Event; idea?: DateIdea }) {
   }
 
   async function reloadEvent() {
-    if (idea) {
-      const currentIdea = await getDateIdea(pair!.status === 'active' ? pair!.pairId : '', idea.id);
-      if (!currentIdea) {
-        setError('Idea unavailable.');
+    if (saving) return;
+    setSaving(true);
+    try {
+      if (idea) {
+        const currentIdea = await getDateIdea(pair!.status === 'active' ? pair!.pairId : '', idea.id);
+        if (!currentIdea) {
+          setError('Idea unavailable.');
+          return;
+        }
+        identity.current.ideaVersion = currentIdea.version;
+        identity.current.commandId = crypto.randomUUID();
+        submission.current = undefined;
+        initial.current = undefined;
+        form.reset({ ...form.getValues(), title: currentIdea.title, description: currentIdea.note });
+        setConflict(false);
+        setError('');
+        removeDraft(account!.id, currentIdea.pairId, key);
         return;
       }
-      identity.current.ideaVersion = currentIdea.version;
-      identity.current.commandId = crypto.randomUUID();
+      const current = await getEvent(pair!.status === 'active' ? pair!.pairId : '', event!.id);
+      if (!current) {
+        setError('Event unavailable.');
+        return;
+      }
+      form.reset(eventToForm(current));
       submission.current = undefined;
+      identity.current.expectedVersion = current.version;
+      identity.current.commandId = crypto.randomUUID();
       initial.current = undefined;
-      form.reset({ ...form.getValues(), title: currentIdea.title, description: currentIdea.note });
       setConflict(false);
       setError('');
-      removeDraft(account!.id, currentIdea.pairId, key);
-      return;
+      removeDraft(account!.id, current.pairId, key);
+    } catch {
+      setError(idea ? 'We could not reload this idea. Try again.' : 'We could not reload this event. Try again.');
+    } finally {
+      setSaving(false);
     }
-    const current = await getEvent(pair!.status === 'active' ? pair!.pairId : '', event!.id);
-    if (!current) {
-      setError('Event unavailable.');
-      return;
-    }
-    form.reset(eventToForm(current));
-    submission.current = undefined;
-    identity.current.expectedVersion = current.version;
-    identity.current.commandId = crypto.randomUUID();
-    initial.current = undefined;
-    setConflict(false);
-    setError('');
-    removeDraft(account!.id, current.pairId, key);
   }
 
   function confirmSharing() {
@@ -207,7 +215,16 @@ function EventEditor({ event, idea }: { event?: Event; idea?: DateIdea }) {
         <EventFields form={form} names={names} slot={slot} author={!event || event.authorId === account.id} locked={saving || frozen} planning={Boolean(idea)} />
         {error && <Status error>{error}</Status>}
         {frozen && <p>Your save is unconfirmed. Retry with the same details.</p>}
-        {conflict && <Button type="button" variant="secondary" onClick={() => void reloadEvent()}>Reload event and discard draft</Button>}
+        {conflict && (
+          <Button
+            type="button"
+            variant="secondary"
+            disabled={saving}
+            onClick={() => void reloadEvent()}
+          >
+            Reload event and discard draft
+          </Button>
+        )}
         <div className="actions">
           <Button disabled={!online || saving || conflict} type="submit">
             {saving ? 'Saving…' : frozen ? 'Retry save' : event ? 'Save changes' : 'Save event'}
