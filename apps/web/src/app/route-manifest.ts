@@ -1,0 +1,16 @@
+export type RouteCoverage = { id: string; path: string; fixture: 'signedOut' | 'unpaired' | 'pending' | 'active' | 'ended'; views: string[] };
+export const routeManifest: readonly RouteCoverage[] = [
+  { id: 'entry-root', path: '/', fixture: 'signedOut', views: ['resolved-entry'] },
+  { id: 'entry-welcome', path: '/welcome', fixture: 'signedOut', views: ['default', 'invited'] },
+  { id: 'entry-email', path: '/sign-in', fixture: 'signedOut', views: ['default', 'error'] },
+  { id: 'entry-verify', path: '/verify', fixture: 'signedOut', views: ['default', 'invalid-code'] },
+  { id: 'entry-profile', path: '/profile/setup', fixture: 'unpaired', views: ['new-account'] },
+  { id: 'pair-start', path: '/pair/start', fixture: 'unpaired', views: ['default'] },
+  { id: 'pair-invite', path: '/pair/invite', fixture: 'pending', views: ['default', 'generated-code'] },
+  { id: 'pair-join', path: '/pair/join', fixture: 'unpaired', views: ['default', 'review', 'unavailable'] },
+  { id: 'pair-waiting', path: '/pair/waiting', fixture: 'pending', views: ['default', 'cancel-dialog'] },
+  { id: 'pair-welcome', path: '/pair/welcome', fixture: 'active', views: ['default'] },
+  { id: 'pair-ended', path: '/pair/ended', fixture: 'ended', views: ['default'] },
+  { id: 'invite-entry', path: '/invite', fixture: 'signedOut', views: ['valid', 'invalid'] },
+  { id: 'unknown-route', path: '*', fixture: 'signedOut', views: ['not-found'] },
+];

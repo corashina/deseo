@@ -1,0 +1,8 @@
+import { Link } from 'react-router-dom';
+import { entryIntent } from '..';
+import { Status } from '../../../components/ui/Status';
+import { PageHeader } from '../../../components/ui/PageHeader';
+import icon from '../../../../../../brand/icon-source.png';
+export function WelcomePage() {
+  return <div className="entry-page"><div className="entry-story"><img className="welcome-icon" src={icon} alt="Deseo Two voices" /><p className="eyebrow">DESEO · FOR TWO</p><h1>A little space<br />for your life together.</h1><p>Keep your plans, messages, and memories in one place.</p><div className="color-pair" aria-hidden="true"><span /><span /></div></div><section className="card entry-card"><PageHeader title={entryIntent.invite ? 'Your invitation is ready' : 'Welcome to Deseo'} description={entryIntent.invite ? 'Sign in to review your partner’s invitation.' : 'Start with your email address. We will send you a sign-in code.'} />{entryIntent.invalidInvite && <Status error>This invitation is invalid. Ask your partner for a new code.</Status>}<Link className="button primary" to="/sign-in">Continue with email</Link><p className="muted">A private space for you and your partner.</p></section></div>;
+}
