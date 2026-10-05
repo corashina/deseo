@@ -186,6 +186,49 @@ test('date-only edits cross DST and require fresh repeated-hour choices', async 
   } finally { await cleanupPortalPairFixture(ids); }
 });
 
+// Importance 96: mounted repeated-hour selectors require a fresh choice after each edit.
+for (const edit of ['date', 'time'] as const) {
+  test(`mounted repeated-hour selectors clear choices after ${edit} edits`, async ({ page }) => {
+    const ids = await createPortalPairFixture();
+    try {
+      const anna = await portalClient(ids.annaEmail);
+      const eventId = randomUUID();
+      const saved = await anna.rpc('create_event', {
+        p_input: { id: eventId, pair_id: ids.pairId, title: 'Repeated hour plan', owner: 'together', visibility: 'shared', timezone: 'Europe/Warsaw', starts_at: '2026-10-25T00:30:00Z', ends_at: '2026-10-25T00:45:00Z', repeat: 'none' },
+        p_command_id: randomUUID(),
+      });
+      expect(saved.data.ok).toBe(true);
+      await loginWithLocalEmailCode(page, ids.annaEmail);
+      await page.goto('/events/' + eventId + '/edit');
+      await page.getByLabel('Start occurrence').selectOption('120');
+      await page.getByLabel('End occurrence').selectOption('120');
+      const startSelector = await page.getByLabel('Start occurrence').elementHandle();
+      const endSelector = await page.getByLabel('End occurrence').elementHandle();
+      if (edit === 'date') {
+        await page.getByLabel('Start date', { exact: true }).fill('2027-10-31');
+        await page.getByLabel('End date', { exact: true }).fill('2027-10-31');
+      } else {
+        await page.getByLabel('Start time', { exact: true }).fill('02:35');
+        await page.getByLabel('End time', { exact: true }).fill('02:50');
+      }
+      expect(await startSelector!.evaluate(element => element.isConnected)).toBe(true);
+      expect(await endSelector!.evaluate(element => element.isConnected)).toBe(true);
+      await expect(page.getByLabel('Start occurrence')).toHaveValue('');
+      await expect(page.getByLabel('End occurrence')).toHaveValue('');
+      await page.getByRole('button', { name: 'Save changes', exact: true }).click();
+      await expect(page.getByRole('alert').filter({ hasText: 'Choose the first or second time below.' })).toHaveCount(2);
+      await page.getByLabel('Start occurrence').selectOption('120');
+      await page.getByLabel('End occurrence').selectOption('120');
+      await page.getByRole('button', { name: 'Save changes', exact: true }).click();
+      await expect(page.getByRole('heading', { name: 'Repeated hour plan', exact: true })).toBeVisible();
+      const persisted = await anna.from('events').select('starts_at,ends_at,version').eq('id', eventId).single();
+      expect(persisted.data!.version).toBe(2);
+      expect(new Date(persisted.data!.starts_at).toISOString()).toBe(edit === 'date' ? '2027-10-31T00:30:00.000Z' : '2026-10-25T00:35:00.000Z');
+      expect(new Date(persisted.data!.ends_at).toISOString()).toBe(edit === 'date' ? '2027-10-31T00:45:00.000Z' : '2026-10-25T00:50:00.000Z');
+    } finally { await cleanupPortalPairFixture(ids); }
+  });
+}
+
 // Importance 98: pending reminders keep command, payload, and version through remounts.
 for (const changed of [true, false]) {
   test(`reminder lost acknowledgement survives focus remount with ${changed ? 'changed' : 'unchanged'} choice`, async ({ page }) => {

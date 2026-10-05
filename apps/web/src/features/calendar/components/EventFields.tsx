@@ -4,9 +4,9 @@ import type { OwnerNames } from './EventRow';
 export function EventFields({ form, names, slot, author, locked }: { form: UseFormReturn<EventFormValues>; names: OwnerNames; slot: 'a'|'b'; author: boolean; locked: boolean }) {
   const values = form.watch(); const { register, formState: { errors } } = form;
   function clearOffset(which: 'start'|'end') {
-    // Remove the default too, so a newly mounted selector cannot restore it.
-    form.unregister(`${which}Offset`);
+    // Clear the live selector before unregister removes its reference and default.
     form.setValue(`${which}Offset`, undefined);
+    form.unregister(`${which}Offset`);
   }
   const offsetChoices = (which: 'start'|'end') => {
     try { return wallTimeChoices(values[`${which}Date`], values[`${which}Time`], values.timezone); } catch { return []; }
