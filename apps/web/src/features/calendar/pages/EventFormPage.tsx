@@ -1,3 +1,4 @@
+import { getDateIdea, ideaKeys, planDateIdea, type DateIdea } from '../ideas';
 import { useEffect, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
@@ -19,20 +20,26 @@ import { EventFields } from '../components/EventFields';
 import '../../../styles/calendar.css';
 
 type Draft = {
-  values: EventFormValues; id: string; commandId: string; expectedVersion?: number;
+  values: EventFormValues; id: string; commandId: string; expectedVersion?: number; ideaVersion?: number;
   frozen: boolean; dirty: boolean; submission?: EventInput;
 };
 
 export function EventFormPage() {
   const { account, pair } = useSession();
   const { eventId } = useParams();
+  const [params] = useSearchParams();
+  const ideaId = params.get('idea');
   const pairId = pair?.status === 'active' ? pair.pairId : '';
   const query = useQuery({
     queryKey: calendarKeys.event(account!.id, pairId, eventId ?? 'new'),
     queryFn: () => getEvent(pairId, eventId!),
     enabled: Boolean(eventId && pairId),
   });
+  const idea = useQuery({ queryKey: ideaKeys.detail(account!.id, pairId, ideaId ?? 'none'), queryFn: () => getDateIdea(pairId, ideaId!), enabled: Boolean(ideaId) });
   if (!account || pair?.status !== 'active') return null;
+  if (ideaId && idea.isPending) return <Status>Loading idea…</Status>;
+  if (ideaId && idea.isError) return <><Status error>We could not load this idea.</Status><Button onClick={() => void idea.refetch()}>Retry</Button></>;
+  if (ideaId && !idea.data) return <section className="card"><h1>Idea unavailable</h1><Link to="/ideas">Return to ideas</Link></section>;
   if (eventId && query.isPending) return <Status>Loading event…</Status>;
   if (eventId && query.isError) {
     return <><Status error>We could not load this event.</Status><Button onClick={() => void query.refetch()}>Retry</Button></>;
@@ -42,21 +49,22 @@ export function EventFormPage() {
       <h1>Event unavailable</h1><Link to="/calendar">Return to calendar</Link>
     </section>;
   }
-  return <EventEditor key={eventId ?? 'new'} event={query.data ?? undefined} />;
+  return <EventEditor key={eventId ?? ideaId ?? 'new'} event={query.data ?? undefined} idea={idea.data ?? undefined} />;
 }
 
-function EventEditor({ event }: { event?: Event }) {
+function EventEditor({ event, idea }: { event?: Event; idea?: DateIdea }) {
   const { account, pair } = useSession();
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const online = useNetworkStatus();
+
   if (!account || pair?.status !== 'active') throw new Error('Active pair required');
-  const key = 'event:' + (event?.id ?? 'new');
+  const key = 'event:' + (event?.id ?? (idea ? 'idea:' + idea.id : 'new'));
   const initial = useRef(readDraft<Draft>(account.id, pair.pairId, key));
   const identity = useRef({
     id: initial.current?.id ?? event?.id ?? crypto.randomUUID(),
     commandId: initial.current?.commandId ?? crypto.randomUUID(),
-    expectedVersion: initial.current?.expectedVersion ?? event?.version,
+    expectedVersion: initial.current?.expectedVersion ?? event?.version, ideaVersion: initial.current?.ideaVersion ?? idea?.version,
   });
   const submission = useRef(initial.current?.submission);
   const [saving, setSaving] = useState(false);
@@ -70,11 +78,11 @@ function EventEditor({ event }: { event?: Event }) {
   const form = useForm<EventFormValues>({
     resolver: zodResolver(eventFormSchema),
     defaultValues: initial.current?.values ?? (event ? eventToForm(event) : {
-      title: '', allDay: false,
+      title: idea?.title ?? '', allDay: false,
       startDate: date.isValid ? date.toISODate()! : now.current.toISODate()!,
       endDate: date.isValid ? date.toISODate()! : now.current.toISODate()!,
       startTime: '18:00', endTime: '19:00', timezone: account.timezone,
-      owner: 'together', visibility: 'shared', location: '', description: '', repeat: 'none', importantDate: false,
+      owner: 'together', visibility: 'shared', location: '', description: idea?.note ?? '', repeat: 'none', importantDate: false,
     }),
   });
   const dirty = !confirmed && (form.formState.isDirty || initial.current?.dirty === true || frozen);
@@ -90,6 +98,7 @@ function EventEditor({ event }: { event?: Event }) {
   }, [confirmed, navigate]);
 
   async function save(values: EventFormValues, confirmShared = false) {
+    if (!online || saving) return;
     const scope = captureQueryScope();
     setSaving(true);
     setError('');
@@ -100,9 +109,12 @@ function EventEditor({ event }: { event?: Event }) {
     writeDraft(account!.id, input.pairId, key, {
       ...identity.current, values, frozen: true, dirty: true, submission: input,
     });
-    const result = event
-      ? await updateEvent(event.id, input, identity.current.expectedVersion!, identity.current.commandId)
-      : await createEvent(input, identity.current.commandId);
+    const captured = { ...identity.current };
+    const result = idea
+      ? await planDateIdea(idea.id, input, captured.ideaVersion!, captured.commandId)
+      : event
+      ? await updateEvent(event.id, input, captured.expectedVersion!, captured.commandId)
+      : await createEvent(input, captured.commandId);
     try {
       scope.assertCurrent();
     } catch {
@@ -118,7 +130,7 @@ function EventEditor({ event }: { event?: Event }) {
       return;
     }
     if (result.error.code === 'CONFLICT') {
-      setError('This event changed. Your draft is kept.');
+      setError(idea ? 'This idea changed. Your draft is kept.' : 'This event changed. Your draft is kept.');
       setConflict(true);
       setFrozen(false);
       submission.current = undefined;
@@ -142,6 +154,22 @@ function EventEditor({ event }: { event?: Event }) {
   }
 
   async function reloadEvent() {
+    if (idea) {
+      const currentIdea = await getDateIdea(pair!.status === 'active' ? pair!.pairId : '', idea.id);
+      if (!currentIdea) {
+        setError('Idea unavailable.');
+        return;
+      }
+      identity.current.ideaVersion = currentIdea.version;
+      identity.current.commandId = crypto.randomUUID();
+      submission.current = undefined;
+      initial.current = undefined;
+      form.reset({ ...form.getValues(), title: currentIdea.title, description: currentIdea.note });
+      setConflict(false);
+      setError('');
+      removeDraft(account!.id, currentIdea.pairId, key);
+      return;
+    }
     const current = await getEvent(pair!.status === 'active' ? pair!.pairId : '', event!.id);
     if (!current) {
       setError('Event unavailable.');
@@ -171,12 +199,12 @@ function EventEditor({ event }: { event?: Event }) {
   const slot = pair.members.find(member => member.userId === account.id)!.slot;
   return <>
     <PageHeader
-      title={event ? 'Edit event' : 'Add event'}
+      title={event ? 'Edit event' : idea ? 'Plan date' : 'Add event'}
       description={event ? 'Keep the details up to date.' : 'Plan time for yourself or together.'}
     />
     <section className="card form-page">
       <form onSubmit={form.handleSubmit(submitValues)}>
-        <EventFields form={form} names={names} slot={slot} author={!event || event.authorId === account.id} locked={saving || frozen} />
+        <EventFields form={form} names={names} slot={slot} author={!event || event.authorId === account.id} locked={saving || frozen} planning={Boolean(idea)} />
         {error && <Status error>{error}</Status>}
         {frozen && <p>Your save is unconfirmed. Retry with the same details.</p>}
         {conflict && <Button type="button" variant="secondary" onClick={() => void reloadEvent()}>Reload event and discard draft</Button>}

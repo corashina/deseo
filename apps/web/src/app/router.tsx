@@ -1,3 +1,12 @@
+import { TasksPage } from '../features/tasks/pages/TasksPage';
+import { TaskDetailPage } from '../features/tasks/pages/TaskDetailPage';
+import { TaskFormPage } from '../features/tasks/pages/TaskFormPage';
+import { ListManagerPage } from '../features/tasks/pages/ListManagerPage';
+import { ListDetailPage } from '../features/tasks/pages/ListDetailPage';
+import { IdeasPage } from '../features/calendar/ideas/pages/IdeasPage';
+import { IdeaDetailPage } from '../features/calendar/ideas/pages/IdeaDetailPage';
+import { IdeaFormPage } from '../features/calendar/ideas/pages/IdeaFormPage';
+import { TodayPage } from '../features/today/pages/TodayPage';
 import { CalendarPage } from '../features/calendar/pages/CalendarPage';
 import { EventDetailPage } from '../features/calendar/pages/EventDetailPage';
 import { EventFormPage } from '../features/calendar/pages/EventFormPage';
@@ -36,7 +45,7 @@ function Gate({ children, kind = 'pair' }: { children: ReactNode; kind?: 'public
   if (session.status !== 'authenticated') return <Navigate to="/welcome" replace />;
   if (!session.account) return kind === 'profile' ? <>{children}</> : <Navigate to="/profile/setup" replace />;
   if (kind === 'profile') return <Navigate to={target} replace />;
-  const allowed = session.pair?.status === 'active' ? ['/pair/welcome', '/calendar', '/events/new', ...(pathname.startsWith('/events/') ? [pathname] : [])] : session.pair?.status === 'pending' ? ['/pair/waiting', '/pair/invite'] : session.pair?.status === 'ended' ? ['/pair/ended', '/pair/start', '/pair/join'] : ['/pair/start', '/pair/join'];
+  const allowed = session.pair?.status === 'active' ? ['/pair/welcome', '/today', '/calendar', '/events/new', '/tasks', '/ideas', ...( /^\/(events|tasks|ideas)\//.test(pathname) ? [pathname] : [])] : session.pair?.status === 'pending' ? ['/pair/waiting', '/pair/invite'] : session.pair?.status === 'ended' ? ['/pair/ended', '/pair/start', '/pair/join'] : ['/pair/start', '/pair/join'];
   return allowed.includes(pathname) ? <>{children}</> : <Navigate to={target} replace />;
 }
 function Entry() { const session = useSession(); return <Navigate to={destination(session)} replace />; }
@@ -77,6 +86,17 @@ export const router = createBrowserRouter([{ element: <Root />, children: [
   { path: '/pair/waiting', element: pairPage('Waiting for your partner', <WaitingPage />) },
   { path: '/pair/welcome', element: pairPage('Your pair', <PairWelcomePage />) },
   { path: '/pair/ended', element: pairPage('Your pair has ended', <EndedPage />) },
+  { path: '/today', element: pairPage('Today', <TodayPage />) },
+  { path: '/tasks', element: pairPage('Tasks', <TasksPage />) },
+  { path: '/tasks/new', element: pairPage('Add task', <TaskFormPage />) },
+  { path: '/tasks/lists', element: pairPage('Task lists', <ListManagerPage />) },
+  { path: '/tasks/lists/:listId', element: pairPage('Task list', <ListDetailPage />) },
+  { path: '/tasks/:taskId', element: pairPage('Task', <TaskDetailPage />) },
+  { path: '/tasks/:taskId/edit', element: pairPage('Edit task', <TaskFormPage />) },
+  { path: '/ideas', element: pairPage('Date ideas', <IdeasPage />) },
+  { path: '/ideas/new', element: pairPage('Add idea', <IdeaFormPage />) },
+  { path: '/ideas/:ideaId', element: pairPage('Date idea', <IdeaDetailPage />) },
+  { path: '/ideas/:ideaId/edit', element: pairPage('Edit idea', <IdeaFormPage />) },
   { path: '/calendar', element: pairPage('Calendar', <CalendarPage />) },
   { path: '/events/new', element: pairPage('Add event', <EventFormPage />) },
   { path: '/events/:eventId', element: pairPage('Event', <EventDetailPage />) },

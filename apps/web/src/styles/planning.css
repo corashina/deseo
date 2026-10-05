@@ -1,0 +1,26 @@
+.planning-form fieldset { border:0; margin:0; padding:0; min-width:0; }
+.planning-form select, .planning-form textarea { width:100%; padding:12px 16px; border:1px solid var(--control); border-radius:12px; color:var(--ink); background:var(--surface); font-weight:400; min-height:48px; }
+.section-heading { display:flex; gap:16px; align-items:center; justify-content:space-between; flex-wrap:wrap; margin-bottom:24px; }
+.section-heading h2 { margin:0; }
+.task-row { padding:16px 0; border-bottom:1px solid var(--line); overflow-wrap:anywhere; }
+.task-row-main { display:flex; align-items:center; gap:16px; }
+.task-row input[type=checkbox] { width:24px; height:24px; flex-shrink:0; accent-color:var(--shared); cursor:pointer; }
+.task-row-content { flex:1; min-width:0; display:flex; flex-direction:column; gap:4px; }
+.task-row-content a { color:var(--ink); font-weight:600; text-decoration:none; }
+.task-row-content span { color:var(--muted); font-size:13px; }
+.task-completed .task-row-content a { text-decoration:line-through; }
+.task-row .status { margin:12px 0; }
+.quick-add { display:inline-flex; min-height:48px; align-items:center; margin-top:16px; }
+.list-links { list-style:none; padding:0; margin:0 0 32px; }
+.list-links li { display:flex; justify-content:space-between; gap:16px; padding:16px 0; border-bottom:1px solid var(--line); }
+.list-links span { color:var(--muted); font-size:13px; }
+.idea-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:24px; }
+.idea-grid .card { min-height:190px; }
+.preserve-lines { white-space:pre-wrap; overflow-wrap:anywhere; }
+.today-layout { display:grid; grid-template-columns:minmax(0,1fr) 360px; gap:24px; align-items:start; }
+.planning-column { display:grid; gap:24px; min-width:0; }
+.important-card { background:var(--note); }
+@media (max-width:1199px) { .today-layout { grid-template-columns:minmax(0,1fr); } }
+@media (max-width:767px) { .idea-grid { grid-template-columns:1fr; gap:16px; } .today-layout, .planning-column { gap:16px; } .task-row-main { gap:12px; flex-wrap:wrap; } .task-row-content { min-width:120px; } .section-heading { margin-bottom:16px; } }
+.quick-add { display:flex; gap:16px; flex-wrap:wrap; width:100%; margin:24px 0; } .quick-add .field { flex:1; min-width:160px; margin:0; } .quick-add > .button { align-self:flex-end; } .quick-add > .status { width:100%; }
+.task-check { display:flex; align-items:center; justify-content:center; width:48px; height:48px; flex-shrink:0; cursor:pointer; }
