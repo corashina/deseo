@@ -102,7 +102,7 @@ Set `EXPO_PUBLIC_EAS_PROJECT_ID` to the authorized project ID. Source checks nee
 
 Workers require `NOTIFICATION_WORKER_SECRET`, with at least 32 characters.
 Use `EXPO_ACCESS_TOKEN` when enhanced Expo push security is enabled.
-The server runtime supplies `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY`. Never put them in mobile public variables.
+The server runtime supplies `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEYS`, and `SUPABASE_SECRET_KEYS`. Use the default key map entries. Keep server keys out of public variables.
 Set Vault entries `notification_function_url` and `notification_worker_secret` only for an authorized environment.
 The URL points to that environment's `/functions/v1` base. Do not use a production URL for local tests.
 

@@ -1,3 +1,4 @@
+import { runtimeKeys } from './keys.ts';
 import { createClient, type SupabaseClient } from 'npm:@supabase/supabase-js@2.117.2';
 
 export type ErrorCode = 'UNAUTHENTICATED' | 'FORBIDDEN' | 'VALIDATION' | 'CONFLICT' | 'QUOTA_EXCEEDED' | 'RETRYABLE';
@@ -41,7 +42,7 @@ export async function readBody(request: Request): Promise<Record<string, unknown
 }
 export function serviceClient(): SupabaseClient | null {
   const url = Deno.env.get('SUPABASE_URL');
-  const key = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+  const key = runtimeKeys().secret;
   return url && key ? createClient(url, key, options) : null;
 }
 export function resolveIdentity(check: IdentityCheck): Outcome<{ actorId: string; sessionId: string }> {
@@ -59,7 +60,7 @@ export async function authenticate(request: Request): Promise<Outcome<MemoryActo
   const bearer = request.headers.get('authorization');
   if (!bearer?.startsWith('Bearer ')) return failed('UNAUTHENTICATED');
   const url = Deno.env.get('SUPABASE_URL');
-  const key = Deno.env.get('SUPABASE_PUBLISHABLE_KEY');
+  const key = runtimeKeys().publishable;
   const admin = serviceClient();
   if (!url || !key || !admin) return failed('RETRYABLE');
   const caller = createClient(url, key, { ...options, global: { headers: { Authorization: bearer } } });

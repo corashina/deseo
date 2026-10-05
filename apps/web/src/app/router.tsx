@@ -1,3 +1,6 @@
+import { CalendarPage } from '../features/calendar/pages/CalendarPage';
+import { EventDetailPage } from '../features/calendar/pages/EventDetailPage';
+import { EventFormPage } from '../features/calendar/pages/EventFormPage';
 import { useEffect, type ReactNode } from 'react';
 import { createBrowserRouter, Link, Navigate, Outlet, useLocation } from 'react-router-dom';
 import { SessionProvider, useSession } from './SessionProvider';
@@ -33,7 +36,7 @@ function Gate({ children, kind = 'pair' }: { children: ReactNode; kind?: 'public
   if (session.status !== 'authenticated') return <Navigate to="/welcome" replace />;
   if (!session.account) return kind === 'profile' ? <>{children}</> : <Navigate to="/profile/setup" replace />;
   if (kind === 'profile') return <Navigate to={target} replace />;
-  const allowed = session.pair?.status === 'active' ? ['/pair/welcome'] : session.pair?.status === 'pending' ? ['/pair/waiting', '/pair/invite'] : session.pair?.status === 'ended' ? ['/pair/ended', '/pair/start', '/pair/join'] : ['/pair/start', '/pair/join'];
+  const allowed = session.pair?.status === 'active' ? ['/pair/welcome', '/calendar', '/events/new', ...(pathname.startsWith('/events/') ? [pathname] : [])] : session.pair?.status === 'pending' ? ['/pair/waiting', '/pair/invite'] : session.pair?.status === 'ended' ? ['/pair/ended', '/pair/start', '/pair/join'] : ['/pair/start', '/pair/join'];
   return allowed.includes(pathname) ? <>{children}</> : <Navigate to={target} replace />;
 }
 function Entry() { const session = useSession(); return <Navigate to={destination(session)} replace />; }
@@ -74,6 +77,10 @@ export const router = createBrowserRouter([{ element: <Root />, children: [
   { path: '/pair/waiting', element: pairPage('Waiting for your partner', <WaitingPage />) },
   { path: '/pair/welcome', element: pairPage('Your pair', <PairWelcomePage />) },
   { path: '/pair/ended', element: pairPage('Your pair has ended', <EndedPage />) },
+  { path: '/calendar', element: pairPage('Calendar', <CalendarPage />) },
+  { path: '/events/new', element: pairPage('Add event', <EventFormPage />) },
+  { path: '/events/:eventId', element: pairPage('Event', <EventDetailPage />) },
+  { path: '/events/:eventId/edit', element: pairPage('Edit event', <EventFormPage />) },
   { path: '/invite', element: <Page title="Your invitation"><InviteEntry /></Page> },
   { path: '*', element: <Page title="Page not found"><section className="card form-page"><h1>Page not found</h1><Link to="/">Return to Deseo</Link></section></Page> },
 ] }]);

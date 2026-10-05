@@ -1,3 +1,4 @@
+import { runtimeKeys } from '../_shared/keys.ts';
 import { createClient } from '@supabase/supabase-js';
 
 type ErrorCode = 'UNAUTHENTICATED' | 'FORBIDDEN' | 'VALIDATION' | 'RATE_LIMITED' | 'RETRYABLE';
@@ -27,8 +28,7 @@ Deno.serve(async (request: Request) => {
   }
   try {
     const url = Deno.env.get('SUPABASE_URL');
-    const publishableKey = Deno.env.get('SUPABASE_PUBLISHABLE_KEY');
-    const secretKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+    const { publishable: publishableKey, secret: secretKey } = runtimeKeys();
     if (!url || !publishableKey || !secretKey) return fail('RETRYABLE', 503);
     const token = bearer.slice(7);
     const caller = createClient(url, publishableKey, { ...options, global: { headers: { Authorization: bearer } } });

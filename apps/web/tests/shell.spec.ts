@@ -21,6 +21,8 @@ test('drawer and account controls preserve keyboard focus across portal widths',
         await page.keyboard.press('Tab');
         await expect(page.getByRole('link', { name: 'Your pair', exact: true })).toBeFocused();
         await page.keyboard.press('Tab');
+        await expect(page.getByRole('link', { name: 'Calendar', exact: true })).toBeFocused();
+        await page.keyboard.press('Tab');
         await expect(page.getByRole('button', { name: 'Close navigation' })).toBeFocused();
         await page.keyboard.press('Escape'); await expect(menu).toBeFocused();
       } else await expect(page.getByRole('link', { name: 'Your pair', exact: true })).toHaveAttribute('aria-current', 'page');

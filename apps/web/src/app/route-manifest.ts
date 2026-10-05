@@ -12,5 +12,9 @@ export const routeManifest: readonly RouteCoverage[] = [
   { id: 'pair-welcome', path: '/pair/welcome', fixture: 'active', views: ['default'] },
   { id: 'pair-ended', path: '/pair/ended', fixture: 'ended', views: ['default'] },
   { id: 'invite-entry', path: '/invite', fixture: 'signedOut', views: ['valid', 'invalid'] },
+  { id: 'calendar', path: '/calendar', fixture: 'active', views: ['month', 'agenda', 'compare', 'empty', 'error'] },
+  { id: 'event-new', path: '/events/new', fixture: 'active', views: ['default', 'validation'] },
+  { id: 'event-detail', path: '/events/:eventId', fixture: 'active', views: ['shared', 'private', 'delete-dialog', 'unavailable'] },
+  { id: 'event-edit', path: '/events/:eventId/edit', fixture: 'active', views: ['default', 'conflict', 'share-dialog'] },
   { id: 'unknown-route', path: '*', fixture: 'signedOut', views: ['not-found'] },
 ];

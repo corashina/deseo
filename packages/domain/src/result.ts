@@ -48,11 +48,11 @@ export function toAppError(error: unknown): AppError {
   const parsed = commandErrorSchema.safeParse(error);
   if (parsed.success) return new AppError(parsed.data);
   if (error instanceof z.ZodError) return new AppError({ code: 'VALIDATION', message: 'Check the entered values.' });
-  const source = error as { code?: string; status?: number } | null;
+  const source = error as { code?: unknown; status?: number } | null;
   if (source?.code === 'otp_expired' || source?.code === 'otp_disabled') {
     return new AppError({ code: 'VALIDATION', field: 'code', message: 'The code is invalid or expired. Request a new code.' });
   }
-  if (source?.status === 429 || source?.code?.includes('rate_limit')) {
+  if (source?.status === 429 || typeof source?.code === 'string' && source.code.includes('rate_limit')) {
     return new AppError({ code: 'RATE_LIMITED', message: 'Wait before you request another code.' });
   }
   if (source?.status === 401) return new AppError({ code: 'UNAUTHENTICATED', message: 'Sign in again.' });
