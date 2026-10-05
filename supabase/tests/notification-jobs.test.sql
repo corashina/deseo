@@ -1,9 +1,9 @@
 -- Importance: 100. Leases, access rechecks, cancellation, expiry, and receipts guard private delivery.
 begin;
-\ir fixtures/setup.sql
+\ir fixtures/setup.sql.inc
 select plan(81);
-select has_table('public','notifications');
-select has_table('private','notification_jobs');
+select has_table('public','notifications','public.notifications exists');
+select has_table('private','notification_jobs','private.notification_jobs exists');
 select ok(not has_table_privilege('authenticated','private.notification_jobs','SELECT'),'No client job access');
 select ok(not has_function_privilege('authenticated','public.complete_job(uuid,uuid,jsonb)','EXECUTE'),'No client completion');
 select ok(has_function_privilege('service_role','public.claim_due_jobs(integer,integer)','EXECUTE'),'Worker can claim');

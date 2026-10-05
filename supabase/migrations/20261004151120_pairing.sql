@@ -61,7 +61,9 @@ language sql stable security definer set search_path = '' as $$
     where mine.user_id=private.active_actor() and theirs.user_id=p_user
       and mine.left_at is null and theirs.left_at is null and p.state='active' and target.account_status='active');
 $$;
-create policy profiles_partner on public.profiles for select to authenticated using(private.is_partner(user_id));
+drop policy profiles_self on public.profiles;
+create policy profiles_read on public.profiles for select to authenticated
+using(user_id=(select private.active_actor()) or private.is_partner(user_id));
 create policy pairs_current on public.pairs for select to authenticated using(private.is_member(id,false));
 -- A member can read their own content-free closure row for Realtime revocation.
 create policy members_current on public.pair_members for select to authenticated

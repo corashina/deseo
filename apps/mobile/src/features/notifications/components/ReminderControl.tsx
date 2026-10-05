@@ -60,11 +60,11 @@ function ReminderForm({ pairId, online, saved, defaultMinutes, ...props }: Props
     {saved && <Text style={theme.typography.secondary}>{saved.state === 'past' ? 'The selected reminder time has passed.' : saved.active ? 'Your reminder is on.' : 'Your reminder is off.'}</Text>}
     {saved?.nextDueAt && <Text style={theme.typography.secondary}>Next: {DateTime.fromISO(saved.nextDueAt).setZone(props.timezone).toLocaleString(DateTime.DATETIME_MED)} ({props.timezone})</Text>}
     {props.eventId ? <>
-      {props.allDay && <Text style={theme.typography.secondary}>All-day reminders use 09:00 in {props.timezone}.</Text>}
-      {([{ value: null, label: 'None' }, { value: 0, label: props.allDay ? 'At 09:00' : 'At start' }, { value: 15, label: '15 minutes before' },
-        { value: 60, label: 'One hour before' }, { value: 1440, label: 'One day before' }] as const).map(option =>
+      {props.allDay && <Text style={theme.typography.secondary}>Choose how long before 09:00 in {props.timezone} to receive an all-day reminder.</Text>}
+      {([{ value: null, label: 'None' }, { value: 15, label: props.allDay ? '15 minutes before 09:00' : '15 minutes before' },
+        { value: 60, label: props.allDay ? 'One hour before 09:00' : 'One hour before' },
+        { value: 1440, label: props.allDay ? '24 hours before 09:00' : 'One day before' }] as const).map(option =>
         <Button key={String(option.value)} label={`${choice === option.value ? 'Selected: ' : ''}${option.label}`} variant="secondary" disabled={busy} onPress={() => setChoice(option.value)} />)}
-      {choice === 0 && !props.allDay && <Text style={theme.typography.secondary}>A push may expire before delivery when the event starts.</Text>}
     </> : <>
       <Button label={taskEnabled ? 'Turn reminder off' : 'Choose reminder time'} variant="secondary" disabled={busy || props.completed} onPress={() => setTaskEnabled(value => !value)} />
       {taskEnabled && <><Field label="Reminder date" value={date} onChangeText={setDate} placeholder="YYYY-MM-DD" editable={!busy} />

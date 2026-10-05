@@ -1,8 +1,8 @@
 -- Importance: 100. Calendar commands enforce privacy and version checks.
 begin;
-\ir fixtures/setup.sql
+\ir fixtures/setup.sql.inc
 select plan(21);
-select has_table('public', 'events');
+select has_table('public','events','public.events exists');
 select ok(not has_table_privilege('authenticated', 'public.events', 'INSERT'), 'Create through commands');
 select ok(not has_table_privilege('authenticated', 'public.events', 'UPDATE'), 'Update through commands');
 select pg_temp.as_user(1);

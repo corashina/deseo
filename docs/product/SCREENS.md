@@ -174,11 +174,12 @@ The event detail shows title, date, time, timezone, people, visibility, location
 | Location | Optional text; 200 characters; no background location access |
 | Description | Optional plain text; 2,000 characters |
 | Important date | Available for all-day events; offers yearly repeat |
-| Your reminder | None, at start, 15 minutes, one hour, or one day before |
+| Your reminder | None, 15 minutes, one hour, or one day before |
 
 Convert the inclusive all-day end shown in the form to an exclusive stored end date.
 
-All-day reminders use 09:00 in the event timezone. Show that time before saving.
+All-day reminder offsets count back from 09:00 in the event timezone. Show the reference time and offset before saving.
+The one-day offset means 24 elapsed hours. Across daylight-saving changes, it can differ from 09:00 on the previous day.
 
 Use the pair timezone as the default for important dates. Timed events default to the creator's timezone.
 

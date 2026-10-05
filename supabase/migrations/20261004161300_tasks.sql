@@ -110,33 +110,33 @@ create trigger task_lists_change_signal after insert or update or delete on publ
 
 create function private.task_command(p_action text,p_task_id uuid,p_input jsonb,p_completed boolean,p_expected_version integer,p_command_id uuid)
 returns jsonb language plpgsql security definer set search_path='' as $$
-declare actor uuid; pair uuid; previous public.tasks; result public.tasks; replay jsonb;
+declare v_actor uuid; pair uuid; previous public.tasks; result public.tasks; replay jsonb;
   request jsonb:=jsonb_build_object('id',p_task_id,'input',p_input,'completed',p_completed,'version',p_expected_version);
-  task_list uuid; assignee uuid; title text; due date;
+  task_list uuid; assignee uuid; task_title text; due date;
 begin
-  actor:=private.require_actor();
+  v_actor:=private.require_actor();
   if p_action not in('create','update','complete','delete') then return private.error('VALIDATION'); end if;
   if p_action='create' then
     p_task_id:=(p_input->>'id')::uuid; pair:=(p_input->>'pair_id')::uuid;
     if p_task_id is null or pair is null then return private.error('VALIDATION'); end if;
   else
     select pair_id into pair from public.tasks where id=p_task_id;
-    if pair is null then select r.pair_id into pair from private.command_receipts r where r.actor=actor and r.command_id=p_command_id
+    if pair is null then select r.pair_id into pair from private.command_receipts r where r.actor=v_actor and r.command_id=p_command_id
       and r.command_type='task_'||p_action and r.expires_at>now(); end if;
     if pair is null then return private.error('FORBIDDEN'); end if;
   end if;
-  perform private.lock_pair(pair,actor);
+  perform private.lock_pair(pair,v_actor);
   if not private.is_member(pair) then return private.error('FORBIDDEN'); end if;
   select * into previous from public.tasks where id=p_task_id for update;
   if previous.id is not null and previous.pair_id<>pair then return private.error('FORBIDDEN'); end if;
-  replay:=private.receipt(actor,p_command_id,'task_'||p_action,request);
+  replay:=private.receipt(v_actor,p_command_id,'task_'||p_action,request);
   if replay is not null then
     if p_action<>'delete' and previous.id is null then return private.error('FORBIDDEN'); end if;
     return replay;
   end if;
   if p_action='create' and previous.id is not null then
-    if previous.created_by<>actor then return private.error('CONFLICT'); end if;
-    return private.save_receipt(actor,p_command_id,'task_create',pair,request,to_jsonb(previous));
+    if previous.created_by<>v_actor then return private.error('CONFLICT'); end if;
+    return private.save_receipt(v_actor,p_command_id,'task_create',pair,request,to_jsonb(previous));
   end if;
   if p_action<>'create' then
     if previous.id is null then return private.error('FORBIDDEN'); end if;
@@ -144,20 +144,20 @@ begin
   end if;
   if p_action='delete' then
     delete from public.tasks where id=p_task_id;
-    return private.save_receipt(actor,p_command_id,'task_delete',pair,request,jsonb_build_object('id',p_task_id));
+    return private.save_receipt(v_actor,p_command_id,'task_delete',pair,request,jsonb_build_object('id',p_task_id));
   end if;
   if p_action='complete' then
     if p_completed is null then return private.error('VALIDATION','completed'); end if;
     if p_completed=(previous.completed_at is not null) then result:=previous;
     else
-      update public.tasks set completed_at=case when p_completed then now() end,completed_by=case when p_completed then actor end,
+      update public.tasks set completed_at=case when p_completed then now() end,completed_by=case when p_completed then v_actor end,
         updated_at=now(),version=version+1 where id=p_task_id returning * into result;
     end if;
-    return private.save_receipt(actor,p_command_id,'task_complete',pair,request,to_jsonb(result));
+    return private.save_receipt(v_actor,p_command_id,'task_complete',pair,request,to_jsonb(result));
   end if;
   if (p_input->>'id')::uuid is distinct from p_task_id or (p_input->>'pair_id')::uuid is distinct from pair then return private.error('VALIDATION','id'); end if;
-  title:=btrim(p_input->>'title'); task_list:=(p_input->>'list_id')::uuid; assignee:=(p_input->>'assignee_id')::uuid;
-  if title is null or char_length(title) not between 1 and 200 then return private.error('VALIDATION','title'); end if;
+  task_title:=btrim(p_input->>'title'); task_list:=(p_input->>'list_id')::uuid; assignee:=(p_input->>'assignee_id')::uuid;
+  if task_title is null or char_length(task_title) not between 1 and 200 then return private.error('VALIDATION','title'); end if;
   if not exists(select 1 from public.task_lists where id=task_list and pair_id=pair) then return private.error('VALIDATION','listId'); end if;
   if assignee is not null and not exists(select 1 from public.pair_members m join public.profiles p on p.user_id=m.user_id
     where m.pair_id=pair and m.user_id=assignee and m.left_at is null and p.account_status='active') then return private.error('VALIDATION','assigneeId'); end if;
@@ -167,12 +167,12 @@ begin
   end if;
   if p_action='create' then
     insert into public.tasks(id,pair_id,list_id,title,assignee_id,due_date,created_by)
-    values(p_task_id,pair,task_list,title,assignee,due,actor) returning * into result;
+    values(p_task_id,pair,task_list,task_title,assignee,due,v_actor) returning * into result;
   else
-    update public.tasks set list_id=task_list,title=task_command.title,assignee_id=assignee,due_date=due,updated_at=now(),version=version+1
+    update public.tasks set list_id=task_list,title=task_title,assignee_id=assignee,due_date=due,updated_at=now(),version=version+1
     where id=p_task_id returning * into result;
   end if;
-  return private.save_receipt(actor,p_command_id,'task_'||p_action,pair,request,to_jsonb(result));
+  return private.save_receipt(v_actor,p_command_id,'task_'||p_action,pair,request,to_jsonb(result));
 exception
   when sqlstate 'P0001' then return private.error(sqlerrm);
   when invalid_text_representation or datetime_field_overflow or invalid_datetime_format or check_violation or not_null_violation then return private.error('VALIDATION');
@@ -183,30 +183,30 @@ $$;
 
 create function private.list_command(p_action text,p_list_id uuid,p_pair_id uuid,p_name text,p_expected_version integer,p_command_id uuid)
 returns jsonb language plpgsql security definer set search_path='' as $$
-declare actor uuid; pair uuid; previous public.task_lists; result public.task_lists; replay jsonb; general uuid; moved integer;
+declare v_actor uuid; pair uuid; previous public.task_lists; result public.task_lists; replay jsonb; general uuid; moved integer;
   request jsonb:=jsonb_build_object('id',p_list_id,'pair',p_pair_id,'name',p_name,'version',p_expected_version);
 begin
-  actor:=private.require_actor();
+  v_actor:=private.require_actor();
   if p_action not in('create','rename','move','delete') then return private.error('VALIDATION'); end if;
   if p_action='create' then pair:=p_pair_id; p_list_id:=p_command_id;
   else
     select pair_id into pair from public.task_lists where id=p_list_id;
-    if pair is null then select r.pair_id into pair from private.command_receipts r where r.actor=actor and r.command_id=p_command_id
+    if pair is null then select r.pair_id into pair from private.command_receipts r where r.actor=v_actor and r.command_id=p_command_id
       and r.command_type='list_'||p_action and r.expires_at>now(); end if;
   end if;
   if pair is null then return private.error('FORBIDDEN'); end if;
-  perform private.lock_pair(pair,actor);
+  perform private.lock_pair(pair,v_actor);
   if not private.is_member(pair) then return private.error('FORBIDDEN'); end if;
   select * into previous from public.task_lists where id=p_list_id for update;
   if previous.id is not null and previous.pair_id<>pair then return private.error('FORBIDDEN'); end if;
-  replay:=private.receipt(actor,p_command_id,'list_'||p_action,request);
+  replay:=private.receipt(v_actor,p_command_id,'list_'||p_action,request);
   if replay is not null then
     if p_action<>'delete' and previous.id is null then return private.error('FORBIDDEN'); end if;
     return replay;
   end if;
   if p_action='create' and previous.id is not null then
-    if previous.created_by<>actor then return private.error('CONFLICT'); end if;
-    return private.save_receipt(actor,p_command_id,'list_create',pair,request,to_jsonb(previous));
+    if previous.created_by<>v_actor then return private.error('CONFLICT'); end if;
+    return private.save_receipt(v_actor,p_command_id,'list_create',pair,request,to_jsonb(previous));
   end if;
   if p_action<>'create' and (previous.id is null or previous.is_general) then return private.error('FORBIDDEN'); end if;
   if p_action='rename' and (p_expected_version is null or p_expected_version<>previous.version) then return private.error('CONFLICT'); end if;
@@ -215,19 +215,19 @@ begin
     if general is null then return private.error('RETRYABLE'); end if;
     update public.tasks set list_id=general,version=version+1,updated_at=now() where list_id=p_list_id and pair_id=pair;
     get diagnostics moved=row_count;
-    return private.save_receipt(actor,p_command_id,'list_move',pair,request,jsonb_build_object('id',p_list_id,'generalListId',general,'moved',moved));
+    return private.save_receipt(v_actor,p_command_id,'list_move',pair,request,jsonb_build_object('id',p_list_id,'generalListId',general,'moved',moved));
   elsif p_action='delete' then
     if exists(select 1 from public.tasks where pair_id=pair and list_id=p_list_id) then return private.error('VALIDATION','listNotEmpty'); end if;
     delete from public.task_lists where id=p_list_id;
-    return private.save_receipt(actor,p_command_id,'list_delete',pair,request,jsonb_build_object('id',p_list_id));
+    return private.save_receipt(v_actor,p_command_id,'list_delete',pair,request,jsonb_build_object('id',p_list_id));
   end if;
   if p_name is null or char_length(btrim(p_name)) not between 1 and 40 then return private.error('VALIDATION','name'); end if;
   if p_action='create' then
-    insert into public.task_lists(id,pair_id,name,created_by) values(p_list_id,pair,btrim(p_name),actor) returning * into result;
+    insert into public.task_lists(id,pair_id,name,created_by) values(p_list_id,pair,btrim(p_name),v_actor) returning * into result;
   else
     update public.task_lists set name=btrim(p_name),version=version+1,updated_at=now() where id=p_list_id returning * into result;
   end if;
-  return private.save_receipt(actor,p_command_id,'list_'||p_action,pair,request,to_jsonb(result));
+  return private.save_receipt(v_actor,p_command_id,'list_'||p_action,pair,request,to_jsonb(result));
 exception
   when sqlstate 'P0001' then return private.error(sqlerrm);
   when unique_violation then return private.error('CONFLICT','name');

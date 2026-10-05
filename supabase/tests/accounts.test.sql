@@ -1,10 +1,10 @@
 -- Importance: 100. Unauthorized accounts must not read protected rows.
 begin;
-\ir fixtures/setup.sql
+\ir fixtures/setup.sql.inc
 select plan(12);
-select has_table('public', 'profiles');
-select has_table('private', 'command_receipts');
-select has_table('private', 'verification_proofs');
+select has_table('public','profiles','public.profiles exists');
+select has_table('private','command_receipts','private.command_receipts exists');
+select has_table('private','verification_proofs','private.verification_proofs exists');
 select ok(not has_table_privilege('anon', 'public.profiles', 'SELECT'), 'No public profiles');
 select ok(not has_table_privilege('authenticated', 'private.verification_proofs', 'SELECT'), 'Proofs stay private');
 select pg_temp.as_user(1);

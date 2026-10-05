@@ -1,5 +1,5 @@
 // Importance: 100. Real requests check lease exclusion, token ownership, and session revocation.
-// Use a disposable stack on port 55621 without worker secrets. This harness never calls Expo.
+// Use a disposable stack on port 55621 or 55721 without worker secrets. This harness never calls Expo.
 import assert from 'node:assert/strict';
 import { randomBytes, randomUUID } from 'node:crypto';
 import test from 'node:test';
@@ -13,8 +13,8 @@ const localUrl = new URL(process.env.SUPABASE_TEST_URL ?? 'http://127.0.0.1:5562
 const publicKey = process.env.SUPABASE_TEST_PUBLISHABLE_KEY;
 const serverKey = process.env.SUPABASE_TEST_SERVICE_ROLE_KEY;
 assert.ok(localUrl.protocol === 'http:' && ['127.0.0.1', 'localhost', '[::1]'].includes(localUrl.hostname)
-  && localUrl.port === '55621' && localUrl.pathname === '/' && !localUrl.search && !localUrl.hash
-  && !localUrl.username && !localUrl.password, 'Use the disposable Notifications stack on port 55621.');
+  && ['55621', '55721'].includes(localUrl.port) && localUrl.pathname === '/' && !localUrl.search && !localUrl.hash
+  && !localUrl.username && !localUrl.password, 'Use the disposable Notifications stack on port 55621 or 55721.');
 assert.ok(publicKey && serverKey, 'Set local test keys outside the repository.');
 
 async function request<T>(path: string, method: string, token: string, body?: unknown, admin = false): Promise<T> {

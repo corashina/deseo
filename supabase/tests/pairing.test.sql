@@ -1,10 +1,10 @@
 -- Importance: 100. Membership constraints protect pair capacity.
 begin;
-\ir fixtures/setup.sql
+\ir fixtures/setup.sql.inc
 select plan(19);
-select has_table('public', 'pairs');
-select has_table('public', 'pair_members');
-select has_table('private', 'pair_invites');
+select has_table('public','pairs','public.pairs exists');
+select has_table('public','pair_members','public.pair_members exists');
+select has_table('private','pair_invites','private.pair_invites exists');
 select ok(not has_table_privilege('authenticated', 'private.pair_invites', 'SELECT'), 'Invite hashes stay private');
 select pg_temp.as_user(5);
 set local role authenticated;

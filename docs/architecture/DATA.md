@@ -64,7 +64,8 @@ Include events that overlap the requested range, even when they start before it.
 
 Luxon converts wall times to instants. Detect invalid and ambiguous times before committing a timed event.
 
-All-day reminder times use 09:00 in the event timezone. Yearly dates follow the February 28 leap-day rule.
+Event reminder offsets are 15, 60, or 1440 minutes. Zero-offset reminders are not supported.
+All-day offsets count back from 09:00 in the event timezone. Yearly dates follow the February 28 leap-day rule.
 
 Task due dates are dates in the pair timezone. A task reminder stores an explicit chosen instant.
 

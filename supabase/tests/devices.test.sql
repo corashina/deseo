@@ -1,10 +1,10 @@
 -- Importance: 98. Session ownership, token transfers, preferences, and private reminders protect account data.
 begin;
-\ir fixtures/setup.sql
+\ir fixtures/setup.sql.inc
 select plan(38);
-select has_table('public','devices');
-select has_table('public','notification_preferences');
-select has_table('public','reminders');
+select has_table('public','devices','public.devices exists');
+select has_table('public','notification_preferences','public.notification_preferences exists');
+select has_table('public','reminders','public.reminders exists');
 select ok(not has_table_privilege('authenticated','public.devices','INSERT'),'No direct device writes');
 select ok(not has_column_privilege('authenticated','public.devices','expo_token','SELECT'),'Tokens have no client read grant');
 select ok(not has_table_privilege('authenticated','public.reminders','UPDATE'),'No direct reminder updates');

@@ -1,6 +1,6 @@
 -- Importance: 100. Reservation totals, expiry, leases, disabled sessions, and feed bounds protect private content.
 begin;
-\ir fixtures/setup.sql
+\ir fixtures/setup.sql.inc
 select no_plan();
 create temporary table draft as select '{"id":"40000000-0000-4000-8000-000000000201","pairId":"30000000-0000-4000-8000-000000000001","memoryDate":"2026-10-04","caption":"Synthetic","photos":[{"id":"60000000-0000-4000-8000-000000000201","fullBytes":100,"thumbBytes":30,"width":20,"height":10,"thumbWidth":10,"thumbHeight":5}]}'::jsonb value;
 grant select on draft to authenticated;
@@ -12,7 +12,8 @@ select is(public.reserve_memory((select value||'{"memoryDate":"2026-02-30"}' fro
 select is(public.reserve_memory((select jsonb_set(value,'{photos,0,fullBytes}','5242881') from draft),gen_random_uuid())->'error'->>'code','VALIDATION','Full file capped at 5 MiB');
 select is(public.reserve_memory((select jsonb_set(value,'{photos,0,thumbWidth}','513') from draft),gen_random_uuid())->'error'->>'code','VALIDATION','Thumbnail capped at 512 pixels');
 select is(public.reserve_memory((select jsonb_set(value,'{photos,0,height}','2561') from draft),gen_random_uuid())->'error'->>'code','VALIDATION','Full image capped at 2560 pixels');
-select is(public.reserve_memory((select value||jsonb_build_object('photos',(select jsonb_agg(value->'photos'->0) from generate_series(1,6))) from draft),gen_random_uuid())->'error'->>'code','VALIDATION','Six photos rejected');
+select is(public.reserve_memory((select value||jsonb_build_object('photos',(select jsonb_agg(photo) from
+ (select value->'photos'->0 as photo from generate_series(1,6)) copies)) from draft),gen_random_uuid())->'error'->>'code','VALIDATION','Six photos rejected');
 reset role;
 -- A synthetic 1 GiB ledger fills quota without writing image objects.
 insert into public.memories(id,pair_id,created_by,memory_date,state)

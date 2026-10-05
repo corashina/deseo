@@ -1,9 +1,9 @@
 -- Importance: 100. Pair access, versions, retry receipts, and list invariants protect shared data.
 begin;
-\ir fixtures/setup.sql
+\ir fixtures/setup.sql.inc
 select plan(67);
-select has_table('public','task_lists');
-select has_table('public','tasks');
+select has_table('public','task_lists','public.task_lists exists');
+select has_table('public','tasks','public.tasks exists');
 -- Importance: 95. Remove the obsolete unversioned RPC.
 select has_function('public','rename_list',array['uuid','text','integer','uuid'],'Versioned list rename RPC exists');
 select hasnt_function('public','rename_list',array['uuid','text','uuid'],'Unversioned list rename RPC is absent');

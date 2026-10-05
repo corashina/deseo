@@ -1,8 +1,68 @@
 # Development workflow
 
-Status: Chat 05 source is integrated. Local database, real push, and device checks remain pending.
+Status: The portal branch includes the reviewed native reminder and backend corrections.
+Real push and native device checks remain pending.
 
-Docker is installed, but its engine pipe is unavailable. Complete backend checks before treating Chat 05 as an accepted baseline.
+## Web portal workspace
+
+Use `codex/deseo-web-portal` in `.worktrees/deseo-web-portal` for portal work.
+Keep the existing native app in `apps/mobile`. Add browser screens in `apps/web`.
+
+Use Node `24.18.0`, npm `11.16.0`, and the root lockfile.
+The browser app reuses the native React, Query, forms, Zod, Luxon, and Supabase pins.
+Web tooling pins: Vite `8.3.2`, React plugin `6.1.2`, Playwright `1.63.0`, and React DOM types `19.2.7`.
+See [Vite setup](https://vite.dev/guide/) and [Playwright configuration](https://playwright.dev/docs/test-configuration).
+
+| Command | Purpose |
+|---|---|
+| `npm run dev:web` | Serve the browser app at `http://127.0.0.1:5174` |
+| `npm run build:web` | Build the browser app |
+| `npm run preview:web` | Serve the production build at `http://127.0.0.1:4174` |
+| `npm run test:web -- <file>` | Run a browser acceptance file |
+| `npm run verify:web` | Run browser typecheck, scoped lint, build, and acceptance tests |
+| `npm run prepare:web:backend` | Prepare the disposable backend config and source links |
+| `npm run start:web:backend` | Prepare and start the `deseo-web` stack |
+| `npm run reset:web:backend` | Replay migrations in the verified `deseo-web` stack |
+| `npm run test:web:db` | Run SQL tests in that stack |
+
+Both browser servers bind to loopback and reject occupied ports.
+Task 1 configures tooling. Task 3 adds the application entry and browser acceptance tests.
+Build and browser tests require those files. Do not use empty test passes as acceptance evidence.
+
+Playwright checks Chromium at 1440×1000 and 390×844 against the production preview.
+Keep Auth state in `apps/web/playwright/.auth`. Keep credentials in ignored environment files.
+Playwright saves reports and traces under `.superpowers/web-tests`.
+
+The dedicated backend lives in `.superpowers/web-backend` and uses project ID `deseo-web`.
+Its ports use 55720–55729, including inspector port 55728.
+The setup script checks Docker project labels, worktree identity, and listeners before operating on this stack.
+Keep the existing 556xx integration stack separate.
+Use [the installed CLI help](https://supabase.com/docs/reference/cli/introduction) before changing backend commands.
+
+Run these commands from the portal worktree root:
+
+```powershell
+npm run prepare:web:backend
+npm run start:web:backend
+npm run reset:web:backend
+npm run test:web:db
+```
+
+Read local keys into the test process without printing them:
+
+```powershell
+$webStatus = npx supabase --workdir .superpowers/web-backend status -o json | ConvertFrom-Json
+$env:SUPABASE_TEST_URL = 'http://127.0.0.1:55721'
+$env:SUPABASE_TEST_PUBLISHABLE_KEY = $webStatus.ANON_KEY
+$env:SUPABASE_TEST_SERVICE_ROLE_KEY = $webStatus.SERVICE_ROLE_KEY
+npm run test:db:race
+npm run test:memories:race
+npm run test:notifications:race
+Remove-Item Env:SUPABASE_TEST_SERVICE_ROLE_KEY
+```
+
+SQL tests include the reminder contract: reject zero minutes; accept 15, 60, and 1440 minutes.
+All-day offsets count back from 09:00 in the event timezone.
 
 ## Chat 05 integration checks
 
@@ -52,7 +112,7 @@ Each worker validates the scheduler secret. Its `verify_jwt=false` configuration
 Maestro flows under `apps/mobile/e2e` require an authenticated synthetic pair and existing fixture IDs.
 They remain unrun. Record Android and iOS results before claiming Stage B or Stage C acceptance.
 
-The “At start” choice has no delivery window under the current expiry contract. Owner resolution remains required.
+Event reminders support 15, 60, or 1440 minutes before their reference time. Zero-offset choices are removed.
 
 ## 1. Installed workspace
 
@@ -66,11 +126,11 @@ Use Node `24.18.0` and npm `11.16.0`, as pinned in `.node-version` and `package.
 
 The app uses Expo `57.0.26`, React Native `0.86.3`, React `19.2.3`, and Expo Router `57.0.24`.
 
-Run `npm ci` from the repository root. The workspace currently contains only `apps/mobile`.
+Run `npm ci` from the repository root. The workspace contains `apps/mobile` and `apps/web`.
 
 Add dependencies only when their feature task needs them. Keep exact versions and one root lockfile.
 
-Run `npm run verify:mobile` without Docker. This runs TypeScript, ESLint, and Jest.
+Run `npm run verify:mobile` without Docker. This runs native TypeScript, ESLint, and Jest.
 
 Copy `apps/mobile/.env.example` to `.env.local` inside that folder before connecting to a local backend.
 Use an API URL reachable from the device. A phone's loopback address refers to that phone.
@@ -158,8 +218,8 @@ Create migration filenames through the installed Supabase CLI. Use the task's na
 
 Generate and inspect database types after changing the schema.
 
-`apps/mobile/src/lib/database.types.ts` remains pending until the local migrations run.
-Runtime Zod schemas validate current responses. A hand-written file must not claim to be generated schema output.
+The reviewed backend commit supplies generated `apps/mobile/src/lib/database.types.ts`.
+Regenerate this file after schema changes. Runtime Zod schemas validate current responses.
 
 Run SQL tests and advisors. Rebuild the local database from the migration history to verify reproducibility.
 

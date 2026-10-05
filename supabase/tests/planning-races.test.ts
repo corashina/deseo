@@ -3,7 +3,7 @@
 import assert from 'node:assert/strict';
 import { randomUUID, randomBytes } from 'node:crypto';
 import test from 'node:test';
-import { createClient, type RealtimeChannel, type SupabaseClient } from '@supabase/supabase-js';
+import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 
 type Result<T> = { ok: true; data: T } | { ok: false; error: { code: string } };
 type Account = { id: string; client: SupabaseClient };
@@ -22,15 +22,15 @@ const options = { auth: { persistSession: false, autoRefreshToken: false, detect
 const admin = createClient(base, serverKey, options);
 const users: string[] = [];
 const pairs: string[] = [];
-const channels: { client: SupabaseClient; channel: RealtimeChannel }[] = [];
+const realtimeClients = new Set<SupabaseClient>();
 
 // Importance: 100. Task and calendar topics must reject other pairs and carry no private content.
 async function planningSignals(client: SupabaseClient, topic: 'tasks' | 'calendar', pairId: string, allowed: boolean) {
+  realtimeClients.add(client);
   await client.realtime.setAuth();
   const messages: unknown[] = [];
   const channel = client.channel(`${topic}:${pairId}`, { config: { private: true } })
     .on('broadcast', { event: 'changed' }, (message) => messages.push(message.payload));
-  channels.push({ client, channel });
   await new Promise<void>((resolve, reject) => {
     const timer = setTimeout(() => reject(new Error('Realtime authorization did not finish.')), 20_000);
     channel.subscribe((status) => {
@@ -52,7 +52,15 @@ async function expectSignal(messages: unknown[], previousCount: number) {
     await new Promise((resolve) => setTimeout(resolve, 50));
   }
   assert.ok(messages.length > previousCount, 'The partner must receive a confirmed change.');
-  assert.ok(messages.every((message) => JSON.stringify(message) === '{}'), 'Planning signals must contain no private content.');
+  for (const message of messages) {
+    assert.ok(typeof message === 'object' && message !== null && !Array.isArray(message), 'Planning signals must be objects.');
+    const { id, ...content } = message as Record<string, unknown>;
+    assert.deepEqual(content, {}, 'Planning signals must contain no private content.');
+    // realtime.send adds its generated message UUID to the empty application payload.
+    assert.equal(typeof id, 'string', 'Realtime must supply an opaque message ID.');
+    assert.match(id as string, /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i,
+      'Realtime metadata must contain only a message UUID.');
+  }
 }
 
 async function account(): Promise<Account> {
@@ -263,7 +271,7 @@ test('shared planning concurrency and account isolation', { timeout: 180_000 }, 
   } finally {
     // Remove only this run's synthetic pairs and Auth accounts, even after an assertion fails.
     const failures: string[] = [];
-    for (const { client, channel } of channels) await client.removeChannel(channel);
+    await Promise.all([...realtimeClients].map(client => client.removeAllChannels()));
     for (const id of pairs) {
       const { error } = await admin.from('pairs').delete().eq('id', id);
       if (error) failures.push(`Pair cleanup: ${error.code}`);

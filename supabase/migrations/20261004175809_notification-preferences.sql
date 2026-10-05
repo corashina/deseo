@@ -1,7 +1,7 @@
 create table public.notification_preferences (
   user_id uuid primary key references public.profiles(user_id) on delete cascade,
   message_alerts boolean not null default false,
-  default_event_reminder_minutes integer check(default_event_reminder_minutes in(0,15,60,1440)),
+  default_event_reminder_minutes integer check(default_event_reminder_minutes in(15,60,1440)),
   quiet_start time, quiet_end time,
   timezone text not null,
   version integer not null default 1 check(version>0),
@@ -41,7 +41,7 @@ create table public.reminders (
   foreign key(pair_id,task_id) references public.tasks(pair_id,id) on delete cascade,
   foreign key(pair_id,user_id) references public.pair_members(pair_id,user_id),
   check((event_id is not null and task_id is null and (not active or minutes_before is not null)
-      and (minutes_before is null or minutes_before in(0,15,60,1440)) and remind_at is null)
+      and (minutes_before is null or minutes_before in(15,60,1440)) and remind_at is null)
     or (task_id is not null and event_id is null and minutes_before is null and (not active or remind_at is not null))),
   unique(user_id,event_id), unique(user_id,task_id)
 );

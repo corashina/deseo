@@ -1,9 +1,9 @@
 -- Importance: 100. Auth, isolation, immutable uploads, quota, publication, and cleanup are security boundaries.
 begin;
-\ir fixtures/setup.sql
+\ir fixtures/setup.sql.inc
 select no_plan();
-select has_table('public','memories');
-select has_table('public','memory_photos');
+select has_table('public','memories','public.memories exists');
+select has_table('public','memory_photos','public.memory_photos exists');
 select ok(not has_table_privilege('authenticated','public.memories','INSERT'),'Clients cannot insert metadata');
 select ok(not has_table_privilege('authenticated','public.memory_photos','UPDATE'),'Clients cannot claim validation');
 select ok(not has_function_privilege('authenticated','public.publish_memory(uuid,uuid,uuid,uuid)','EXECUTE'),'Only service publishes');
@@ -99,7 +99,11 @@ select is(public.complete_memory_cleanup((select(job->>'id')::uuid from claimed)
 select is(jsonb_array_length(public.claim_memory_cleanup(1)->'data'),0,'Retained failure is not silently reclaimed');
 select ok((public.retry_memory_cleanup((select(job->>'id')::uuid from claimed))->>'ok')::boolean,'Service can retry retained failure');
 update claimed set job=public.claim_memory_cleanup(1)->'data'->0;
+-- This transaction contains synthetic metadata only. No Storage API objects exist.
+-- The installed storage.protect_delete guard permits this transaction-local override.
+set local storage.allow_delete_query='true';
 delete from storage.objects where bucket_id='memory-photos';
+set local storage.allow_delete_query='false';
 select is(public.complete_memory_cleanup((select(job->>'id')::uuid from claimed),(select(job->>'leaseToken')::uuid from claimed))->'data'->>'state','completed','Successful object removal releases quota');
 reset role;
 select is((select count(*)::integer from private.memory_reservations where released_at is null),0,'Completed cleanup releases reservation');

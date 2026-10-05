@@ -1,9 +1,9 @@
 -- Importance: 100 for privacy, retries, and cursors; 95 for pagination.
 begin;
-\ir fixtures/setup.sql
+\ir fixtures/setup.sql.inc
 select plan(62);
-select has_table('public','messages');
-select has_table('private','conversation_reads');
+select has_table('public','messages','public.messages exists');
+select has_table('private','conversation_reads','private.conversation_reads exists');
 select ok(not has_table_privilege('anon','public.messages','SELECT'),'Anonymous users cannot read messages');
 select ok(not has_table_privilege('authenticated','public.messages','INSERT'),'Messages require send commands');
 select ok(not has_table_privilege('authenticated','public.messages','UPDATE'),'Sent messages cannot be edited directly');

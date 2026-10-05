@@ -13,7 +13,7 @@
   "scripts": {
     "dev:mobile": "npm run start --workspace @deseo/mobile",
     "typecheck": "npm run typecheck --workspaces --if-present",
-    "lint": "eslint apps/mobile/src",
+    "lint": "eslint apps/mobile/src apps/web",
     "test:mobile": "npm run test --workspace @deseo/mobile --",
     "test:db": "supabase test db",
     "test:db:race": "node --experimental-strip-types --test supabase/tests/pairing-races.test.ts supabase/tests/planning-races.test.ts supabase/tests/messages-races.test.ts",
@@ -23,8 +23,17 @@
     "typecheck:notifications:functions": "npm exec --yes --package deno@2.9.6 -- deno check --frozen --config supabase/functions/deno.json supabase/functions/dispatch-notifications/index.ts supabase/functions/check-push-receipts/index.ts",
     "test:memories:race": "node --experimental-strip-types --test supabase/tests/memories-races.test.ts",
     "test:notifications:race": "node --experimental-strip-types --test supabase/tests/notification-races.test.ts",
-    "verify:mobile": "npm run typecheck && npm run lint && npm run test:mobile",
-    "verify": "npm run verify:mobile && npm run typecheck:memories:functions && npm run test:memories:functions && npm run typecheck:notifications:functions && npm run test:notifications:functions && npm run test:db && npm run test:db:race && npm run test:memories:race && npm run test:notifications:race"
+    "verify:mobile": "npm run typecheck --workspace @deseo/mobile && eslint apps/mobile/src && npm run test:mobile",
+    "verify": "npm run verify:mobile && npm run typecheck:memories:functions && npm run test:memories:functions && npm run typecheck:notifications:functions && npm run test:notifications:functions && npm run test:db && npm run test:db:race && npm run test:memories:race && npm run test:notifications:race",
+    "reset:web:backend": "powershell -NoProfile -File supabase/dev/prepare-web-stack.ps1 -Action Reset",
+    "test:web": "npm run test --workspace @deseo/web --",
+    "verify:web": "npm run verify --workspace @deseo/web",
+    "test:web:db": "powershell -NoProfile -File supabase/dev/prepare-web-stack.ps1 -Action Test",
+    "dev:web": "npm run dev --workspace @deseo/web",
+    "start:web:backend": "powershell -NoProfile -File supabase/dev/prepare-web-stack.ps1 -Action Start",
+    "preview:web": "npm run preview --workspace @deseo/web",
+    "prepare:web:backend": "powershell -NoProfile -File supabase/dev/prepare-web-stack.ps1",
+    "build:web": "npm run build --workspace @deseo/web"
   },
   "devDependencies": {
     "eslint": "10.12.0",
