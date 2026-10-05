@@ -8,6 +8,8 @@ import { Button } from '../../../components/ui/Button';
 import { Status } from '../../../components/ui/Status';
 import { EventRow, useCalendarSignals } from '../../calendar';
 import { TaskRow, useTaskSignals } from '../../tasks';
+import { NoteCard } from '../../messages';
+import '../../../styles/messages.css';
 import { getToday, todayKeys } from '../queries';
 import '../../../styles/calendar.css';
 import '../../../styles/planning.css';
@@ -57,14 +59,17 @@ export function TodayPage() {
             assignee={pair.members.find(member => member.userId === task.assigneeId)?.displayName ?? 'Unassigned'} />) : <p>No unfinished tasks due today.</p>}
         </section>
       </div>
-      {important && <aside className="card important-card">
+      <aside className="planning-column">
+      {query.data.note && <div data-testid="today-note"><NoteCard message={query.data.note} name={pair.members.find(member => member.userId === query.data.note!.authorId)!.displayName} /></div>}
+      {important && <section className="card important-card">
         <h2>Next important date</h2>
         <h3>{important.title}
         </h3>
         <p>{days === 0 ? 'Today' : days === 1 ? 'Tomorrow' : 'In ' + days + ' days'}
         </p>
         <Link to={'/events/' + important.id}>View date</Link>
-      </aside>}
+      </section>}
+      </aside>
     </div>}
   </>;
 }

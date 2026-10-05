@@ -17,6 +17,7 @@ export const routeManifest: readonly RouteCoverage[] = [
   { id: 'event-detail', path: '/events/:eventId', fixture: 'active', views: ['shared', 'private', 'delete-dialog', 'unavailable'] },
   { id: 'event-edit', path: '/events/:eventId/edit', fixture: 'active', views: ['default', 'conflict', 'share-dialog'] },
   { id: 'today', path: '/today', fixture: 'active', views: ['planning', 'empty', 'error'] },
+  { id: 'messages', path: '/messages', fixture: 'active', views: ['conversation', 'notes', 'empty', 'error', 'pending-send', 'delete-dialog'] },
   { id: 'tasks', path: '/tasks', fixture: 'active', views: ['general', 'groceries', 'completed', 'completion-error'] },
   { id: 'task-new', path: '/tasks/new', fixture: 'active', views: ['default', 'validation'] },
   { id: 'task-detail', path: '/tasks/:taskId', fixture: 'active', views: ['default', 'delete-dialog', 'unavailable'] },

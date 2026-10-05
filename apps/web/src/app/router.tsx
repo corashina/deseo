@@ -1,4 +1,5 @@
 import { TasksPage } from '../features/tasks/pages/TasksPage';
+import { MessagesPage } from '../features/messages';
 import { TaskDetailPage } from '../features/tasks/pages/TaskDetailPage';
 import { TaskFormPage } from '../features/tasks/pages/TaskFormPage';
 import { ListManagerPage } from '../features/tasks/pages/ListManagerPage';
@@ -45,7 +46,7 @@ function Gate({ children, kind = 'pair' }: { children: ReactNode; kind?: 'public
   if (session.status !== 'authenticated') return <Navigate to="/welcome" replace />;
   if (!session.account) return kind === 'profile' ? <>{children}</> : <Navigate to="/profile/setup" replace />;
   if (kind === 'profile') return <Navigate to={target} replace />;
-  const allowed = session.pair?.status === 'active' ? ['/pair/welcome', '/today', '/calendar', '/events/new', '/tasks', '/ideas', ...( /^\/(events|tasks|ideas)\//.test(pathname) ? [pathname] : [])] : session.pair?.status === 'pending' ? ['/pair/waiting', '/pair/invite'] : session.pair?.status === 'ended' ? ['/pair/ended', '/pair/start', '/pair/join'] : ['/pair/start', '/pair/join'];
+  const allowed = session.pair?.status === 'active' ? ['/pair/welcome', '/today', '/calendar', '/events/new', '/tasks', '/ideas', '/messages', ...( /^\/(events|tasks|ideas)\//.test(pathname) ? [pathname] : [])] : session.pair?.status === 'pending' ? ['/pair/waiting', '/pair/invite'] : session.pair?.status === 'ended' ? ['/pair/ended', '/pair/start', '/pair/join'] : ['/pair/start', '/pair/join'];
   return allowed.includes(pathname) ? <>{children}</> : <Navigate to={target} replace />;
 }
 function Entry() { const session = useSession(); return <Navigate to={destination(session)} replace />; }
@@ -87,6 +88,7 @@ export const router = createBrowserRouter([{ element: <Root />, children: [
   { path: '/pair/welcome', element: pairPage('Your pair', <PairWelcomePage />) },
   { path: '/pair/ended', element: pairPage('Your pair has ended', <EndedPage />) },
   { path: '/today', element: pairPage('Today', <TodayPage />) },
+  { path: '/messages', element: pairPage('Messages', <MessagesPage />) },
   { path: '/tasks', element: pairPage('Tasks', <TasksPage />) },
   { path: '/tasks/new', element: pairPage('Add task', <TaskFormPage />) },
   { path: '/tasks/lists', element: pairPage('Task lists', <ListManagerPage />) },
