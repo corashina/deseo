@@ -8,7 +8,7 @@ export function Dialog({ open, onClose, title, children, className = '' }: { ope
     if (open && !node.open) node.showModal();
     if (!open && node.open) node.close();
   }, [open]);
-  return <dialog ref={dialog} aria-label={title} className={className} onCancel={onClose} onClose={onClose} onKeyDown={event => {
+  return <dialog ref={dialog} aria-label={title} className={className} onCancel={event => { event.preventDefault(); onClose(); }} onClose={onClose} onKeyDown={event => {
     if (event.key !== 'Tab') return;
     // Native modal inertness blocks the page; wrap boundaries before focus reaches browser chrome.
     const controls = Array.from(event.currentTarget.querySelectorAll<HTMLElement>('button:not(:disabled), a[href], input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex="0"]')).filter(node => node.getClientRects().length > 0);

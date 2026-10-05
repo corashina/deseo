@@ -4,9 +4,11 @@ import { AppError, errorResult, resultSchema, type Result } from '@deseo/domain/
 import { getSupabase } from '../../lib/supabase';
 import { captureQueryScope, resetPrivateQueries } from '../../lib/query-client';
 import { setDraftScope } from '../../lib/drafts';
+import { assertOnline } from '../../lib/network';
 export const entryIntent: { email: string; retryAt: string; invite: string | null; invalidInvite: boolean } = { email: '', retryAt: '', invite: null, invalidInvite: false };
 export async function requestEmailCode(email: string): Promise<Result<{ retryAt: string }>> {
   try {
+    assertOnline();
     const parsed = emailSchema.parse(email);
     const { error } = await getSupabase().auth.signInWithOtp({ email: parsed, options: { shouldCreateUser: true } });
     if (error) throw error;
@@ -17,6 +19,7 @@ export async function requestEmailCode(email: string): Promise<Result<{ retryAt:
 }
 export async function verifyEmailCode(email: string, code: string): Promise<Result<{ userId: string }>> {
   try {
+    assertOnline();
     const { data, error } = await getSupabase().auth.verifyOtp({ email: emailSchema.parse(email), token: emailCodeSchema.parse(code), type: 'email' });
     if (error) throw error;
     if (!data.session || !data.user) throw new AppError({ code: 'UNAUTHENTICATED' });
@@ -25,6 +28,7 @@ export async function verifyEmailCode(email: string, code: string): Promise<Resu
 }
 export async function saveProfile(input: ProfileInput, expectedVersion?: number): Promise<Result<Account>> {
   try {
+    assertOnline();
     const scope = captureQueryScope();
     const profile = profileSchema.parse(input);
     if (expectedVersion !== undefined) z.number().int().positive().parse(expectedVersion);

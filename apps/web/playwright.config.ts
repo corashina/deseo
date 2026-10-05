@@ -1,5 +1,8 @@
 import { defineConfig } from '@playwright/test';
 
+// Playwright enables worker colors. Remove the conflicting inherited setting.
+delete process.env.NO_COLOR;
+
 export default defineConfig({
   testDir: './tests',
   outputDir: '../../.superpowers/web-tests/results',

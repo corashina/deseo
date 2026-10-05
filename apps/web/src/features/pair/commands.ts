@@ -5,9 +5,11 @@ import { errorResult, resultSchema, type Result } from '@deseo/domain/result';
 import { getSupabase } from '../../lib/supabase';
 import { captureQueryScope, resetPrivateQueries } from '../../lib/query-client';
 import { entryIntent } from '../auth';
+import { assertOnline } from '../../lib/network';
 export const inviteTokenSchema = z.string().transform(value => value.replace(/[\s-]/g, '').toUpperCase()).pipe(z.string().regex(/^[0-9A-HJKMNP-TV-Z]{12}$/));
 async function command<T extends z.ZodTypeAny>(name: string, args: Record<string, unknown>, schema: T): Promise<Result<z.infer<T>>> {
   try {
+    assertOnline();
     const scope = captureQueryScope();
     const { data, error } = await getSupabase().rpc(name, args).abortSignal(scope.signal);
     scope.assertCurrent();

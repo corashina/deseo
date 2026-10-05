@@ -7,6 +7,7 @@ import { getPairContext } from '../features/pair';
 import { getSupabase } from '../lib/supabase';
 import { resetPrivateQueries } from '../lib/query-client';
 import { setDraftScope } from '../lib/drafts';
+import { isOnline } from '../lib/network';
 type State = { status: 'loading' | 'signedOut' | 'authenticated' | 'error'; account: Account | null; pair: PairContext | null; userId?: string; error?: string };
 type SessionValue = State & { revalidate(): Promise<void> };
 const empty: State = { status: 'loading', account: null, pair: null };
@@ -55,7 +56,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       setDraftScope(null, null);
       setState({ ...empty, status: 'signedOut' });
     };
-    const refresh = () => { if (verifiedUser.current && document.visibilityState !== 'hidden') void revalidate(); };
+    const refresh = () => { if (isOnline() && verifiedUser.current && document.visibilityState !== 'hidden') void revalidate(); };
     const client = getSupabase();
     const { data } = client.auth.onAuthStateChange((event, session) => {
       if (event === 'INITIAL_SESSION') return;
@@ -88,7 +89,6 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     const channel = client.channel('portal-membership:' + state.account.id)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'pair_members', filter: 'user_id=eq.' + state.account.id }, () => void revalidate())
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'profiles', filter: 'user_id=eq.' + state.account.id }, () => void revalidate());
-    if (state.pair && 'pairId' in state.pair) channel.on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'pairs', filter: 'id=eq.' + state.pair.pairId }, () => void revalidate());
     channel.subscribe();
     return () => { void client.removeChannel(channel); };
   }, [state.status, state.account, state.pair, revalidate]);

@@ -29,3 +29,33 @@ test('drawer and account controls preserve keyboard focus across portal widths',
     }
   } finally { await cleanupEntryFixture(fixture); }
 });
+
+// Importance: 93. Escape during a pending command must not hide a subsequent failure.
+test('pending cancellation keeps its dialog open and exposes failure after Escape', async ({ page }) => {
+  const fixture = await createEntryFixture('pending');
+  try {
+    await loginWithLocalEmailCode(page, fixture.email);
+    let arrived!: () => void; let release!: () => void;
+    const requested = new Promise<void>(resolve => { arrived = resolve; });
+    const gate = new Promise<void>(resolve => { release = resolve; });
+    await page.route('**/rest/v1/rpc/cancel_pending_pair', async route => {
+      arrived(); await gate;
+      await route.fulfill({ json: { ok: false, error: { code: 'RETRYABLE', message: 'Try again.' } } });
+    });
+    await page.getByRole('button', { name: 'Cancel pending pair' }).click();
+    await page.getByRole('button', { name: 'Cancel pair', exact: true }).click();
+    await requested;
+    await page.keyboard.press('Escape');
+    release();
+    const dialog = page.getByRole('dialog', { name: 'Cancel this pair?' });
+    await expect(dialog).toBeVisible();
+    await expect(dialog.getByRole('alert')).toHaveText('Try again.');
+    await page.keyboard.press('Escape');
+    await expect(dialog).not.toBeVisible();
+    await page.getByRole('button', { name: 'Cancel pending pair' }).click();
+    await expect(dialog).toBeVisible();
+    await page.unroute('**/rest/v1/rpc/cancel_pending_pair');
+    await page.getByRole('button', { name: 'Cancel pair', exact: true }).click();
+    await expect(page).toHaveURL(/\/pair\/ended/);
+  } finally { await cleanupEntryFixture(fixture); }
+});

@@ -108,3 +108,54 @@ test('profile draft survives a failed session read and retry', async ({ page }) 
     await expect(page.getByLabel('Your name')).toHaveValue('Unsaved Anna');
   } finally { await cleanupEntryFixture(fixture); }
 });
+
+// Importance: 100. Acceptance must use the exact invitation the user reviewed.
+for (const initial of [false, true]) test(`edited code rejects delayed ${initial ? 'initial' : 'manual'} preview`, async ({ page }) => {
+  const ownerA = await createEntryFixture('pending');
+  const ownerB = await createEntryFixture('pending');
+  const joiner = await createEntryFixture('unpaired');
+  try {
+    await admin.from('profiles').update({ display_name: 'Beata' }).eq('user_id', ownerB.accountIds[0]);
+    await loginWithLocalEmailCode(page, joiner.email);
+    let arrived!: () => void; let release!: () => void;
+    const requested = new Promise<void>(resolve => { arrived = resolve; });
+    const gate = new Promise<void>(resolve => { release = resolve; });
+    await page.route('**/rest/v1/rpc/preview_invite', async route => {
+      if (route.request().postDataJSON().p_token !== ownerA.inviteToken) { await route.continue(); return; }
+      const response = await route.fetch(); arrived(); await gate; await route.fulfill({ response });
+    });
+    await page.goto(initial ? `/invite?token=${ownerA.inviteToken}` : '/pair/join');
+    if (!initial) {
+      await page.getByLabel('Invitation code').fill(ownerA.inviteToken!);
+      await page.getByRole('button', { name: 'Review invitation' }).click();
+    }
+    await requested;
+    await page.getByLabel('Invitation code').fill(ownerB.inviteToken!);
+    release();
+    await expect(page.getByRole('button', { name: 'Review invitation' })).toBeEnabled();
+    await expect(page.getByRole('button', { name: 'Join pair', exact: true })).toHaveCount(0);
+    await page.getByRole('button', { name: 'Review invitation' }).click();
+    await expect(page.getByRole('heading', { name: 'Join Beata' })).toBeVisible();
+    await page.getByRole('button', { name: 'Join pair', exact: true }).click();
+    await expect(page.getByRole('heading', { name: 'Beata + Anna' })).toBeVisible();
+  } finally {
+    await cleanupEntryFixture(ownerA); await cleanupEntryFixture(ownerB); await cleanupEntryFixture(joiner);
+  }
+});
+
+// Importance: 95. Offline entry must retain editable input and prevent even direct form submission.
+test('offline email form retains its draft and blocks submissions', async ({ page, context }) => {
+  await page.goto('/sign-in');
+  await page.getByLabel('Email address').fill('entry-offline@example.test');
+  let requests = 0;
+  await page.route('**/auth/v1/otp', async route => { requests++; await route.abort(); });
+  await context.setOffline(true);
+  await expect(page.getByRole('button', { name: 'Send code', exact: true })).toBeDisabled();
+  await expect(page.getByRole('status')).toContainText('offline');
+  await page.getByLabel('Email address').fill('entry-edited-offline@example.test');
+  await page.locator('form').evaluate(form => (form as HTMLFormElement).requestSubmit());
+  expect(requests).toBe(0);
+  await context.setOffline(false);
+  await expect(page.getByRole('button', { name: 'Send code', exact: true })).toBeEnabled();
+  await expect(page.getByLabel('Email address')).toHaveValue('entry-edited-offline@example.test');
+});
