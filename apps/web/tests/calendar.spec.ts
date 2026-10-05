@@ -41,9 +41,12 @@ test('paired calendar persists shared writes and protects private events', async
       await expect(page.getByText('Autumn break', { exact: true }).filter({ visible: true }).first()).toBeVisible();
       await page.screenshot({ path: testInfo.outputPath('calendar-' + view + '.png'), fullPage: true });
     }
+    expect(await page.locator('.view-tabs button').first().evaluate(button => getComputedStyle(button).borderRadius)).toBe('12px');
+    expect(await page.locator('.owner-filters button').first().evaluate(button => getComputedStyle(button).borderRadius)).toBe('12px');
     for (const width of [320, 768, 1024]) {
       await page.setViewportSize({ width, height: 844 });
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+      if (width === 320) expect(await page.locator('.calendar-card').evaluate(card => getComputedStyle(card).padding)).toBe('20px');
     }
   } finally { await partner.close(); await cleanupPortalPairFixture(ids); }
 });
@@ -144,3 +147,95 @@ test('lost save acknowledgement keeps its command and retries after focus', asyn
     expect((await marek.from('events').select('id').eq('id', bodies[0].p_input.id)).data).toHaveLength(1);
   } finally { await cleanupPortalPairFixture(ids); }
 });
+
+// Importance 96: date edits clear stale DST offsets and require a new overlap choice.
+test('date-only edits cross DST and require fresh repeated-hour choices', async ({ page }) => {
+  const ids = await createPortalPairFixture();
+  try {
+    const anna = await portalClient(ids.annaEmail);
+    const eventId = randomUUID();
+    const saved = await anna.rpc('create_event', {
+      p_input: { id: eventId, pair_id: ids.pairId, title: 'Early plan', owner: 'together', visibility: 'shared', timezone: 'Europe/Warsaw', starts_at: '2026-10-05T00:30:00Z', ends_at: '2026-10-05T00:45:00Z', repeat: 'none' },
+      p_command_id: randomUUID(),
+    });
+    expect(saved.data.ok).toBe(true);
+    await loginWithLocalEmailCode(page, ids.annaEmail);
+    await page.goto('/events/' + eventId + '/edit');
+    await page.getByLabel('Start date', { exact: true }).fill('2026-11-05');
+    await page.getByLabel('End date', { exact: true }).fill('2026-11-05');
+    await page.getByRole('button', { name: 'Save changes', exact: true }).click();
+    await expect(page.getByRole('heading', { name: 'Early plan', exact: true })).toBeVisible();
+    const november = await anna.from('events').select('starts_at,ends_at').eq('id', eventId).single();
+    expect(new Date(november.data!.starts_at).toISOString()).toBe('2026-11-05T01:30:00.000Z');
+    expect(new Date(november.data!.ends_at).toISOString()).toBe('2026-11-05T01:45:00.000Z');
+
+    await page.getByRole('link', { name: 'Edit event', exact: true }).click();
+    await page.getByLabel('Start date', { exact: true }).fill('2026-10-25');
+    await page.getByLabel('End date', { exact: true }).fill('2026-10-25');
+    await expect(page.getByLabel('Start occurrence')).toHaveValue('');
+    await expect(page.getByLabel('End occurrence')).toHaveValue('');
+    await page.getByRole('button', { name: 'Save changes', exact: true }).click();
+    await expect(page.getByRole('alert').first()).toBeVisible();
+    await page.getByLabel('Start occurrence').selectOption('120');
+    await page.getByLabel('End occurrence').selectOption('120');
+    await page.getByRole('button', { name: 'Save changes', exact: true }).click();
+    await expect(page.getByRole('heading', { name: 'Early plan', exact: true })).toBeVisible();
+    const october = await anna.from('events').select('starts_at,ends_at').eq('id', eventId).single();
+    expect(new Date(october.data!.starts_at).toISOString()).toBe('2026-10-25T00:30:00.000Z');
+    expect(new Date(october.data!.ends_at).toISOString()).toBe('2026-10-25T00:45:00.000Z');
+  } finally { await cleanupPortalPairFixture(ids); }
+});
+
+// Importance 98: pending reminders keep command, payload, and version through remounts.
+for (const changed of [true, false]) {
+  test(`reminder lost acknowledgement survives focus remount with ${changed ? 'changed' : 'unchanged'} choice`, async ({ page }) => {
+    const ids = await createPortalPairFixture();
+    let releaseAcknowledgement = () => {};
+    try {
+      const anna = await portalClient(ids.annaEmail);
+      const initial = await anna.rpc('set_reminder', {
+        p_input: { id: randomUUID(), pairId: ids.pairId, eventId: ids.sharedEventId, taskId: null, minutesBefore: 15, remindAt: null, active: true, expectedVersion: null },
+        p_command_id: randomUUID(),
+      });
+      expect(initial.data.ok).toBe(true);
+      await loginWithLocalEmailCode(page, ids.annaEmail);
+      await page.goto('/events/' + ids.sharedEventId);
+      await expect(page.getByLabel('Remind me')).toHaveValue('15');
+      if (changed) await page.getByLabel('Remind me').selectOption('60');
+
+      const bodies: Array<{ p_command_id: string; p_input: { id: string; expectedVersion: number } }> = [];
+      let saveReachedServer = () => {};
+      const serverSaved = new Promise<void>(resolve => { saveReachedServer = resolve; });
+      const acknowledgement = new Promise<void>(resolve => { releaseAcknowledgement = resolve; });
+      await page.route('**/rest/v1/rpc/set_reminder', async route => {
+        bodies.push(route.request().postDataJSON());
+        if (bodies.length === 1) {
+          await route.fetch();
+          saveReachedServer();
+          await acknowledgement;
+          await route.abort();
+        } else await route.continue();
+      });
+      await page.getByRole('button', { name: 'Save reminder', exact: true }).click();
+      await serverSaved;
+      page.once('dialog', dialog => void dialog.accept());
+      await page.getByRole('link', { name: 'Return to calendar', exact: true }).click();
+      await expect(page.getByRole('heading', { name: 'Calendar', exact: true })).toBeVisible();
+      await page.evaluate(() => window.dispatchEvent(new Event('focus')));
+      await page.getByRole('link', { name: /Dinner together/ }).first().click();
+      await expect(page.getByRole('button', { name: 'Retry reminder', exact: true })).toBeEnabled();
+      await expect(page.getByLabel('Remind me')).toBeDisabled();
+      await expect(page.getByLabel('Remind me')).toHaveValue(changed ? '60' : '15');
+      releaseAcknowledgement();
+      await page.getByRole('button', { name: 'Retry reminder', exact: true }).click();
+      await expect(page.getByText('Reminder saved.', { exact: true })).toBeVisible();
+      expect(bodies).toHaveLength(2);
+      expect(bodies[1]).toEqual(bodies[0]);
+      expect(bodies[0].p_input.expectedVersion).toBe(initial.data.data.version);
+      const persisted = await anna.from('reminders').select('id,version,minutes_before').eq('event_id', ids.sharedEventId).eq('user_id', ids.annaId);
+      expect(persisted.data).toHaveLength(1);
+      expect(persisted.data![0].version).toBe(initial.data.data.version + 1);
+      expect(persisted.data![0].minutes_before).toBe(changed ? 60 : 15);
+    } finally { releaseAcknowledgement(); await cleanupPortalPairFixture(ids); }
+  });
+}
