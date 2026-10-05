@@ -1,6 +1,7 @@
 import { getPrivateStorage } from '../../lib/private-storage';
 import { captureQueryScope } from '../../lib/query-client';
-import { messageDraftSchema, messageIdSchema } from './schema';
+import { messageIdSchema } from '@deseo/domain/messages';
+import { messageDraftSchema } from './schema';
 import type { MessageDraft } from './types';
 
 const DRAFT_KEY = 'messages';

@@ -1,5 +1,6 @@
-import type { Page } from '../../lib/result';
-import type { Message, MessageCursor, PendingMessage } from './types';
+import type { Page } from '@deseo/domain/result';
+import type { Message, MessageCursor } from '@deseo/domain/messages';
+import type { PendingMessage } from './types';
 
 function remainingMicroseconds(instant: string): number {
   const fraction = /\.(\d+)/.exec(instant)?.[1] ?? '';

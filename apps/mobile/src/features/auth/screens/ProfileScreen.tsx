@@ -8,7 +8,7 @@ import { Field } from '../../../components/ui/Field';
 import { Button } from '../../../components/ui/Button';
 import { Status } from '../../../components/ui/Status';
 import { saveProfile } from '../commands';
-import { profileSchema } from '../schema';
+import { profileSchema } from '@deseo/domain/auth';
 import { useAuth } from '../session';
 
 export function ProfileScreen() {

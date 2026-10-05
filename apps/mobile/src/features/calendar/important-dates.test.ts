@@ -1,7 +1,8 @@
 // Importance: 96. Yearly dates and pair-zone countdowns must preserve the selected calendar day.
 import { DateTime } from 'luxon';
-import { eventInputSchema, eventRowSchema, toEventInput } from './schema';
-import { importantDateCountdown, listImportantDates, nextImportantDate } from './important-dates';
+import { eventInputSchema, eventRowSchema, toEventInput } from '@deseo/domain/calendar';
+import { importantDateCountdown, nextImportantDate } from '@deseo/domain/calendar';
+import { listImportantDates } from './important-dates';
 import { listAgenda } from './queries';
 
 jest.mock('./queries', () => ({ listAgenda: jest.fn() }));

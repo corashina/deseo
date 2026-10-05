@@ -11,7 +11,7 @@ import { theme, ui } from '../../../theme';
 import { useCore } from '../../pair';
 import { ReminderControl } from '../../notifications';
 import { captureQueryScope } from '../../../lib/query-client';
-import type { CommandError } from '../../../lib/result';
+import type { CommandError } from '@deseo/domain/result';
 import { eventDateLabel } from '../components/EventRow';
 import { useCalendarSignals } from '../realtime';
 import { deleteEvent } from '../commands';

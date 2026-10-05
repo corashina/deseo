@@ -11,7 +11,7 @@ import { useAuth, type Account } from '../../auth';
 import { Button } from '../../../components/ui/Button';
 import { Status } from '../../../components/ui/Status';
 import { theme } from '../../../theme';
-import { AppError } from '../../../lib/result';
+import { AppError } from '@deseo/domain/result';
 import { captureQueryScope } from '../../../lib/query-client';
 import { deleteMessage, setReadCursor } from '../commands';
 import { listMessages, messageKeys } from '../queries';
@@ -22,7 +22,8 @@ import { useMessageDraft } from '../useMessageDraft';
 import { Composer } from '../components/Composer';
 import { MessageRow, PendingMessageRow } from '../components/MessageRow';
 import { NoteCard } from '../components/NoteCard';
-import type { Message, MessageCursor, PendingMessage } from '../types';
+import type { Message, MessageCursor } from '@deseo/domain/messages';
+import type { PendingMessage } from '../types';
 
 type Row = { kind: 'message'; message: Message } | { kind: 'pending'; message: PendingMessage };
 type MessageAction = { kind: 'delete' | 'pin' | 'unpin'; id: string; commandId: string };

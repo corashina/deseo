@@ -2,7 +2,7 @@ import { Directory, File } from 'expo-file-system';
 import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
 import { randomUUID } from 'expo-crypto';
 import type { ImagePickerAsset } from 'expo-image-picker';
-import { AppError } from '../../lib/result';
+import { AppError } from '@deseo/domain/result';
 import { isOwnedCacheUri, memoryRoot, photoFile, registerMemoryFiles, removeMemoryFiles, writeMemoryDraft } from './drafts';
 import type { MemoryDraft, LocalMemoryPhoto } from './types';
 

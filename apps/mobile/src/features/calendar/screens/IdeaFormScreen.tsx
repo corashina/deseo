@@ -9,10 +9,11 @@ import { Screen } from '../../../components/ui/Screen';
 import { Status } from '../../../components/ui/Status';
 import { captureQueryScope } from '../../../lib/query-client';
 import { registerDraftFlush } from '../../../lib/draft-lifecycle';
-import type { CommandError } from '../../../lib/result';
+import type { CommandError } from '@deseo/domain/result';
 import { useCore } from '../../pair';
 import { CalendarAccess } from '../CalendarAccess';
-import { createIdea, getDateIdea, ideaInputSchema, ideaKeys, updateIdea, type DateIdea, type IdeaInput } from '../date-ideas';
+import { ideaInputSchema, type DateIdea, type IdeaInput } from '@deseo/domain/calendar';
+import { createIdea, getDateIdea, ideaKeys, updateIdea } from '../date-ideas';
 import { readIdeaDraft, writeIdeaDraft, removeIdeaDraft, type IdeaDraft } from '../idea-drafts';
 import { useCalendarSignals } from '../realtime';
 

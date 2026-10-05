@@ -4,7 +4,7 @@ import { randomUUID } from 'expo-crypto';
 import { Platform } from 'react-native';
 import { getPrivateStorage } from '../../lib/private-storage';
 import { captureQueryScope } from '../../lib/query-client';
-import { AppError } from '../../lib/result';
+import { AppError } from '@deseo/domain/result';
 import { registerDevice, revokeDevice } from './commands';
 import type { Permission } from './types';
 let installationPromise: Promise<string> | null = null;

@@ -1,5 +1,5 @@
 // Importance: 98. Wrong dates can change a person's plans.
-import { eventInputSchema, resolveWallTime, toEventInput, inclusiveEndDate } from './schema';
+import { eventInputSchema, resolveWallTime, toEventInput, inclusiveEndDate } from '@deseo/domain/calendar';
 import { agendaDates } from './queries';
 
 jest.mock('../../lib/supabase', () => ({ getSupabase: jest.fn() }));

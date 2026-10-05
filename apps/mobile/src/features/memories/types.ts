@@ -1,10 +1,6 @@
 import type { z } from 'zod';
-import type { draftSchema, localPhotoSchema, memoryInputSchema, memorySchema, photoSchema } from './schema';
-export type Memory = z.infer<typeof memorySchema>;
-export type MemoryPhoto = z.infer<typeof photoSchema>;
-export type MemoryInput = z.infer<typeof memoryInputSchema>;
+import type { MemoryInput } from '@deseo/domain/memories';
+import type { draftSchema, localPhotoSchema } from './schema';
 export type MemoryDraft = z.infer<typeof draftSchema>;
 export type LocalMemoryPhoto = z.infer<typeof localPhotoSchema>;
 export type MemoryReservationInput = MemoryInput & { id: string; pairId: string; photos: Omit<LocalMemoryPhoto, 'status'>[] };
-export type MemoryMedia = { url: string; expiresAt: string };
-export type MemoryInspection = { memory: Memory; photos: { id: string; full: boolean; thumb: boolean; validated: boolean }[] };

@@ -8,12 +8,12 @@ import { theme } from '../../../theme';
 import { captureQueryScope } from '../../../lib/query-client';
 import { getPrivateStorage } from '../../../lib/private-storage';
 import { registerDraftFlush } from '../../../lib/draft-lifecycle';
-import type { CommandError } from '../../../lib/result';
+import type { CommandError } from '@deseo/domain/result';
 import { createList, deleteEmptyList, moveListTasksToGeneral, renameList } from '../commands';
 import { readTaskAction, writeTaskAction, removeTaskAction, type TaskAction } from '../actions';
 import { readListDraft, writeListDraft, type ListDraft } from '../list-drafts';
 import { listTaskLists } from '../queries';
-import type { TaskList } from '../types';
+import type { TaskList } from '@deseo/domain/tasks';
 type ListAction = Extract<TaskAction, { kind: 'createList' | 'renameList' | 'moveList' | 'deleteList' }>;
 export function ListManager({ accountId, pairId, list, listId, online, onSaved }: { accountId: string; pairId: string; list?: TaskList; listId?: string; online: boolean; onSaved?(id: string): void }) {
   const key = `tasks:list:${list?.id ?? listId ?? 'new'}`;

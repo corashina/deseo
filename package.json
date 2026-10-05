@@ -3,7 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "workspaces": [
-    "apps/*"
+    "apps/*",
+    "packages/*"
   ],
   "packageManager": "npm@11.16.0",
   "engines": {
@@ -13,7 +14,7 @@
   "scripts": {
     "dev:mobile": "npm run start --workspace @deseo/mobile",
     "typecheck": "npm run typecheck --workspaces --if-present",
-    "lint": "eslint apps/mobile/src apps/web",
+    "lint": "eslint apps/mobile/src apps/web packages/domain/src",
     "test:mobile": "npm run test --workspace @deseo/mobile --",
     "test:db": "supabase test db",
     "test:db:race": "node --experimental-strip-types --test supabase/tests/pairing-races.test.ts supabase/tests/planning-races.test.ts supabase/tests/messages-races.test.ts",
@@ -33,7 +34,8 @@
     "start:web:backend": "powershell -NoProfile -File supabase/dev/prepare-web-stack.ps1 -Action Start",
     "preview:web": "npm run preview --workspace @deseo/web",
     "prepare:web:backend": "powershell -NoProfile -File supabase/dev/prepare-web-stack.ps1",
-    "build:web": "npm run build --workspace @deseo/web"
+    "build:web": "npm run build --workspace @deseo/web",
+    "test:domain": "npm run test --workspace @deseo/domain"
   },
   "devDependencies": {
     "eslint": "10.12.0",

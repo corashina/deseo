@@ -1,9 +1,10 @@
+import { taskPayload } from '@deseo/domain/tasks';
 import { z } from 'zod';
 import { getSupabase } from '../../lib/supabase';
 import { captureQueryScope, queryClient } from '../../lib/query-client';
-import { errorResult, resultSchema, type Result } from '../../lib/result';
-import { listNameSchema, listRowSchema, taskInputSchema, taskRowSchema } from './schema';
-import type { Task, TaskInput, TaskList } from './types';
+import { errorResult, resultSchema, type Result } from '@deseo/domain/result';
+import { listNameSchema, listRowSchema, taskInputSchema, taskRowSchema } from '@deseo/domain/tasks';
+import type { Task, TaskInput, TaskList } from '@deseo/domain/tasks';
 const uuid = z.string().uuid();
 const version = z.number().int().positive();
 const idRow = z.object({ id: uuid });
@@ -25,7 +26,7 @@ async function save(input: TaskInput, commandId: string, expectedVersion?: numbe
   try {
     const parsed = taskInputSchema.parse(input);
     if (expectedVersion !== undefined) version.parse(expectedVersion);
-    return command(expectedVersion === undefined ? 'create_task' : 'update_task', { p_input: { id: parsed.id, pair_id: parsed.pairId, list_id: parsed.listId, title: parsed.title, assignee_id: parsed.assigneeId, due_date: parsed.dueDate }, p_command_id: commandId,
+    return command(expectedVersion === undefined ? 'create_task' : 'update_task', { p_input: taskPayload(parsed), p_command_id: commandId,
       ...(expectedVersion === undefined ? {} : { p_task_id: parsed.id, p_expected_version: expectedVersion }) }, taskRowSchema);
   } catch (error) { return errorResult(error); }
 }

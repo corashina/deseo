@@ -12,7 +12,7 @@ import { listTaskLists, listTasks, taskKeys } from '../queries';
 import { useTaskSignals } from '../realtime';
 import { TaskRow } from '../components/TaskRow';
 import { ListManager } from '../components/ListManager';
-import type { Task } from '../types';
+import type { Task } from '@deseo/domain/tasks';
 export function TasksScreen() { return <TaskAccess><TasksEntry /></TaskAccess>; }
 function TasksEntry() {
   const core = useCore(); if (core.pair.status !== 'active') return null;

@@ -1,10 +1,10 @@
 import { z } from 'zod';
-import { AppError, errorResult, type Page, type Result } from '../../lib/result';
+import { AppError, errorResult, type Page, type Result } from '@deseo/domain/result';
 import { captureQueryScope, queryClient } from '../../lib/query-client';
 import { getSupabase } from '../../lib/supabase';
-import { cursorSchema, memorySchema, uuid } from './schema';
+import { cursorSchema, memorySchema, uuid } from '@deseo/domain/memories';
 import { memoryFunction, memoryRpc } from './transport';
-import type { Memory, MemoryMedia } from './types';
+import type { Memory, MemoryMedia } from '@deseo/domain/memories';
 
 export const memoryKeys = {
   all: (accountId: string, pairId: string) => ['memories', accountId, pairId] as const,

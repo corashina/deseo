@@ -3,7 +3,7 @@ import { listMessages, getUnreadCount, reconcileMessageSends, MESSAGE_COLUMNS } 
 import { listPinnedNotes } from './notes';
 import { getSupabase } from '../../lib/supabase';
 import { captureQueryScope } from '../../lib/query-client';
-import { AppError } from '../../lib/result';
+import { AppError } from '@deseo/domain/result';
 
 jest.mock('../../lib/supabase', () => ({ getSupabase: jest.fn() }));
 jest.mock('../../lib/query-client', () => ({ captureQueryScope: jest.fn() }));

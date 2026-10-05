@@ -7,7 +7,7 @@ import { Button } from '../../../components/ui/Button';
 import { Status } from '../../../components/ui/Status';
 import { useCore } from '../../pair';
 import { captureQueryScope } from '../../../lib/query-client';
-import { AppError, toAppError } from '../../../lib/result';
+import { AppError, toAppError } from '@deseo/domain/result';
 import { theme, ui } from '../../../theme';
 import { listNotifications, notificationKeys } from '../queries';
 import { markNotificationRead, resolveNotification } from '../commands';

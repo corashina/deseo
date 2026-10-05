@@ -1,21 +1,11 @@
 import { z } from 'zod';
 import { getSupabase } from '../../lib/supabase';
 import { captureQueryScope, queryClient } from '../../lib/query-client';
-import { errorResult, resultSchema, type Result } from '../../lib/result';
-import { eventInputSchema, eventRowSchema } from './schema';
-import type { Event, EventInput } from './types';
+import { errorResult, resultSchema, type Result } from '@deseo/domain/result';
+import { eventInputSchema, eventRowSchema } from '@deseo/domain/calendar';
+import type { Event, EventInput } from '@deseo/domain/calendar';
 
-export function eventPayload(input: EventInput) {
-  return { id: input.id, pair_id: input.pairId, title: input.title, owner: input.owner, visibility: input.visibility,
-    timezone: input.timezone, location: input.location || null, description: input.description || null,
-    repeat: input.repeat ?? 'none', important_date: input.importantDate === true || input.repeat === 'yearly',
-    confirm_shared: input.confirmShared === true,
-    starts_at: input.temporal.kind === 'timed' ? input.temporal.startsAt : null,
-    ends_at: input.temporal.kind === 'timed' ? input.temporal.endsAt : null,
-    start_date: input.temporal.kind === 'allDay' ? input.temporal.startDate : null,
-    end_date_exclusive: input.temporal.kind === 'allDay' ? input.temporal.endDateExclusive : null,
-  };
-}
+import { eventPayload } from '@deseo/domain/calendar';
 
 async function invalidateCalendar(pairId?: string): Promise<void> {
   await queryClient.invalidateQueries({ predicate: (query) =>

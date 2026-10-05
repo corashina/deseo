@@ -2,10 +2,11 @@ import { z } from 'zod';
 import { File } from 'expo-file-system';
 import { captureQueryScope, queryClient } from '../../lib/query-client';
 import { getSupabase } from '../../lib/supabase';
-import { AppError, errorResult, type Result } from '../../lib/result';
-import { memoryInputSchema, memorySchema, photoSchema, uuid } from './schema';
+import { AppError, errorResult, type Result } from '@deseo/domain/result';
+import { memoryInputSchema, memorySchema, photoSchema, uuid } from '@deseo/domain/memories';
 import { memoryFunction, memoryRpc } from './transport';
-import type { Memory, MemoryInput, MemoryPhoto, MemoryReservationInput, MemoryInspection } from './types';
+import type { Memory, MemoryInput, MemoryPhoto, MemoryInspection } from '@deseo/domain/memories';
+import type { MemoryReservationInput } from './types';
 
 export async function reserveMemory(input: MemoryReservationInput, commandId: string): Promise<Result<Memory>> {
   try {

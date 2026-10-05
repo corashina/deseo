@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { resultSchema } from '../../lib/result';
+import { resultSchema } from '../result';
 
 export const emailSchema = z.string().trim().email().max(254).transform((value) => value.toLowerCase());
 export const emailCodeSchema = z.string().regex(/^\d{6}$/);

@@ -1,8 +1,8 @@
 import { z } from 'zod';
 import { getSupabase } from '../../lib/supabase';
 import { captureQueryScope } from '../../lib/query-client';
-import { AppError, resultSchema } from '../../lib/result';
-import { notificationPageSchema, preferencesSchema, reminderSchema } from './schema';
+import { AppError, resultSchema } from '@deseo/domain/result';
+import { notificationPageSchema, preferencesSchema, reminderSchema } from '@deseo/domain/notifications';
 export const notificationKeys = {
   preferences: (account: string) => ['notifications', account, 'preferences'] as const,
   list: (account: string, pair: string) => ['notifications', account, pair, 'list'] as const,

@@ -10,8 +10,25 @@ export default tseslint.config(
   } },
   { files: ['apps/web/**/*.{ts,tsx}'], rules: {
     '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
-    'no-restricted-imports': ['error', { patterns: [{ group: ['**/apps/mobile/**', '@deseo/mobile/**'],
+    'no-restricted-imports': ['error', { patterns: [{ group: ['**/apps/mobile', '**/apps/mobile/**', '**/mobile', '**/mobile/**', '@deseo/mobile', '@deseo/mobile/**'],
       message: 'Import shared rules and data. Keep native screens separate.' }] }],
+  } },
+  { files: ['packages/domain/src/**/*.ts'], rules: {
+    'no-restricted-imports': ['error', { patterns: [{ group: [
+      'expo', 'expo/**', 'expo-*', 'expo-*/**', '@expo/**',
+      'react-native', 'react-native/**', 'react-native-*', 'react-native-*/**', '@react-native/**',
+      '@deseo/mobile', '@deseo/mobile/**', '@deseo/web', '@deseo/web/**',
+      '**/apps/**', '**/mobile/**', '**/web/**',
+    ], message: 'Keep domain rules independent of applications and devices.' }, {
+      regex: '^@deseo/(?!domain(?:/|$))',
+      message: 'Keep application imports outside domain rules.',
+    }] }],
+    'no-restricted-globals': ['error', 'window', 'document', 'navigator', 'localStorage', 'sessionStorage',
+      'location', 'indexedDB', 'caches', 'Notification', 'HTMLElement', 'FileReader'],
+    'no-restricted-syntax': ['error', {
+      selector: "MemberExpression[object.name='globalThis']:matches([property.name=/^(window|document|navigator|localStorage|sessionStorage|location|indexedDB|caches|Notification|HTMLElement|FileReader)$/], [property.value=/^(window|document|navigator|localStorage|sessionStorage|location|indexedDB|caches|Notification|HTMLElement|FileReader)$/])",
+      message: 'Keep browser state outside domain rules.',
+    }],
   } },
   ...features.map(name => ({
     files: [`apps/mobile/src/features/${name}/**/*.{ts,tsx}`],

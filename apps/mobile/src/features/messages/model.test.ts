@@ -1,7 +1,8 @@
 // Importance: 95. Reordered pages and replies must not lose messages or repeat confirmed sends.
 import { compareMessageCursors, flattenMessagePages, reconcilePendingMessages } from './model';
-import { encodeMessageCursor, decodeMessageCursor, messageBodySchema } from './schema';
-import type { Message, PendingMessage } from './types';
+import { encodeMessageCursor, decodeMessageCursor, messageBodySchema } from '@deseo/domain/messages';
+import type { Message } from '@deseo/domain/messages';
+import type { PendingMessage } from './types';
 
 const message: Message = {
   id: '74ff3de3-609c-43c3-bbd3-01e064593ba9', pairId: '610bc9c7-8c81-47d1-894e-314c92071cf1',

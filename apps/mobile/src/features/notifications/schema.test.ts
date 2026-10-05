@@ -1,5 +1,5 @@
 // Importance: 98. Input and response validation must reject event reminders without a delivery window.
-import { preferencesSchema, reminderInputSchema, reminderSchema } from './schema';
+import { preferencesSchema, reminderInputSchema, reminderSchema } from '@deseo/domain/notifications';
 const id = '74ff3de3-609c-43c3-bbd3-01e064593ba9';
 const preferences = { messageAlerts: false, quietStart: null, quietEnd: null, timezone: 'Europe/Warsaw', version: 1 };
 const reminder = { id, pairId: id, eventId: id, taskId: null, remindAt: null, active: true };

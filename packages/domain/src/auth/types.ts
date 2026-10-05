@@ -1,5 +1,5 @@
 import type { z } from 'zod';
-import type { AppError } from '../../lib/result';
+import type { AppError } from '../result';
 import type { accountSchema, profileSchema, sensitiveActionSchema, sessionContextSchema } from './schema';
 
 export type Account = z.infer<typeof accountSchema>;

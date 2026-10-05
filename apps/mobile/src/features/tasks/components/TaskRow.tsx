@@ -5,10 +5,10 @@ import { Button } from '../../../components/ui/Button';
 import { Status } from '../../../components/ui/Status';
 import { theme, ui } from '../../../theme';
 import { captureQueryScope } from '../../../lib/query-client';
-import type { CommandError } from '../../../lib/result';
+import type { CommandError } from '@deseo/domain/result';
 import { setTaskCompleted } from '../commands';
 import { readTaskAction, removeTaskAction, writeTaskAction, type TaskAction } from '../actions';
-import type { Task } from '../types';
+import type { Task } from '@deseo/domain/tasks';
 export type TaskRowProps = { task: Task; accountId: string; assignee: string; online: boolean; onOpen(): void; onCompleted?(task: Task): void };
 export function TaskRow({ task, accountId, assignee, online, onOpen, onCompleted }: TaskRowProps) {
   const [current, setCurrent] = useState(task);

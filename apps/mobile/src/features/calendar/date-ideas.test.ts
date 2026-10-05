@@ -1,8 +1,9 @@
 // Importance: 98. Planning must preserve retry IDs, source versions, and current query scope.
-import { createIdea, updateIdea, archiveIdea, planDateIdea, ideaInputSchema } from './date-ideas';
+import { ideaInputSchema } from '@deseo/domain/calendar';
+import { createIdea, updateIdea, archiveIdea, planDateIdea } from './date-ideas';
 import { getSupabase } from '../../lib/supabase';
 import { queryClient, captureQueryScope } from '../../lib/query-client';
-import type { EventInput } from './types';
+import type { EventInput } from '@deseo/domain/calendar';
 jest.mock('../../lib/supabase', () => ({ getSupabase: jest.fn() }));
 jest.mock('../../lib/query-client', () => ({ captureQueryScope: jest.fn(), queryClient: { invalidateQueries: jest.fn().mockResolvedValue(undefined) } }));
 const id = '41000000-0000-4000-8000-000000000001'; const pairId = '30000000-0000-4000-8000-000000000001';

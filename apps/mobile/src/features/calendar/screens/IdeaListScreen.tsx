@@ -8,7 +8,8 @@ import { Status } from '../../../components/ui/Status';
 import { theme, ui } from '../../../theme';
 import { useCore } from '../../pair';
 import { CalendarAccess } from '../CalendarAccess';
-import { ideaKeys, listDateIdeas, type IdeaState } from '../date-ideas';
+import { type IdeaState } from '@deseo/domain/calendar';
+import { ideaKeys, listDateIdeas } from '../date-ideas';
 import { useCalendarSignals } from '../realtime';
 export function IdeaListScreen() { return <CalendarAccess><Ideas /></CalendarAccess>; }
 function Ideas() {

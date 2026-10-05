@@ -1,8 +1,8 @@
 import { getSupabase } from '../../lib/supabase';
-import { AppError, resultSchema } from '../../lib/result';
+import { AppError, resultSchema } from '@deseo/domain/result';
 import { captureQueryScope } from '../../lib/query-client';
-import { pairContextSchema } from './schema';
-import type { PairContext } from './types';
+import { pairContextSchema } from '@deseo/domain/pair';
+import type { PairContext } from '@deseo/domain/pair';
 import { getPrivateStorage } from '../../lib/private-storage';
 
 export async function getPairContext(): Promise<PairContext> {

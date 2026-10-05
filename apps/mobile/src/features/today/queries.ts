@@ -1,7 +1,7 @@
 import { DateTime } from 'luxon';
 import { listAgenda } from '../calendar';
 import { getPairContext } from '../pair';
-import { AppError } from '../../lib/result';
+import { AppError } from '@deseo/domain/result';
 import type { TodayView } from './types';
 
 export async function getToday(pairId: string, date: string): Promise<TodayView> {

@@ -7,13 +7,13 @@ import { Button } from '../../../components/ui/Button';
 import { Status } from '../../../components/ui/Status';
 import { useCore } from '../../pair';
 import { captureQueryScope } from '../../../lib/query-client';
-import { AppError, toAppError } from '../../../lib/result';
+import { AppError, toAppError } from '@deseo/domain/result';
 import { theme } from '../../../theme';
 import { getNotificationPreferences, notificationKeys } from '../queries';
 import { saveNotificationPreferences } from '../commands';
 import { syncNotificationDevice } from '../device';
 import { DevicePermission } from '../components/DevicePermission';
-import type { NotificationPreferences } from '../types';
+import type { NotificationPreferences } from '@deseo/domain/notifications';
 export function NotificationPreferencesScreen() {
   const { account, online } = useCore();
   const query = useQuery({ queryKey: notificationKeys.preferences(account.id), queryFn: getNotificationPreferences });

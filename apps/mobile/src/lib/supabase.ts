@@ -2,7 +2,7 @@ import 'react-native-url-polyfill/auto';
 import { createClient, processLock, type SupabaseClient } from '@supabase/supabase-js';
 import { getPrivateStorage } from './private-storage';
 import { captureQueryScope } from './query-client';
-import { AppError } from './result';
+import { AppError } from '@deseo/domain/result';
 
 let client: Promise<SupabaseClient> | undefined;
 async function scopedFetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {

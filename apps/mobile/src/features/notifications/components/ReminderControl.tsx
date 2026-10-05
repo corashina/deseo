@@ -7,7 +7,7 @@ import { Button } from '../../../components/ui/Button';
 import { Field } from '../../../components/ui/Field';
 import { Status } from '../../../components/ui/Status';
 import { captureQueryScope } from '../../../lib/query-client';
-import { toAppError } from '../../../lib/result';
+import { toAppError } from '@deseo/domain/result';
 import { theme, ui } from '../../../theme';
 import { useCore } from '../../pair';
 import { getNotificationPreferences, getReminder, notificationKeys } from '../queries';
@@ -15,7 +15,7 @@ import { setReminder } from '../commands';
 import { syncNotificationDevice } from '../device';
 import { taskReminderInstant } from '../time';
 import { DevicePermission } from './DevicePermission';
-import type { Reminder, ReminderInput } from '../types';
+import type { Reminder, ReminderInput } from '@deseo/domain/notifications';
 type Props = { eventId?: string; taskId?: string; sourceVersion: number; timezone: string; allDay?: boolean; completed?: boolean; dueDate?: string | null };
 export function ReminderControl(props: Props) {
   const core = useCore(); const pairId = core.pair.status === 'active' ? core.pair.pairId : '';

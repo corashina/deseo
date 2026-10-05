@@ -3,11 +3,11 @@ import { sendMessage, deleteMessage, setReadCursor } from './commands';
 import { pinMessage, unpinMessage } from './notes';
 import { getSupabase } from '../../lib/supabase';
 import { captureQueryScope, queryClient } from '../../lib/query-client';
-import { AppError } from '../../lib/result';
+import { AppError } from '@deseo/domain/result';
 import { messageKeys } from './queries';
 import type { InfiniteData } from '@tanstack/react-query';
-import type { Page } from '../../lib/result';
-import type { Message } from './types';
+import type { Page } from '@deseo/domain/result';
+import type { Message } from '@deseo/domain/messages';
 
 jest.mock('../../lib/supabase', () => ({ getSupabase: jest.fn() }));
 jest.mock('../../lib/query-client', () => {

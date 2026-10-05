@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native';
 import { Button } from '../../../components/ui/Button';
 import { theme } from '../../../theme';
-import type { Message } from '../types';
+import type { Message } from '@deseo/domain/messages';
 
 export type NoteCardProps = { message: Message; authorName: string; onReply(): void; onOpen?(): void };
 export function NoteCard({ message, authorName, onReply, onOpen }: NoteCardProps) {

@@ -2,7 +2,7 @@ import { Text, View } from 'react-native';
 import { DateTime } from 'luxon';
 import { Button } from '../../../components/ui/Button';
 import { theme, ui } from '../../../theme';
-import type { Memory } from '../types';
+import type { Memory } from '@deseo/domain/memories';
 import { MemoryImage } from './MemoryImage';
 
 export function MemoryCard({ memory, authorName, onOpen }: { memory: Memory; authorName: string; onOpen: () => void }) {

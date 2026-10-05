@@ -3,10 +3,10 @@ import { AppState } from 'react-native';
 import NetInfo from '@react-native-community/netinfo';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth, type Account } from '../auth';
-import { AppError } from '../../lib/result';
+import { AppError } from '@deseo/domain/result';
 import { restorePairContext, pairKeys } from './queries';
 import { subscribePairSignals } from './realtime';
-import type { PairContext } from './types';
+import type { PairContext } from '@deseo/domain/pair';
 
 type PairGate = { account: Account | null; pair: PairContext | null; checking: boolean; error: Error | null; online: boolean; refresh(): Promise<void> };
 const Context = createContext<PairGate | null>(null);

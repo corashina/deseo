@@ -2,11 +2,11 @@ import { z } from 'zod';
 import type { InfiniteData } from '@tanstack/react-query';
 import { getSupabase } from '../../lib/supabase';
 import { captureQueryScope, queryClient } from '../../lib/query-client';
-import { errorResult, resultSchema, type Page, type Result } from '../../lib/result';
-import { encodeMessageCursor, messageCursorSchema, messageIdSchema, messageRowSchema, readCursorRowSchema, sendMessageSchema } from './schema';
+import { errorResult, resultSchema, type Page, type Result } from '@deseo/domain/result';
+import { encodeMessageCursor, messageCursorSchema, messageIdSchema, messageRowSchema, readCursorRowSchema, sendMessageSchema } from '@deseo/domain/messages';
 import { messageKeys } from './queries';
 import { compareMessageCursors } from './model';
-import type { Message, MessageCursor, SendMessageInput } from './types';
+import type { Message, MessageCursor, SendMessageInput } from '@deseo/domain/messages';
 
 export async function runMessageCommand<T extends z.ZodTypeAny>(
   name: string, parameters: Record<string, unknown>, schema: T,

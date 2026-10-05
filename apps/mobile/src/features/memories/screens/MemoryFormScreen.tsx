@@ -9,12 +9,12 @@ import { Button } from '../../../components/ui/Button';
 import { Field } from '../../../components/ui/Field';
 import { Status } from '../../../components/ui/Status';
 import { theme, ui } from '../../../theme';
-import { toAppError } from '../../../lib/result';
+import { toAppError } from '@deseo/domain/result';
 import { memoryKeys, getMemory } from '../queries';
 import { photoFile } from '../drafts';
 import { changeMemoryDraft, clearMemoryCompletion, discardCurrentMemoryDraft, getMemoryLifecycle, openMemoryDraft, pickMemoryPhotos,
   restartMemoryDraft, reviewMemoryConflict, submitMemoryDraft, subscribeMemoryLifecycle } from '../lifecycle';
-import type { Memory } from '../types';
+import type { Memory } from '@deseo/domain/memories';
 
 export function MemoryFormScreen({ memoryId }: { memoryId?: string }) {
   const { account, pair, online } = useCore();

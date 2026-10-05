@@ -3,8 +3,8 @@ import { DateTime } from 'luxon';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Badge } from '../../../components/ui/Badge';
 import { theme } from '../../../theme';
-import { inclusiveEndDate } from '../schema';
-import type { AgendaItem } from '../types';
+import { inclusiveEndDate } from '@deseo/domain/calendar';
+import type { AgendaItem } from '@deseo/domain/calendar';
 
 export type EventRowProps = {
   event: AgendaItem;

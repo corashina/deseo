@@ -4,7 +4,8 @@ import { DateTime } from 'luxon';
 import { Button } from '../../../components/ui/Button';
 import { theme, ui } from '../../../theme';
 import type { PairMember } from '../../pair';
-import type { Message, PendingMessage } from '../types';
+import type { Message } from '@deseo/domain/messages';
+import type { PendingMessage } from '../types';
 
 function MessageText({ body }: { body: string }) {
   const parts = useMemo(() => body.split(/(https?:\/\/[^\s<>]+)/g), [body]);

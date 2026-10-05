@@ -4,10 +4,10 @@ import { getSupabase, resetSupabaseClient } from '../../lib/supabase';
 import { getPrivateStorage } from '../../lib/private-storage';
 import { clearPendingInvite } from '../../lib/links';
 import { resetPrivateQueries } from '../../lib/query-client';
-import { AppError, errorResult, resultSchema, toAppError, type Result } from '../../lib/result';
-import { accountSchema, emailCodeSchema, emailSchema, profileSchema, sensitiveActionSchema } from './schema';
+import { AppError, errorResult, resultSchema, toAppError, type Result } from '@deseo/domain/result';
+import { accountSchema, emailCodeSchema, emailSchema, profileSchema, sensitiveActionSchema } from '@deseo/domain/auth';
 import { notifySessionReset } from './session-events';
-import type { Account, ProfileInput, SensitiveAction } from './types';
+import type { Account, ProfileInput, SensitiveAction } from '@deseo/domain/auth';
 import { revokeCurrentDevice } from '../notifications';
 
 export async function requestEmailCode(email: string): Promise<Result<{ retryAt: string }>> {
