@@ -1,4 +1,4 @@
-import { test, expect, type Page } from '@playwright/test';
+import { test, expect, type Page, type Route } from '@playwright/test';
 import { randomUUID } from 'node:crypto';
 import { mkdirSync } from 'node:fs';
 import { createPortalPairFixture, cleanupPortalPairFixture, portalClient } from './support/fixtures';
@@ -196,6 +196,56 @@ for (const interruption of ['lost response', 'focus']) test('uncertain discard s
     const feed = (await client.rpc('list_memories', { p_pair_id: ids.pairId, p_limit: 50 })).data.data.items;
     expect(feed.filter((memory: { caption: string }) => memory.caption === 'Retained after discard')).toHaveLength(1);
   } finally { await cleanupPortalPairFixture(ids); }
+});
+// Importance 98: a confirmed discard conflict must recover after a late real publication.
+test('late publication releases a discard conflict and preserves the draft until recovery', async ({ page }) => {
+  const ids = await createPortalPairFixture();
+  let releasePublication = () => {};
+  const released = new Promise<void>(resolve => { releasePublication = resolve; });
+  try {
+    await loginWithLocalEmailCode(page, ids.annaEmail);
+    await form(page, 'Late publication'); await select(page, 2);
+    let publication: Route | undefined;
+    let memoryId = '';
+    const deletions: { p_expected_version: number }[] = [];
+    await page.route('**/functions/v1/finalize-memory', async route => {
+      const body = route.request().postDataJSON();
+      if (body.action === 'publish' && !publication) {
+        publication = route; memoryId = body.memoryId;
+        await page.evaluate(() => window.dispatchEvent(new Event('focus')));
+        await released;
+        await route.abort();
+      } else await route.continue();
+    });
+    await page.route('**/rest/v1/rpc/delete_memory', async route => {
+      deletions.push(route.request().postDataJSON());
+      // The form has read the pending version. Finish the held publication before deleting.
+      const published = await publication!.fetch();
+      expect(published.status()).toBe(200);
+      const confirmed = await published.json();
+      expect(confirmed.data.state).toBe('published');
+      expect(confirmed.data.version).toBe(deletions[0].p_expected_version + 1);
+      releasePublication();
+      const rejected = await route.fetch();
+      expect((await rejected.json()).error.code).toBe('CONFLICT');
+      await route.fulfill({ response: rejected });
+    });
+    await page.getByRole('button', { name: 'Publish memory', exact: true }).click();
+    await expect(page.getByRole('button', { name: 'Retry save', exact: true })).toBeEnabled();
+    await page.getByRole('button', { name: 'Discard upload and change photos', exact: true }).click();
+    await expect(page.getByRole('button', { name: 'Discard upload and change photos', exact: true })).toBeEnabled();
+    await expect(page.getByLabel('Caption', { exact: true })).toHaveValue('Late publication');
+    await expect(page.getByLabel('Memory date')).toHaveValue('2026-10-05');
+    await expect(page.getByRole('img', { name: 'Selected photo', exact: true })).toHaveCount(2);
+    await expect(page.getByRole('button', { name: 'Retry save', exact: true })).toBeEnabled();
+    await page.getByRole('button', { name: 'Discard upload and change photos', exact: true }).click();
+    await expect(page.getByRole('heading', { name: 'Late publication', exact: true })).toBeVisible();
+    expect(page.url().endsWith('/memories/' + memoryId)).toBe(true);
+    expect(deletions).toHaveLength(1);
+    const client = await portalClient(ids.marekEmail);
+    const feed = (await client.rpc('list_memories', { p_pair_id: ids.pairId, p_limit: 50 })).data.data.items;
+    expect(feed.filter((memory: { caption: string }) => memory.caption === 'Late publication')).toHaveLength(1);
+  } finally { releasePublication(); await cleanupPortalPairFixture(ids); }
 });
 // Importance 98: uncertain immutable uploads and focus preserve one command and one publication.
 test('lost upload response survives focus and publishes once without overwriting', async ({ page }) => {

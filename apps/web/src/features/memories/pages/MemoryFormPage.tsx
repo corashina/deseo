@@ -116,7 +116,14 @@ function MemoryEditor({ memory }: { memory?: Memory }) {
     const result = await deleteMemory(next.input.id, next.discardVersion, next.discardId);
     if (!mounted.current || scope.signal.aborted) return;
     busy.current = false; setSaving(false);
-    if (!result.ok) { setError('We could not confirm the discard. Retry the discard.'); return; }
+    if (!result.ok) {
+      if (result.error.code === 'CONFLICT') {
+        // Deletion did not commit. Read the current state before the next discard.
+        next.discardVersion = undefined; next.discardId = crypto.randomUUID(); keep();
+        setError('This memory changed. Retry the discard.');
+      } else setError('We could not confirm the discard. Retry the discard.');
+      return;
+    }
     // Deleted reservations keep their globally unique photo IDs until cleanup finishes.
     const nextPhotos = photos.map(photo => ({ ...photo, id: crypto.randomUUID() }));
     attempt.current = undefined; id.current = crypto.randomUUID(); setPhotos(nextPhotos);
