@@ -6,7 +6,7 @@ export const routeManifest: readonly RouteCoverage[] = [
   { id: 'entry-verify', path: '/verify', fixture: 'signedOut', views: ['default', 'invalid-code'] },
   { id: 'entry-profile', path: '/profile/setup', fixture: 'unpaired', views: ['new-account'] },
   { id: 'pair-start', path: '/pair/start', fixture: 'unpaired', views: ['default'] },
-  { id: 'pair-invite', path: '/pair/invite', fixture: 'pending', views: ['default', 'generated-code'] },
+  { id: 'pair-invite', path: '/pair/invite', fixture: 'pending', views: ['default', 'generated-code', 'delivery-unconfirmed', 'already-delivered'] },
   { id: 'pair-join', path: '/pair/join', fixture: 'unpaired', views: ['default', 'review', 'unavailable'] },
   { id: 'pair-waiting', path: '/pair/waiting', fixture: 'pending', views: ['default', 'cancel-dialog'] },
   { id: 'pair-welcome', path: '/pair/welcome', fixture: 'active', views: ['default'] },
