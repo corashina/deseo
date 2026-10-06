@@ -1,15 +1,82 @@
 # React web portal handoff
 
-Date: 6 October 2026. Status: Automated verification complete. Controller review remains required.
+Date: 6 October 2026. Status: Automated correction verification complete. Scoped controller review remains required.
+
+## Current reviewed correction
+
+Correction base: `964b085495569111f9cccb0326fb324a77d65386`.
+Product and SQL correction: `ad736e6f75a725a69a5789899ac0ca50ea9d17ba`.
+Capture and test correction: `d1bd51eb9d11a9e5ded6fb7d25b574a18a7159ff`.
+The full browser run and compiled audit use committed `d1bd51e`.
+The controller's one scoped re-review remains pending.
+
+The correction addresses the six whole-branch findings:
+
+- I1: Common tabs include their narrow rules in eager controls. Reminder and notification consumers load their owned styles.
+- M1: Compare keeps personal plans in their columns and shows each Together plan once per day across them.
+- M2: A narrow Calendar entry defaults to Agenda. Valid Month, Agenda, and Compare URL choices remain authoritative.
+- M3: Shell Avatars use the current verified member slot. Role data has no separate stored copy.
+- M4: SQL tests prioritize only owned eligible positive fixtures within rollback transactions. Negative notification checks preserve timing and leases.
+- M5: STYLE now names mobile, browser, domain, and planned public-site boundaries.
+
+| Current check | Measured result | Exit | Source |
+|---|---|---:|---|
+| Complete `npm run verify:web` | TypeScript, lint, and build passed; 236 passed, zero failed, two explicit capture skips; 30.0 minutes | 0 | `d1bd51e` |
+| Focused routes and layouts | 10 passed across both projects; five widths and 200 percent text | 0 | Exact correction files committed in `ad736e6` |
+| Populated SQL | 13 files, 511 assertions; 19 seconds | 0 | SQL files committed in `ad736e6` |
+| Restored isolated replay SQL | 13 files, 511 assertions; 18 seconds | 0 | Same SQL blobs as `ad736e6` |
+| Capture and personal Compare checks | Four passed; 38 viewport images and three existing full-page counterparts refreshed | 0 | Exact capture/test files committed in `d1bd51e` |
+| Compiled module, asset, and CSS scan | 220 modules; 19 dependency paths; five direct CSS route checks; zero audited/server/native/fixture matches | 0 | `d1bd51e` |
+| Named preservation check | Anna and Marek retain active profiles, stable a/b slots, and the same active pair | 0 | `d1bd51e`; read-only backend check |
+
+The focused and SQL commands ran before commit creation, with owned edits on runner HEAD `964b085`.
+The capture command ran before its commit, with owned capture/test edits on runner HEAD `ad736e6`.
+Recorded blob IDs connect those working files to the committed sources above.
+The full browser result uses committed source and includes the stronger personal Compare assertions.
+
+Gallery coverage remains 39 routes, 119 views, 238 records, and 324 JPEGs.
+The refresh includes all Tasks, Ideas, task details, and Notifications states, plus Compare and Marek's partner-memory view.
+The capture runner shares one normal UI session file per named role across viewport projects.
+It verifies the owner, loads the server profile, and saves refreshed browser SDK state.
+A new UI sign-in observes the real email-code interval. No admin recovery flow or hand-edited token supplies captures.
+Invitation and verification masks remain in the capture path.
+Four ownership journals confirm complete cleanup and retain all disposable IDs and checked removal records.
+Named accounts and unknown older rows remain intact.
+
+The first targeted run printed eight passes but stalled in sandbox preview teardown.
+Revalidated owned process cleanup let it exit 0. The elevated rerun passed 10 cases with exit 0.
+The first capture run passed desktop but failed narrow at the real email-code rate limit, exit 1.
+The role-keyed session correction passed both viewport captures, exit 0.
+Each run retains a separate raw log. New elevated runs retain separate HTML reports and result folders.
+The first targeted command replaced the previous default HTML summary; prior raw logs and result files remain preserved.
+
+The earlier clean replay applied 12 migrations and passed 505 assertions at its recorded source below.
+The current 511-assertion replay used its restored preserved backup. This correction ran no new reset.
+Memory fixtures include 120 unrelated eligible jobs and 120 expired reservations in an owned third pair.
+Notification fixtures include 60 unrelated eligible delivery jobs and 60 receipt jobs in that pair.
+Workers retain their production limits, errors, and access checks. Test effects roll back.
+No production migration, function, access policy, or dependency changed.
+
+Native, domain, Edge, races, and dependency sources remain unchanged from `964b085`.
+The earlier native 209, domain seven, Edge 37, and five race harness results retain their exact sources below.
+This correction did not repeat those unchanged suites.
+The compiled audit uses the existing lockfile audit and does not certify native or tool dependency safety.
+
+After verification, the owned replay DB stopped with default backup, exit 0. No replay container remains. The two original labeled volumes retain their creation times for controller cleanup. Original web/integration service IDs remain running. Root Edge session 58924 remained untouched.
+
+Current raw evidence lives in `.superpowers/sdd/2026-10-05-deseo-web-portal-implementation/`.
+Use `final-fix-report.md`, `final-fix-full-web.log`, both `final-fix-*-sql-2.log` files, and `final-fix-bundle-audit.json`.
+The source-scope record and capture ownership journals retain provenance and cleanup evidence.
+Physical devices, hosted deployment, other browser engines, and the prior delivery limits remain unverified.
 
 ## Source and scope
 
-Final browser Code HEAD: `50bac2e59309f6b3422aea554c740e5bd84a5303`.
+Final browser Code HEAD: `d1bd51eb9d11a9e5ded6fb7d25b574a18a7159ff`.
 Task 11 baseline: `d4837a81cb108abf43772608461e316463974fac`.
 Initial source correction: `67775e7`, `fix: complete portal verification corrections`.
 Shared-style and capture correction: `0db22a6`, `fix: own common styles across lazy portal routes`.
 Lifecycle correction: `50bac2e`, `fix: retain commands after represented realtime signals`.
-The final documentation commit uses `docs: record portal verification and platform architecture`.
+The earlier documentation commit uses `docs: record portal verification and platform architecture`.
 
 The portal uses React DOM, Vite, React Router, and separate browser pages.
 Expo remains the Android and iOS application. Both applications import `packages/domain` and use the same backend.
@@ -23,7 +90,7 @@ Browser Auth uses supported Supabase session storage. Rows, drafts, blobs, and o
 Account export, deletion, avatar backend work, and public pages remain separate delivery tasks.
 The portal adds no service worker, offline content storage, browser push prompt, or installation prompt.
 
-## Final commands and results
+## Earlier Task 11 commands and results
 
 All commands ran from the portal worktree root, except Expo's workspace command.
 Each row records its actual Code HEAD. Physical device checks remain separate.
