@@ -4,9 +4,10 @@ import { useMessageDraft } from './useMessageDraft';
 import { loadMessageDraft, saveMessageDraft } from './drafts';
 import { sendMessage } from './commands';
 import { reconcileMessageSends } from './queries';
-import { flushPrivateDrafts } from '../../lib/draft-lifecycle';
+import { flushPrivateDrafts } from '../../lib/draft';
 
 const mockAssertCurrent = jest.fn();
+jest.mock('../../lib/private-storage', () => ({ getPrivateStorage: jest.fn() }));
 jest.mock('../../lib/query-client', () => ({ captureQueryScope: () => ({ assertCurrent: mockAssertCurrent }) }));
 jest.mock('expo-crypto', () => ({ randomUUID: () => '10000000-0000-4000-8000-000000000001' }));
 jest.mock('./drafts', () => ({ loadMessageDraft: jest.fn(), saveMessageDraft: jest.fn() }));

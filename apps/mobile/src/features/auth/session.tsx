@@ -7,7 +7,7 @@ import { AppError, toAppError } from '../../lib/result';
 import { restoreSession } from './queries';
 import { onSessionReset } from './session-events';
 import type { AuthState } from './types';
-import { flushPrivateDrafts } from '../../lib/draft-lifecycle';
+import { flushPrivateDrafts } from '../../lib/draft';
 
 interface AuthContextValue {
   state: AuthState;

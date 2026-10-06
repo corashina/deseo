@@ -11,7 +11,7 @@ import { restoreSession } from './queries';
 import { AuthProvider, useAuth } from './session';
 import { notifySessionReset } from './session-events';
 import type { SessionContext } from './types';
-import { registerDraftFlush } from '../../lib/draft-lifecycle';
+import { registerDraftFlush } from '../../lib/draft';
 import { resetPrivateQueries } from '../../lib/query-client';
 
 function Status() {

@@ -1,9 +1,7 @@
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Controller, useForm } from 'react-hook-form';
+import { Controller } from 'react-hook-form';
 import { DateTime } from 'luxon';
-import { randomUUID } from 'expo-crypto';
 import { useRouter } from 'expo-router';
 import { Alert, Switch, Text, View } from 'react-native';
 import { Button } from '../../../components/ui/Button';
@@ -11,17 +9,14 @@ import { Field } from '../../../components/ui/Field';
 import { Screen } from '../../../components/ui/Screen';
 import { Status } from '../../../components/ui/Status';
 import { theme, ui } from '../../../theme';
-import { captureQueryScope } from '../../../lib/query-client';
-import { registerDraftFlush } from '../../../lib/draft-lifecycle';
-import type { CommandError } from '../../../lib/result';
+import { useDraft, type Draft } from '../../../lib/draft';
 import { useCore } from '../../pair';
 import { CalendarAccess } from '../CalendarAccess';
 import { getDateIdea, ideaKeys, planDateIdea, type DateIdea } from '../date-ideas';
 import { useCalendarSignals } from '../realtime';
 import { createEvent, updateEvent } from '../commands';
-import { readEventDraft, removeEventDraft, writeEventDraft } from '../drafts';
 import { calendarKeys, getEvent } from '../queries';
-import { eventFormSchema, eventToForm, toEventInput, wallTimeChoices } from '../schema';
+import { eventFormSchema, eventInputSchema, eventToForm, eventValuesSchema, toEventInput, wallTimeChoices } from '../schema';
 import type { Event, EventFormValues, EventInput } from '../types';
 
 type Core = ReturnType<typeof useCore>;
@@ -52,142 +47,34 @@ function FormEntry({ eventId, ideaId, ...core }: ActiveProps & { eventId?: strin
 function EventForm({ account, pair, online, event, idea, reload, reloadIdea }: ActiveProps & { event?: Event; idea?: DateIdea; reloadIdea: () => Promise<{ data?: DateIdea | null }>; reload: () => Promise<{ data?: Event | null }> }) {
   const router = useRouter();
   const slot = pair.members.find((member) => member.userId === account.id)!.slot;
-  const draftKey = idea ? `calendar:idea-plan:${idea.id}` : `calendar:${event?.id ?? 'new'}`;
-  const sourceIdea = useRef(idea ? { id: idea.id, version: idea.version } : undefined);
-  const now = useRef(DateTime.now().setZone(account.timezone));
-  const [initialIdentity] = useState(() => ({ id: event?.id ?? randomUUID(), commandId: randomUUID(), expectedVersion: event?.version }));
-  const identity = useRef(initialIdentity);
-  const pending = useRef(false);
-  const complete = useRef(false);
-  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const submission = useRef<EventInput | undefined>(undefined);
-  const preserved = useRef<EventFormValues | undefined>(undefined);
-  const [ready, setReady] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [savedDraft, setSavedDraft] = useState(false);
-  const [storageError, setStorageError] = useState<string | null>(null);
-  const [error, setError] = useState<CommandError | null>(null);
-  const [frozen, setFrozen] = useState(false);
-  const [canRestore, setCanRestore] = useState(false);
-  const [completedId, setCompletedId] = useState<string | null>(null);
-  const form = useForm<EventFormValues>({ resolver: zodResolver(eventFormSchema), defaultValues: event ? eventToForm(event) : {
-    title: idea?.title ?? '', allDay: false, repeat: 'none', importantDate: false, startDate: now.current.toISODate()!, endDate: now.current.plus({ hours: 1 }).toISODate()!,
-    startTime: now.current.toFormat('HH:mm'), endTime: now.current.plus({ hours: 1 }).toFormat('HH:mm'),
-    timezone: account.timezone, owner: 'together', visibility: 'shared', location: '', description: idea?.note ?? '',
-  } });
+  const [now] = useState(() => DateTime.now().setZone(account.timezone));
+  const draft: Draft<EventFormValues, EventInput, Event> = useDraft<EventFormValues, EventInput, Event>({
+    accountId: account.id, pairId: pair.pairId, key: idea ? `calendar:plan:${idea.id}` : `calendar:${event?.id ?? 'new'}`,
+    values: eventValuesSchema, rules: eventFormSchema, input: eventInputSchema, online,
+    initial: { id: event?.id, expectedVersion: idea?.version ?? event?.version, values: event ? eventToForm(event) : {
+      title: idea?.title ?? '', allDay: false, repeat: 'none', importantDate: false, startDate: now.toISODate()!, endDate: now.plus({ hours: 1 }).toISODate()!,
+      startTime: now.toFormat('HH:mm'), endTime: now.plus({ hours: 1 }).toFormat('HH:mm'),
+      timezone: account.timezone, owner: 'together', visibility: 'shared', location: '', description: idea?.note ?? '',
+    } },
+    toInput: (values, identity) => toEventInput({ ...values, id: identity.id, pairId: pair.pairId }),
+    command: (input, identity) => idea ? planDateIdea(idea.id, input, identity.expectedVersion!, identity.commandId)
+      : event ? updateEvent(input.id, input, identity.expectedVersion!, identity.commandId) : createEvent(input, identity.commandId),
+    // Planning conflicts on the idea version. The entered event values stay.
+    reload: async () => {
+      if (idea) { const saved = (await reloadIdea()).data; return saved ? { values: draft.form.getValues(), expectedVersion: saved.version } : null; }
+      const saved = (await reload()).data; return saved ? { values: eventToForm(saved), expectedVersion: saved.version } : null;
+    },
+    onSaved: saved => router.replace({ pathname: '/events/[eventId]', params: { eventId: saved.id } }),
+  });
+  const { form, ready, saving, frozen, error, storageError } = draft;
   const values = form.watch();
   const isAuthor = !event || event.authorId === account.id;
   const locked = frozen || saving || !ready;
-
-  const persist = async (draftValues: EventFormValues) => {
-    await writeEventDraft(account.id, pair.pairId, draftKey, { ...identity.current, values: draftValues, submission: submission.current, sourceIdea: sourceIdea.current, preservedValues: preserved.current });
-    setSavedDraft(true); setStorageError(null);
-  };
-  useEffect(() => {
-    let active = true;
-    const scope = captureQueryScope();
-    void readEventDraft(account.id, pair.pairId, draftKey).then((draft) => {
-      scope.assertCurrent();
-      if (!active) return;
-      if (draft) {
-        if (event && draft.id !== event.id) throw new Error('The draft belongs to another event.');
-        if (event && draft.expectedVersion === undefined) throw new Error('The draft has no edit version.');
-        if (idea && draft.sourceIdea?.id !== idea.id) throw new Error('The draft belongs to another idea.');
-        sourceIdea.current = draft.sourceIdea; preserved.current = draft.preservedValues; setCanRestore(draft.preservedValues !== undefined);
-        identity.current = { id: draft.id, commandId: draft.commandId, expectedVersion: draft.expectedVersion };
-        submission.current = draft.submission;
-        form.reset(draft.values);
-        setSavedDraft(true); setFrozen(draft.submission !== undefined);
-        if (draft.submission) setError({ code: 'RETRYABLE', message: 'Confirm this save before you change the draft.' });
-      }
-      setReady(true);
-    }).catch(() => { if (active) setStorageError('We could not open your draft. Restore private storage before you edit this event.'); });
-    return () => { active = false; if (timer.current) clearTimeout(timer.current); };
-  }, [account.id, pair.pairId, draftKey, form.reset]);
-
-  useEffect(() => {
-    if (!ready) return;
-    const scope = captureQueryScope();
-    const removeFlush = registerDraftFlush(async () => {
-      if (complete.current) return;
-      scope.assertCurrent();
-      if (timer.current) clearTimeout(timer.current);
-      await writeEventDraft(account.id, pair.pairId, draftKey, { ...identity.current, values: form.getValues(), submission: submission.current, sourceIdea: sourceIdea.current, preservedValues: preserved.current });
-    });
-    const listener = form.watch(() => {
-      if (complete.current || submission.current) return;
-      setSavedDraft(false);
-      if (timer.current) clearTimeout(timer.current);
-      timer.current = setTimeout(() => {
-        try { scope.assertCurrent(); } catch { return; }
-        void persist(form.getValues()).catch(() => setStorageError('We could not save your draft on this device. Keep this screen open.'));
-      }, 400);
-    });
-    return () => {
-      removeFlush();
-      listener.unsubscribe(); if (timer.current) clearTimeout(timer.current);
-      if (complete.current) return;
-      try { scope.assertCurrent(); } catch { return; }
-      void writeEventDraft(account.id, pair.pairId, draftKey, { ...identity.current, values: form.getValues(), submission: submission.current, sourceIdea: sourceIdea.current, preservedValues: preserved.current }).catch(() => undefined);
-    };
-  }, [ready, account.id, pair.pairId, draftKey, form.watch]);
-
-  const submit = async (input: EventInput) => {
-    if (pending.current || !online || !ready || complete.current) return;
-    const scope = captureQueryScope();
-    pending.current = true; setSaving(true);
-    if (timer.current) clearTimeout(timer.current);
-    submission.current = input; setFrozen(true);
-    try {
-      await persist(form.getValues());
-      scope.assertCurrent();
-      const result = sourceIdea.current
-        ? await planDateIdea(sourceIdea.current.id, input, sourceIdea.current.version, identity.current.commandId)
-        : event
-        ? await updateEvent(input.id, input, identity.current.expectedVersion!, identity.current.commandId)
-        : await createEvent(input, identity.current.commandId);
-      scope.assertCurrent();
-      if (result.ok) {
-        complete.current = true;
-        try { await removeEventDraft(account.id, pair.pairId, draftKey); }
-        catch { setStorageError('We saved your event. We could not remove its local draft.'); setCompletedId(result.data.id); return; }
-        scope.assertCurrent();
-        router.replace({ pathname: '/events/[eventId]', params: { eventId: result.data.id } });
-      } else {
-        setError(result.error);
-        if (result.error.code !== 'RETRYABLE') {
-          submission.current = undefined; setFrozen(false); identity.current.commandId = randomUUID();
-          await persist(form.getValues());
-        }
-      }
-    } catch {
-      try { scope.assertCurrent(); } catch { return; }
-      setStorageError('We could not save your draft on this device. Keep this screen open.');
-    } finally {
-      pending.current = false;
-      try { scope.assertCurrent(); setSaving(false); } catch { /* The account screen owns recovery. */ }
-    }
-  };
-  const save = (draftValues: EventFormValues) => {
-    const input = toEventInput({ ...draftValues, id: identity.current.id, pairId: pair.pairId });
-    if (event?.visibility === 'private' && input.visibility === 'shared') {
-      Alert.alert('Share this event?', 'Your partner will see its title, dates, location, and description.', [
-        { text: 'Cancel', style: 'cancel' }, { text: 'Share event', onPress: () => { void submit({ ...input, confirmShared: true }); } },
-      ]);
-    } else void submit(input);
-  };
-  const reloadSaved = async () => {
-    const scope = captureQueryScope();
-    preserved.current = form.getValues();
-    const result = idea ? await reloadIdea() : await reload();
-    try { scope.assertCurrent(); } catch { return; }
-    if (!result.data) { setError({ code: 'FORBIDDEN', message: 'This event is unavailable.' }); return; }
-    if (idea) sourceIdea.current = { id: idea.id, version: result.data.version };
-    else identity.current.expectedVersion = result.data.version;
-    identity.current.commandId = randomUUID(); submission.current = undefined;
-    if (!idea) form.reset(eventToForm(result.data as Event)); setError(null); setFrozen(false); setCanRestore(true);
-    void persist(form.getValues()).catch(() => setStorageError('We could not save your draft on this device.'));
-  };
+  const confirmShare = (input: EventInput) => event?.visibility === 'private' && input.visibility === 'shared'
+    ? new Promise<EventInput | null>(resolve => Alert.alert('Share this event?', 'Your partner will see its title, dates, location, and description.', [
+      { text: 'Cancel', style: 'cancel', onPress: () => resolve(null) }, { text: 'Share event', onPress: () => resolve({ ...input, confirmShared: true }) },
+    ]))
+    : input;
   const textField = (name: 'title' | 'startDate' | 'endDate' | 'startTime' | 'endTime' | 'timezone' | 'location' | 'description', label: string, hint?: string) =>
     <Controller key={name} control={form.control} name={name} render={({ field, fieldState }) => <Field label={label} hint={hint} error={fieldState.error?.message}
       value={field.value} onChangeText={(text) => { field.onChange(text); if (name === 'startDate' && form.getValues('repeat') === 'yearly') form.setValue('endDate', text); if (name === 'startTime' || name === 'startDate') form.setValue('startOffset', undefined); if (name === 'endTime' || name === 'endDate') form.setValue('endOffset', undefined); if (name === 'timezone') { form.setValue('startOffset', undefined); form.setValue('endOffset', undefined); } }}
@@ -204,21 +91,21 @@ function EventForm({ account, pair, online, event, idea, reload, reloadIdea }: A
         onPress={() => form.setValue(`${field}Offset`, choice.offset, { shouldValidate: true, shouldDirty: true })} />)}</View>
     </View>;
   };
-  if (completedId) return <Screen title="Event saved">
-    <Status message={storageError ?? 'We saved your event.'} />
-    <Button label="Open event" onPress={() => router.replace({ pathname: '/events/[eventId]', params: { eventId: completedId } })} />
-  </Screen>;
+  if (draft.savedButNotCleared) { const savedId = draft.savedButNotCleared.id; return <Screen title="Event saved">
+    <Status message="We saved your event. We could not remove its local draft." />
+    <Button label="Open event" onPress={() => router.replace({ pathname: '/events/[eventId]', params: { eventId: savedId } })} />
+  </Screen>; }
   return <Screen title={idea ? 'Plan date' : event ? 'Edit event' : 'Add event'}>
     {event?.repeat === 'yearly' && <Status message="Changes apply to the yearly series." />}
     {idea && <Status message="Save this shared event to mark your idea Planned." />}
-    {!online && <Status message={savedDraft ? 'You are offline. Your draft is on this device.' : 'You are offline. Keep this screen open until your draft saves.'} />}
+    {!online && <Status message={draft.savedOnDevice ? 'You are offline. Your draft is on this device.' : 'You are offline. Keep this screen open until your draft saves.'} />}
     {storageError && <Status tone="error" message={storageError} />}
     {error && <Status tone="error" message={error.code === 'CONFLICT' ? `Your partner changed this ${idea ? 'idea' : 'event'}. Your draft is on this device.` : idea && error.code === 'FORBIDDEN' ? 'This planned event is unavailable. Reload the idea before you plan again.' : error.message ?? 'We could not save this event.'}
       actionLabel={error.code === 'CONFLICT' ? 'Reload saved version' : idea && error.code === 'FORBIDDEN' ? 'Reload idea' : frozen ? 'Retry save' : undefined}
-      onAction={error.code === 'CONFLICT' || (idea && error.code === 'FORBIDDEN') ? () => { void reloadSaved(); } : frozen ? () => { if (submission.current && online) void submit(submission.current); } : undefined} />}
-    {error?.code === 'CONFLICT' && <Button label="Return to draft" variant="secondary" onPress={() => setError(null)} />}
-    {canRestore && <Status message="Review the saved event. You can restore your draft before saving."
-      actionLabel="Restore my draft" onAction={() => { if (preserved.current) form.reset(preserved.current); preserved.current = undefined; setCanRestore(false); void persist(form.getValues()).catch(() => setStorageError('We could not save your draft on this device.')); }} />}
+      onAction={error.code === 'CONFLICT' || (idea && error.code === 'FORBIDDEN') ? () => { void draft.reloadSaved(); } : frozen ? () => { void draft.retry(); } : undefined} />}
+    {error?.code === 'CONFLICT' && <Button label="Return to draft" variant="secondary" onPress={draft.dismissConflict} />}
+    {draft.canRestore && <Status message="Review the saved event. You can restore your draft before saving."
+      actionLabel="Restore my draft" onAction={() => { void draft.restore(); }} />}
     {textField('title', 'Title')}
     <Controller control={form.control} name="allDay" render={({ field }) => <View style={ui.row}><Text style={theme.typography.body}>All day</Text>
       <Switch accessibilityLabel="All day" value={field.value} disabled={locked} onValueChange={(value) => { field.onChange(value); if (!value) { form.setValue('repeat', 'none'); form.setValue('importantDate', false); } }} /></View>} />
@@ -246,12 +133,8 @@ function EventForm({ account, pair, online, event, idea, reload, reloadIdea }: A
     </View>
     {textField('location', 'Location (optional)')}
     {textField('description', 'Description (optional)')}
-    <Button label={frozen ? 'Retry save' : event ? 'Save changes' : 'Save event'} loading={saving} disabled={saving || !ready || !online || complete.current || error?.code === 'CONFLICT' || (idea !== undefined && error?.code === 'FORBIDDEN')}
-      onPress={frozen ? () => { if (submission.current) void submit(submission.current); } : () => { void form.handleSubmit(save)(); }} />
-    <Button label="Cancel" variant="secondary" disabled={saving || !ready} onPress={() => {
-      if (timer.current) clearTimeout(timer.current);
-      const scope = captureQueryScope();
-      void persist(form.getValues()).then(() => { scope.assertCurrent(); router.back(); }).catch(() => setStorageError('We could not save your draft. Keep this screen open.'));
-    }} />
+    <Button label={frozen ? 'Retry save' : event ? 'Save changes' : 'Save event'} loading={saving} disabled={saving || !ready || !online || error?.code === 'CONFLICT' || (idea !== undefined && error?.code === 'FORBIDDEN')}
+      onPress={() => { void (frozen ? draft.retry() : draft.save(confirmShare)); }} />
+    <Button label="Cancel" variant="secondary" disabled={saving || !ready} onPress={() => { void draft.leave().then(left => { if (left) router.back(); }); }} />
   </Screen>;
 }

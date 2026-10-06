@@ -8,7 +8,7 @@ import { getPairContext } from '../pair';
 import { captureQueryScope, queryClient } from '../../lib/query-client';
 import { getSupabase } from '../../lib/supabase';
 import { onPrivateStorageFailure } from '../../lib/private-storage';
-import { registerDraftFlush } from '../../lib/draft-lifecycle';
+import { registerDraftFlush } from '../../lib/draft';
 import { AppError, toAppError } from '../../lib/result';
 import { clearMemoryRoot, discardMemoryDraft, flushMemoryFiles, isOwnedCacheUri, photoFile,
   readMemoryDraft, reconcileMemoryFiles, registerMemoryFiles, removeMemoryFiles, writeMemoryDraft } from './drafts';
