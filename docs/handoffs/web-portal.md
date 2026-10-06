@@ -1,6 +1,6 @@
 # React web portal handoff
 
-Date: 6 October 2026. Status: Automated correction verification complete. Scoped controller review remains required.
+Date: 6 October 2026. Status: Automated verification and independent reviews complete. Open findings: 0.
 
 ## Current reviewed correction
 
@@ -8,7 +8,12 @@ Correction base: `964b085495569111f9cccb0326fb324a77d65386`.
 Product and SQL correction: `ad736e6f75a725a69a5789899ac0ca50ea9d17ba`.
 Capture and test correction: `d1bd51eb9d11a9e5ded6fb7d25b574a18a7159ff`.
 The full browser run and compiled audit use committed `d1bd51e`.
-The controller's one scoped re-review remains pending.
+Independent whole-branch review covered all 11 tasks from `e4dbdcfc31f7cb968ac05f1b8e3f58f981259278` through `964b085`.
+That review found 0 Critical, 1 Important, and 5 Minor issues.
+Independent scoped re-review checked the correction from `964b085` through `a417abb37b564e97072db0ae1688038eb23d5e4b`.
+The reviewer confirmed all six findings addressed and found no new breakage.
+Open findings: 0 Critical, 0 Important, 0 Minor.
+The reviewed head changes documentation only after tested browser source `d1bd51eb9d11a9e5ded6fb7d25b574a18a7159ff`.
 
 The correction addresses the six whole-branch findings:
 
@@ -22,17 +27,37 @@ The correction addresses the six whole-branch findings:
 | Current check | Measured result | Exit | Source |
 |---|---|---:|---|
 | Complete `npm run verify:web` | TypeScript, lint, and build passed; 236 passed, zero failed, two explicit capture skips; 30.0 minutes | 0 | `d1bd51e` |
-| Focused routes and layouts | 10 passed across both projects; five widths and 200 percent text | 0 | Exact correction files committed in `ad736e6` |
-| Populated SQL | 13 files, 511 assertions; 19 seconds | 0 | SQL files committed in `ad736e6` |
-| Restored isolated replay SQL | 13 files, 511 assertions; 18 seconds | 0 | Same SQL blobs as `ad736e6` |
-| Capture and personal Compare checks | Four passed; 38 viewport images and three existing full-page counterparts refreshed | 0 | Exact capture/test files committed in `d1bd51e` |
-| Compiled module, asset, and CSS scan | 220 modules; 19 dependency paths; five direct CSS route checks; zero audited/server/native/fixture matches | 0 | `d1bd51e` |
+| `npm run test:web -- route-controls.spec.ts screenshot-layout.spec.ts` | 10 passed across both projects; five widths and 200 percent text | 0 | Exact correction files committed in `ad736e6` |
+| `npm run test:web:db` | 13 files, 511 assertions; 19 seconds | 0 | SQL files committed in `ad736e6` |
+| `supabase --workdir <owned replay> test db --local` | 13 files, 511 assertions; 18 seconds | 0 | Same SQL blobs as `ad736e6` |
+| Filtered capture and personal Compare command below | Four passed; 38 viewport images and three existing full-page counterparts refreshed | 0 | Exact capture/test files committed in `d1bd51e` |
+| Compiled module, asset, and CSS command below | 220 modules; 19 dependency paths; five direct CSS route checks; zero audited/server/native/fixture matches | 0 | `d1bd51e` |
 | Named preservation check | Anna and Marek retain active profiles, stable a/b slots, and the same active pair | 0 | `d1bd51e`; read-only backend check |
 
 The focused and SQL commands ran before commit creation, with owned edits on runner HEAD `964b085`.
 The capture command ran before its commit, with owned capture/test edits on runner HEAD `ad736e6`.
-Recorded blob IDs connect those working files to the committed sources above.
+The source-scope check confirmed matching SQL blobs in `ad736e6` and `d1bd51e`.
 The full browser result uses committed source and includes the stronger personal Compare assertions.
+Windows browser commands ran elevated so their owned preview teardown could finish.
+
+The filtered capture command used `DESEO_CAPTURE=1` and this scene filter:
+
+```text
+^(tasks/|ideas/|task-detail/|notifications/|calendar/compare$|memory-detail/partner$)
+```
+
+```powershell
+npm run test:web -- screenshot-coverage.spec.ts route-controls.spec.ts --grep 'complete screenshot gallery|Compare places'
+```
+
+The compiled audit used this temporary script after the production build finished:
+
+```powershell
+node .superpowers/sdd/2026-10-05-deseo-web-portal-implementation/final-fix-bundle-audit.mjs
+```
+
+It compiled the Vite entry with `write: false`, checked reachable dependency paths, and scanned built assets for server values.
+It checked eager tabs and direct CSS dependencies for Tasks, Ideas, task details, event details, and Notifications.
 
 Gallery coverage remains 39 routes, 119 views, 238 records, and 324 JPEGs.
 The refresh includes all Tasks, Ideas, task details, and Notifications states, plus Compare and Marek's partner-memory view.
@@ -40,15 +65,15 @@ The capture runner shares one normal UI session file per named role across viewp
 It verifies the owner, loads the server profile, and saves refreshed browser SDK state.
 A new UI sign-in observes the real email-code interval. No admin recovery flow or hand-edited token supplies captures.
 Invitation and verification masks remain in the capture path.
-Four ownership journals confirm complete cleanup and retain all disposable IDs and checked removal records.
+Four ownership journals confirmed complete cleanup, each with 11 removed disposable accounts and checked removal records.
 Named accounts and unknown older rows remain intact.
 
 The first targeted run printed eight passes but stalled in sandbox preview teardown.
 Revalidated owned process cleanup let it exit 0. The elevated rerun passed 10 cases with exit 0.
 The first capture run passed desktop but failed narrow at the real email-code rate limit, exit 1.
 The role-keyed session correction passed both viewport captures, exit 0.
-Each run retains a separate raw log. New elevated runs retain separate HTML reports and result folders.
-The first targeted command replaced the previous default HTML summary; prior raw logs and result files remain preserved.
+Each run used a separate raw log. New elevated runs used separate HTML reports and result folders.
+The first targeted command replaced the previous default HTML summary; earlier raw logs and result files supported the review.
 
 The earlier clean replay applied 12 migrations and passed 505 assertions at its recorded source below.
 The current 511-assertion replay used its restored preserved backup. This correction ran no new reset.
@@ -62,11 +87,21 @@ The earlier native 209, domain seven, Edge 37, and five race harness results ret
 This correction did not repeat those unchanged suites.
 The compiled audit uses the existing lockfile audit and does not certify native or tool dependency safety.
 
-After verification, the owned replay DB stopped with default backup, exit 0. No replay container remains. The two original labeled volumes retain their creation times for controller cleanup. Original web/integration service IDs remain running. Root Edge session 58924 remained untouched.
+After verification, the owned replay DB stopped with default backup, exit 0. No replay container remains.
+The controller then checked project labels, exact creation times, and zero consumers before removing these two volumes:
 
-Current raw evidence lives in `.superpowers/sdd/2026-10-05-deseo-web-portal-implementation/`.
-Use `final-fix-report.md`, `final-fix-full-web.log`, both `final-fix-*-sql-2.log` files, and `final-fix-bundle-audit.json`.
-The source-scope record and capture ownership journals retain provenance and cleanup evidence.
+| Removed volume | Verified creation time | Verified project |
+|---|---|---|
+| `supabase_db_deseo-web-replay` | 2026-10-06T12:26:06Z | deseo-web-replay |
+| `supabase_storage_deseo-web-replay` | 2026-10-06T12:46:51Z | deseo-web-replay |
+
+Replay cleanup is complete. The controller changed no other volume or container.
+Protected web/integration running service IDs stayed unchanged. Root Edge session 58924 remained untouched.
+
+Reviewers checked raw evidence in `.superpowers/sdd/2026-10-05-deseo-web-portal-implementation/`.
+This included the full browser log, both SQL logs, compiled audit, source-scope record, and capture cleanup journals.
+The controller will remove scratch raw artifacts after this handoff.
+This committed document preserves the counts, commands, source IDs, review verdicts, cleanup identities, and limits.
 Physical devices, hosted deployment, other browser engines, and the prior delivery limits remain unverified.
 
 ## Source and scope
@@ -166,7 +201,8 @@ Memory races used the new replay API 55821 with DB, Auth, Kong, PostgREST, and S
 The installed CLI short-circuited startup with its existing Postgres-only container.
 A verified replay-only stop preserved its data; the next minimal startup added those services.
 The replay excludes Edge runtime. The original Edge process remained unchanged.
-After saving evidence, a verified replay-only stop preserved its two labeled database/storage volumes for controller cleanup.
+After saving evidence, a verified replay-only stop preserved its two labeled database/storage volumes.
+After scoped review, the controller removed those exact unused volumes with the checks recorded above.
 Replay ports 55821 and 55822 have no listeners. The original web and integration stacks remain unchanged.
 The test process reads keys from ignored local status JSON and does not print them.
 
@@ -200,11 +236,12 @@ See [Supabase CORS guidance](https://supabase.com/docs/guides/functions/cors) an
 ## Bundle and dependency findings
 
 The lockfile SHA256 stayed `2DB5CF4C6E0EF087EE97F4BC1D69E195AFD9F9CFDAF754BF47375D9F55AE3E7C`.
-The shared audit reports 66 package findings: 50 high, 16 moderate, and zero critical.
+The recorded shared audit reports 66 package findings: 50 high, 16 moderate, and zero critical.
 The workspace/omit-dev audit still includes the shared graph. Its 61 findings do not mean 61 web production vulnerabilities.
 
 The production dependency tree contains 34 paths. None intersect the audit's vulnerable node paths.
-A no-write compilation of the actual web entry contains 218 modules and 19 installed package paths.
+A no-write compilation of the actual web entry at `d1bd51e` contains 220 modules and 19 installed package paths.
+It also confirms five lazy routes load their required CSS without earlier route navigation.
 Those compiled paths also intersect no reported vulnerable node path.
 This finding describes this lockfile and entry; it does not remove the shared native/tooling advisories.
 
@@ -215,7 +252,7 @@ The root AJV 6 optional-peer warning remains; adding unused AJV 8 would not impr
 No package manifest, package pin, or lockfile changed during this task.
 
 React lazy route loading replaced the former large entry chunk.
-The final entry is 218.95 kB, gzip 68.23 kB. The largest chunk is 303.55 kB, gzip 77.42 kB.
+The final entry is 219.13 kB, gzip 68.27 kB. The largest chunk is 303.55 kB, gzip 77.42 kB.
 The build reports no size warning. This task did not increase the warning threshold.
 
 ## Screenshots and named pair
@@ -273,10 +310,13 @@ Android and iOS JavaScript exports do not prove native binaries, devices, push d
 Physical checks remain unverified for encrypted storage, process termination, photo permissions, media download, deep links, accessibility, and push.
 Windows cannot run an iOS simulator. Use macOS/Xcode or an authorized EAS build and a physical iPhone.
 Hosted Auth, SMTP, gateway behavior, public URL reachability, and deployment remain unverified.
-Controller task review and independent whole-branch review remain required before integration.
+Independent whole-branch review and scoped correction re-review are complete, with zero open findings.
+Firefox, Safari/WebKit, screen readers, operating-system font scaling, and browser toolbar zoom remain unverified.
 
 ## Raw evidence
 
 The owned execution folder is `.superpowers/sdd/2026-10-05-deseo-web-portal-implementation`.
-It contains `task-11-report.md`, command logs, audit JSON/tree files, compiled module details, and native export metadata.
-Keep it through review. This handoff preserves commands, counts, source IDs, and limits if scratch files are later removed.
+It held `task-11-report.md`, command logs, audit JSON/tree files, compiled module details, and native export metadata.
+It also held the whole-branch review, scoped review, correction report, and controller cleanup report.
+The controller will remove these scratch raw artifacts after this completion record.
+This handoff and the committed gallery remain the self-contained delivery record.
