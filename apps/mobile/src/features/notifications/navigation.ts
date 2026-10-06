@@ -1,7 +1,7 @@
 import { z } from 'zod';
-import { AppError } from '../../lib/result';
-import { destinationSchema } from './schema';
-import type { AllowedDestination } from './types';
+import { AppError } from '@deseo/domain/result';
+import { destinationSchema } from '@deseo/domain/notifications';
+import type { AllowedDestination } from '@deseo/domain/notifications';
 const payloadSchema = z.object({ notificationId: z.string().uuid() }).strict();
 export function notificationIdFromPayload(payload: unknown): string | null {
   const parsed = payloadSchema.safeParse(payload); return parsed.success ? parsed.data.notificationId : null;

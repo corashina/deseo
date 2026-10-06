@@ -1,8 +1,9 @@
 import { Directory, File, Paths } from 'expo-file-system';
 import { z } from 'zod';
 import { getPrivateStorage } from '../../lib/private-storage';
-import { AppError } from '../../lib/result';
-import { draftSchema, uuid } from './schema';
+import { AppError } from '@deseo/domain/result';
+import { uuid } from '@deseo/domain/memories';
+import { draftSchema } from './schema';
 import type { MemoryDraft } from './types';
 
 type Owner = Pick<MemoryDraft, 'accountId' | 'pairId' | 'draftId' | 'key'>;

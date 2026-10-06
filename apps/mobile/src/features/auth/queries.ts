@@ -1,8 +1,8 @@
 import { getSupabase } from '../../lib/supabase';
-import { AppError, toAppError } from '../../lib/result';
+import { AppError, toAppError } from '@deseo/domain/result';
 import { captureQueryScope } from '../../lib/query-client';
-import { sessionResultSchema } from './schema';
-import type { Account, SessionContext } from './types';
+import { sessionResultSchema } from '@deseo/domain/auth';
+import type { Account, SessionContext } from '@deseo/domain/auth';
 
 export async function restoreSession(): Promise<SessionContext | null> {
   const scope = captureQueryScope();

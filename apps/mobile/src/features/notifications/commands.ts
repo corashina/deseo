@@ -1,9 +1,11 @@
 import { z } from 'zod';
 import { getSupabase } from '../../lib/supabase';
 import { captureQueryScope, queryClient } from '../../lib/query-client';
-import { errorResult, resultSchema, type Result } from '../../lib/result';
-import { deviceSchema, preferencesSchema, reminderInputSchema, reminderSchema, destinationSchema } from './schema';
-import type { DeviceInput, NotificationPreferences, ReminderInput } from './types';
+import { errorResult, resultSchema, type Result } from '@deseo/domain/result';
+import { preferencesSchema, reminderInputSchema, reminderSchema, destinationSchema } from '@deseo/domain/notifications';
+import { deviceSchema } from './schema';
+import type { NotificationPreferences, ReminderInput } from '@deseo/domain/notifications';
+import type { DeviceInput } from './types';
 const uuid = z.string().uuid();
 export async function notificationCommand<T extends z.ZodTypeAny>(name: string, parameters: Record<string, unknown>, schema: T): Promise<Result<z.infer<T>>> {
   try {

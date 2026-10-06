@@ -1,7 +1,7 @@
 import { QueryClient, focusManager, onlineManager } from '@tanstack/react-query';
 import NetInfo from '@react-native-community/netinfo';
 import { AppState } from 'react-native';
-import { AppError } from './result';
+import { AppError } from '@deseo/domain/result';
 
 export const queryClient = new QueryClient({
   defaultOptions: {

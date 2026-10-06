@@ -2,7 +2,7 @@ import { File } from 'expo-file-system';
 import { Asset, requestPermissionsAsync } from 'expo-media-library';
 import { randomUUID } from 'expo-crypto';
 import { captureQueryScope } from '../../lib/query-client';
-import { AppError } from '../../lib/result';
+import { AppError } from '@deseo/domain/result';
 import { beginTransientMemoryFiles, memoryRoot, registerMemoryFiles, removeMemoryFiles } from './drafts';
 import { getMemoryMedia } from './queries';
 import { getMemoryLifecycle, reconcileMemoryAccess } from './lifecycle';

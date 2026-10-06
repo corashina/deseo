@@ -2,9 +2,9 @@ import { DateTime } from 'luxon';
 import { z } from 'zod';
 import { getSupabase } from '../../lib/supabase';
 import { captureQueryScope } from '../../lib/query-client';
-import { AppError, resultSchema } from '../../lib/result';
-import { dateSchema, eventRowSchema } from './schema';
-import type { AgendaItem, AgendaRange, Event } from './types';
+import { AppError, resultSchema } from '@deseo/domain/result';
+import { dateSchema, eventRowSchema } from '@deseo/domain/calendar';
+import type { AgendaItem, AgendaRange, Event } from '@deseo/domain/calendar';
 
 export const calendarKeys = {
   all: (accountId: string, pairId: string) => ['calendar', accountId, pairId] as const,

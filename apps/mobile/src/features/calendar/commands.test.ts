@@ -2,7 +2,7 @@
 import { createEvent, updateEvent, deleteEvent } from './commands';
 import { getSupabase } from '../../lib/supabase';
 import { listAgenda } from './queries';
-import type { EventInput } from './types';
+import type { EventInput } from '@deseo/domain/calendar';
 
 jest.mock('../../lib/supabase', () => ({ getSupabase: jest.fn() }));
 jest.mock('../../lib/query-client', () => ({

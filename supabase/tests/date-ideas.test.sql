@@ -1,8 +1,8 @@
 -- Importance: 100. Shared planning must enforce access, versions, atomic writes, and safe signal payloads.
 begin;
-\ir fixtures/setup.sql
+\ir fixtures/setup.sql.inc
 select plan(53);
-select has_table('public','date_ideas');
+select has_table('public','date_ideas','public.date_ideas exists');
 select ok(not has_table_privilege('authenticated','public.date_ideas','INSERT'),'Only commands create ideas');
 select ok(not has_table_privilege('authenticated','public.date_ideas','UPDATE'),'Only commands edit ideas');
 select ok(not has_table_privilege('authenticated','public.date_ideas','DELETE'),'No direct idea deletes');

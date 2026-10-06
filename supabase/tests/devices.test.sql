@@ -1,10 +1,10 @@
 -- Importance: 98. Session ownership, token transfers, preferences, and private reminders protect account data.
 begin;
-\ir fixtures/setup.sql
+\ir fixtures/setup.sql.inc
 select plan(38);
-select has_table('public','devices');
-select has_table('public','notification_preferences');
-select has_table('public','reminders');
+select has_table('public','devices','public.devices exists');
+select has_table('public','notification_preferences','public.notification_preferences exists');
+select has_table('public','reminders','public.reminders exists');
 select ok(not has_table_privilege('authenticated','public.devices','INSERT'),'No direct device writes');
 select ok(not has_column_privilege('authenticated','public.devices','expo_token','SELECT'),'Tokens have no client read grant');
 select ok(not has_table_privilege('authenticated','public.reminders','UPDATE'),'No direct reminder updates');
@@ -50,7 +50,7 @@ select is(public.get_reminder('91000000-0000-4000-8000-000000000001',null)->'dat
 select pg_temp.as_user(2);
 select ok((public.revoke_device('90000000-0000-4000-8000-000000000002')->>'ok')::boolean,'Local signout revokes device');
 reset role;
-select is((select count(*)::integer from public.devices where revoked_at is null),0,'Revocation removes active delivery token');
+select is((select count(*)::integer from public.devices where user_id in ('10000000-0000-4000-8000-000000000001','10000000-0000-4000-8000-000000000002') and revoked_at is null),0,'Revocation removes active delivery token');
 select pg_temp.as_user(1);
 delete from auth.sessions where user_id='10000000-0000-4000-8000-000000000001';
 set local role authenticated;

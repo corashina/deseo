@@ -191,7 +191,7 @@ Add `verifySensitiveAction(action,code): Promise<Result<{proof:string,expiresAt:
 ## Stage B: Daily planning and reminders
 
 Chat 05 source checks: 200 mobile tests and 33 Edge-function tests pass. Backend and device acceptance remain unverified.
-The “At start” option conflicts with strict event-start expiry. The owner must resolve this before Chat 05 can finish.
+The owner removed zero-offset reminders. Keep 15-minute, one-hour, and one-day advance choices with strict event-start expiry.
 
 ### Task 6: Shared lists and tasks
 

@@ -1,248 +1,168 @@
 # Architecture
 
-Status: Proposed. The owner selected Expo, TypeScript, Android, and iOS.
+Status: React web and Expo mobile share domain contracts and the existing Supabase backend.
+Read [the approved portal design](../superpowers/specs/2026-10-05-deseo-web-portal-design.md) and [measured handoff](../handoffs/web-portal.md).
 
-## 1. Smallest complete system
+## 1. Applications
 
-Use one native application, one static public site, and one Supabase backend.
-
-The app owns native interaction. The site owns public information and installation handoff. The backend owns durable shared data.
+Expo owns Android and iOS screens, native storage, photo selection, and push registration.
+React DOM owns browser screens, URLs, file inputs, and browser session lifecycle.
+The planned Astro site owns public information and installation handoff.
+PostgreSQL owns durable content, permissions, pairing, versions, and transactions.
 
 ```mermaid
 flowchart LR
-  Site[Astro public site] -->|App link| App[Expo / TypeScript]
-  Site -->|Verified deletion only| Edge[Supabase Edge Functions]
-  App --> Auth[Supabase Auth]
-  App -->|Authorized reads and commands| DB[(PostgreSQL + RLS)]
-  App -->|Private uploads| Storage[Supabase Storage]
-  App -->|Refresh signals| RT[Supabase Realtime]
-  App --> Edge
-  Cron[Scheduled worker] --> Edge
+  Native[Expo Android / iOS] --> Domain[Shared domain contracts]
+  Web[React browser portal] --> Domain
+  Native --> Auth[Supabase Auth]
+  Web --> Auth
+  Native --> DB[(PostgreSQL and RLS)]
+  Web --> DB
+  Native --> Storage[Private Storage]
+  Web --> Storage
+  Native --> RT[Authorized Realtime signals]
+  Web --> RT
+  Native --> Edge[Supabase Edge functions]
+  Web --> Edge
+  Cron[Scheduled workers] --> Edge
   Edge --> DB
   Edge --> Storage
-  Edge --> Expo[Expo Push]
-  Expo --> Device[APNs / FCM]
+  Edge --> Push[Expo Push / APNs / FCM]
 ```
-
-No separate general-purpose backend, message broker, GraphQL layer, or microservices are needed.
 
 ## 2. Stack
 
-| Area | Choice | Reason |
-|---|---|---|
-| Native app | Expo, React Native, TypeScript | One codebase for both requested platforms |
-| Navigation | Expo Router | Native stacks, tabs, and typed links |
-| Native UI | React Native primitives and StyleSheet | Direct control of the approved style |
-| Shared visual data | `brand/tokens.json` and approved icon source | Actual reuse by mobile and site |
-| Public site | Astro, TypeScript, static output | Semantic public pages without app state |
-| Server state | TanStack Query | Query lifecycle, invalidation, retry, and pagination |
-| Forms | React Hook Form and Zod | Field state and explicit input validation |
-| Backend | Supabase Auth, PostgreSQL, Storage, Realtime | One account and access model |
-| Scheduled work | Supabase Cron and Edge Functions | Durable reminders, cleanup, and export jobs |
-| Push | Expo Notifications and Expo Push | Shared Android/iOS delivery integration |
-| Dates | Luxon and Expo Localization | IANA timezone conversion and local formatting |
-| Images | Expo Image, Image Picker, Image Manipulator | Native selection, display, and prepared uploads |
-| Secrets on device | Expo SecureStore | Encryption keys and small secrets |
-| Local session and drafts | Encrypted MMKV | Larger encrypted values without SecureStore size assumptions |
-| App tests | Jest Expo and React Native Testing Library | User-visible behavior at feature interfaces |
-| Device flows | Maestro | Native flows across development builds |
-| Database tests | pgTAP through Supabase CLI | Real access and transaction checks |
-| Website tests | Playwright | Public routes, handoff, and deletion flow |
+| Area | Choice |
+|---|---|
+| Native | Expo, React Native, TypeScript, Expo Router |
+| Browser | React DOM, TypeScript, Vite, React Router |
+| Queries | TanStack Query; one client per application |
+| Forms | React Hook Form and Zod resolver |
+| Dates | Luxon and shared date rules |
+| Backend | Supabase Auth, PostgreSQL, RLS, Storage, Realtime, Edge functions |
+| Brand | `brand/tokens.json` and Two voices icon |
 
-Use the current stable Expo SDK at scaffold time. Install its compatible React Native and Expo package versions together.
+Keep exact package pins and one root lockfile. Use Node 24.18.0 and npm 11.16.0.
 
-Pin exact dependency versions and commit one lockfile. Record selected versions in DEVELOPMENT.md after installation.
-
-Do not guess current SDK numbers from a planning document. Confirm compatibility with Expo Doctor before accepting the scaffold.
-
-Use npm workspaces for `apps/mobile` and `apps/site`. Do not add a workspace orchestrator.
-
-The proposed dependencies are not installed yet. Add each feature dependency when its delivery task needs it.
-
-## 3. Folder map
-
-This is the target structure. Product files do not exist yet.
+## 3. Module structure
 
 ```text
-deseo/
-  AGENTS.md
-  README.md
-  STYLE.md
-  GLOSSARY.md
-  package.json                       Workspace scripts and package manager version
-  package-lock.json
-  brand/
-    tokens.json                      Colors, spacing, radii, typography values
-    icon-source.png                  Approved Two voices source
-  apps/
-    mobile/
-      app.config.ts                  Bundle IDs, permissions, links, Expo plugins
-      eas.json                       Development, preview, production build profiles
-      package.json
-      tsconfig.json
-      assets/                        Platform icon, splash, notification assets
-      src/
-        app/
-          _layout.tsx                Providers and native root stack
-          index.tsx                  Session and pair entry routing
-          (auth)/                    welcome, email, verify, profile
-          (pair)/                    start, invite, join, waiting, welcome, ended
-          (tabs)/                    today, calendar, memories, messages, tasks
-          events/                    new, [eventId], [eventId]/edit
-          ideas/                     index, new, [ideaId]
-          memories/                  new, [memoryId], [memoryId]/edit
-          tasks/                     new, [taskId]/edit, lists
-          settings/                  index, profile, pair, notifications, data, account
-          invite.tsx                 External invitation entry
-        features/
-          auth/                      Session, email code, account status
-          pair/                      Membership and invitation flows
-          calendar/                  Events, important dates, date ideas
-          tasks/                     Lists and task commands
-          messages/                  Conversation, read cursor, pinned notes
-          memories/                  Upload state, memory feed, private media
-          notifications/             Device registration and viewer preferences
-          account/                   Export, disconnect, deletion, profile settings
-          today/                     Read composition and Today screen
-        components/ui/               Button, Field, Screen, Status, Avatar, Badge
-        theme/                       Typed native mapping of brand tokens
-        lib/
-          supabase.ts                One publishable-key client
-          database.types.ts          Generated schema types
-          query-client.ts            Query defaults and session reset
-          private-storage.ts         Encrypted session/draft storage lifecycle
-          links.ts                   Allowed links and entry intent
-          result.ts                  Shared command result and error types
-        test/                        Shared fixtures and test setup
-      e2e/                           Maestro flows
-    site/
-      astro.config.mjs
-      package.json
-      src/
-        pages/                       index, invite, support, privacy, terms, delete-account
-        components/                  Header, Footer, DownloadLinks, AppPreview
-        styles/                      Tokens and public page styles
-        scripts/                     Invitation handoff and verified deletion
-      public/.well-known/            Apple and Android association files
-      tests/                         Playwright flows
-  supabase/
-    config.toml
-    migrations/                      Current schema evolution, not compatibility layers
-    seed.sql                         Synthetic local accounts and pair fixtures only
-    functions/
-      _shared/                       Verified caller, response errors, job helpers
-      finalize-memory/               Upload validation and atomic publication
-      verify-sensitive-action/       Fresh email verification and action-bound proof
-      dispatch-notifications/        Claim jobs, recheck access, submit push
-      check-push-receipts/            Delivery errors and token cleanup
-      request-export/                Authorize and create export jobs
-      process-exports/               Build bounded export parts
-      delete-account/                Verify recent authentication and disable access
-      process-deletions/             Purge records, storage, then Auth account
-      cleanup/                       Expired uploads, exports, invitations, ended pairs
-    tests/                           RLS, constraints, transactions, and concurrency
-  docs/                              Product, architecture, plans, design, research
-  .github/workflows/                 Verification and controlled build jobs
+apps/mobile/src/
+  app/                      Expo route files and providers
+  features/                 Native screens, queries, commands, capabilities
+  components/ui/            Native controls
+  theme/                    Native brand mapping
+  lib/                      Native client, encrypted storage, lifecycle
+apps/web/src/
+  app/                      Browser router, providers, gate, shell, manifest
+  features/                 Browser pages, queries, commands, controls
+  components/ui/            Browser controls
+  styles/                   Browser tokens and feature styles
+  lib/                      Browser client, media, drafts, lifecycle
+apps/web/tests/             Real-browser acceptance and gallery capture
+packages/domain/src/       Shared schemas, types, payloads, date rules, results
+supabase/
+  migrations/              Authoritative schema and transactions
+  functions/               Narrow server operations and workers
+  tests/                   SQL, access, and race checks
+  dev/                     Guarded local stack and synthetic pair fixtures
+brand/                     Shared tokens and icon
+docs/design/web-portal/     Gallery, records, and JPEG evidence
 ```
 
-Create files as their task starts. Do not add empty feature packages or placeholder screens.
+Keep native UI and browser UI separate. Extract only contracts both applications use.
+Remove old contract copies and compatibility exports when moving shared code.
+Shared domain modules must not import React Native, Expo, MMKV, browser storage, or application routes.
 
-## 4. Feature module shape
+## 4. Dependency rules
 
-Start a feature with `screens/`, `queries.ts`, `commands.ts`, `schema.ts`, and `types.ts` only when each has real content.
+1. Routes import feature pages, screens, and UI controls.
+2. Feature commands and queries import that application's backend client and shared contracts.
+3. Features import another feature's public interface, not its internal files.
+4. Today reads public feature queries. Screens do not call database tables.
+5. UI controls import platform libraries and brand values, not feature data.
+6. Backend functions share code only where multiple functions use it.
+7. Public pages import brand assets, not signed-in application screens.
 
-Keep related tests beside these files. Create a feature `components/` folder only for controls used by that feature.
+The pair module owns membership. Messages owns notes. Calendar owns events, important dates, and date ideas.
+Each application owns its client and lifecycle. Avoid a second global copy of query data.
+Use the installed Supabase query builder without a generic repository layer.
 
-Export public queries, commands, view types, and screens from `index.ts`.
+## 5. Reads, writes, and refresh
 
-Keep route files as imports and navigation configuration. Do not put database calls inside route files or UI primitives.
+Read: page or screen → feature query → authenticated request → RLS → typed result → Query cache.
+Write: form → feature command → transaction → confirmed result → targeted invalidation.
+Refresh: authorized Realtime signal → invalidation → authenticated read.
+Photo: selection → preparation → reservation → private upload → server validation → publication.
+Push: durable job → scheduled worker → current access check → Expo → receipt processing.
 
-Do not add repository interfaces around Supabase's query builder. Add a seam only when a real alternative exists.
+Scope keys to account and pair. Abort old reads and clear private caches before account or pair changes.
+Revalidate server authority after focus and reconnect. Reset queries again if verified authority changes.
+Keep each Realtime authority channel owned by a stable verified account ID.
+Ignore only signals represented by the latest fully server-verified snapshot, with exact identity, state, version, and slot checks.
+Revalidate incomplete signals and genuine changes. Never skip account disable or membership departure.
+Reject removed prior-user callbacks before they can interrupt a new account's requests.
+Keep stable command IDs and immutable input while an outcome remains unknown.
+Offer explicit retry or reconciliation. Confirm success only after a durable server result.
 
-Use feature commands to hide validation, retry identifiers, version checks, and cache invalidation from screens.
+## 6. Platform storage
 
-Read generated database types at the data edge. Return feature view types where display needs differ from stored rows.
+Native uses SecureStore for its encryption key and encrypted MMKV for Auth sessions and scoped drafts.
+Handle storage failure by explaining the failure and requiring sign-in. Do not add plaintext fallback storage.
+Native photos use private temporary files. Purge them on discard, scope change, and sign-out.
 
-## 5. Dependency rules
+Browser Auth uses Supabase's supported browser session storage.
+Shared rows, private images, and drafts stay in memory. Browser drafts do not survive reload.
+Use no-store media requests and scoped blobs. Release object URLs after use and on authority loss.
+Warn before navigation or reload discards changed input. Explicit or forced sign-out clears private state immediately.
+A failed global Auth sign-out remains visible after local session removal.
 
-1. Routes import feature screens and UI primitives.
-2. Feature commands and queries import the configured backend client.
-3. Features may import another feature's public interface, not its internal files.
-4. Today reads public feature queries and never writes feature tables directly.
-5. UI primitives import theme values and native libraries, not feature data.
-6. Backend functions share only code used by at least two functions.
-7. The public site imports brand tokens and image assets, not mobile screens.
+Keep fetched shared content in memory on both platforms. Revalidate account status and membership before displaying it.
 
-The pair module owns current membership. The messages module owns notes. The calendar module owns important dates and date ideas.
+## 7. Browser navigation and loading
 
-Do not create a global mutable store for copied query data.
+Use ordinary links, reloadable record URLs, browser Back, document titles, and visible active navigation.
+Use a 256px sidebar from 1024px, a 72px rail from 768px, and a drawer below 768px.
+Keep navigation and account controls outside route loading boundaries.
+Load route pages with React lazy and Suspense. The route boundary reports loading and handles load failures.
 
-## 6. Data paths
+Keep shared form rules in `controls.css` and shared text wrapping in `base.css`.
+Each page loads its feature styles. Do not depend on a previously visited feature's stylesheet.
 
-**Read:** Screen → feature query → authenticated Supabase request → RLS → typed result → TanStack Query.
-
-**Write:** Form → feature command → backend validation/transaction → confirmed result → targeted query invalidation.
-
-**Live update:** Realtime signal → invalidate affected pair query → authenticated read.
-
-**Push:** Database command/trigger → durable job → scheduled worker → current access check → Expo → receipt processing.
-
-**Photo:** Picker → prepared private files → pending upload record → private upload → server validation → published memory.
-
-Queries include account and pair identifiers in their cache keys. Clear all shared caches before switching accounts or pairs.
-
-Use session lifecycle and network state with TanStack Query's React Native integration.
-
-## 7. Storage and offline contract
-
-Generate an encryption key using the operating system's cryptographic randomness. Keep it in SecureStore.
-
-Use encrypted MMKV for the larger Auth session and account-scoped drafts. Never use plaintext fallback storage.
-
-On storage failure, explain the problem and require sign-in again. Do not silently lose a confirmed draft.
-
-Separate session storage from pair-scoped drafts. Clear the relevant drafts on disconnect, sign-out, and account deletion.
-
-A session restore must validate server account status and membership before showing shared content.
-
-Keep fetched shared rows in memory only. Use memory-only caching for private images.
-
-While offline, allow drafting but disable submission. Retrying requires a deliberate action after reconnect.
-
-Photos selected for a draft use private temporary app files. Purge them on draft discard, disconnect, or sign-out.
+Keep one router blocker with memory-scoped dirty registrations. Retain unresolved input when the user cancels leaving.
+Do not add service workers, offline content storage, browser push, or installation prompts.
 
 ## 8. Server authorization
 
-RLS checks current account status and membership, not editable JWT metadata.
+RLS checks current account status and membership. Ignore editable JWT metadata for authorization.
+Restricted helpers check JWT session IDs against Auth sessions. Global sign-out blocks revoked sessions.
+Use ordinary RLS reads and named transactions for multi-record invariants.
+Expose narrow invoker wrappers around hardened private implementations.
+Revoke default execution, grant required roles, set an empty search path, and check callers.
+Keep internal tables outside exposed schemas. Do not accept client-supplied trusted actor IDs.
+Keep server keys inside verified server jobs and test processes.
 
-A restricted helper also checks the JWT session ID against Auth sessions. Global sign-out must block old sessions.
+Server `WEB_APP_ORIGIN` permits one browser origin. Native requests can omit Origin.
+The local Supabase gateway uses wildcard CORS headers and intercepts OPTIONS.
+The function still rejects unknown and null origins before Auth or action work.
+Direct helper tests prove handler policy; they do not prove external gateway headers.
+Server `PUBLIC_SUPABASE_URL` supplies reachable signed links. Injected `SUPABASE_URL` remains internal.
 
-Use ordinary RLS-scoped reads for feature lists. Use named transactions for multi-record invariants.
+See [DATA.md](DATA.md) for access, lifecycle, retention, and race rules.
 
-For privileged transactions, expose a narrow invoker wrapper around a hardened private implementation.
+## 9. Platform acceptance
 
-Revoke default function execution. Grant only required roles. Use a fixed empty search path and explicit caller checks.
+Use separate local and hosted projects. Local fixtures reject non-loopback addresses.
+Keep the named Anna and Marek pair usable. Remove only fixtures with proven ownership.
+Replay migrations in a new isolated project; preserve populated web and integration stacks.
 
-Keep internal tables in a non-exposed schema. A public wrapper must not accept a trusted actor ID from the client.
+Expo Go cannot verify MMKV. Physical devices must verify native storage, permissions, photos, notifications, and lifecycle changes.
+JavaScript exports do not compile native binaries. Windows cannot run an iOS simulator.
+Use macOS with Xcode or authorized EAS builds for iOS native work.
 
-Use secret backend keys only inside verified server jobs. Bind every privileged action to a verified account or scheduled job identity.
+Account export, deletion, avatar backend work, and public pages remain separate delivery work.
+The portal uses current supported backend commands without adding incomplete account controls.
 
-See [DATA.md](DATA.md) for table permissions, state machines, and race handling.
+## 10. References
 
-## 9. Build and environment choices
-
-Use separate development, staging, and production Supabase projects. Never run local fixtures against production.
-
-Use development builds from the first native task. Push and native storage must be tested outside Expo Go.
-
-Use EAS for iOS builds from Windows. Native iOS simulator work requires macOS; use a real iPhone or macOS CI.
-
-Use app links on the production domain and a custom scheme for development.
-
-Do not change stable app identifiers after release. Choose the actual domain and identifiers before production credentials exist.
-
-## 10. Applied architecture review
-
-See [the skill review](REVIEW.md) and [ADR 0001](../adr/0001-mobile-stack-and-module-structure.md).
-
-Sources and verified platform capabilities appear in [REFERENCES.md](../research/REFERENCES.md).
+See [the architecture review](REVIEW.md), [ADR 0001](../adr/0001-mobile-stack-and-module-structure.md), and [research sources](../research/REFERENCES.md).

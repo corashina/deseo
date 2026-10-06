@@ -1,8 +1,8 @@
 export { getPairContext, pairKeys } from './queries';
 export { createPair, createInvite, previewInvite, acceptInvite, cancelPendingPair, endPair } from './commands';
 export { PairProvider, usePairGate, useCore } from './context';
-export { pairContextSchema } from './schema';
-export type { PairContext, PairMember, InvitePreview } from './types';
+export { pairContextSchema } from '@deseo/domain/pair';
+export type { PairContext, PairMember, InvitePreview } from '@deseo/domain/pair';
 export { StartScreen } from './screens/StartScreen';
 export { JoinScreen } from './screens/JoinScreen';
 export { WaitingScreen } from './screens/WaitingScreen';

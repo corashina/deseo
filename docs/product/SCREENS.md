@@ -1,6 +1,30 @@
 # Screen guide
 
-Status: Proposed native experience. Read with [the product design](../superpowers/specs/2026-10-04-deseo-design.md) and [STYLE.md](../../STYLE.md).
+Status: Expo mobile and React portal. Read the native design, approved portal design, and [STYLE.md](../../STYLE.md).
+
+## Browser portal
+
+The [route manifest](../../apps/web/src/app/route-manifest.ts) defines 39 routes.
+The [gallery](../design/web-portal/index.html) covers 119 views at 1440×1000 and 390×844.
+The browser uses a sidebar, rail, or drawer. Expo keeps bottom tabs and native stacks.
+
+Entry routes cover Welcome, email codes, profile setup, invitations, joining, waiting, and ended pairs.
+Product routes cover Today, Calendar, events, ideas, tasks, lists, Messages, Memories, notifications, and Settings.
+Record URLs support reload and browser Back. Changed forms and unsent drafts warn before leaving.
+
+Today shows each upcoming plan's date in the pair timezone. Calendar provides month, agenda, and comparison views.
+Messages keeps the composer inside the conversation region. Memories uses browser files, preparation, private uploads, and explicit downloads.
+Settings supports profile edits, pair state, preferences, end-pair verification, and local or global sign-out.
+Settings remains available to unpaired accounts and former pair members.
+
+Browser shared rows, private images, and drafts stay in memory. A reload discards browser drafts.
+Supabase stores browser Auth sessions through its supported browser storage.
+Failed writes preserve their immutable command and input until the user resolves them.
+
+Account export, deletion, avatar backend work, pair-timezone writes, and public pages remain separate delivery work.
+The future native and public-site requirements below do not add portal controls for those capabilities.
+
+See [the portal design](../superpowers/specs/2026-10-05-deseo-web-portal-design.md) and [handoff](../handoffs/web-portal.md).
 
 ## 1. Main journey
 
@@ -174,11 +198,12 @@ The event detail shows title, date, time, timezone, people, visibility, location
 | Location | Optional text; 200 characters; no background location access |
 | Description | Optional plain text; 2,000 characters |
 | Important date | Available for all-day events; offers yearly repeat |
-| Your reminder | None, at start, 15 minutes, one hour, or one day before |
+| Your reminder | None, 15 minutes, one hour, or one day before |
 
 Convert the inclusive all-day end shown in the form to an exclusive stored end date.
 
-All-day reminders use 09:00 in the event timezone. Show that time before saving.
+All-day reminder offsets count back from 09:00 in the event timezone. Show the reference time and offset before saving.
+The one-day offset means 24 elapsed hours. Across daylight-saving changes, it can differ from 09:00 on the previous day.
 
 Use the pair timezone as the default for important dates. Timed events default to the creator's timezone.
 
@@ -248,13 +273,13 @@ Do not add a sticker store, reaction picker, typing indicator, or online status.
 
 Use a feed grouped by month. Each entry shows date, photo, caption, and author.
 
-Add memory opens the operating system's photo picker. Select one to five photos.
+Native Add memory opens the photo picker. Browser Add memory opens a file input. Select one to five photos.
 
 Require the memory date. Keep the caption optional, with a 1,000-character limit.
 
 Show each photo's upload state. Publish only after every selected photo has completed.
 
-Allow removing a failed photo before submission. Preserve the caption if the app closes.
+Allow removing a failed photo before submission. Native encrypted drafts survive closure; browser drafts last while the tab remains open.
 
 Keep uploads in the foreground for the first release. Explain interruption and offer explicit retry.
 

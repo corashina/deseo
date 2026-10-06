@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { captureQueryScope } from '../../lib/query-client';
 import { getSupabase } from '../../lib/supabase';
-import { AppError, resultSchema } from '../../lib/result';
+import { AppError, resultSchema } from '@deseo/domain/result';
 
 export async function memoryRpc<T extends z.ZodTypeAny>(name: string, args: Record<string, unknown>, schema: T): Promise<z.infer<T>> {
   const scope = captureQueryScope();

@@ -1,11 +1,11 @@
 import { z } from 'zod';
 import { getSupabase } from '../../lib/supabase';
 import { captureQueryScope } from '../../lib/query-client';
-import { AppError, errorResult, type Result } from '../../lib/result';
+import { AppError, errorResult, type Result } from '@deseo/domain/result';
 import { runMessageCommand } from './commands';
 import { MESSAGE_COLUMNS } from './queries';
-import { messageIdSchema, messageRowSchema } from './schema';
-import type { Message } from './types';
+import { messageIdSchema, messageRowSchema } from '@deseo/domain/messages';
+import type { Message } from '@deseo/domain/messages';
 
 async function setPin(name: 'pin_message' | 'unpin_message', id: string, commandId: string): Promise<Result<{ id: string }>> {
   try {

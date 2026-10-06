@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon';
-import { AppError } from '../../lib/result';
+import { AppError } from '@deseo/domain/result';
 export function taskReminderInstant(date: string, time: string, zone: string): string {
   const local = `${date}T${time}`; const parsed = DateTime.fromISO(local, { zone });
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !/^([01]\d|2[0-3]):[0-5]\d$/.test(time) || !parsed.isValid

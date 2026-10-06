@@ -1,4 +1,5 @@
-export type { Memory, MemoryPhoto, MemoryInput, MemoryDraft, LocalMemoryPhoto, MemoryReservationInput, MemoryMedia, MemoryInspection } from './types';
+export type { Memory, MemoryPhoto, MemoryInput, MemoryMedia, MemoryInspection } from '@deseo/domain/memories';
+export type { MemoryDraft, LocalMemoryPhoto, MemoryReservationInput } from './types';
 export { prepareMemoryDraft } from './prepare';
 export { reserveMemory, uploadMemoryPhoto, finalizeMemory, updateMemory, deleteMemory, inspectMemory } from './commands';
 export { listMemories, latestMemory, getMemory, getMemoryMedia, memoryKeys, subscribeMemorySignals } from './queries';

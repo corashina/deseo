@@ -11,7 +11,7 @@ import { Badge } from '../../../components/ui/Badge';
 import { Section } from '../../../components/ui/Section';
 import { theme, ui } from '../../../theme';
 import { requestSensitiveActionCode, verifySensitiveAction, signOut } from '../../auth';
-import { toAppError } from '../../../lib/result';
+import { toAppError } from '@deseo/domain/result';
 import { useCore } from '../context';
 import { endPair } from '../commands';
 

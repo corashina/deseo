@@ -6,9 +6,9 @@ import { Field } from '../../../components/ui/Field';
 import { Button } from '../../../components/ui/Button';
 import { Status } from '../../../components/ui/Status';
 import { getPrivateStorage } from '../../../lib/private-storage';
-import { toAppError } from '../../../lib/result';
+import { toAppError } from '@deseo/domain/result';
 import { requestEmailCode } from '../commands';
-import { emailSchema } from '../schema';
+import { emailSchema } from '@deseo/domain/auth';
 
 export function EmailScreen() {
   const [error, setError] = useState<string>();

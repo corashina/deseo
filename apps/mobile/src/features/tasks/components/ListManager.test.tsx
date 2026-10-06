@@ -5,7 +5,7 @@ import { renameList } from '../commands';
 import { listTaskLists } from '../queries';
 import { getPrivateStorage } from '../../../lib/private-storage';
 import { randomUUID } from 'expo-crypto';
-import type { TaskList } from '../types';
+import type { TaskList } from '@deseo/domain/tasks';
 
 jest.mock('../commands', () => ({ renameList: jest.fn(), createList: jest.fn(), deleteEmptyList: jest.fn(), moveListTasksToGeneral: jest.fn() }));
 jest.mock('../queries', () => ({ listTaskLists: jest.fn() }));

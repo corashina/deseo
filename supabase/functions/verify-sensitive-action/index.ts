@@ -1,3 +1,5 @@
+import { browserOriginHeaders, browserPreflight } from '../_shared/browser-origin.ts';
+import { runtimeKeys } from '../_shared/keys.ts';
 import { createClient } from '@supabase/supabase-js';
 
 type ErrorCode = 'UNAUTHENTICATED' | 'FORBIDDEN' | 'VALIDATION' | 'RATE_LIMITED' | 'RETRYABLE';
@@ -5,8 +7,8 @@ const fail = (code: ErrorCode, status = 400) => Response.json({ ok: false, error
 const success = (data: unknown) => Response.json({ ok: true, data });
 const options = { auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false } };
 
-Deno.serve(async (request: Request) => {
-  // The native app calls this endpoint. Web deletion adds its origin policy in Task 18.
+async function handle(request: Request) {
+  // Browser origin checks run before this authenticated handler.
   if (request.method !== 'POST') return fail('VALIDATION', 405);
   const bearer = request.headers.get('Authorization');
   if (!bearer?.startsWith('Bearer ')) return fail('UNAUTHENTICATED', 401);
@@ -27,8 +29,7 @@ Deno.serve(async (request: Request) => {
   }
   try {
     const url = Deno.env.get('SUPABASE_URL');
-    const publishableKey = Deno.env.get('SUPABASE_PUBLISHABLE_KEY');
-    const secretKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+    const { publishable: publishableKey, secret: secretKey } = runtimeKeys();
     if (!url || !publishableKey || !secretKey) return fail('RETRYABLE', 503);
     const token = bearer.slice(7);
     const caller = createClient(url, publishableKey, { ...options, global: { headers: { Authorization: bearer } } });
@@ -69,4 +70,12 @@ Deno.serve(async (request: Request) => {
   } catch {
     return fail('RETRYABLE', 503);
   }
+}
+Deno.serve(async (request: Request) => {
+  const preflight = browserPreflight(request);
+  if (preflight) return preflight;
+  const response = await handle(request);
+  const headers = browserOriginHeaders(request);
+  response.headers.forEach((value, key) => headers.set(key, value));
+  return new Response(response.body, { status: response.status, headers });
 });

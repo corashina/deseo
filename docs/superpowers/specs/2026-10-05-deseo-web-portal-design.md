@@ -1,7 +1,7 @@
 # Deseo web portal
 
 Date: 5 October 2026.
-Status: Owner approved on 5 October 2026. Product implementation has not started.
+Status: Owner approved on 5 October 2026. See the [portal handoff](../../handoffs/web-portal.md) for implementation and verification.
 
 ## 1. Intent and confirmed choices
 
@@ -24,7 +24,7 @@ Approved scope assumptions:
 - Keep the planned public information site separate from the signed-in portal.
 - Use local test accounts, without creating accounts on a hosted production backend.
 
-## 2. Current project evidence
+## 2. Pre-implementation evidence, 5 October 2026
 
 The primary checkout contains `apps/mobile`. It does not contain a production web application.
 `docs/design/preview.html` contains the browser design reference and sample interactions.

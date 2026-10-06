@@ -1,8 +1,8 @@
 import { z } from 'zod';
 import { getSupabase } from '../../lib/supabase';
 import { captureQueryScope } from '../../lib/query-client';
-import { taskRowSchema, listRowSchema, taskDateSchema } from './schema';
-import type { Task, TaskList } from './types';
+import { taskRowSchema, listRowSchema, taskDateSchema } from '@deseo/domain/tasks';
+import type { Task, TaskList } from '@deseo/domain/tasks';
 export const taskKeys = {
   all: (accountId: string, pairId: string) => ['tasks', accountId, pairId] as const,
   lists: (accountId: string, pairId: string) => [...taskKeys.all(accountId, pairId), 'lists'] as const,

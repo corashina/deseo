@@ -2,7 +2,7 @@
 import { loadMessageDraft, saveMessageDraft } from './drafts';
 import { getPrivateStorage } from '../../lib/private-storage';
 import { captureQueryScope } from '../../lib/query-client';
-import { AppError } from '../../lib/result';
+import { AppError } from '@deseo/domain/result';
 import type { MessageDraft } from './types';
 
 jest.mock('../../lib/private-storage', () => ({ getPrivateStorage: jest.fn() }));

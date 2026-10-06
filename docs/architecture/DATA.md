@@ -1,6 +1,13 @@
 # Data and access contract
 
-Status: Proposed schema contract. This document contains no executed SQL.
+Status: Shared access contract for Expo mobile and React web. The portal handoff records executed backend checks.
+
+Both applications call the same authenticated reads, transactions, and Edge functions.
+PostgreSQL remains authoritative for membership, permissions, versions, and lifecycle changes.
+Shared schemas and payloads live in `packages/domain`; each application owns its client and private state.
+
+Export, account deletion, avatar storage, and public deletion pages remain separate delivery work.
+Their lifecycle rules below remain requirements; this portal does not claim those endpoints exist.
 
 ## 1. Shared conventions
 
@@ -64,7 +71,8 @@ Include events that overlap the requested range, even when they start before it.
 
 Luxon converts wall times to instants. Detect invalid and ambiguous times before committing a timed event.
 
-All-day reminder times use 09:00 in the event timezone. Yearly dates follow the February 28 leap-day rule.
+Event reminder offsets are 15, 60, or 1440 minutes. Zero-offset reminders are not supported.
+All-day offsets count back from 09:00 in the event timezone. Yearly dates follow the February 28 leap-day rule.
 
 Task due dates are dates in the pair timezone. A task reminder stores an explicit chosen instant.
 
@@ -178,7 +186,7 @@ Do not send message bodies through an unrestricted broadcast channel.
 
 Limit each memory to five photos. Limit a prepared photo to 5 MiB and 2,560 pixels on its longest side.
 
-Accept prepared JPEG files only. Convert supported native selections before upload and remove metadata.
+Accept prepared JPEG files only. Prepare native selections or browser file inputs before upload and remove metadata.
 
 Keep each original camera file on the person's device. The accepted prepared image becomes Deseo's full image.
 
@@ -200,6 +208,9 @@ An object uploaded after disconnect cannot publish. Cleanup removes abandoned re
 
 Issue media links for at most 60 seconds. Clear app image caches on disconnect and sign-out.
 
+Browser media uses no-store requests and memory-scoped blobs. Release object URLs on removal, scope change, and sign-out.
+Server `PUBLIC_SUPABASE_URL` supplies reachable media links. Injected `SUPABASE_URL` remains the internal service address.
+
 An already issued link may work until expiry. Explain this technical limit in the privacy design; never claim instant copy revocation.
 
 Delete memory metadata visibility first. Retry storage removal until completion. Keep failed cleanup visible to operations.
@@ -217,6 +228,9 @@ A daily job materializes the next 90 days of yearly reminder occurrences. Source
 Use the occurrence's local date in its unique key. Skip past reminder times and show that state to the requester.
 
 The server expands yearly dates for agenda queries and reminder jobs. Native screens format those returned occurrences.
+
+Browser screens format the same occurrences. Both applications support None, 15 minutes, one hour, or one day before.
+Browser preferences and notification reads do not register native push devices or request browser push permission.
 
 Recheck current account status, pair membership, source existence/version, reminder preference, device status, and quiet hours before sending.
 

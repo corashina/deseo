@@ -1,6 +1,6 @@
 // Importance: 98. Desired completion and stable retries protect shared work.
 import { createTask, updateTask, setTaskCompleted, createList, renameList } from './commands';
-import { taskInputSchema } from './schema';
+import { taskInputSchema } from '@deseo/domain/tasks';
 import { getSupabase } from '../../lib/supabase';
 
 jest.mock('../../lib/supabase', () => ({ getSupabase: jest.fn() }));

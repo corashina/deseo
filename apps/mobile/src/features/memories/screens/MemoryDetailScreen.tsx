@@ -10,7 +10,7 @@ import { Screen } from '../../../components/ui/Screen';
 import { Status } from '../../../components/ui/Status';
 import { theme, ui } from '../../../theme';
 import { captureQueryScope, queryClient } from '../../../lib/query-client';
-import { toAppError } from '../../../lib/result';
+import { toAppError } from '@deseo/domain/result';
 import { getMemory, memoryKeys } from '../queries';
 import { deleteMemory } from '../commands';
 import { MemoryImage } from '../components/MemoryImage';

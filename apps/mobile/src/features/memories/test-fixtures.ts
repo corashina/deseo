@@ -1,4 +1,5 @@
-import type { Memory, MemoryDraft } from './types';
+import type { Memory } from '@deseo/domain/memories';
+import type { MemoryDraft } from './types';
 export const accountId = '741dd351-3376-4622-a9bd-ab9ced5fac8d';
 export const pairId = '610bc9c7-8c81-47d1-894e-314c92071cf1';
 export const id = '74ff3de3-609c-43c3-bbd3-01e064593ba9';

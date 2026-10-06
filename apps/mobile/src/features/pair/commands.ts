@@ -1,10 +1,10 @@
 import { z } from 'zod';
 import { getSupabase } from '../../lib/supabase';
-import { errorResult, resultSchema, type Result } from '../../lib/result';
+import { errorResult, resultSchema, type Result } from '@deseo/domain/result';
 import { captureQueryScope, resetPrivateQueries } from '../../lib/query-client';
 import { clearPendingInvite, inviteTokenSchema } from '../../lib/links';
 import { timezoneSchema } from '../auth';
-import { createdInviteSchema, invitePreviewSchema } from './schema';
+import { createdInviteSchema, invitePreviewSchema } from '@deseo/domain/pair';
 
 async function command<T extends z.ZodTypeAny>(name: string, args: Record<string, unknown>, schema: T): Promise<Result<z.infer<T>>> {
   try {

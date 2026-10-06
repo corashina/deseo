@@ -1,9 +1,9 @@
 import { z } from 'zod';
 import { getSupabase } from '../../lib/supabase';
 import { captureQueryScope } from '../../lib/query-client';
-import { AppError, resultSchema, type Page } from '../../lib/result';
-import { decodeMessageCursor, encodeMessageCursor, messageIdSchema, messageRowSchema } from './schema';
-import type { Message, ReconciledMessageSends } from './types';
+import { AppError, resultSchema, type Page } from '@deseo/domain/result';
+import { decodeMessageCursor, encodeMessageCursor, messageIdSchema, messageRowSchema } from '@deseo/domain/messages';
+import type { Message, ReconciledMessageSends } from '@deseo/domain/messages';
 
 export const MESSAGE_PAGE_SIZE = 50;
 export const MESSAGE_COLUMNS = 'id,pair_id,author_id,client_id,body,created_at,pinned_at,version';

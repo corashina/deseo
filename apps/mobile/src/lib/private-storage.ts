@@ -2,7 +2,7 @@ import * as SecureStore from 'expo-secure-store';
 import * as Crypto from 'expo-crypto';
 import { createMMKV, deleteMMKV, existsMMKV } from 'react-native-mmkv';
 import { Platform } from 'react-native';
-import { AppError } from './result';
+import { AppError } from '@deseo/domain/result';
 
 const STORE_IDS = ['deseo.session', 'deseo.drafts', 'deseo.intent'] as const;
 const KEY_NAME = 'deseo.private-key';

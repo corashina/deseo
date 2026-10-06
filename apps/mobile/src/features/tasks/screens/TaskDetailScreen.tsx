@@ -11,7 +11,7 @@ import { Screen } from '../../../components/ui/Screen';
 import { Status } from '../../../components/ui/Status';
 import { ui } from '../../../theme';
 import { captureQueryScope } from '../../../lib/query-client';
-import type { CommandError } from '../../../lib/result';
+import type { CommandError } from '@deseo/domain/result';
 import { useCore } from '../../pair';
 import { ReminderControl } from '../../notifications';
 import { TaskAccess } from '../TaskAccess';

@@ -1,9 +1,13 @@
 -- Importance: 100. Auth, isolation, immutable uploads, quota, publication, and cleanup are security boundaries.
 begin;
-\ir fixtures/setup.sql
+\ir fixtures/setup.sql.inc
 select no_plan();
-select has_table('public','memories');
-select has_table('public','memory_photos');
+\ir fixtures/memory-worker.sql.inc
+-- Importance 100: fixture leases and expiry must survive more than one global worker batch.
+select is((select count(*)::integer from private.memory_cleanup_jobs where pair_id='30000000-0000-4000-8000-000000000003' and state='queued' and due_at<=now()),120,'Unrelated eligible cleanup backlog exceeds 50');
+select is((select count(*)::integer from private.memory_reservations where pair_id='30000000-0000-4000-8000-000000000003' and expires_at<=now() and released_at is null),120,'Unrelated expired reservation backlog exceeds 50');
+select has_table('public','memories','public.memories exists');
+select has_table('public','memory_photos','public.memory_photos exists');
 select ok(not has_table_privilege('authenticated','public.memories','INSERT'),'Clients cannot insert metadata');
 select ok(not has_table_privilege('authenticated','public.memory_photos','UPDATE'),'Clients cannot claim validation');
 select ok(not has_function_privilege('authenticated','public.publish_memory(uuid,uuid,uuid,uuid)','EXECUTE'),'Only service publishes');
@@ -20,16 +24,16 @@ select is(public.reserve_memory((select value from draft),'50000000-0000-4000-80
 select is(public.reserve_memory((select value||'{"caption":"Changed"}' from draft),'50000000-0000-4000-8000-000000000101')->'error'->>'code','CONFLICT','Same command rejects different request');
 select is(public.reserve_memory((select value||'{"id":"40000000-0000-4000-8000-000000000102","photos":[]}' from draft),'50000000-0000-4000-8000-000000000102')->'error'->>'code','VALIDATION','At least one photo required');
 select is(public.reserve_memory((select value||jsonb_build_object('id','40000000-0000-4000-8000-000000000102','photos',jsonb_build_array(value->'photos'->0,value->'photos'->0)) from draft),'50000000-0000-4000-8000-000000000102')->'error'->>'code','CONFLICT','Duplicate photo IDs roll back reservation');
-select is((select count(*)::integer from public.memories),1,'Rejected duplicate leaves no memory');
+select is((select count(*)::integer from public.memories where pair_id='30000000-0000-4000-8000-000000000001'),1,'Rejected duplicate leaves no memory');
 select is(jsonb_array_length(public.list_memories('30000000-0000-4000-8000-000000000001')->'data'->'items'),0,'Feed hides pending memory');
 select is(public.get_memory_media('60000000-0000-4000-8000-000000000101')->'error'->>'code','FORBIDDEN','Pending photos cannot get links');
 select ok((public.get_memory('40000000-0000-4000-8000-000000000101')->>'ok')::boolean,'Author can resume pending upload');
 select pg_temp.as_user(2);
-select is((select count(*)::integer from public.memories),0,'Partner cannot read pending memory');
+select is((select count(*)::integer from public.memories where pair_id='30000000-0000-4000-8000-000000000001'),0,'Partner cannot read pending memory');
 select is(public.get_memory('40000000-0000-4000-8000-000000000101')->'error'->>'code','FORBIDDEN','Partner pending ID probe denied');
 select pg_temp.as_user(3);
 select is(public.list_memories('30000000-0000-4000-8000-000000000001')->'error'->>'code','FORBIDDEN','Unrelated pair feed denied');
-select is((select count(*)::integer from public.memory_photos),0,'Unrelated account cannot read photos');
+select is((select count(*)::integer from public.memory_photos where pair_id='30000000-0000-4000-8000-000000000001'),0,'Unrelated account cannot read photos');
 select pg_temp.as_user(1);
 reset role;
 select is((select bytes::integer from private.memory_reservations where memory_id='40000000-0000-4000-8000-000000000101'),130,'Quota includes full and thumbnail');
@@ -45,10 +49,10 @@ select throws_ok($$insert into storage.objects(bucket_id,name,version,owner_id,u
  '10000000-0000-4000-8000-000000000001','{"sessionId":"20000000-0000-4000-8000-000000000001"}','{"size":101}')$$,
  'P0001','VALIDATION','Stored bytes must equal reservation');
 select lives_ok($$insert into storage.objects(bucket_id,name,version,owner_id,user_metadata,metadata)
-select 'memory-photos',full_path,gen_random_uuid()::text,uploaded_by::text,'{"sessionId":"20000000-0000-4000-8000-000000000001"}'::jsonb,jsonb_build_object('size',full_bytes,'mimetype','image/jpeg') from public.memory_photos
-union all select 'memory-photos',thumb_path,gen_random_uuid()::text,uploaded_by::text,'{"sessionId":"20000000-0000-4000-8000-000000000001"}'::jsonb,jsonb_build_object('size',thumb_bytes,'mimetype','image/jpeg') from public.memory_photos$$,
+select 'memory-photos',full_path,gen_random_uuid()::text,uploaded_by::text,'{"sessionId":"20000000-0000-4000-8000-000000000001"}'::jsonb,jsonb_build_object('size',full_bytes,'mimetype','image/jpeg') from public.memory_photos where pair_id='30000000-0000-4000-8000-000000000001'
+union all select 'memory-photos',thumb_path,gen_random_uuid()::text,uploaded_by::text,'{"sessionId":"20000000-0000-4000-8000-000000000001"}'::jsonb,jsonb_build_object('size',thumb_bytes,'mimetype','image/jpeg') from public.memory_photos where pair_id='30000000-0000-4000-8000-000000000001'$$,
  'Final Storage service insert rechecks reserved owner and original live session');
-select throws_ok($$update storage.objects set metadata='{"size":999}' where bucket_id='memory-photos'$$,'P0001','FORBIDDEN','Uploaded objects stay immutable');
+select throws_ok($$update storage.objects set metadata='{"size":999}' where bucket_id='memory-photos' and name like '30000000-0000-4000-8000-000000000001/%'$$,'P0001','FORBIDDEN','Uploaded objects stay immutable');
 select set_config('request.jwt.claims','{"role":"service_role"}',true);
 set local role service_role;
 select is(public.publish_memory('40000000-0000-4000-8000-000000000101','10000000-0000-4000-8000-000000000001','20000000-0000-4000-8000-000000000001','50000000-0000-4000-8000-000000000103')->'error'->>'code','RETRYABLE','Unvalidated files cannot publish');
@@ -62,7 +66,7 @@ select is(public.publish_memory('40000000-0000-4000-8000-000000000101','10000000
 select is(public.publish_memory('40000000-0000-4000-8000-000000000101','10000000-0000-4000-8000-000000000002','20000000-0000-4000-8000-000000000002','50000000-0000-4000-8000-000000000103')->'error'->>'code','FORBIDDEN','Service cannot publish for partner');
 select pg_temp.as_user(2);
 set local role authenticated;
-select is((select count(*)::integer from public.memories),1,'Partner sees published memory');
+select is((select count(*)::integer from public.memories where pair_id='30000000-0000-4000-8000-000000000001'),1,'Partner sees published memory');
 select is(public.get_memory_media('60000000-0000-4000-8000-000000000101')->'data'->>'expiresIn','60','Media link maximum is 60 seconds');
 select is(public.update_memory('40000000-0000-4000-8000-000000000101','{"memoryDate":"2026-10-05","caption":"Probe"}',2,'50000000-0000-4000-8000-000000000104')->'error'->>'code','FORBIDDEN','Partner cannot edit');
 select is(public.delete_memory('40000000-0000-4000-8000-000000000101',2,'50000000-0000-4000-8000-000000000104')->'error'->>'code','FORBIDDEN','Partner cannot delete');
@@ -77,36 +81,40 @@ select ok((public.delete_memory('40000000-0000-4000-8000-000000000101',3,'500000
 select ok((public.delete_memory('40000000-0000-4000-8000-000000000101',3,gen_random_uuid())->>'ok')::boolean,'Already deleting author retry succeeds after restart');
 select is(public.get_memory_media('60000000-0000-4000-8000-000000000101')->'error'->>'code','FORBIDDEN','Deletion revokes new links');
 select pg_temp.as_user(2);
-select is((select count(*)::integer from public.memory_access_revocations),1,'Partner receives opaque memory deletion signal');
+select is((select count(*)::integer from public.memory_access_revocations where pair_id='30000000-0000-4000-8000-000000000001'),1,'Partner receives opaque memory deletion signal');
 select pg_temp.as_user(3);
-select is((select count(*)::integer from public.memory_access_revocations),0,'Unrelated account cannot read deletion signals');
+select is((select count(*)::integer from public.memory_access_revocations where pair_id='30000000-0000-4000-8000-000000000001'),0,'Unrelated account cannot read deletion signals');
 select pg_temp.as_user(1);
 reset role;
-select is((select bytes::integer from private.memory_reservations where released_at is null),130,'Deleting bytes still occupy quota');
+select is((select bytes::integer from private.memory_reservations where released_at is null and pair_id='30000000-0000-4000-8000-000000000001'),130,'Deleting bytes still occupy quota');
 select set_config('request.jwt.claims','{"role":"service_role"}',true);
 set local role service_role;
-create temporary table claimed as select(public.claim_memory_cleanup(1)->'data'->0) job;
+create temporary table claimed as select job from jsonb_array_elements(pg_temp.claim_fixture_memory(50)->'data') job where job->>'memoryId'='40000000-0000-4000-8000-000000000101';
 select is((select job->>'attempt' from claimed),'1','Cleanup leases one job');
-select is(jsonb_array_length(public.claim_memory_cleanup(1)->'data'),0,'Active lease blocks duplicate worker');
+select is((select count(*)::integer from jsonb_array_elements(pg_temp.claim_fixture_memory(50)->'data') job where job->>'memoryId'='40000000-0000-4000-8000-000000000101'),0,'Active lease blocks duplicate worker');
 select is(public.complete_memory_cleanup((select(job->>'id')::uuid from claimed),gen_random_uuid())->'error'->>'code','CONFLICT','Wrong lease cannot complete');
 select is(public.complete_memory_cleanup((select(job->>'id')::uuid from claimed),(select(job->>'leaseToken')::uuid from claimed))->'error'->>'code','RETRYABLE','Remaining objects block quota release');
 select is(public.complete_memory_cleanup((select(job->>'id')::uuid from claimed),(select(job->>'leaseToken')::uuid from claimed),'STORAGE_FAILURE')->'data'->>'state','queued','Object deletion failure queues retry');
 reset role;
-update private.memory_cleanup_jobs set due_at=now()-interval '1 minute',attempts=4;
+update private.memory_cleanup_jobs set due_at=now()-interval '1 minute',attempts=4 where pair_id='30000000-0000-4000-8000-000000000001';
 set local role service_role;
-update claimed set job=public.claim_memory_cleanup(1)->'data'->0;
+update claimed set job=(select cleanup.item from jsonb_array_elements(pg_temp.claim_fixture_memory(50)->'data') as cleanup(item) where cleanup.item->>'memoryId'='40000000-0000-4000-8000-000000000101');
 select is(public.complete_memory_cleanup((select(job->>'id')::uuid from claimed),(select(job->>'leaseToken')::uuid from claimed),'STORAGE_FAILURE')->'data'->>'state','failed','Fifth failure stays visible to operations');
-select is(jsonb_array_length(public.claim_memory_cleanup(1)->'data'),0,'Retained failure is not silently reclaimed');
+select is((select count(*)::integer from jsonb_array_elements(pg_temp.claim_fixture_memory(50)->'data') job where job->>'memoryId'='40000000-0000-4000-8000-000000000101'),0,'Retained failure is not silently reclaimed');
 select ok((public.retry_memory_cleanup((select(job->>'id')::uuid from claimed))->>'ok')::boolean,'Service can retry retained failure');
-update claimed set job=public.claim_memory_cleanup(1)->'data'->0;
-delete from storage.objects where bucket_id='memory-photos';
+update claimed set job=(select cleanup.item from jsonb_array_elements(pg_temp.claim_fixture_memory(50)->'data') as cleanup(item) where cleanup.item->>'memoryId'='40000000-0000-4000-8000-000000000101');
+-- This transaction contains synthetic metadata only. No Storage API objects exist.
+-- The installed storage.protect_delete guard permits this transaction-local override.
+set local storage.allow_delete_query='true';
+delete from storage.objects where bucket_id='memory-photos' and name like '30000000-0000-4000-8000-000000000001/%';
+set local storage.allow_delete_query='false';
 select is(public.complete_memory_cleanup((select(job->>'id')::uuid from claimed),(select(job->>'leaseToken')::uuid from claimed))->'data'->>'state','completed','Successful object removal releases quota');
 reset role;
-select is((select count(*)::integer from private.memory_reservations where released_at is null),0,'Completed cleanup releases reservation');
-select is((select count(*)::integer from public.memory_photos),0,'Completed cleanup removes photo metadata');
-select is((select count(*)::integer from public.memories),0,'Completed cleanup removes dates and caption metadata');
-select is((select count(*)::integer from private.memory_tombstones),1,'Private minimal tombstone preserves stable ID');
-select is((select count(*)::integer from public.memory_access_revocations),1,'Cleanup preserves signal for delayed Realtime authorization');
+select is((select count(*)::integer from private.memory_reservations where released_at is null and pair_id='30000000-0000-4000-8000-000000000001'),0,'Completed cleanup releases reservation');
+select is((select count(*)::integer from public.memory_photos where pair_id='30000000-0000-4000-8000-000000000001'),0,'Completed cleanup removes photo metadata');
+select is((select count(*)::integer from public.memories where pair_id='30000000-0000-4000-8000-000000000001'),0,'Completed cleanup removes dates and caption metadata');
+select is((select count(*)::integer from private.memory_tombstones where pair_id='30000000-0000-4000-8000-000000000001'),1,'Private minimal tombstone preserves stable ID');
+select is((select count(*)::integer from public.memory_access_revocations where pair_id='30000000-0000-4000-8000-000000000001'),1,'Cleanup preserves signal for delayed Realtime authorization');
 select ok(exists(select 1 from pg_publication_tables where pubname='supabase_realtime' and schemaname='public' and tablename='memories'),'Published memory changes support Realtime');
 select ok(exists(select 1 from pg_publication_tables where pubname='supabase_realtime' and schemaname='public' and tablename='memory_access_revocations'),'Memory deletion signals support Realtime');
 select pg_temp.as_user(1);
@@ -136,7 +144,7 @@ reset role;
 update public.profiles set account_status='disabled' where user_id='10000000-0000-4000-8000-000000000004';
 select pg_temp.as_user(4);
 set local role authenticated;
-select is((select count(*)::integer from public.memories),0,'Disabled account cannot read despite valid session');
+select is((select count(*)::integer from public.memories where pair_id='30000000-0000-4000-8000-000000000001'),0,'Disabled account cannot read despite valid session');
 reset role;
 select * from finish();
 rollback;

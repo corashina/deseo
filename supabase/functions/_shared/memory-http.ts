@@ -1,3 +1,5 @@
+import { browserOriginHeaders } from './browser-origin.ts';
+import { runtimeKeys } from './keys.ts';
 import { createClient, type SupabaseClient } from 'npm:@supabase/supabase-js@2.117.2';
 
 export type ErrorCode = 'UNAUTHENTICATED' | 'FORBIDDEN' | 'VALIDATION' | 'CONFLICT' | 'QUOTA_EXCEEDED' | 'RETRYABLE';
@@ -13,10 +15,10 @@ const options = { auth: { persistSession: false, autoRefreshToken: false, detect
 export const isUuid = (value: unknown): value is string => typeof value === 'string'
   && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
 export const failed = (code: ErrorCode): Outcome<never> => ({ ok: false, error: { code } });
-export function reply(result: Outcome<unknown>): Response {
+export function reply(result: Outcome<unknown>, request?: Request): Response {
   const status = result.ok ? 200 : ({ UNAUTHENTICATED: 401, FORBIDDEN: 403, VALIDATION: 400,
     CONFLICT: 409, QUOTA_EXCEEDED: 409, RETRYABLE: 503 })[result.error.code];
-  return Response.json(result, { status, headers: { 'Cache-Control': 'no-store' } });
+  return Response.json(result, { status, headers: request ? browserOriginHeaders(request) : { 'Cache-Control': 'no-store' } });
 }
 export async function readBody(request: Request): Promise<Record<string, unknown> | null> {
   if (request.method !== 'POST' || Number(request.headers.get('content-length')) > 4096 || !request.body) return null;
@@ -41,7 +43,7 @@ export async function readBody(request: Request): Promise<Record<string, unknown
 }
 export function serviceClient(): SupabaseClient | null {
   const url = Deno.env.get('SUPABASE_URL');
-  const key = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+  const key = runtimeKeys().secret;
   return url && key ? createClient(url, key, options) : null;
 }
 export function resolveIdentity(check: IdentityCheck): Outcome<{ actorId: string; sessionId: string }> {
@@ -59,7 +61,7 @@ export async function authenticate(request: Request): Promise<Outcome<MemoryActo
   const bearer = request.headers.get('authorization');
   if (!bearer?.startsWith('Bearer ')) return failed('UNAUTHENTICATED');
   const url = Deno.env.get('SUPABASE_URL');
-  const key = Deno.env.get('SUPABASE_PUBLISHABLE_KEY');
+  const key = runtimeKeys().publishable;
   const admin = serviceClient();
   if (!url || !key || !admin) return failed('RETRYABLE');
   const caller = createClient(url, key, { ...options, global: { headers: { Authorization: bearer } } });

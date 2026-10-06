@@ -1,6 +1,6 @@
 -- Importance: 94. Author-only pins replace atomically and disappear on deletion.
 begin;
-\ir fixtures/setup.sql
+\ir fixtures/setup.sql.inc
 select plan(21);
 select pg_temp.as_user(1);
 set local role authenticated;

@@ -4,7 +4,7 @@ import { Image } from 'expo-image';
 import { StyleSheet, View } from 'react-native';
 import { Status } from '../../../components/ui/Status';
 import { theme } from '../../../theme';
-import { AppError } from '../../../lib/result';
+import { AppError } from '@deseo/domain/result';
 import { getMemoryMedia, memoryKeys } from '../queries';
 import { getMemoryLifecycle, subscribeMemoryLifecycle } from '../lifecycle';
 

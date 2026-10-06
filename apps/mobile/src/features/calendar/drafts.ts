@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { getPrivateStorage } from '../../lib/private-storage';
 import { captureQueryScope } from '../../lib/query-client';
-import { eventInputSchema } from './schema';
+import { eventInputSchema } from '@deseo/domain/calendar';
 
 export const eventDraftValuesSchema = z.object({ title: z.string(), allDay: z.boolean(), repeat: z.enum(['none', 'yearly']).optional(), importantDate: z.boolean().optional(), startDate: z.string(), endDate: z.string(),
     startTime: z.string(), endTime: z.string(), startOffset: z.number().optional(), endOffset: z.number().optional(),

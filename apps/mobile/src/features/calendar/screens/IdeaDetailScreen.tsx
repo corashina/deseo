@@ -8,10 +8,11 @@ import { Screen } from '../../../components/ui/Screen';
 import { Status } from '../../../components/ui/Status';
 import { theme, ui } from '../../../theme';
 import { captureQueryScope } from '../../../lib/query-client';
-import type { CommandError } from '../../../lib/result';
+import type { CommandError } from '@deseo/domain/result';
 import { useCore } from '../../pair';
 import { CalendarAccess } from '../CalendarAccess';
-import { archiveIdea, getDateIdea, ideaFieldsSchema, ideaKeys } from '../date-ideas';
+import { ideaFieldsSchema } from '@deseo/domain/calendar';
+import { archiveIdea, getDateIdea, ideaKeys } from '../date-ideas';
 import { readArchiveIntent, writeArchiveIntent, removeIdeaDraft, type ArchiveIntent } from '../idea-drafts';
 import { useCalendarSignals } from '../realtime';
 export function IdeaDetailScreen({ ideaId }: { ideaId: string }) { return <CalendarAccess><Entry ideaId={ideaId} /></CalendarAccess>; }

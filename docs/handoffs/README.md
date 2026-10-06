@@ -3,7 +3,9 @@
 Implementation chats save their results here.
 
 [Chat 05: Integration and reminders](05-integration-reminders.md) records the integrated source checkpoint.
-The at-start timing decision, combined backend validation, and device acceptance remain pending.
+That report records an earlier checkpoint. The portal handoff records the resolved reminder offsets and current backend checks.
+
+[React web portal](web-portal.md) records shared contracts, local validation, screenshots, dependency findings, and native device limits.
 
 [Chat 01: Core app](01-core.md) records implemented source and passing mobile checks.
 Backend security and native device checks remain pending. Chats 02–04 must wait for the security gate.

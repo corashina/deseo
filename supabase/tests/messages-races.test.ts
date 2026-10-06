@@ -1,5 +1,5 @@
 // Importance: 100 for send/cursor races; 94 for pin replacement and deletion.
-// Run against the disposable integration stack: node --experimental-strip-types --test supabase/tests/messages-races.test.ts
+// Run against the disposable integration or web stack: npm run test:db:race.
 import assert from 'node:assert/strict';
 import { randomBytes, randomUUID } from 'node:crypto';
 
@@ -12,8 +12,8 @@ const publicKey = process.env.SUPABASE_TEST_PUBLISHABLE_KEY;
 const secretKey = process.env.SUPABASE_TEST_SERVICE_ROLE_KEY;
 const localUrl = new URL(base);
 assert.ok(localUrl.protocol === 'http:' && ['127.0.0.1', 'localhost', '[::1]'].includes(localUrl.hostname)
-  && localUrl.port === '55621' && localUrl.pathname === '/' && !localUrl.search && !localUrl.hash
-  && !localUrl.username && !localUrl.password, 'Use the disposable integration stack on port 55621');
+  && ['55621', '55721'].includes(localUrl.port) && localUrl.pathname === '/' && !localUrl.search && !localUrl.hash
+  && !localUrl.username && !localUrl.password, 'Use the disposable integration or web stack on port 55621 or 55721');
 assert.ok(publicKey && secretKey, 'Set local Messages test keys. Keep the server key outside the repository.');
 const users: Account[] = [];
 const pairs = new Set<string>();

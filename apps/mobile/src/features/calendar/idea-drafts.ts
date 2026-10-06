@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { getPrivateStorage } from '../../lib/private-storage';
 import { captureQueryScope } from '../../lib/query-client';
-import { ideaInputSchema } from './date-ideas';
+import { ideaInputSchema } from '@deseo/domain/calendar';
 const values = z.object({ title: z.string(), note: z.string(), link: z.string() });
 export const ideaDraftSchema = z.object({ id: z.string().uuid(), commandId: z.string().uuid(), expectedVersion: z.number().int().positive().optional(),
   values, submission: ideaInputSchema.optional(), preservedValues: values.optional() });

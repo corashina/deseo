@@ -13,9 +13,10 @@ import { ownerTones, theme, ui } from '../../../theme';
 import { useCore } from '../../pair';
 import { EventRow } from '../components/EventRow';
 import { useCalendarSignals } from '../realtime';
-import { listImportantDates, importantDateCountdown, nextImportantDate } from '../important-dates';
+import { importantDateCountdown, nextImportantDate } from '@deseo/domain/calendar';
+import { listImportantDates } from '../important-dates';
 import { agendaDates, calendarKeys, listAgenda } from '../queries';
-import type { Owner } from '../types';
+import type { Owner } from '@deseo/domain/calendar';
 
 const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 export function CalendarScreen() {

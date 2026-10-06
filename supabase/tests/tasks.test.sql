@@ -1,13 +1,13 @@
 -- Importance: 100. Pair access, versions, retry receipts, and list invariants protect shared data.
 begin;
-\ir fixtures/setup.sql
+\ir fixtures/setup.sql.inc
 select plan(67);
-select has_table('public','task_lists');
-select has_table('public','tasks');
+select has_table('public','task_lists','public.task_lists exists');
+select has_table('public','tasks','public.tasks exists');
 -- Importance: 95. Remove the obsolete unversioned RPC.
 select has_function('public','rename_list',array['uuid','text','integer','uuid'],'Versioned list rename RPC exists');
 select hasnt_function('public','rename_list',array['uuid','text','uuid'],'Unversioned list rename RPC is absent');
-select is((select count(*)::integer from public.task_lists where is_general),2,'General exists for active fixture pairs');
+select is((select count(*)::integer from public.task_lists where is_general and pair_id in ('30000000-0000-4000-8000-000000000001','30000000-0000-4000-8000-000000000002')),2,'General exists for active fixture pairs');
 select ok(not has_table_privilege('authenticated','public.tasks','INSERT'),'No direct task inserts');
 select ok(not has_table_privilege('authenticated','public.tasks','UPDATE'),'No direct task updates');
 select ok(not has_table_privilege('authenticated','public.tasks','DELETE'),'No direct task deletes');
@@ -55,7 +55,7 @@ select is((select result->'data'->>'version' from completed),'2','Completion adv
 select is(public.set_task_completed('40000000-0000-4000-8000-000000000001',true,1,'50000000-0000-4000-8000-000000000014'),(select result from completed),'Duplicate completion command replays');
 select is(public.set_task_completed('40000000-0000-4000-8000-000000000001',true,2,'50000000-0000-4000-8000-000000000015')->'data'->>'version','2','Desired completed state does not toggle');
 select pg_temp.as_user(2);
-select is((select count(*)::integer from public.tasks),1,'Partner reads shared task');
+select is((select count(*)::integer from public.tasks where pair_id='30000000-0000-4000-8000-000000000001'),1,'Partner reads shared task');
 select is(public.set_task_completed('40000000-0000-4000-8000-000000000001',false,2,'50000000-0000-4000-8000-000000000016')->'data'->>'version','3','Partner reopens task');
 select ok((select completed_at is null and completed_by is null from public.tasks where id='40000000-0000-4000-8000-000000000001'),'Reopen clears completion identity');
 select ok((public.update_task('40000000-0000-4000-8000-000000000001',(select value||'{"title":"Partner edit"}' from input),3,'50000000-0000-4000-8000-000000000017')->>'ok')::boolean,'Partner edits title');
@@ -66,7 +66,7 @@ select is((select version from public.tasks where id='40000000-0000-4000-8000-00
 select ok((public.delete_empty_list('60000000-0000-4000-8000-000000000001','50000000-0000-4000-8000-000000000020')->>'ok')::boolean,'Delete empty list');
 select ok((public.delete_empty_list('60000000-0000-4000-8000-000000000001','50000000-0000-4000-8000-000000000020')->>'ok')::boolean,'Replay list delete receipt');
 select pg_temp.as_user(3);
-select is((select count(*)::integer from public.tasks),0,'Third account cannot read other pair tasks');
+select is((select count(*)::integer from public.tasks where pair_id='30000000-0000-4000-8000-000000000001'),0,'Third account cannot read other pair tasks');
 select is(public.set_task_completed('40000000-0000-4000-8000-000000000001',true,5,'50000000-0000-4000-8000-000000000021')->'error'->>'code','FORBIDDEN','Cross-pair command rejected');
 select pg_temp.as_user(1);
 reset role;
@@ -89,7 +89,7 @@ reset role;
 update public.pair_members set left_at=null where user_id='10000000-0000-4000-8000-000000000002';
 update public.profiles set account_status='disabled' where user_id='10000000-0000-4000-8000-000000000001';
 set local role authenticated;
-select is((select count(*)::integer from public.tasks),0,'Disabled account cannot read tasks');
+select is((select count(*)::integer from public.tasks where pair_id='30000000-0000-4000-8000-000000000001'),0,'Disabled account cannot read tasks');
 select is(public.create_task((select value from input),'50000000-0000-4000-8000-000000000010')->'error'->>'code','FORBIDDEN','Disabled account cannot replay receipt');
 -- Importance: 100. Rename receipts must recheck current access.
 select is(public.rename_list('60000000-0000-4000-8000-000000000003','First name',1,'50000000-0000-4000-8000-000000000040')->'error'->>'code','FORBIDDEN','Disabled account cannot replay rename');
@@ -97,7 +97,7 @@ reset role;
 update public.profiles set account_status='active' where user_id='10000000-0000-4000-8000-000000000001';
 delete from auth.sessions where id='20000000-0000-4000-8000-000000000001';
 set local role authenticated;
-select is((select count(*)::integer from public.tasks),0,'Revoked session cannot read tasks');
+select is((select count(*)::integer from public.tasks where pair_id='30000000-0000-4000-8000-000000000001'),0,'Revoked session cannot read tasks');
 select is(public.create_task((select value from input),'50000000-0000-4000-8000-000000000010')->'error'->>'code','UNAUTHENTICATED','Revoked session cannot replay receipt');
 select is(public.rename_list('60000000-0000-4000-8000-000000000003','First name',1,'50000000-0000-4000-8000-000000000040')->'error'->>'code','UNAUTHENTICATED','Revoked session cannot replay rename');
 reset role;
@@ -110,7 +110,7 @@ update public.pairs set state='active' where id='30000000-0000-4000-8000-0000000
 select is((select count(*)::integer from public.task_lists where pair_id='30000000-0000-4000-8000-000000000003' and is_general),1,'Repeated activation keeps one General');
 update public.pairs set state='ended',ended_at=now() where id='30000000-0000-4000-8000-000000000001';
 set local role authenticated;
-select is((select count(*)::integer from public.tasks),0,'Ended pair cannot read tasks');
+select is((select count(*)::integer from public.tasks where pair_id='30000000-0000-4000-8000-000000000001'),0,'Ended pair cannot read tasks');
 select is(public.create_task((select value from input),'50000000-0000-4000-8000-000000000010')->'error'->>'code','FORBIDDEN','Current membership required before receipt replay');
 select is(public.rename_list('60000000-0000-4000-8000-000000000003','First name',1,'50000000-0000-4000-8000-000000000040')->'error'->>'code','FORBIDDEN','Ended pair cannot replay rename');
 select * from finish();

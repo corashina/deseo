@@ -4,13 +4,13 @@
 
 **Scope:** A shared app for two partners. Cover calendars, events, reminders, photos, messages, and tasks.
 
-**Status:** The owner approved the pastel direction and icon 05. The native product uses Expo and TypeScript.
+**Status:** The owner approved pastel styling, icon 05, and separate React browser screens beside Expo mobile.
 
 Use this guide for frontend work. Treat the visual reference as documentation, not production code.
 
-### Native platform mapping
+### Platform mapping
 
-Android and iOS are the product platforms. The public website has separate pages and markup.
+Expo serves Android and iOS. React DOM serves the browser portal. The planned public site has separate pages.
 
 Use React Native StyleSheet values from shared brand tokens. The CSS examples below apply to browser surfaces only.
 
@@ -18,9 +18,9 @@ Use native point/dp values for spacing and type. Use system fonts and supported 
 
 Use at least 48dp touch targets. Respect safe areas, Dynamic Type, VoiceOver, TalkBack, and native keyboard behavior.
 
-Use Expo Router stacks and tabs. On tablets, center readable content; a desktop product sidebar is outside the first release.
+Use Expo Router stacks and bottom tabs on native devices. Use React Router links and a sidebar in the portal.
 
-The desktop layouts below remain visual reference material. Do not build a full browser application from them.
+Follow the approved [portal design](docs/superpowers/specs/2026-10-05-deseo-web-portal-design.md) for browser dimensions and routes.
 
 Follow [the screen guide](docs/product/SCREENS.md) for native routes and complete flows.
 
@@ -237,7 +237,7 @@ Use the system sans-serif stack from the CSS foundation. Use real text for label
 
 | Role | Desktop | Mobile | Weight / line height |
 |---|---|---|---|
-| Page title | 36px | 28px | 650 / 1.2 |
+| Page title | 32px | 28px | 650 / 1.2 |
 | Section title | 20px | 19px | 650 / 1.3 |
 | Body and input | 16px | 16px | 400 / 1.5 |
 | Button | 14px | 14px | 600 / 1.4 |
@@ -263,18 +263,17 @@ Build from a single-column layout. Set breakpoints by available space.
 
 | Width | Shell | Content |
 |---|---|---|
-| 320–767px | Fixed bottom navigation | One column, 16px page padding |
-| 768–1023px | 176px sidebar | One column, 24px page padding |
-| 1024–1439px | 216px sidebar | Two columns, 40px page padding |
-| 1440px and above | 216px sidebar | Two columns, 56px page padding |
+| 320–767px | Browser menu and drawer | One column, 16px page padding |
+| 768–1023px | 72px browser rail | 24px page padding |
+| 1024px and above | 256px sidebar; 72px collapsed | 32px page padding |
 
-Cap the shell at 1600px. Center it on larger screens.
+Cap browser content at 1440px, forms at 720px, and messages at 960px. Use a header at least 72px high.
 
-Use `minmax(0, 1.35fr) minmax(280px, 1fr)` for the Today columns.
+Use a flexible planning column and a 360px personal column for desktop Today.
 
 Use `min-width: 0` on grid children. Let long event names and partner names wrap.
 
-Keep the bottom navigation visible. Add bottom content padding for its height and the device safe area.
+Keep native bottom navigation visible. Add native content padding for its height and the device safe area.
 
 Use at least 44px touch targets. Give checkbox labels a full-row target.
 
@@ -446,11 +445,13 @@ Keep static data, formatters, and icon definitions outside repeated render work 
 
 ## 10. Frontend structure
 
-Use the Expo and TypeScript structure in [ARCHITECTURE.md](docs/architecture/ARCHITECTURE.md).
+Follow the module rules in [ARCHITECTURE.md](docs/architecture/ARCHITECTURE.md).
 
-The app lives in `apps/mobile`. The static public site lives in `apps/site`. Share brand tokens, not UI controls.
+Use `apps/mobile` for Expo screens and native capabilities. Use `apps/web` for React DOM screens and browser capabilities.
 
-The workspace currently contains documentation only. Create runtime files through the implementation plan.
+Keep shared schemas, payloads, types, and date rules in `packages/domain`. Keep platform UI controls in their application.
+
+Reserve `apps/site` for the planned public information site. Share brand tokens across applications.
 
 Keep server access inside feature data modules. Pass explicit view data into display components.
 
