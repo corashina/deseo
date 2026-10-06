@@ -1,6 +1,7 @@
 import { test, expect, type BrowserContext } from '@playwright/test';
 import { mkdir, readFile, writeFile, stat, appendFile } from 'node:fs/promises';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { randomUUID } from 'node:crypto';
 import { routeManifest } from '../src/app/route-manifest';
 import { screenshotScenarios, assertScenarioCoverage, type ScreenshotRecord } from './support/screenshot-scenarios';
 import { createScreenshotFixtures } from './support/screenshot-fixtures';
@@ -57,11 +58,8 @@ test('complete screenshot gallery', async ({ browser }, info) => {
   test.skip(process.env.DESEO_CAPTURE !== '1', 'Set DESEO_CAPTURE=1 to regenerate real local captures.');
   test.setTimeout(1_800_000);
   assertScenarioCoverage(); await mkdir(gallery + 'images', { recursive: true }); await mkdir(scratch, { recursive: true });
-  const fixtures = await createScreenshotFixtures();
-  const ledgerFile = scratch + 'fixture-ledger-' + info.project.name + '.json';
-  await writeFile(ledgerFile, JSON.stringify({ exceptional: fixtures.exceptional,
-    entries: [fixtures.empty, fixtures.unpaired, fixtures.pending, fixtures.inviter, fixtures.ended, fixtures.logout].map(item => ({ ...item, inviteToken: null })),
-    freshId: fixtures.freshId, cleaned: false }));
+  const ledgerFile = scratch + 'fixture-ledger-' + info.project.name + '-' + randomUUID() + '.json';
+  const fixtures = await createScreenshotFixtures(ledgerFile);
   const width = info.project.name === 'desktop' ? 1440 : 390;
   const viewport = { width, height: width === 1440 ? 1000 : 844 };
   const states = new Map<CaptureRole, State>();
@@ -145,7 +143,7 @@ test('complete screenshot gallery', async ({ browser }, info) => {
         await appendFile(report, '\n- Captured ' + key + ' at ' + width + 'px. Total records: ' + records.length + '.\n');
       } finally { release(); await context.close(); }
     }
-  } finally { await fixtures.cleanup(); await writeFile(ledgerFile, JSON.stringify({ cleaned: true })); }
+  } finally { await fixtures.cleanup(); }
 });
 
 // Importance 90: coverage metadata must reference the full requested set and real JPEG files.

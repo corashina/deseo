@@ -17,7 +17,7 @@ export function entryFixtureClient(email: string): SupabaseClient {
   return client;
 }
 export type EntryFixture = { accountIds: string[]; email: string; pairId: string | null; inviteToken: string | null };
-export async function createEntryFixture(state: 'unpaired' | 'pending' | 'active'): Promise<EntryFixture> {
+export async function createEntryFixture(state: 'unpaired' | 'pending' | 'active', recordOwnership?: (fixture: EntryFixture) => Promise<void>): Promise<EntryFixture> {
   const fixture: EntryFixture = { accountIds: [], email: '', pairId: null, inviteToken: null };
   async function account(name: string) {
     const email = `entry-${randomUUID()}@example.test`;
@@ -25,6 +25,7 @@ export async function createEntryFixture(state: 'unpaired' | 'pending' | 'active
     const { data, error } = await admin.auth.admin.createUser({ email, password, email_confirm: true });
     if (error || !data.user) throw error ?? new Error('Account missing');
     fixture.accountIds.push(data.user.id);
+    await recordOwnership?.(fixture);
     const client = createClient(localUrl, publicKey, { auth: { persistSession: false, autoRefreshToken: false } });
     const login = await client.auth.signInWithPassword({ email, password });
     if (login.error) throw login.error;
@@ -37,6 +38,7 @@ export async function createEntryFixture(state: 'unpaired' | 'pending' | 'active
     fixture.email = owner.email;
     if (state !== 'unpaired') {
       fixture.pairId = (await fixtureRpc(owner.client, 'create_pair', { p_timezone: 'Europe/Warsaw', p_command_id: randomUUID() })).pairId;
+      await recordOwnership?.(fixture);
       fixture.inviteToken = (await fixtureRpc(owner.client, 'create_invite', { p_pair_id: fixture.pairId, p_command_id: randomUUID() })).token;
       if (state === 'active') {
         const partner = await account('Marek');
@@ -44,7 +46,7 @@ export async function createEntryFixture(state: 'unpaired' | 'pending' | 'active
       }
     }
     return fixture;
-  } catch (error) { await cleanupEntryFixture(fixture); throw error; }
+  } catch (error) { if (!recordOwnership) await cleanupEntryFixture(fixture); throw error; }
 }
 export async function fixtureRpc(client: SupabaseClient, name: string, args = {}) {
   const { data, error } = await client.rpc(name, args);
@@ -56,13 +58,16 @@ export async function cleanupEntryFixture(fixture: EntryFixture) {
     const { error } = await admin.from('pairs').delete().eq('id', fixture.pairId);
     if (error) throw error;
   }
-  for (const [email, client] of fixtureClients) {
-    const session = await client.auth.getSession();
-    if (fixture.accountIds.includes(session.data.session?.user.id ?? '')) { await client.auth.signOut({ scope: 'local' }); fixtureClients.delete(email); }
-  }
+  await cleanupEntryFixtureSessions(fixture.accountIds);
   for (const id of fixture.accountIds) {
     const { error } = await admin.auth.admin.deleteUser(id);
     if (error) throw error;
+  }
+}
+export async function cleanupEntryFixtureSessions(accountIds: readonly string[]) {
+  for (const [email, client] of fixtureClients) {
+    const session = await client.auth.getSession();
+    if (accountIds.includes(session.data.session?.user.id ?? '')) { await client.auth.signOut({ scope: 'local' }); fixtureClients.delete(email); }
   }
 }
 export function expireEntryCode(accountId: string): void {

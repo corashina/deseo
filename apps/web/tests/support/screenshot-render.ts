@@ -61,7 +61,7 @@ export async function renderScene(page: Page, scene: ScreenshotScenario, fixture
     const email = `entry-${randomUUID()}@example.test`;
     const account = await admin.auth.admin.createUser({ email, email_confirm: true });
     if (account.error || !account.data.user) throw new Error('Verification fixture failed');
-    fixtures.verificationIds.push(account.data.user.id);
+    await fixtures.recordVerificationAccount(account.data.user.id);
     await page.goto('/sign-in');
     await page.getByLabel('Email address').fill(email);
     await button(page, 'Send code').click();
