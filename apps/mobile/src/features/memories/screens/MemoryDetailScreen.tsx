@@ -45,8 +45,8 @@ export function MemoryDetailScreen({ memoryId }: { memoryId: string }) {
     finally { setBusy(false); }
   };
   return <Screen title="Memory">
-    {!online && <Status message="You are offline. Reconnect to load this memory." />}
-    {query.isFetching && <Status message="Loading memory…" />}
+    {!online && <Status tone="warning" message="You are offline. Reconnect to load this memory." />}
+    {query.isFetching && <Status tone="loading" message="Loading memory…" />}
     {query.isError && <Status tone="error" message="This memory is unavailable." actionLabel="Retry" onAction={() => { void query.refetch(); }} />}
     {error && <Status tone="error" message={error} actionLabel="Reload memory" onAction={() => { command.current = randomUUID(); void query.refetch(); }} />}
     {notice && <Status message={notice} />}

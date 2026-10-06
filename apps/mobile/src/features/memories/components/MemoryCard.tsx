@@ -1,17 +1,24 @@
-import { Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { DateTime } from 'luxon';
-import { Button } from '../../../components/ui/Button';
 import { theme, ui } from '../../../theme';
 import type { Memory } from '../types';
 import { MemoryImage } from './MemoryImage';
 
 export function MemoryCard({ memory, authorName, onOpen }: { memory: Memory; authorName: string; onOpen: () => void }) {
   const photo = memory.photos[0];
-  return <View style={ui.card}>
-    <Text style={theme.typography.section}>{DateTime.fromISO(memory.memoryDate).toLocaleString(DateTime.DATE_MED)}</Text>
+  const date = DateTime.fromISO(memory.memoryDate).toLocaleString(DateTime.DATE_MED);
+  return <Pressable accessibilityRole="button" accessibilityLabel={`Open memory. ${memory.caption || date}. ${authorName}, ${date}`}
+    onPress={onOpen} style={({ pressed }) => [ui.card, styles.card, pressed && styles.pressed]}>
     {photo && <MemoryImage photoId={photo.id} variant="thumb" width={photo.thumbWidth} height={photo.thumbHeight} />}
-    {!!memory.caption && <Text style={theme.typography.body}>{memory.caption}</Text>}
-    <Text style={theme.typography.secondary}>{authorName}</Text>
-    <Button label="Open memory" variant="text" onPress={onOpen} />
-  </View>;
+    <View style={styles.text}>
+      {!!memory.caption && <Text style={theme.typography.body}>{memory.caption}</Text>}
+      <Text style={theme.typography.secondary}>{authorName} · {date}</Text>
+    </View>
+  </Pressable>;
 }
+
+const styles = StyleSheet.create({
+  card: { padding: theme.space[3] },
+  pressed: { backgroundColor: theme.colors.sidebar },
+  text: { gap: theme.space[1], paddingHorizontal: theme.space[1], paddingBottom: theme.space[1] },
+});

@@ -48,12 +48,12 @@ function Detail({ ideaId, pairId }: { ideaId: string; pairId: string }) {
   };
   const retry = error && <Status tone="error" message={error.code === 'CONFLICT' ? 'Your partner changed this idea. Reload it before you archive it.' : error.message ?? 'We could not archive this idea.'}
     actionLabel={intent ? 'Retry archive' : 'Reload saved version'} onAction={intent ? () => { void archive(intent); } : () => { const scope = captureQueryScope(); void query.refetch().then(() => { scope.assertCurrent(); setError(null); }); }} />;
-  if (query.isPending) return <Screen title="Idea"><Status message="Loading your idea…" /></Screen>;
+  if (query.isPending) return <Screen title="Idea"><Status tone="loading" message="Loading your idea…" /></Screen>;
   if (query.isError) return <Screen title="Idea"><Status tone="error" message="We could not load this idea." actionLabel="Retry" onAction={() => { void query.refetch(); }} />{retry}</Screen>;
   const idea = query.data;
   if (!idea) return <Screen title="Idea"><Status message="This idea is unavailable." />{retry}</Screen>;
   return <Screen title={idea.title} refreshing={query.isRefetching} onRefresh={() => { void query.refetch(); }}>
-    {!core.online && <Status message="You are offline. Reconnect before you plan or archive this idea." />}
+    {!core.online && <Status tone="warning" message="You are offline. Reconnect before you plan or archive this idea." />}
     <View style={ui.card}>
       <Text style={theme.typography.body}>{idea.state === 'saved' ? 'Saved' : idea.state === 'planned' ? 'Planned' : 'Archived'}</Text>
       {idea.note ? <Text style={theme.typography.body}>{idea.note}</Text> : null}

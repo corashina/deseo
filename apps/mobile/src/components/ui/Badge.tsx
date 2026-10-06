@@ -1,10 +1,13 @@
-import { Text, View } from 'react-native';
-import { theme } from '../../theme';
+import { StyleSheet, Text, View } from 'react-native';
+import { ownerTones, theme, type Owner } from '../../theme';
 
-export function Badge({ label, owner = 'together' }: { label: string; owner?: 'a' | 'b' | 'together' }) {
-  const color = owner === 'a' ? theme.colors.rose : owner === 'b' ? theme.colors.teal : theme.colors.shared;
-  const backgroundColor = owner === 'a' ? theme.colors.roseSoft : owner === 'b' ? theme.colors.tealSoft : theme.colors.sharedSoft;
-  return <View style={{ backgroundColor, borderRadius: theme.radius.badge, padding: 8, alignSelf: 'flex-start' }}>
-    <Text style={{ fontSize: 13, lineHeight: 20, color, fontWeight: '600' }}>{label}</Text>
+export function Badge({ label, owner = 'together' }: { label: string; owner?: Owner }) {
+  const tone = ownerTones[owner];
+  return <View style={[styles.badge, { backgroundColor: tone.soft }]}>
+    <Text style={[theme.typography.badge, { color: tone.color }]}>{label}</Text>
   </View>;
 }
+
+const styles = StyleSheet.create({
+  badge: { borderRadius: theme.radius.badge, paddingHorizontal: theme.space[2], paddingVertical: theme.space[1], alignSelf: 'flex-start' },
+});

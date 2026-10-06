@@ -5,7 +5,11 @@ import { useInfiniteQuery, useQuery, useQueryClient } from '@tanstack/react-quer
 import { Text, View } from 'react-native';
 import { Screen } from '../../../components/ui/Screen';
 import { Button } from '../../../components/ui/Button';
-import { Badge } from '../../../components/ui/Badge';
+import { PairAvatars } from '../../../components/ui/Avatar';
+import { Countdown } from '../../../components/ui/Countdown';
+import { IconButton } from '../../../components/ui/IconButton';
+import { RowGroup } from '../../../components/ui/RowGroup';
+import { Section } from '../../../components/ui/Section';
 import { Status } from '../../../components/ui/Status';
 import { EventRow, calendarKeys, importantDateCountdown, listImportantDates, nextImportantDate } from '../../calendar';
 import { getTask, listDueTasks, taskKeys, TaskRow, type Task } from '../../tasks';
@@ -62,62 +66,57 @@ function Today() {
   const refresh = () => { void query.refetch(); void tasks.refetch(); void notes.refetch(); void importantDates.refetch(); void notifications.refetch();
     void client.invalidateQueries({ queryKey: memoryKeys.latest(account.id, pairId) });
     if (recentTaskId) void recentTask.refetch(); };
+  const agenda = query.data?.agenda ?? [];
   return <Screen title={`Hello, ${account.displayName}`} subtitle={DateTime.now().setZone(account.timezone).toLocaleString(DateTime.DATE_HUGE)}
+    toolbar={<>
+      <PairAvatars members={activePair.members} onPress={() => router.push('/settings/pair')} />
+      <IconButton icon="notifications-outline" label={newNotifications ? 'Notifications, new' : 'Notifications'} dot={!!newNotifications}
+        onPress={() => router.push('/notifications')} />
+    </>}
+    action={<Button label="Add event" icon="add" compact onPress={() => router.push('/events/new')} />}
     refreshing={[query, tasks, notes, importantDates, notifications].some(result => result.isRefetching)} onRefresh={refresh}>
-    <Button label="Add event" onPress={() => router.push('/events/new')} />
-    <View style={ui.row}>{activePair.members.map(member => <Badge key={member.userId} label={member.displayName} owner={member.slot} />)}</View>
-    <Button label={newNotifications ? 'Notifications · New' : 'Notifications'} variant="text" onPress={() => router.push('/notifications')} />
     {notifications.isError && <Status message="We could not load notifications." tone="error" actionLabel="Retry notifications"
       onAction={() => { void notifications.refetch(); }} />}
-    <View style={ui.card}>
-      <Text accessibilityRole="header" style={theme.typography.section}>This week</Text>
-      {query.isPending ? <Status message="Loading your plans…" /> : query.error ? <Status message="We could not load your plans." tone="error"
-        actionLabel="Try again" onAction={() => { void query.refetch(); }} /> : query.data.agenda.length ? query.data.agenda.map(event =>
-          <EventRow key={event.id} event={event} viewerTimezone={account.timezone} ownerNames={names}
-            onPress={() => router.push({ pathname: '/events/[eventId]', params: { eventId: event.id } })} />)
-        : <Text style={theme.typography.body}>Nothing planned for this week.</Text>}
-      <Button label="View calendar" variant="text" onPress={() => router.push('/(tabs)/calendar')} />
-    </View>
-    <View style={ui.stack}>
-      <Text accessibilityRole="header" style={theme.typography.section}>Latest memory</Text>
+    <Section card title="This week" link={{ label: 'View calendar', onPress: () => router.push('/(tabs)/calendar') }}>
+      {query.isPending ? <Status tone="loading" message="Loading your plans…" /> : query.error ? <Status message="We could not load your plans." tone="error"
+        actionLabel="Try again" onAction={() => { void query.refetch(); }} /> : agenda.length ? <>
+          {agenda.slice(0, 3).map(event => <EventRow key={event.id} event={event} viewerTimezone={account.timezone} ownerNames={names}
+            onPress={() => router.push({ pathname: '/events/[eventId]', params: { eventId: event.id } })} />)}
+          {agenda.length > 3 && <Text style={theme.typography.secondary}>{agenda.length - 3} more this week</Text>}
+        </> : <Text style={theme.typography.body}>Nothing planned this week.</Text>}
+    </Section>
+    <Section title="Latest memory" link={{ label: 'All memories', onPress: () => router.push('/(tabs)/memories') }}>
       <MemoryAccessBoundary><LatestMemory accountId={account.id} pairId={pairId} author={author} /></MemoryAccessBoundary>
-      <Button label="View memories" variant="text" onPress={() => router.push('/(tabs)/memories')} />
-    </View>
-    <View style={ui.stack}>
-      <Text accessibilityRole="header" style={theme.typography.section}>Your note</Text>
-      {notes.isPending ? <Status message="Loading your note…" /> : notes.isError ?
+    </Section>
+    <Section title="Your note" link={{ label: 'Messages', onPress: () => router.push('/(tabs)/messages') }}>
+      {notes.isPending ? <Status tone="loading" message="Loading your note…" /> : notes.isError ?
         <Status message="We could not load your note." tone="error" actionLabel="Retry note" onAction={() => { void notes.refetch(); }} /> :
         note ? <NoteCard message={note} authorName={author(note.authorId)} onReply={() => router.push('/(tabs)/messages')}
           onOpen={() => router.push('/(tabs)/messages')} /> : <Text style={theme.typography.body}>Pin a message to keep it here.</Text>}
-      <Button label="View messages" variant="text" onPress={() => router.push('/(tabs)/messages')} />
-    </View>
-    <View style={ui.stack}>
-      <Text accessibilityRole="header" style={theme.typography.section}>Due tasks</Text>
-      {tasks.isPending ? <Status message="Loading your tasks…" /> : tasks.isError ?
+    </Section>
+    <Section title="Due today" link={{ label: 'All tasks', onPress: () => router.push('/(tabs)/tasks') }}>
+      {tasks.isPending ? <Status tone="loading" message="Loading your tasks…" /> : tasks.isError ?
         <Status message="We could not load your tasks." tone="error" actionLabel="Retry tasks" onAction={() => { void tasks.refetch(); }} /> :
-        tasks.data.length ? tasks.data.filter(task => task.id !== completedTask?.id).map(taskRow) : <Text style={theme.typography.body}>No tasks due today.</Text>}
+        tasks.data.length || completedTask ? <RowGroup>{tasks.data.filter(task => task.id !== completedTask?.id).map(taskRow)}</RowGroup>
+          : <Text style={theme.typography.body}>No tasks due today.</Text>}
       {completedTask && <View style={ui.stack}>
-        <Text style={theme.typography.secondary}>Task completed</Text>{taskRow(completedTask)}
+        <Text style={theme.typography.secondary}>Task completed</Text><RowGroup>{taskRow(completedTask)}</RowGroup>
       </View>}
-      <Button label="View tasks" variant="text" onPress={() => router.push('/(tabs)/tasks')} />
-    </View>
-    <View style={ui.card}>
-      <Text accessibilityRole="header" style={theme.typography.section}>Next important date</Text>
-      {importantDates.isPending ? <Status message="Loading important dates…" /> : importantDates.isError ?
+    </Section>
+    <Section card title="Next important date">
+      {importantDates.isPending ? <Status tone="loading" message="Loading important dates…" /> : importantDates.isError ?
         <Status message="We could not load important dates." tone="error" actionLabel="Retry dates" onAction={() => { void importantDates.refetch(); }} /> :
-        important && important.temporal.kind === 'allDay' ? <>
-          <Text style={theme.typography.section}>{important.title}</Text>
-          <Text style={theme.typography.body}>{DateTime.fromISO(important.temporal.startDate).toLocaleString(DateTime.DATE_MED)} · {countdown === 0 ? 'Today' : countdown === 1 ? 'Tomorrow' : `In ${countdown} days`}</Text>
-          <Button label="View date" variant="text" onPress={() => router.push({ pathname: '/events/[eventId]', params: { eventId: important.id } })} />
+        important && important.temporal.kind === 'allDay' && countdown !== null ? <>
+          <Countdown days={countdown} title={important.title} date={DateTime.fromISO(important.temporal.startDate).toLocaleString(DateTime.DATE_HUGE)} />
+          <Button label="View date" variant="text" trailingIcon="chevron-forward" onPress={() => router.push({ pathname: '/events/[eventId]', params: { eventId: important.id } })} />
         </> : <Text style={theme.typography.body}>Add an important date in Calendar.</Text>}
-    </View>
-    <Button label="Your pair" variant="secondary" onPress={() => router.push('/settings/pair')} />
+    </Section>
   </Screen>;
 }
 
 function LatestMemory({ accountId, pairId, author }: { accountId: string; pairId: string; author(id: string): string }) {
   const memory = useQuery({ queryKey: memoryKeys.latest(accountId, pairId), queryFn: () => latestMemory(pairId) });
-  if (memory.isPending) return <Status message="Loading your memory…" />;
+  if (memory.isPending) return <Status tone="loading" message="Loading your memory…" />;
   if (memory.isError) return <Status message="We could not load your memory." tone="error" actionLabel="Retry memory" onAction={() => { void memory.refetch(); }} />;
   if (!memory.data) return <Text style={theme.typography.body}>Save a photo from a day together.</Text>;
   return <MemoryCard memory={memory.data} authorName={author(memory.data.createdBy)}

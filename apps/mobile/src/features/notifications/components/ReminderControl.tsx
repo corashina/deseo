@@ -23,7 +23,7 @@ export function ReminderControl(props: Props) {
     queryFn: () => getReminder(props.eventId ?? null, props.taskId ?? null), enabled: !!pairId });
   const preferences = useQuery({ queryKey: notificationKeys.preferences(core.account.id), queryFn: getNotificationPreferences, enabled: !!pairId && !!props.eventId });
   if (!pairId) return null;
-  if (query.isPending || props.eventId && preferences.isPending) return <Status message="Loading your reminder…" />;
+  if (query.isPending || props.eventId && preferences.isPending) return <Status tone="loading" message="Loading your reminder…" />;
   if (query.isError) return <Status message="We could not load your reminder." actionLabel="Retry" onAction={() => { void query.refetch(); }} />;
   return <ReminderForm key={`${core.account.id}:${pairId}:${props.eventId ?? props.taskId}:${query.data?.version ?? 0}`}
     {...props} pairId={pairId} online={core.online} saved={query.data} defaultMinutes={preferences.data?.defaultEventReminderMinutes ?? null} />;

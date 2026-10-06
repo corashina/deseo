@@ -21,7 +21,7 @@ export function MemoryFormScreen({ memoryId }: { memoryId?: string }) {
   const pairId = 'pairId' in pair ? pair.pairId : '';
   const query = useQuery({ queryKey: memoryKeys.detail(account.id, pairId, memoryId ?? 'new'),
     queryFn: () => getMemory(pairId, memoryId!), enabled: !!memoryId && pair.status === 'active' });
-  if (memoryId && query.isPending) return <Screen title="Edit memory"><Status message="Loading memory…" /></Screen>;
+  if (memoryId && query.isPending) return <Screen title="Edit memory"><Status tone="loading" message="Loading memory…" /></Screen>;
   if (memoryId && (query.isError || !query.data)) return <Screen title="Edit memory"><Status message="This memory is unavailable." /></Screen>;
   if (memoryId && query.data?.createdBy !== account.id) return <Screen title="Memory"><Status message="Only the author can edit this memory." /></Screen>;
   return <Form memory={query.data} timezone={account.timezone} online={online} reload={async () => (await query.refetch()).data} />;
@@ -48,7 +48,7 @@ function Form({ memory, timezone, online, reload }: { memory?: Memory; timezone:
   </Screen>;
   const locked = access.busy || draft.submitted;
   return <Screen title={memory ? 'Edit memory' : 'Add memory'}>
-    {!online && <Status message="You are offline. Your draft stays on this device. Reconnect before you upload." />}
+    {!online && <Status tone="warning" message="You are offline. Your draft stays on this device. Reconnect before you upload." />}
     {(access.error || localError) && <Status tone="error" message={localError ?? access.error!} />}
     {draft.submitted && !draft.conflict && <Status message="Your last save needs confirmation. Tap Retry save to continue." />}
     <Field label="Memory date" hint="Use YYYY-MM-DD." value={draft.memoryDate} editable={!locked} maxLength={10}

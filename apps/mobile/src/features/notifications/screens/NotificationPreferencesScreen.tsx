@@ -17,7 +17,7 @@ import type { NotificationPreferences } from '../types';
 export function NotificationPreferencesScreen() {
   const { account, online } = useCore();
   const query = useQuery({ queryKey: notificationKeys.preferences(account.id), queryFn: getNotificationPreferences });
-  if (query.isPending) return <Screen title="Notifications"><Status message="Loading your preferences…" /></Screen>;
+  if (query.isPending) return <Screen title="Notifications"><Status tone="loading" message="Loading your preferences…" /></Screen>;
   if (query.isError) return <Screen title="Notifications"><Status message="We could not load your preferences." actionLabel="Retry" onAction={() => { void query.refetch(); }} /></Screen>;
   return <PreferencesForm key={`${account.id}:${query.data.version}`} saved={query.data} online={online} reload={() => { void query.refetch(); }} />;
 }

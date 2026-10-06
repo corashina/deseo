@@ -125,8 +125,8 @@ it('waits for memory access before loading the latest memory', async () => {
 it('opens notifications and removes New after the shared cache marks recent items read', async () => {
   jest.mocked(listNotifications).mockResolvedValue({ items: [{ id: 'notification', readAt: null }], nextCursor: null } as never);
   const client = await mount();
-  await waitFor(() => expect(screen.getByRole('button', { name: 'Notifications · New' })).toBeOnTheScreen());
-  await fireEvent.press(screen.getByRole('button', { name: 'Notifications · New' }));
+  await waitFor(() => expect(screen.getByRole('button', { name: 'Notifications, new' })).toBeOnTheScreen());
+  await fireEvent.press(screen.getByRole('button', { name: 'Notifications, new' }));
   expect(router.push).toHaveBeenCalledWith('/notifications');
   await act(() => client.setQueryData(notificationKeys.list('account', 'pair'), {
     pages: [{ items: [{ id: 'notification', readAt: '2026-10-05T00:00:00Z' }], nextCursor: null }], pageParams: [null],

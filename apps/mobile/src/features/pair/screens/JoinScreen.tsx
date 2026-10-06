@@ -56,7 +56,7 @@ export function JoinScreen() {
       <Button label="Review invitation" loading={busy} disabled={!online || !value} onPress={() => { void inspect(); }} />
     </>}
     {error && <Status message={error} tone="error" />}
-    {!online && <Status message="You are offline. Connect to review and join this pair." />}
+    {!online && <Status tone="warning" message="You are offline. Connect to review and join this pair." />}
     <Button label="Cancel" variant="secondary" onPress={() => { void clearPendingInvite().then(() => router.replace('/(pair)/start')).catch(cause => setError(toAppError(cause).message)); }} />
   </Screen>;
 }

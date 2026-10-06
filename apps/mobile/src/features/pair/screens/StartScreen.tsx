@@ -21,7 +21,7 @@ export function StartScreen() {
   };
   return <Screen title="Plan together" subtitle="Invite your partner, or enter the code they sent you.">
     {error && <Status message={error} tone="error" />}
-    {!online && <Status message="You are offline. Connect to create or join a pair." />}
+    {!online && <Status tone="warning" message="You are offline. Connect to create or join a pair." />}
     <Button label="Invite your partner" loading={busy} disabled={!online} onPress={() => { void create(); }} />
     <Button label="Enter invitation" variant="secondary" onPress={() => router.push('/(pair)/join')} />
     <Button label="Sign out" variant="text" onPress={() => { void signOut('local').catch(() => setError('We could not sign out. Try again.')); }} />

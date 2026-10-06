@@ -57,8 +57,8 @@ export function PendingMessageRow({ message, member, online, onRetry, onDiscard 
 }
 
 const styles = StyleSheet.create({
-  row: { alignItems: 'flex-start', paddingHorizontal: 16, paddingVertical: 8 }, own: { alignItems: 'flex-end' },
-  bubble: { maxWidth: '80%', padding: 16, gap: 8, borderRadius: theme.radius.card },
+  row: { alignItems: 'flex-start', paddingHorizontal: theme.space[4], paddingVertical: theme.space[1] }, own: { alignItems: 'flex-end' },
+  bubble: { maxWidth: '80%', paddingHorizontal: theme.space[4], paddingVertical: theme.space[3], gap: theme.space[1], borderRadius: theme.radius.card },
   a: { backgroundColor: theme.colors.roseSoft }, b: { backgroundColor: theme.colors.tealSoft },
   nameA: { color: theme.colors.rose }, nameB: { color: theme.colors.teal },
   link: { color: theme.colors.link, textDecorationLine: 'underline' },

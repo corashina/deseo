@@ -1,8 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { DateTime } from 'luxon';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { Badge } from '../../../components/ui/Badge';
-import { theme } from '../../../theme';
+import { ownerTones, theme } from '../../../theme';
 import { inclusiveEndDate } from '../schema';
 import type { AgendaItem } from '../types';
 
@@ -29,26 +28,32 @@ export function EventRow({ event, viewerTimezone, ownerNames, onPress }: EventRo
   const ownerName = event.owner === 'together' ? 'Together' : ownerNames[event.owner];
   const temporal = event.temporal;
   const time = temporal.kind === 'allDay' ? 'All day' : DateTime.fromISO(temporal.startsAt).setZone(viewerTimezone).toLocaleString(DateTime.TIME_SIMPLE);
-  const content = <>
-    <Text style={[theme.typography.secondary, styles.time]}>{time}</Text>
-    <View style={styles.body}>
-      <Text style={theme.typography.section}>{event.title}</Text>
-      <View style={styles.metadata}>
-        <Badge owner={event.owner} label={ownerName} />
-        {event.importantDate && <Text style={theme.typography.secondary}>Important date{event.repeat === 'yearly' ? ' · Yearly' : ''}</Text>}
-        {event.visibility === 'private' && <View style={styles.metadata}><Ionicons name="lock-closed-outline" size={16} color={theme.colors.muted} /><Text style={theme.typography.secondary}>Private</Text></View>}
-      </View>
-      {event.location ? <Text style={theme.typography.secondary}>{event.location}</Text> : null}
+  const tone = ownerTones[event.owner];
+  const body = <>
+    <Text style={theme.typography.headline}>{event.title}</Text>
+    <View style={styles.metadata}>
+      <Text style={[theme.typography.badge, { color: tone.color }]}>{ownerName}</Text>
+      {event.importantDate && <View style={styles.meta}><Ionicons name="star-outline" size={14} color={theme.colors.muted} /><Text style={theme.typography.secondary}>Important date{event.repeat === 'yearly' ? ' · Yearly' : ''}</Text></View>}
+      {event.visibility === 'private' && <View style={styles.meta}><Ionicons name="lock-closed-outline" size={14} color={theme.colors.muted} /><Text style={theme.typography.secondary}>Private</Text></View>}
     </View>
+    {event.location ? <View style={styles.meta}><Ionicons name="location-outline" size={14} color={theme.colors.muted} /><Text style={theme.typography.secondary}>{event.location}</Text></View> : null}
   </>;
-  const backgroundColor = event.owner === 'a' ? theme.colors.roseSoft : event.owner === 'b' ? theme.colors.tealSoft : theme.colors.sharedSoft;
-  return onPress
-    ? <Pressable accessibilityRole="button" accessibilityLabel={`${event.title}. ${eventDateLabel(event, viewerTimezone)}. ${ownerName}. ${event.visibility}`} onPress={onPress} style={[styles.row, { backgroundColor }]}>{content}</Pressable>
-    : <View style={[styles.row, { backgroundColor }]}>{content}</View>;
+  const tint = [styles.body, { backgroundColor: tone.soft, borderLeftColor: tone.accent }];
+  return <View style={styles.row}>
+    <Text style={[theme.typography.secondary, styles.time]}>{time}</Text>
+    {onPress
+      ? <Pressable accessibilityRole="button" accessibilityLabel={`${event.title}. ${eventDateLabel(event, viewerTimezone)}. ${ownerName}. ${event.visibility}`}
+        onPress={onPress} style={({ pressed }) => [tint, pressed && styles.pressed]}>{body}</Pressable>
+      : <View style={tint}>{body}</View>}
+  </View>;
 }
 
 const styles = StyleSheet.create({
-  row: { flexDirection: 'row', gap: theme.space[3], padding: theme.space[4], borderRadius: theme.radius.card, minHeight: 48 },
-  time: { width: 68, fontVariant: ['tabular-nums'] }, body: { flex: 1, gap: theme.space[2] },
-  metadata: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: theme.space[2] },
+  row: { flexDirection: 'row', gap: theme.space[3] },
+  time: { width: 56, paddingTop: theme.space[3], fontVariant: ['tabular-nums'] },
+  body: { flex: 1, gap: theme.space[1], minHeight: theme.touchTarget, paddingVertical: theme.space[3], paddingHorizontal: theme.space[4],
+    borderRadius: theme.radius.control, borderLeftWidth: 3 },
+  pressed: { opacity: 0.75 },
+  metadata: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', columnGap: theme.space[3], rowGap: theme.space[1] },
+  meta: { flexDirection: 'row', alignItems: 'center', gap: theme.space[1] },
 });

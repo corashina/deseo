@@ -2,11 +2,14 @@ import { useMemo, useState } from 'react';
 import { DateTime } from 'luxon';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Button } from '../../../components/ui/Button';
+import { Chips } from '../../../components/ui/Chips';
+import { Countdown } from '../../../components/ui/Countdown';
+import { IconButton } from '../../../components/ui/IconButton';
 import { Screen } from '../../../components/ui/Screen';
 import { Status } from '../../../components/ui/Status';
-import { theme, ui } from '../../../theme';
+import { ownerTones, theme, ui } from '../../../theme';
 import { useCore } from '../../pair';
 import { EventRow } from '../components/EventRow';
 import { useCalendarSignals } from '../realtime';
@@ -58,55 +61,71 @@ function ActiveCalendar({ account, pair, online, refresh }: { account: Core['acc
     const next = month.plus({ months: delta });
     setMonth(next); setSelectedDate(next.toISODate()!);
   };
-  return <Screen title="Calendar" refreshing={agenda.isRefetching} onRefresh={() => { void agenda.refetch(); void important.refetch(); }}>
-    {!online && <Status message="You are offline. Refresh your calendar when you reconnect." />}
-    <Button label="Saved ideas" variant="text" onPress={() => router.push('/ideas')} />
+  const todayIso = DateTime.now().setZone(account.timezone).toISODate()!;
+  const filters = (['all', viewerSlot, viewerSlot === 'a' ? 'b' : 'a', 'together'] as const).map(owner => ({ value: owner,
+    owner: owner === 'all' ? undefined : owner,
+    label: owner === 'all' ? 'Everyone' : owner === 'together' ? 'Together' : owner === viewerSlot ? `Me · ${names[owner]}` : names[owner] }));
+  const countdown = nextDate?.temporal.kind === 'allDay' ? importantDateCountdown(nextDate.temporal.startDate, pair.timezone) : null;
+  return <Screen title="Calendar" action={<Button label="Add event" icon="add" compact onPress={() => router.push('/events/new')} />}
+    refreshing={agenda.isRefetching} onRefresh={() => { void agenda.refetch(); void important.refetch(); }}>
+    {!online && <Status tone="warning" message="You are offline. Refresh your calendar when you reconnect." />}
     {important.isError && <Status message="We could not load important dates." tone="error" actionLabel="Retry" onAction={() => { void important.refetch(); }} />}
-    {nextDate && nextDate.temporal.kind === 'allDay' && <View style={ui.card}>
-      <Text style={theme.typography.section}>Next important date</Text>
-      <Text style={theme.typography.body}>{nextDate.title} · {nextDate.temporal.startDate}</Text>
-      <Text style={[theme.typography.body, { fontVariant: ['tabular-nums'] }]}>{importantDateCountdown(nextDate.temporal.startDate, pair.timezone)} days · {pair.timezone}</Text>
-      <Button label="Open important date" variant="text" onPress={() => router.push({ pathname: '/events/[eventId]', params: { eventId: nextDate.id } })} />
-    </View>}
-    <Button label="Add event" onPress={() => router.push('/events/new')} />
-    <View style={ui.row}>
-      <Button label="Previous month" variant="text" onPress={() => changeMonth(-1)} />
-      <Text accessibilityRole="header" style={theme.typography.section}>{month.toLocaleString({ month: 'long', year: 'numeric' })}</Text>
-      <Button label="Next month" variant="text" onPress={() => changeMonth(1)} />
+    {nextDate && nextDate.temporal.kind === 'allDay' && countdown !== null && <Pressable accessibilityRole="button" accessibilityLabel={`Open important date: ${nextDate.title}`}
+      onPress={() => router.push({ pathname: '/events/[eventId]', params: { eventId: nextDate.id } })} style={({ pressed }) => [ui.card, pressed && styles.pressed]}>
+      <Countdown days={countdown} title={nextDate.title} date={DateTime.fromISO(nextDate.temporal.startDate).toLocaleString(DateTime.DATE_HUGE)} />
+    </Pressable>}
+    <Button label="Saved date ideas" variant="text" icon="bulb-outline" trailingIcon="chevron-forward" onPress={() => router.push('/ideas')} />
+    <View style={styles.monthBar}>
+      <IconButton icon="chevron-back" label="Previous month" onPress={() => changeMonth(-1)} />
+      <Text accessibilityRole="header" style={[theme.typography.section, styles.monthTitle]}>{month.toLocaleString({ month: 'long', year: 'numeric' })}</Text>
+      <IconButton icon="chevron-forward" label="Next month" onPress={() => changeMonth(1)} />
     </View>
-    <View style={ui.row}>
-      <Button label="Agenda" variant={view === 'agenda' ? 'primary' : 'secondary'} onPress={() => setView('agenda')} />
-      <Button label="Month" variant={view === 'month' ? 'primary' : 'secondary'} onPress={() => setView('month')} />
-    </View>
-    <View style={ui.row}>
-      {(['all', viewerSlot, viewerSlot === 'a' ? 'b' : 'a', 'together'] as const).map((owner) => <Button key={owner}
-        label={owner === 'all' ? 'All' : owner === 'together' ? 'Together' : owner === viewerSlot ? `Me · ${names[owner]}` : `Partner · ${names[owner]}`}
-        variant={filter === owner ? 'primary' : 'secondary'} onPress={() => setFilter(owner)} />)}
-    </View>
-    {view === 'month' && <ScrollView horizontal contentContainerStyle={styles.monthScroll}><View style={styles.grid}>
-      {weekdays.map((day) => <Text key={day} style={[theme.typography.secondary, styles.cell]}>{day}</Text>)}
+    <Chips label="Calendar view" value={view} onChange={setView} options={[{ value: 'agenda', label: 'Agenda' }, { value: 'month', label: 'Month' }]} />
+    <Chips label="Show events for" value={filter} onChange={setFilter} options={filters} />
+    {view === 'month' && <View style={[ui.card, styles.monthCard]}><View style={styles.grid}>
+      {weekdays.map((day) => <Text key={day} style={[theme.typography.badge, styles.cell, styles.weekday]}>{day}</Text>)}
       {Array.from({ length: month.weekday - 1 }, (_, index) => <View key={`blank-${index}`} style={styles.cell} />)}
       {days.map((date) => {
-        const count = groups.find(([groupDate]) => groupDate === date)?.[1].length ?? 0;
-        return <Pressable key={date} accessibilityRole="button" accessibilityLabel={`${date}, ${count} events`} accessibilityState={{ selected: date === selectedDate }}
-          style={[styles.cell, styles.day, date === selectedDate && styles.selected]} onPress={() => setSelectedDate(date)}>
-          <Text style={theme.typography.body}>{Number(date.slice(-2))}</Text>
-          <Text style={theme.typography.secondary}>{count > 0 ? count : ''}</Text>
+        const events = groups.find(([groupDate]) => groupDate === date)?.[1] ?? [];
+        const selected = date === selectedDate;
+        return <Pressable key={date} accessibilityRole="button" accessibilityLabel={`${DateTime.fromISO(date).toLocaleString(DateTime.DATE_MED)}, ${events.length} events`} accessibilityState={{ selected }}
+          style={styles.cell} onPress={() => setSelectedDate(date)}>
+          {({ pressed }) => <View style={[styles.day, selected && styles.selected, pressed && !selected && styles.dayPressed]}>
+            <Text style={[theme.typography.body, styles.dayNumber, date === todayIso && styles.today, selected && styles.selectedText]}>{Number(date.slice(-2))}</Text>
+            <View style={styles.dots}>{events.slice(0, 3).map(event => <View key={event.id} style={[styles.dot, { backgroundColor: ownerTones[event.owner].accent }]} />)}</View>
+          </View>}
         </Pressable>;
       })}
-    </View></ScrollView>}
-    {agenda.isPending && <Status message="Loading your calendar…" />}
+    </View></View>}
+    {agenda.isPending && <Status tone="loading" message="Loading your calendar…" />}
     {agenda.isError && <Status tone="error" message="We could not load your calendar." actionLabel="Retry" onAction={() => { void agenda.refetch(); }} />}
-    {!agenda.isPending && !agenda.isError && visibleGroups.length === 0 && <Status message={view === 'month' ? `Nothing planned for ${selectedDate}.` : 'No events this month.'} actionLabel="Add event" onAction={() => router.push('/events/new')} />}
-    {visibleGroups.map(([date, events]) => <View key={date} style={ui.stack}>
-      <Text accessibilityRole="header" style={theme.typography.section}>{DateTime.fromISO(date, { zone: 'UTC' }).toLocaleString(DateTime.DATE_HUGE)}</Text>
+    {!agenda.isPending && !agenda.isError && visibleGroups.length === 0 && <Status message={view === 'month'
+      ? `Nothing planned for ${DateTime.fromISO(selectedDate).toLocaleString(DateTime.DATE_MED)}.` : 'No events this month.'} actionLabel="Add event" onAction={() => router.push('/events/new')} />}
+    {visibleGroups.map(([date, events]) => <View key={date} style={styles.dayGroup}>
+      <Text accessibilityRole="header" style={[theme.typography.headline, date === todayIso && styles.today]}>
+        {date === todayIso ? 'Today · ' : ''}{DateTime.fromISO(date, { zone: 'UTC' }).toLocaleString({ weekday: 'long', month: 'long', day: 'numeric' })}
+      </Text>
       {events.map((event) => <EventRow key={event.id} event={event} viewerTimezone={account.timezone} ownerNames={names}
         onPress={() => router.push({ pathname: '/events/[eventId]', params: { eventId: event.id } })} />)}
     </View>)}
   </Screen>;
 }
 const styles = StyleSheet.create({
-  monthScroll: { flexGrow: 1 }, grid: { minWidth: 336, flex: 1, flexDirection: 'row', flexWrap: 'wrap' }, cell: { width: '14.285714%', minHeight: 48, textAlign: 'center', alignItems: 'center', justifyContent: 'center' },
-  day: { borderWidth: 1, borderColor: theme.colors.control, borderRadius: theme.radius.badge },
+  pressed: { backgroundColor: theme.colors.sidebar },
+  monthBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginHorizontal: -theme.space[2] },
+  monthTitle: { flex: 1, textAlign: 'center' },
+  monthCard: { paddingHorizontal: theme.space[2], paddingVertical: theme.space[3] },
+  grid: { flexDirection: 'row', flexWrap: 'wrap' },
+  cell: { width: '14.285714%', minHeight: 52, alignItems: 'center', justifyContent: 'center' },
+  weekday: { minHeight: 28, textAlign: 'center', color: theme.colors.muted },
+  day: { width: 44, height: 48, borderRadius: theme.radius.control, alignItems: 'center', justifyContent: 'center', gap: 2,
+    borderWidth: 1, borderColor: 'transparent' },
+  dayPressed: { backgroundColor: theme.colors.sidebar },
   selected: { backgroundColor: theme.colors.action, borderColor: theme.colors.actionBorder },
+  dayNumber: { fontVariant: ['tabular-nums'] },
+  today: { color: theme.colors.link, fontWeight: '700' },
+  selectedText: { color: theme.colors.onAction, fontWeight: '700' },
+  dots: { flexDirection: 'row', gap: 3, height: 6 },
+  dot: { width: 6, height: 6, borderRadius: 3 },
+  dayGroup: { gap: theme.space[2], paddingTop: theme.space[2] },
 });

@@ -1,9 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
+import { Ionicons } from '@expo/vector-icons';
+import { DateTime } from 'luxon';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { randomUUID } from 'expo-crypto';
 import { Button } from '../../../components/ui/Button';
+import { IconButton } from '../../../components/ui/IconButton';
 import { Status } from '../../../components/ui/Status';
-import { theme, ui } from '../../../theme';
+import { theme } from '../../../theme';
 import { captureQueryScope } from '../../../lib/query-client';
 import type { CommandError } from '../../../lib/result';
 import { setTaskCompleted } from '../commands';
@@ -47,18 +50,31 @@ export function TaskRow({ task, accountId, assignee, online, onOpen, onCompleted
   };
   const completed = optimistic ?? current.completedAt !== null;
   const change = (desired: boolean) => { void submit({ kind: 'complete', id: task.id, completed: desired, expectedVersion: current.version, commandId: randomUUID() }); };
-  return <View style={ui.card}>
-    <Pressable accessibilityRole="checkbox" accessibilityLabel={task.title} accessibilityState={{ checked: completed, disabled: !online || pending || !ready || !!action, busy: pending }}
-      disabled={!online || pending || !ready || !!action} onPress={() => change(!completed)} style={styles.checkbox}>
-      <Text style={[styles.mark, completed && styles.checked]} accessibilityElementsHidden importantForAccessibility="no">{completed ? '✓' : '○'}</Text>
-      <Text style={[theme.typography.body, styles.title, completed && styles.done]}>{task.title}</Text>
-    </Pressable>
-    <Text style={theme.typography.secondary}>{assignee}{task.dueDate ? ` · Due ${task.dueDate}` : ''}</Text>
-    <Button label="Task details" variant="text" onPress={onOpen} />
-    {undo && <Button label="Undo" variant="secondary" disabled={!online || pending || !!action} onPress={() => change(false)} />}
+  const locked = !online || pending || !ready || !!action;
+  return <View style={styles.row}>
+    <View style={styles.line}>
+      <Pressable accessibilityRole="checkbox" accessibilityLabel={task.title} accessibilityState={{ checked: completed, disabled: locked, busy: pending }}
+        disabled={locked} onPress={() => change(!completed)} style={({ pressed }) => [styles.checkbox, pressed && styles.pressed]}>
+        <Ionicons name={completed ? 'checkbox' : 'square-outline'} size={26} color={completed ? theme.colors.success : theme.colors.control}
+          accessibilityElementsHidden importantForAccessibility="no" />
+        <View style={styles.text}>
+          <Text style={[theme.typography.body, completed && styles.done]}>{task.title}</Text>
+          <Text style={theme.typography.secondary}>{assignee}{task.dueDate ? ` · Due ${DateTime.fromISO(task.dueDate).toLocaleString(DateTime.DATE_MED)}` : ''}</Text>
+        </View>
+      </Pressable>
+      <IconButton icon="chevron-forward" label="Task details" onPress={onOpen} />
+    </View>
+    {undo && <View style={styles.undo}><Button label="Undo" variant="text" icon="arrow-undo-outline" disabled={!online || pending || !!action} onPress={() => change(false)} /></View>}
     {error && <Status tone="error" message={error.code === 'CONFLICT' ? 'This task changed. Open details to review it.' : error.message ?? 'We could not change this task.'}
       actionLabel={action ? 'Retry' : 'Review task'} onAction={action ? () => { void submit(action); } : onOpen} />}
   </View>;
 }
-const styles = StyleSheet.create({ checkbox: { minHeight: theme.touchTarget, flexDirection: 'row', alignItems: 'center', gap: theme.space[3] },
-  title: { flex: 1 }, mark: { color: theme.colors.control, fontSize: 24 }, checked: { color: theme.colors.success }, done: { textDecorationLine: 'line-through' } });
+const styles = StyleSheet.create({
+  row: { paddingVertical: theme.space[2], gap: theme.space[2] },
+  line: { flexDirection: 'row', alignItems: 'center' },
+  checkbox: { flex: 1, minHeight: theme.touchTarget, flexDirection: 'row', alignItems: 'center', gap: theme.space[3], borderRadius: theme.radius.control },
+  pressed: { opacity: 0.6 },
+  text: { flex: 1, gap: 2 },
+  done: { textDecorationLine: 'line-through', color: theme.colors.muted },
+  undo: { paddingLeft: 38 },
+});

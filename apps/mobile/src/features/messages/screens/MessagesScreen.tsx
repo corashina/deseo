@@ -36,7 +36,7 @@ export function MessagesScreen() {
   if (state.status === 'signedOut' || state.status === 'error' || (state.status === 'authenticated' && !state.account)) {
     return <Redirect href="/" />;
   }
-  if (state.status === 'loading') return <SafeAreaView style={styles.fill}><Status message="Checking your account…" /></SafeAreaView>;
+  if (state.status === 'loading') return <SafeAreaView style={styles.fill}><Status tone="loading" message="Checking your account…" /></SafeAreaView>;
   if (!gate.account || !gate.pair || gate.checking || gate.error) return <SafeAreaView style={styles.fill}>
     <Status message={gate.error ? 'We could not check your pair. Try again.' : 'Checking your pair…'}
       tone={gate.error ? 'error' : 'info'} actionLabel="Check pair" onAction={() => { void gate.refresh(); }} />

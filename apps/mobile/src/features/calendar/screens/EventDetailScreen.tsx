@@ -2,12 +2,13 @@ import { useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { randomUUID } from 'expo-crypto';
 import { useRouter } from 'expo-router';
-import { Alert, Text, View } from 'react-native';
+import { Alert, View } from 'react-native';
 import { Button } from '../../../components/ui/Button';
 import { Badge } from '../../../components/ui/Badge';
+import { DetailRow } from '../../../components/ui/DetailRow';
 import { Screen } from '../../../components/ui/Screen';
 import { Status } from '../../../components/ui/Status';
-import { theme, ui } from '../../../theme';
+import { ui } from '../../../theme';
 import { useCore } from '../../pair';
 import { ReminderControl } from '../../notifications';
 import { captureQueryScope } from '../../../lib/query-client';
@@ -47,26 +48,28 @@ function ActiveDetail({ eventId, account, pair, online, refresh }: { eventId: st
     const result = await query.refetch();
     if (!result.isError) { deleteIntent.current = null; setError(null); }
   };
-  if (query.isPending) return <Screen title="Event"><Status message="Loading your event…" /></Screen>;
+  if (query.isPending) return <Screen title="Event"><Status tone="loading" message="Loading your event…" /></Screen>;
   if (query.isError) return <Screen title="Event"><Status tone="error" message="We could not load this event." actionLabel="Retry" onAction={() => { void query.refetch(); }} /></Screen>;
   const event = query.data;
   if (!event) return <Screen title="Event"><Status message="This event is unavailable. It may have been deleted or made private." /></Screen>;
   const name = event.owner === 'together' ? 'Together' : pair.members.find((member) => member.slot === event.owner)!.displayName;
   return <Screen title={event.title} refreshing={query.isRefetching} onRefresh={() => { void query.refetch(); }}>
     {event.repeat === 'yearly' && <Status message="This date repeats yearly. Edits and deletion apply to the series. February 29 uses February 28 in non-leap years." />}
-    {!online && <Status message="You are offline. Reconnect before you change this event." />}
+    {!online && <Status tone="warning" message="You are offline. Reconnect before you change this event." />}
     <View style={ui.card}>
-      <Text style={theme.typography.body}>{eventDateLabel(event, account.timezone)}</Text>
-      {event.temporal.kind === 'allDay' && <Text style={theme.typography.secondary}>All day</Text>}
-      <Text style={theme.typography.secondary}>Event timezone: {event.timezone}</Text>
-      {event.temporal.kind === 'timed' && account.timezone !== event.timezone && <>
-        <Text style={theme.typography.secondary}>Your timezone: {account.timezone}</Text>
-        <Text style={theme.typography.secondary}>In {event.timezone}: {eventDateLabel(event, event.timezone)}</Text>
-      </>}
-      <Badge owner={event.owner} label={name} />
-      <Text style={theme.typography.body}>{event.visibility === 'private' ? 'Private · Only you can see this event.' : 'Shared · Both partners can see this event.'}</Text>
-      {event.location ? <Text style={theme.typography.body}>Location: {event.location}</Text> : null}
-      {event.description ? <Text style={theme.typography.body}>{event.description}</Text> : null}
+      <DetailRow icon="calendar-outline" note={[event.temporal.kind === 'allDay' && 'All day',
+        event.temporal.kind === 'timed' && account.timezone !== event.timezone && `In ${event.timezone}: ${eventDateLabel(event, event.timezone)}`]}>
+        {eventDateLabel(event, account.timezone)}
+      </DetailRow>
+      <DetailRow icon="globe-outline" note={event.temporal.kind === 'timed' && account.timezone !== event.timezone ? `Your timezone: ${account.timezone}` : undefined}>
+        {`Event timezone: ${event.timezone}`}
+      </DetailRow>
+      <DetailRow icon="people-outline"><Badge owner={event.owner} label={name} /></DetailRow>
+      <DetailRow icon={event.visibility === 'private' ? 'lock-closed-outline' : 'eye-outline'}>
+        {event.visibility === 'private' ? 'Private · Only you can see this event.' : 'Shared · Both partners can see this event.'}
+      </DetailRow>
+      {event.location ? <DetailRow icon="location-outline">{event.location}</DetailRow> : null}
+      {event.description ? <DetailRow icon="document-text-outline">{event.description}</DetailRow> : null}
     </View>
     {error && <Status tone="error" message={error.code === 'CONFLICT' ? 'Your partner changed this event. Reload it before you delete it.' : 'We could not delete this event.'}
       actionLabel={error.code === 'CONFLICT' ? 'Reload saved version' : 'Retry delete'} onAction={() => { void (error.code === 'CONFLICT' ? reload() : remove()); }} />}

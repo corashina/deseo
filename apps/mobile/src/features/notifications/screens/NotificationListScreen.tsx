@@ -40,7 +40,7 @@ export function NotificationListScreen({ notificationId }: { notificationId?: st
     <Text style={theme.typography.secondary}>Provider acceptance does not confirm display on your device.</Text>
     {!online && <Status message="Reconnect to open a notification." />}
     {error && <Status message={error} tone="error" actionLabel={notificationId ? 'Retry' : undefined} onAction={notificationId ? () => { void open(notificationId); } : undefined} />}
-    {query.isPending ? <Status message="Loading notifications…" /> : query.isError ? <Status message="We could not load notifications." actionLabel="Retry" onAction={() => { void query.refetch(); }} />
+    {query.isPending ? <Status tone="loading" message="Loading notifications…" /> : query.isError ? <Status message="We could not load notifications." actionLabel="Retry" onAction={() => { void query.refetch(); }} />
       : query.data.pages.flatMap(page => page.items).length ? query.data.pages.flatMap(page => page.items).map(item => <View key={item.id} style={ui.card}>
         <Text style={theme.typography.body}>{item.kind === 'message' ? 'Message alert' : item.kind === 'event' ? 'Event reminder' : 'Task reminder'}{item.readAt ? '' : ' · Unread'}</Text>
         <Text style={theme.typography.secondary}>{states[item.state]}</Text>
