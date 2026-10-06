@@ -86,7 +86,11 @@ test('complete screenshot gallery', async ({ browser }, info) => {
           try {
             const check = await restored.newPage(); await check.goto('/settings/profile');
             await expect(check.getByLabel('Your name')).toHaveValue(role === 'anna' ? 'Anna' : 'Marek');
-            states.set(role, stored); return stored;
+            const current = await restored.storageState();
+            const currentToken = current.origins.flatMap(origin => origin.localStorage).find(item => item.name.endsWith('-auth-token'));
+            if (!currentToken || JSON.parse(currentToken.value).user.id !== accounts[role][1]) throw new Error('Restored account changed.');
+            await writeFile(path, JSON.stringify(current));
+            states.set(role, current); return current;
           } finally { await restored.close(); }
         }
       } catch { /* Obtain a new normal UI email code after an expired local session. */ }

@@ -93,7 +93,7 @@ export function ListDetailPage() {
     <PageHeader
       title={list.name}
       description={list.isGeneral ? 'General cannot be renamed or removed.' : 'Move tasks to General before removing this list.'} />
-    <section className="card planning-form">{tasks.data.length ? tasks.data.map(task => <TaskRow
+    <section className="card">{tasks.data.length ? tasks.data.map(task => <TaskRow
       key={task.id}
       task={task}
       accountId={account!.id}

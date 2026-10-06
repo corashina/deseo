@@ -17,14 +17,27 @@ test('Anna sends, Marek reads, and both notes appear', async ({ page, browser },
     await page.goto('/today');
     await expect(page.getByTestId('today-note')).toContainText('I’ll bring flowers. See you tonight.');
     await page.goto('/messages');
-    await page.getByLabel('Message', { exact: true }).fill('Dinner at seven?');
+    // Importance 94: a fresh message route must display each sent line on a separate visible line.
+    const body = 'Dinner at seven?\nBring the map.';
+    await page.getByLabel('Message', { exact: true }).fill(body);
     await page.getByRole('button', { name: 'Send message', exact: true }).click();
     await expect(page.getByTestId('message-row').filter({ hasText: 'Dinner at seven?' })).toContainText('Sent');
     await loginWithLocalEmailCode(partner, ids.marekEmail);
     const marek = await portalClient(ids.marekEmail);
     await expect.poll(async () => (await marek.rpc('get_unread_count', { p_pair_id: ids.pairId })).data.data.count).toBeGreaterThan(0);
     await partner.goto('/messages');
-    await expect(partner.getByText('Dinner at seven?', { exact: true })).toBeVisible();
+    const received = partner.getByTestId('message-row').filter({ hasText: 'Dinner at seven?' }).locator('p');
+    await expect(received).toHaveText(body);
+    const lines = await received.evaluate(element => {
+      const text = element.firstChild!;
+      const second = text.textContent!.indexOf('\n') + 1;
+      const range = document.createRange();
+      range.setStart(text, 0); range.setEnd(text, 1);
+      const firstTop = range.getBoundingClientRect().top;
+      range.setStart(text, second); range.setEnd(text, second + 1);
+      return { firstTop, secondTop: range.getBoundingClientRect().top };
+    });
+    expect(lines.secondTop).toBeGreaterThan(lines.firstTop);
     await expect.poll(async () => (await marek.rpc('get_unread_count', { p_pair_id: ids.pairId })).data.data.count).toBe(0);
     await partner.getByLabel('Message', { exact: true }).fill('Yes, see you there.');
     await partner.getByRole('button', { name: 'Send message', exact: true }).click();

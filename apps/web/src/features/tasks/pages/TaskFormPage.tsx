@@ -144,7 +144,7 @@ function TaskEditor({ task, lists }: {
   }
   return <>
     <PageHeader title={task ? 'Edit task' : 'Add task'} description="Choose a list, a person, and a due date." />
-    <section className="card form-page planning-form">
+    <section className="card form-page">
       <form onSubmit={form.handleSubmit(save)}>
         <fieldset disabled={saving || frozen}>
           <label className="field">

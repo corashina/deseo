@@ -138,7 +138,7 @@ function IdeaEditor({ idea }: {
   }
   return <>
     <PageHeader title={idea ? 'Edit idea' : 'Add idea'} description="Keep a note and an optional HTTPS link." />
-    <section className="card form-page planning-form">
+    <section className="card form-page">
       <form onSubmit={form.handleSubmit(save)}>
         <fieldset disabled={saving || frozen}>
           <label className="field">

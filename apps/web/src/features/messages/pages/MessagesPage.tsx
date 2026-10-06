@@ -18,7 +18,6 @@ import { usePendingSends } from '../pending-sends';
 import { MessageRow } from '../components/MessageRow';
 import { NoteCard } from '../components/NoteCard';
 import { Composer } from '../components/Composer';
-import '../../../styles/planning.css';
 import '../../../styles/messages.css';
 
 type Attempt = Readonly<{ kind: 'pin' | 'unpin' | 'delete'; messageId: string; commandId: string }>;

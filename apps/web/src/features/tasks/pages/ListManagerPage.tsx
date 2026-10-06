@@ -63,7 +63,7 @@ export function ListManagerPage() {
   }
   return <>
     <PageHeader title="Task lists" description="General stays available for shared tasks." />
-    <section className="card form-page planning-form">
+    <section className="card form-page">
       {query.isPending ? <Status>Loading lists…</Status> : query.isError ? <>
         <Status error>We could not load lists.</Status>
         <Button onClick={() => void query.refetch()}>Retry</Button>

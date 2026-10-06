@@ -79,6 +79,7 @@ export async function renderScene(page: Page, scene: ScreenshotScenario, fixture
   }
   if (view === 'media-error') await failure(page, 'functions/v1/get-memory-media');
   await page.goto(url); await ready(page);
+  if (id === 'memory-new') await expect(page.getByRole('heading', { name: 'Add memory', exact: true })).toBeVisible();
   if (view === 'request-error') await expect(page.locator('h1')).toContainText('We could not load this ');
   if (view === 'error' && id !== 'entry-email') await expect(page.getByRole('alert').filter({ hasText: 'We could not load' }).first()).toBeVisible();
   if (view === 'media-error') await expect(page.getByText('We could not load this photo.', { exact: true })).toBeVisible();
