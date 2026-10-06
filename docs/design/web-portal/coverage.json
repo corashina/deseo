@@ -1,0 +1,3438 @@
+{
+  "displayDate": "2026-10-05",
+  "displayTime": "10:00",
+  "timezone": "Europe/Warsaw",
+  "locale": "en",
+  "routes": 39,
+  "requiredViews": 119,
+  "requiredViewportPairs": 238,
+  "nativePromptEvidence": "apps/web/tests/navigation.spec.ts: detail reload, Back, sidebar, reload, and sign-out protect drafts",
+  "records": [
+    {
+      "routeId": "entry-root",
+      "view": "resolved-entry",
+      "fixture": "disposable / signedOut",
+      "state": "resolved-entry",
+      "url": "/",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/entry-welcome-default-1440.jpg",
+      "renderedUrl": "/welcome",
+      "heading": "A little space\nfor your life together.",
+      "redirectTo": "/welcome"
+    },
+    {
+      "routeId": "entry-root",
+      "view": "resolved-entry",
+      "fixture": "disposable / signedOut",
+      "state": "resolved-entry",
+      "url": "/",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/entry-welcome-default-390.jpg",
+      "renderedUrl": "/welcome",
+      "heading": "A little space\nfor your life together.",
+      "redirectTo": "/welcome"
+    },
+    {
+      "routeId": "entry-welcome",
+      "view": "default",
+      "fixture": "disposable / signedOut",
+      "state": "default",
+      "url": "/welcome",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/entry-welcome-default-1440.jpg",
+      "renderedUrl": "/welcome",
+      "heading": "A little space\nfor your life together."
+    },
+    {
+      "routeId": "entry-welcome",
+      "view": "default",
+      "fixture": "disposable / signedOut",
+      "state": "default",
+      "url": "/welcome",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/entry-welcome-default-390.jpg",
+      "renderedUrl": "/welcome",
+      "heading": "A little space\nfor your life together."
+    },
+    {
+      "routeId": "entry-welcome",
+      "view": "invited",
+      "fixture": "disposable / signedOut",
+      "state": "invited",
+      "url": "/invite?token=REDACTED",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/entry-welcome-invited-1440.jpg",
+      "renderedUrl": "/welcome",
+      "heading": "A little space\nfor your life together."
+    },
+    {
+      "routeId": "entry-welcome",
+      "view": "invited",
+      "fixture": "disposable / signedOut",
+      "state": "invited",
+      "url": "/invite?token=REDACTED",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/entry-welcome-invited-390.jpg",
+      "renderedUrl": "/welcome",
+      "heading": "A little space\nfor your life together."
+    },
+    {
+      "routeId": "entry-welcome",
+      "view": "global-signout-failure",
+      "fixture": "disposable / logout",
+      "state": "global-signout-failure",
+      "url": "/settings/account",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/entry-welcome-global-signout-failure-1440.jpg",
+      "renderedUrl": "/welcome",
+      "heading": "A little space\nfor your life together."
+    },
+    {
+      "routeId": "entry-welcome",
+      "view": "global-signout-failure",
+      "fixture": "disposable / logout",
+      "state": "global-signout-failure",
+      "url": "/settings/account",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/entry-welcome-global-signout-failure-390.jpg",
+      "fullPageFile": "images/entry-welcome-global-signout-failure-390-full.jpg",
+      "renderedUrl": "/welcome",
+      "heading": "A little space\nfor your life together."
+    },
+    {
+      "routeId": "entry-email",
+      "view": "default",
+      "fixture": "disposable / signedOut",
+      "state": "default",
+      "url": "/sign-in",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/entry-email-default-1440.jpg",
+      "renderedUrl": "/sign-in",
+      "heading": "Sign in with email"
+    },
+    {
+      "routeId": "entry-email",
+      "view": "default",
+      "fixture": "disposable / signedOut",
+      "state": "default",
+      "url": "/sign-in",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/entry-email-default-390.jpg",
+      "renderedUrl": "/sign-in",
+      "heading": "Sign in with email"
+    },
+    {
+      "routeId": "entry-email",
+      "view": "error",
+      "fixture": "disposable / signedOut",
+      "state": "error",
+      "url": "/sign-in",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/entry-email-error-1440.jpg",
+      "renderedUrl": "/sign-in",
+      "heading": "Sign in with email"
+    },
+    {
+      "routeId": "entry-email",
+      "view": "error",
+      "fixture": "disposable / signedOut",
+      "state": "error",
+      "url": "/sign-in",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/entry-email-error-390.jpg",
+      "renderedUrl": "/sign-in",
+      "heading": "Sign in with email"
+    },
+    {
+      "routeId": "entry-verify",
+      "view": "default",
+      "fixture": "disposable / signedOut",
+      "state": "default",
+      "url": "/verify",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/entry-verify-default-1440.jpg",
+      "renderedUrl": "/verify",
+      "heading": "Check your email"
+    },
+    {
+      "routeId": "entry-verify",
+      "view": "default",
+      "fixture": "disposable / signedOut",
+      "state": "default",
+      "url": "/verify",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/entry-verify-default-390.jpg",
+      "renderedUrl": "/verify",
+      "heading": "Check your email"
+    },
+    {
+      "routeId": "entry-verify",
+      "view": "invalid-code",
+      "fixture": "disposable / signedOut",
+      "state": "invalid-code",
+      "url": "/verify",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/entry-verify-invalid-code-1440.jpg",
+      "renderedUrl": "/verify",
+      "heading": "Check your email"
+    },
+    {
+      "routeId": "entry-verify",
+      "view": "invalid-code",
+      "fixture": "disposable / signedOut",
+      "state": "invalid-code",
+      "url": "/verify",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/entry-verify-invalid-code-390.jpg",
+      "renderedUrl": "/verify",
+      "heading": "Check your email"
+    },
+    {
+      "routeId": "entry-profile",
+      "view": "new-account",
+      "fixture": "disposable / fresh",
+      "state": "new-account",
+      "url": "/profile/setup",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/entry-profile-new-account-1440.jpg",
+      "renderedUrl": "/profile/setup",
+      "heading": "Set up your profile"
+    },
+    {
+      "routeId": "entry-profile",
+      "view": "new-account",
+      "fixture": "disposable / fresh",
+      "state": "new-account",
+      "url": "/profile/setup",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/entry-profile-new-account-390.jpg",
+      "renderedUrl": "/profile/setup",
+      "heading": "Set up your profile"
+    },
+    {
+      "routeId": "pair-start",
+      "view": "default",
+      "fixture": "disposable / unpaired",
+      "state": "default",
+      "url": "/pair/start",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/pair-start-default-1440.jpg",
+      "renderedUrl": "/pair/start",
+      "heading": "Make space for two"
+    },
+    {
+      "routeId": "pair-start",
+      "view": "default",
+      "fixture": "disposable / unpaired",
+      "state": "default",
+      "url": "/pair/start",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/pair-start-default-390.jpg",
+      "renderedUrl": "/pair/start",
+      "heading": "Make space for two"
+    },
+    {
+      "routeId": "pair-invite",
+      "view": "default",
+      "fixture": "disposable / pending",
+      "state": "default",
+      "url": "/pair/invite",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/pair-invite-default-1440.jpg",
+      "renderedUrl": "/pair/invite",
+      "heading": "Invite your partner"
+    },
+    {
+      "routeId": "pair-invite",
+      "view": "default",
+      "fixture": "disposable / pending",
+      "state": "default",
+      "url": "/pair/invite",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/pair-invite-default-390.jpg",
+      "renderedUrl": "/pair/invite",
+      "heading": "Invite your partner"
+    },
+    {
+      "routeId": "pair-invite",
+      "view": "generated-code",
+      "fixture": "disposable / pending",
+      "state": "generated-code",
+      "url": "/pair/invite",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/pair-invite-generated-code-1440.jpg",
+      "renderedUrl": "/pair/invite",
+      "heading": "Invite your partner"
+    },
+    {
+      "routeId": "pair-invite",
+      "view": "generated-code",
+      "fixture": "disposable / pending",
+      "state": "generated-code",
+      "url": "/pair/invite",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/pair-invite-generated-code-390.jpg",
+      "renderedUrl": "/pair/invite",
+      "heading": "Invite your partner"
+    },
+    {
+      "routeId": "pair-invite",
+      "view": "delivery-unconfirmed",
+      "fixture": "disposable / pending",
+      "state": "delivery-unconfirmed",
+      "url": "/pair/invite",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/pair-invite-delivery-unconfirmed-1440.jpg",
+      "renderedUrl": "/pair/invite",
+      "heading": "Invite your partner"
+    },
+    {
+      "routeId": "pair-invite",
+      "view": "delivery-unconfirmed",
+      "fixture": "disposable / pending",
+      "state": "delivery-unconfirmed",
+      "url": "/pair/invite",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/pair-invite-delivery-unconfirmed-390.jpg",
+      "renderedUrl": "/pair/invite",
+      "heading": "Invite your partner"
+    },
+    {
+      "routeId": "pair-invite",
+      "view": "already-delivered",
+      "fixture": "disposable / pending",
+      "state": "already-delivered",
+      "url": "/pair/invite",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/pair-invite-already-delivered-1440.jpg",
+      "renderedUrl": "/pair/invite",
+      "heading": "Invite your partner"
+    },
+    {
+      "routeId": "pair-invite",
+      "view": "already-delivered",
+      "fixture": "disposable / pending",
+      "state": "already-delivered",
+      "url": "/pair/invite",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/pair-invite-already-delivered-390.jpg",
+      "renderedUrl": "/pair/invite",
+      "heading": "Invite your partner"
+    },
+    {
+      "routeId": "pair-join",
+      "view": "default",
+      "fixture": "disposable / unpaired",
+      "state": "default",
+      "url": "/pair/join",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/pair-join-default-1440.jpg",
+      "renderedUrl": "/pair/join",
+      "heading": "Join your partner"
+    },
+    {
+      "routeId": "pair-join",
+      "view": "default",
+      "fixture": "disposable / unpaired",
+      "state": "default",
+      "url": "/pair/join",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/pair-join-default-390.jpg",
+      "renderedUrl": "/pair/join",
+      "heading": "Join your partner"
+    },
+    {
+      "routeId": "pair-join",
+      "view": "review",
+      "fixture": "disposable / unpaired",
+      "state": "review",
+      "url": "/pair/join",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/pair-join-review-1440.jpg",
+      "renderedUrl": "/pair/join",
+      "heading": "Join Anna"
+    },
+    {
+      "routeId": "pair-join",
+      "view": "review",
+      "fixture": "disposable / unpaired",
+      "state": "review",
+      "url": "/pair/join",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/pair-join-review-390.jpg",
+      "renderedUrl": "/pair/join",
+      "heading": "Join Anna"
+    },
+    {
+      "routeId": "pair-join",
+      "view": "unavailable",
+      "fixture": "disposable / unpaired",
+      "state": "unavailable",
+      "url": "/pair/join",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/pair-join-unavailable-1440.jpg",
+      "renderedUrl": "/pair/join",
+      "heading": "Join your partner"
+    },
+    {
+      "routeId": "pair-join",
+      "view": "unavailable",
+      "fixture": "disposable / unpaired",
+      "state": "unavailable",
+      "url": "/pair/join",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/pair-join-unavailable-390.jpg",
+      "renderedUrl": "/pair/join",
+      "heading": "Join your partner"
+    },
+    {
+      "routeId": "pair-waiting",
+      "view": "default",
+      "fixture": "disposable / pending",
+      "state": "default",
+      "url": "/pair/waiting",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/pair-waiting-default-1440.jpg",
+      "renderedUrl": "/pair/waiting",
+      "heading": "Waiting for your partner"
+    },
+    {
+      "routeId": "pair-waiting",
+      "view": "default",
+      "fixture": "disposable / pending",
+      "state": "default",
+      "url": "/pair/waiting",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/pair-waiting-default-390.jpg",
+      "renderedUrl": "/pair/waiting",
+      "heading": "Waiting for your partner"
+    },
+    {
+      "routeId": "pair-waiting",
+      "view": "cancel-dialog",
+      "fixture": "disposable / pending",
+      "state": "cancel-dialog",
+      "url": "/pair/waiting",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/pair-waiting-cancel-dialog-1440.jpg",
+      "renderedUrl": "/pair/waiting",
+      "heading": "Waiting for your partner"
+    },
+    {
+      "routeId": "pair-waiting",
+      "view": "cancel-dialog",
+      "fixture": "disposable / pending",
+      "state": "cancel-dialog",
+      "url": "/pair/waiting",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/pair-waiting-cancel-dialog-390.jpg",
+      "renderedUrl": "/pair/waiting",
+      "heading": "Waiting for your partner"
+    },
+    {
+      "routeId": "pair-welcome",
+      "view": "default",
+      "fixture": "Anna + Marek / Anna",
+      "state": "default",
+      "url": "/pair/welcome",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/pair-welcome-default-1440.jpg",
+      "renderedUrl": "/pair/welcome",
+      "heading": "Anna + Marek"
+    },
+    {
+      "routeId": "pair-welcome",
+      "view": "default",
+      "fixture": "Anna + Marek / Anna",
+      "state": "default",
+      "url": "/pair/welcome",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/pair-welcome-default-390.jpg",
+      "renderedUrl": "/pair/welcome",
+      "heading": "Anna + Marek"
+    },
+    {
+      "routeId": "pair-ended",
+      "view": "default",
+      "fixture": "disposable / ended",
+      "state": "default",
+      "url": "/pair/ended",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/pair-ended-default-1440.jpg",
+      "renderedUrl": "/pair/ended",
+      "heading": "Your pair has ended"
+    },
+    {
+      "routeId": "pair-ended",
+      "view": "default",
+      "fixture": "disposable / ended",
+      "state": "default",
+      "url": "/pair/ended",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/pair-ended-default-390.jpg",
+      "renderedUrl": "/pair/ended",
+      "heading": "Your pair has ended"
+    },
+    {
+      "routeId": "invite-entry",
+      "view": "valid",
+      "fixture": "disposable / signedOut",
+      "state": "valid",
+      "url": "/invite?token=REDACTED",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/invite-entry-valid-1440.jpg",
+      "renderedUrl": "/welcome",
+      "heading": "A little space\nfor your life together.",
+      "redirectTo": "/welcome"
+    },
+    {
+      "routeId": "invite-entry",
+      "view": "valid",
+      "fixture": "disposable / signedOut",
+      "state": "valid",
+      "url": "/invite?token=REDACTED",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/invite-entry-valid-390.jpg",
+      "renderedUrl": "/welcome",
+      "heading": "A little space\nfor your life together.",
+      "redirectTo": "/welcome"
+    },
+    {
+      "routeId": "invite-entry",
+      "view": "invalid",
+      "fixture": "disposable / signedOut",
+      "state": "invalid",
+      "url": "/invite?token=REDACTED",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/invite-entry-invalid-1440.jpg",
+      "renderedUrl": "/welcome",
+      "heading": "A little space\nfor your life together.",
+      "redirectTo": "/welcome"
+    },
+    {
+      "routeId": "invite-entry",
+      "view": "invalid",
+      "fixture": "disposable / signedOut",
+      "state": "invalid",
+      "url": "/invite?token=REDACTED",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/invite-entry-invalid-390.jpg",
+      "renderedUrl": "/welcome",
+      "heading": "A little space\nfor your life together.",
+      "redirectTo": "/welcome"
+    },
+    {
+      "routeId": "calendar",
+      "view": "month",
+      "fixture": "Anna + Marek / Anna",
+      "state": "month",
+      "url": "/calendar?date=2026-10-05&view=month",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/calendar-month-1440.jpg",
+      "fullPageFile": "images/calendar-month-1440-full.jpg",
+      "renderedUrl": "/calendar?date=2026-10-05&view=month",
+      "heading": "Calendar"
+    },
+    {
+      "routeId": "calendar",
+      "view": "month",
+      "fixture": "Anna + Marek / Anna",
+      "state": "month",
+      "url": "/calendar?date=2026-10-05&view=month",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/calendar-month-390.jpg",
+      "fullPageFile": "images/calendar-month-390-full.jpg",
+      "renderedUrl": "/calendar?date=2026-10-05&view=month",
+      "heading": "Calendar"
+    },
+    {
+      "routeId": "calendar",
+      "view": "agenda",
+      "fixture": "Anna + Marek / Anna",
+      "state": "agenda",
+      "url": "/calendar?date=2026-10-05&view=agenda",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/calendar-agenda-1440.jpg",
+      "fullPageFile": "images/calendar-agenda-1440-full.jpg",
+      "renderedUrl": "/calendar?date=2026-10-05&view=agenda",
+      "heading": "Calendar"
+    },
+    {
+      "routeId": "calendar",
+      "view": "agenda",
+      "fixture": "Anna + Marek / Anna",
+      "state": "agenda",
+      "url": "/calendar?date=2026-10-05&view=agenda",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/calendar-agenda-390.jpg",
+      "fullPageFile": "images/calendar-agenda-390-full.jpg",
+      "renderedUrl": "/calendar?date=2026-10-05&view=agenda",
+      "heading": "Calendar"
+    },
+    {
+      "routeId": "calendar",
+      "view": "compare",
+      "fixture": "Anna + Marek / Anna",
+      "state": "compare",
+      "url": "/calendar?date=2026-10-05&view=compare",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/calendar-compare-1440.jpg",
+      "fullPageFile": "images/calendar-compare-1440-full.jpg",
+      "renderedUrl": "/calendar?date=2026-10-05&view=compare",
+      "heading": "Calendar"
+    },
+    {
+      "routeId": "calendar",
+      "view": "compare",
+      "fixture": "Anna + Marek / Anna",
+      "state": "compare",
+      "url": "/calendar?date=2026-10-05&view=compare",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/calendar-compare-390.jpg",
+      "fullPageFile": "images/calendar-compare-390-full.jpg",
+      "renderedUrl": "/calendar?date=2026-10-05&view=compare",
+      "heading": "Calendar"
+    },
+    {
+      "routeId": "calendar",
+      "view": "empty",
+      "fixture": "disposable / empty",
+      "state": "empty",
+      "url": "/calendar?date=2026-10-05&view=month",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/calendar-empty-1440.jpg",
+      "fullPageFile": "images/calendar-empty-1440-full.jpg",
+      "renderedUrl": "/calendar?date=2026-10-05&view=month",
+      "heading": "Calendar"
+    },
+    {
+      "routeId": "calendar",
+      "view": "empty",
+      "fixture": "disposable / empty",
+      "state": "empty",
+      "url": "/calendar?date=2026-10-05&view=month",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/calendar-empty-390.jpg",
+      "fullPageFile": "images/calendar-empty-390-full.jpg",
+      "renderedUrl": "/calendar?date=2026-10-05&view=month",
+      "heading": "Calendar"
+    },
+    {
+      "routeId": "calendar",
+      "view": "error",
+      "fixture": "disposable / exceptional",
+      "state": "error",
+      "url": "/calendar?date=2026-10-05&view=month",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/calendar-error-1440.jpg",
+      "renderedUrl": "/calendar?date=2026-10-05&view=month",
+      "heading": "Calendar"
+    },
+    {
+      "routeId": "calendar",
+      "view": "error",
+      "fixture": "disposable / exceptional",
+      "state": "error",
+      "url": "/calendar?date=2026-10-05&view=month",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/calendar-error-390.jpg",
+      "renderedUrl": "/calendar?date=2026-10-05&view=month",
+      "heading": "Calendar"
+    },
+    {
+      "routeId": "event-new",
+      "view": "default",
+      "fixture": "Anna + Marek / Anna",
+      "state": "default",
+      "url": "/events/new",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/event-new-default-1440.jpg",
+      "fullPageFile": "images/event-new-default-1440-full.jpg",
+      "renderedUrl": "/events/new",
+      "heading": "Add event"
+    },
+    {
+      "routeId": "event-new",
+      "view": "default",
+      "fixture": "Anna + Marek / Anna",
+      "state": "default",
+      "url": "/events/new",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/event-new-default-390.jpg",
+      "fullPageFile": "images/event-new-default-390-full.jpg",
+      "renderedUrl": "/events/new",
+      "heading": "Add event"
+    },
+    {
+      "routeId": "event-new",
+      "view": "validation",
+      "fixture": "Anna + Marek / Anna",
+      "state": "validation",
+      "url": "/events/new",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/event-new-validation-1440.jpg",
+      "fullPageFile": "images/event-new-validation-1440-full.jpg",
+      "renderedUrl": "/events/new",
+      "heading": "Add event"
+    },
+    {
+      "routeId": "event-new",
+      "view": "validation",
+      "fixture": "Anna + Marek / Anna",
+      "state": "validation",
+      "url": "/events/new",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/event-new-validation-390.jpg",
+      "fullPageFile": "images/event-new-validation-390-full.jpg",
+      "renderedUrl": "/events/new",
+      "heading": "Add event"
+    },
+    {
+      "routeId": "event-new",
+      "view": "plan-date",
+      "fixture": "Anna + Marek / Anna",
+      "state": "plan-date",
+      "url": "/events/new?idea=d3500000-0000-4000-8000-000000000014",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/event-new-plan-date-1440.jpg",
+      "fullPageFile": "images/event-new-plan-date-1440-full.jpg",
+      "renderedUrl": "/events/new?idea=d3500000-0000-4000-8000-000000000014",
+      "heading": "Plan date"
+    },
+    {
+      "routeId": "event-new",
+      "view": "plan-date",
+      "fixture": "Anna + Marek / Anna",
+      "state": "plan-date",
+      "url": "/events/new?idea=d3500000-0000-4000-8000-000000000014",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/event-new-plan-date-390.jpg",
+      "fullPageFile": "images/event-new-plan-date-390-full.jpg",
+      "renderedUrl": "/events/new?idea=d3500000-0000-4000-8000-000000000014",
+      "heading": "Plan date"
+    },
+    {
+      "routeId": "event-detail",
+      "view": "shared",
+      "fixture": "Anna + Marek / Anna",
+      "state": "shared",
+      "url": "/events/d3500000-0000-4000-8000-00000000000a",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/event-detail-shared-1440.jpg",
+      "renderedUrl": "/events/d3500000-0000-4000-8000-00000000000a",
+      "heading": "Dinner together"
+    },
+    {
+      "routeId": "event-detail",
+      "view": "shared",
+      "fixture": "Anna + Marek / Anna",
+      "state": "shared",
+      "url": "/events/d3500000-0000-4000-8000-00000000000a",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/event-detail-shared-390.jpg",
+      "fullPageFile": "images/event-detail-shared-390-full.jpg",
+      "renderedUrl": "/events/d3500000-0000-4000-8000-00000000000a",
+      "heading": "Dinner together"
+    },
+    {
+      "routeId": "event-detail",
+      "view": "private",
+      "fixture": "Anna + Marek / Anna",
+      "state": "private",
+      "url": "/events/d3500000-0000-4000-8000-00000000000b",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/event-detail-private-1440.jpg",
+      "renderedUrl": "/events/d3500000-0000-4000-8000-00000000000b",
+      "heading": "Anna’s private appointment"
+    },
+    {
+      "routeId": "event-detail",
+      "view": "private",
+      "fixture": "Anna + Marek / Anna",
+      "state": "private",
+      "url": "/events/d3500000-0000-4000-8000-00000000000b",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/event-detail-private-390.jpg",
+      "fullPageFile": "images/event-detail-private-390-full.jpg",
+      "renderedUrl": "/events/d3500000-0000-4000-8000-00000000000b",
+      "heading": "Anna’s private appointment"
+    },
+    {
+      "routeId": "event-detail",
+      "view": "delete-dialog",
+      "fixture": "Anna + Marek / Anna",
+      "state": "delete-dialog",
+      "url": "/events/d3500000-0000-4000-8000-00000000000a",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/event-detail-delete-dialog-1440.jpg",
+      "renderedUrl": "/events/d3500000-0000-4000-8000-00000000000a",
+      "heading": "Dinner together"
+    },
+    {
+      "routeId": "event-detail",
+      "view": "delete-dialog",
+      "fixture": "Anna + Marek / Anna",
+      "state": "delete-dialog",
+      "url": "/events/d3500000-0000-4000-8000-00000000000a",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/event-detail-delete-dialog-390.jpg",
+      "fullPageFile": "images/event-detail-delete-dialog-390-full.jpg",
+      "renderedUrl": "/events/d3500000-0000-4000-8000-00000000000a",
+      "heading": "Dinner together"
+    },
+    {
+      "routeId": "event-detail",
+      "view": "unavailable",
+      "fixture": "disposable / exceptional",
+      "state": "unavailable",
+      "url": "/events/00000000-0000-4000-8000-000000000099",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/event-detail-unavailable-1440.jpg",
+      "renderedUrl": "/events/00000000-0000-4000-8000-000000000099",
+      "heading": "Event unavailable"
+    },
+    {
+      "routeId": "event-detail",
+      "view": "unavailable",
+      "fixture": "disposable / exceptional",
+      "state": "unavailable",
+      "url": "/events/00000000-0000-4000-8000-000000000099",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/event-detail-unavailable-390.jpg",
+      "renderedUrl": "/events/00000000-0000-4000-8000-000000000099",
+      "heading": "Event unavailable"
+    },
+    {
+      "routeId": "event-detail",
+      "view": "request-error",
+      "fixture": "disposable / exceptional",
+      "state": "request-error",
+      "url": "/events/e93ad340-d3e1-485a-879e-ec97556a5390",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/event-detail-request-error-1440.jpg",
+      "renderedUrl": "/events/e93ad340-d3e1-485a-879e-ec97556a5390",
+      "heading": "We could not load this event"
+    },
+    {
+      "routeId": "event-detail",
+      "view": "request-error",
+      "fixture": "disposable / exceptional",
+      "state": "request-error",
+      "url": "/events/1989046a-e96d-4ca5-921d-c2e05d9d09d3",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/event-detail-request-error-390.jpg",
+      "renderedUrl": "/events/1989046a-e96d-4ca5-921d-c2e05d9d09d3",
+      "heading": "We could not load this event"
+    },
+    {
+      "routeId": "event-detail",
+      "view": "pending-deletion",
+      "fixture": "disposable / exceptional",
+      "state": "pending-deletion",
+      "url": "/events/7553879c-4a6f-48f4-8f3c-17034b573858",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/event-detail-pending-deletion-1440.jpg",
+      "renderedUrl": "/events/7553879c-4a6f-48f4-8f3c-17034b573858",
+      "heading": "Event unavailable"
+    },
+    {
+      "routeId": "event-detail",
+      "view": "pending-deletion",
+      "fixture": "disposable / exceptional",
+      "state": "pending-deletion",
+      "url": "/events/1989046a-e96d-4ca5-921d-c2e05d9d09d3",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/event-detail-pending-deletion-390.jpg",
+      "renderedUrl": "/events/1989046a-e96d-4ca5-921d-c2e05d9d09d3",
+      "heading": "Event unavailable"
+    },
+    {
+      "routeId": "event-edit",
+      "view": "default",
+      "fixture": "Anna + Marek / Anna",
+      "state": "default",
+      "url": "/events/d3500000-0000-4000-8000-00000000000a/edit",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/event-edit-default-1440.jpg",
+      "fullPageFile": "images/event-edit-default-1440-full.jpg",
+      "renderedUrl": "/events/d3500000-0000-4000-8000-00000000000a/edit",
+      "heading": "Edit event"
+    },
+    {
+      "routeId": "event-edit",
+      "view": "default",
+      "fixture": "Anna + Marek / Anna",
+      "state": "default",
+      "url": "/events/d3500000-0000-4000-8000-00000000000a/edit",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/event-edit-default-390.jpg",
+      "fullPageFile": "images/event-edit-default-390-full.jpg",
+      "renderedUrl": "/events/d3500000-0000-4000-8000-00000000000a/edit",
+      "heading": "Edit event"
+    },
+    {
+      "routeId": "event-edit",
+      "view": "conflict",
+      "fixture": "disposable / exceptional",
+      "state": "conflict",
+      "url": "/events/e93ad340-d3e1-485a-879e-ec97556a5390/edit",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/event-edit-conflict-1440.jpg",
+      "fullPageFile": "images/event-edit-conflict-1440-full.jpg",
+      "renderedUrl": "/events/e93ad340-d3e1-485a-879e-ec97556a5390/edit",
+      "heading": "Edit event"
+    },
+    {
+      "routeId": "event-edit",
+      "view": "conflict",
+      "fixture": "disposable / exceptional",
+      "state": "conflict",
+      "url": "/events/1989046a-e96d-4ca5-921d-c2e05d9d09d3/edit",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/event-edit-conflict-390.jpg",
+      "fullPageFile": "images/event-edit-conflict-390-full.jpg",
+      "renderedUrl": "/events/1989046a-e96d-4ca5-921d-c2e05d9d09d3/edit",
+      "heading": "Edit event"
+    },
+    {
+      "routeId": "event-edit",
+      "view": "share-dialog",
+      "fixture": "Anna + Marek / Anna",
+      "state": "share-dialog",
+      "url": "/events/d3500000-0000-4000-8000-00000000000b/edit",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/event-edit-share-dialog-1440.jpg",
+      "fullPageFile": "images/event-edit-share-dialog-1440-full.jpg",
+      "renderedUrl": "/events/d3500000-0000-4000-8000-00000000000b/edit",
+      "heading": "Edit event"
+    },
+    {
+      "routeId": "event-edit",
+      "view": "share-dialog",
+      "fixture": "Anna + Marek / Anna",
+      "state": "share-dialog",
+      "url": "/events/d3500000-0000-4000-8000-00000000000b/edit",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/event-edit-share-dialog-390.jpg",
+      "fullPageFile": "images/event-edit-share-dialog-390-full.jpg",
+      "renderedUrl": "/events/d3500000-0000-4000-8000-00000000000b/edit",
+      "heading": "Edit event"
+    },
+    {
+      "routeId": "today",
+      "view": "planning",
+      "fixture": "Anna + Marek / Anna",
+      "state": "planning",
+      "url": "/today",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/today-planning-1440.jpg",
+      "fullPageFile": "images/today-planning-1440-full.jpg",
+      "renderedUrl": "/today",
+      "heading": "Today"
+    },
+    {
+      "routeId": "today",
+      "view": "planning",
+      "fixture": "Anna + Marek / Anna",
+      "state": "planning",
+      "url": "/today",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/today-planning-390.jpg",
+      "fullPageFile": "images/today-planning-390-full.jpg",
+      "renderedUrl": "/today",
+      "heading": "Today"
+    },
+    {
+      "routeId": "today",
+      "view": "empty",
+      "fixture": "disposable / empty",
+      "state": "empty",
+      "url": "/today",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/today-empty-1440.jpg",
+      "renderedUrl": "/today",
+      "heading": "Today"
+    },
+    {
+      "routeId": "today",
+      "view": "empty",
+      "fixture": "disposable / empty",
+      "state": "empty",
+      "url": "/today",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/today-empty-390.jpg",
+      "renderedUrl": "/today",
+      "heading": "Today"
+    },
+    {
+      "routeId": "today",
+      "view": "error",
+      "fixture": "disposable / exceptional",
+      "state": "error",
+      "url": "/today",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/today-error-1440.jpg",
+      "renderedUrl": "/today",
+      "heading": "Today"
+    },
+    {
+      "routeId": "today",
+      "view": "error",
+      "fixture": "disposable / exceptional",
+      "state": "error",
+      "url": "/today",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/today-error-390.jpg",
+      "renderedUrl": "/today",
+      "heading": "Today"
+    },
+    {
+      "routeId": "memories",
+      "view": "month-feed",
+      "fixture": "Anna + Marek / Anna",
+      "state": "month-feed",
+      "url": "/memories",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/memories-month-feed-1440.jpg",
+      "renderedUrl": "/memories",
+      "heading": "Memories"
+    },
+    {
+      "routeId": "memories",
+      "view": "month-feed",
+      "fixture": "Anna + Marek / Anna",
+      "state": "month-feed",
+      "url": "/memories",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/memories-month-feed-390.jpg",
+      "fullPageFile": "images/memories-month-feed-390-full.jpg",
+      "renderedUrl": "/memories",
+      "heading": "Memories"
+    },
+    {
+      "routeId": "memories",
+      "view": "empty",
+      "fixture": "disposable / empty",
+      "state": "empty",
+      "url": "/memories",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/memories-empty-1440.jpg",
+      "renderedUrl": "/memories",
+      "heading": "Memories"
+    },
+    {
+      "routeId": "memories",
+      "view": "empty",
+      "fixture": "disposable / empty",
+      "state": "empty",
+      "url": "/memories",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/memories-empty-390.jpg",
+      "renderedUrl": "/memories",
+      "heading": "Memories"
+    },
+    {
+      "routeId": "memories",
+      "view": "error",
+      "fixture": "disposable / exceptional",
+      "state": "error",
+      "url": "/memories",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/memories-error-1440.jpg",
+      "renderedUrl": "/memories",
+      "heading": "Memories"
+    },
+    {
+      "routeId": "memories",
+      "view": "error",
+      "fixture": "disposable / exceptional",
+      "state": "error",
+      "url": "/memories",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/memories-error-390.jpg",
+      "renderedUrl": "/memories",
+      "heading": "Memories"
+    },
+    {
+      "routeId": "memory-new",
+      "view": "default",
+      "fixture": "Anna + Marek / Anna",
+      "state": "default",
+      "url": "/memories/new",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/memory-new-default-1440.jpg",
+      "fullPageFile": "images/memory-new-default-1440-full.jpg",
+      "renderedUrl": "/memories/new",
+      "heading": "Add memory"
+    },
+    {
+      "routeId": "memory-new",
+      "view": "default",
+      "fixture": "Anna + Marek / Anna",
+      "state": "default",
+      "url": "/memories/new",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/memory-new-default-390.jpg",
+      "fullPageFile": "images/memory-new-default-390-full.jpg",
+      "renderedUrl": "/memories/new",
+      "heading": "Add memory"
+    },
+    {
+      "routeId": "memory-new",
+      "view": "selected",
+      "fixture": "Anna + Marek / Anna",
+      "state": "selected",
+      "url": "/memories/new",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/memory-new-selected-1440.jpg",
+      "fullPageFile": "images/memory-new-selected-1440-full.jpg",
+      "renderedUrl": "/memories/new",
+      "heading": "Add memory"
+    },
+    {
+      "routeId": "memory-new",
+      "view": "selected",
+      "fixture": "Anna + Marek / Anna",
+      "state": "selected",
+      "url": "/memories/new",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/memory-new-selected-390.jpg",
+      "fullPageFile": "images/memory-new-selected-390-full.jpg",
+      "renderedUrl": "/memories/new",
+      "heading": "Add memory"
+    },
+    {
+      "routeId": "memory-new",
+      "view": "upload-error",
+      "fixture": "disposable / exceptional",
+      "state": "upload-error",
+      "url": "/memories/new",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/memory-new-upload-error-1440.jpg",
+      "fullPageFile": "images/memory-new-upload-error-1440-full.jpg",
+      "renderedUrl": "/memories/new",
+      "heading": "Add memory"
+    },
+    {
+      "routeId": "memory-new",
+      "view": "upload-error",
+      "fixture": "disposable / exceptional",
+      "state": "upload-error",
+      "url": "/memories/new",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/memory-new-upload-error-390.jpg",
+      "fullPageFile": "images/memory-new-upload-error-390-full.jpg",
+      "renderedUrl": "/memories/new",
+      "heading": "Add memory"
+    },
+    {
+      "routeId": "memory-detail",
+      "view": "author",
+      "fixture": "Anna + Marek / Anna",
+      "state": "author",
+      "url": "/memories/d3500000-0000-4000-8000-000000000032",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/memory-detail-author-1440.jpg",
+      "renderedUrl": "/memories/d3500000-0000-4000-8000-000000000032",
+      "heading": "Our quiet walk through the park."
+    },
+    {
+      "routeId": "memory-detail",
+      "view": "author",
+      "fixture": "Anna + Marek / Anna",
+      "state": "author",
+      "url": "/memories/d3500000-0000-4000-8000-000000000032",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/memory-detail-author-390.jpg",
+      "renderedUrl": "/memories/d3500000-0000-4000-8000-000000000032",
+      "heading": "Our quiet walk through the park."
+    },
+    {
+      "routeId": "memory-detail",
+      "view": "partner",
+      "fixture": "Anna + Marek / Marek",
+      "state": "partner",
+      "url": "/memories/d3500000-0000-4000-8000-000000000032",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/memory-detail-partner-1440.jpg",
+      "renderedUrl": "/memories/d3500000-0000-4000-8000-000000000032",
+      "heading": "Our quiet walk through the park."
+    },
+    {
+      "routeId": "memory-detail",
+      "view": "partner",
+      "fixture": "Anna + Marek / Marek",
+      "state": "partner",
+      "url": "/memories/d3500000-0000-4000-8000-000000000032",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/memory-detail-partner-390.jpg",
+      "renderedUrl": "/memories/d3500000-0000-4000-8000-000000000032",
+      "heading": "Our quiet walk through the park."
+    },
+    {
+      "routeId": "memory-detail",
+      "view": "delete-dialog",
+      "fixture": "Anna + Marek / Anna",
+      "state": "delete-dialog",
+      "url": "/memories/d3500000-0000-4000-8000-000000000032",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/memory-detail-delete-dialog-1440.jpg",
+      "renderedUrl": "/memories/d3500000-0000-4000-8000-000000000032",
+      "heading": "Our quiet walk through the park."
+    },
+    {
+      "routeId": "memory-detail",
+      "view": "delete-dialog",
+      "fixture": "Anna + Marek / Anna",
+      "state": "delete-dialog",
+      "url": "/memories/d3500000-0000-4000-8000-000000000032",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/memory-detail-delete-dialog-390.jpg",
+      "renderedUrl": "/memories/d3500000-0000-4000-8000-000000000032",
+      "heading": "Our quiet walk through the park."
+    },
+    {
+      "routeId": "memory-detail",
+      "view": "unavailable",
+      "fixture": "disposable / exceptional",
+      "state": "unavailable",
+      "url": "/memories/00000000-0000-4000-8000-000000000099",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/memory-detail-unavailable-1440.jpg",
+      "renderedUrl": "/memories/00000000-0000-4000-8000-000000000099",
+      "heading": "Memory unavailable"
+    },
+    {
+      "routeId": "memory-detail",
+      "view": "unavailable",
+      "fixture": "disposable / exceptional",
+      "state": "unavailable",
+      "url": "/memories/00000000-0000-4000-8000-000000000099",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/memory-detail-unavailable-390.jpg",
+      "renderedUrl": "/memories/00000000-0000-4000-8000-000000000099",
+      "heading": "Memory unavailable"
+    },
+    {
+      "routeId": "memory-detail",
+      "view": "media-error",
+      "fixture": "disposable / exceptional",
+      "state": "media-error",
+      "url": "/memories/6948fded-048c-488b-8769-7ade1153d394",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/memory-detail-media-error-1440.jpg",
+      "renderedUrl": "/memories/6948fded-048c-488b-8769-7ade1153d394",
+      "heading": "Our quiet walk through the park."
+    },
+    {
+      "routeId": "memory-detail",
+      "view": "media-error",
+      "fixture": "disposable / exceptional",
+      "state": "media-error",
+      "url": "/memories/7f01544f-1f93-4f7b-ad67-72dcea4b2215",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/memory-detail-media-error-390.jpg",
+      "renderedUrl": "/memories/7f01544f-1f93-4f7b-ad67-72dcea4b2215",
+      "heading": "Our quiet walk through the park."
+    },
+    {
+      "routeId": "memory-detail",
+      "view": "request-error",
+      "fixture": "disposable / exceptional",
+      "state": "request-error",
+      "url": "/memories/6948fded-048c-488b-8769-7ade1153d394",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/memory-detail-request-error-1440.jpg",
+      "renderedUrl": "/memories/6948fded-048c-488b-8769-7ade1153d394",
+      "heading": "We could not load this memory"
+    },
+    {
+      "routeId": "memory-detail",
+      "view": "request-error",
+      "fixture": "disposable / exceptional",
+      "state": "request-error",
+      "url": "/memories/7f01544f-1f93-4f7b-ad67-72dcea4b2215",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/memory-detail-request-error-390.jpg",
+      "renderedUrl": "/memories/7f01544f-1f93-4f7b-ad67-72dcea4b2215",
+      "heading": "We could not load this memory"
+    },
+    {
+      "routeId": "memory-detail",
+      "view": "pending-deletion",
+      "fixture": "disposable / exceptional",
+      "state": "pending-deletion",
+      "url": "/memories/025d78be-7994-49c9-90c9-6221c50690b0",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/memory-detail-pending-deletion-1440.jpg",
+      "renderedUrl": "/memories/025d78be-7994-49c9-90c9-6221c50690b0",
+      "heading": "Memory unavailable"
+    },
+    {
+      "routeId": "memory-detail",
+      "view": "pending-deletion",
+      "fixture": "disposable / exceptional",
+      "state": "pending-deletion",
+      "url": "/memories/7f01544f-1f93-4f7b-ad67-72dcea4b2215",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/memory-detail-pending-deletion-390.jpg",
+      "renderedUrl": "/memories/7f01544f-1f93-4f7b-ad67-72dcea4b2215",
+      "heading": "Memory unavailable"
+    },
+    {
+      "routeId": "memory-edit",
+      "view": "default",
+      "fixture": "Anna + Marek / Anna",
+      "state": "default",
+      "url": "/memories/d3500000-0000-4000-8000-000000000032/edit",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/memory-edit-default-1440.jpg",
+      "fullPageFile": "images/memory-edit-default-1440-full.jpg",
+      "renderedUrl": "/memories/d3500000-0000-4000-8000-000000000032/edit",
+      "heading": "Edit memory"
+    },
+    {
+      "routeId": "memory-edit",
+      "view": "default",
+      "fixture": "Anna + Marek / Anna",
+      "state": "default",
+      "url": "/memories/d3500000-0000-4000-8000-000000000032/edit",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/memory-edit-default-390.jpg",
+      "fullPageFile": "images/memory-edit-default-390-full.jpg",
+      "renderedUrl": "/memories/d3500000-0000-4000-8000-000000000032/edit",
+      "heading": "Edit memory"
+    },
+    {
+      "routeId": "memory-edit",
+      "view": "conflict",
+      "fixture": "disposable / exceptional",
+      "state": "conflict",
+      "url": "/memories/6948fded-048c-488b-8769-7ade1153d394/edit",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/memory-edit-conflict-1440.jpg",
+      "fullPageFile": "images/memory-edit-conflict-1440-full.jpg",
+      "renderedUrl": "/memories/6948fded-048c-488b-8769-7ade1153d394/edit",
+      "heading": "Edit memory"
+    },
+    {
+      "routeId": "memory-edit",
+      "view": "conflict",
+      "fixture": "disposable / exceptional",
+      "state": "conflict",
+      "url": "/memories/7f01544f-1f93-4f7b-ad67-72dcea4b2215/edit",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/memory-edit-conflict-390.jpg",
+      "fullPageFile": "images/memory-edit-conflict-390-full.jpg",
+      "renderedUrl": "/memories/7f01544f-1f93-4f7b-ad67-72dcea4b2215/edit",
+      "heading": "Edit memory"
+    },
+    {
+      "routeId": "messages",
+      "view": "conversation",
+      "fixture": "Anna + Marek / Anna",
+      "state": "conversation",
+      "url": "/messages",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/messages-conversation-1440.jpg",
+      "renderedUrl": "/messages",
+      "heading": "Messages"
+    },
+    {
+      "routeId": "messages",
+      "view": "conversation",
+      "fixture": "Anna + Marek / Anna",
+      "state": "conversation",
+      "url": "/messages",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/messages-conversation-390.jpg",
+      "fullPageFile": "images/messages-conversation-390-full.jpg",
+      "renderedUrl": "/messages",
+      "heading": "Messages"
+    },
+    {
+      "routeId": "messages",
+      "view": "notes",
+      "fixture": "Anna + Marek / Anna",
+      "state": "notes",
+      "url": "/messages?view=notes",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/messages-notes-1440.jpg",
+      "renderedUrl": "/messages?view=notes",
+      "heading": "Messages"
+    },
+    {
+      "routeId": "messages",
+      "view": "notes",
+      "fixture": "Anna + Marek / Anna",
+      "state": "notes",
+      "url": "/messages?view=notes",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/messages-notes-390.jpg",
+      "renderedUrl": "/messages?view=notes",
+      "heading": "Messages"
+    },
+    {
+      "routeId": "messages",
+      "view": "empty",
+      "fixture": "disposable / empty",
+      "state": "empty",
+      "url": "/messages",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/messages-empty-1440.jpg",
+      "renderedUrl": "/messages",
+      "heading": "Messages"
+    },
+    {
+      "routeId": "messages",
+      "view": "empty",
+      "fixture": "disposable / empty",
+      "state": "empty",
+      "url": "/messages",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/messages-empty-390.jpg",
+      "fullPageFile": "images/messages-empty-390-full.jpg",
+      "renderedUrl": "/messages",
+      "heading": "Messages"
+    },
+    {
+      "routeId": "messages",
+      "view": "error",
+      "fixture": "disposable / exceptional",
+      "state": "error",
+      "url": "/messages",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/messages-error-1440.jpg",
+      "renderedUrl": "/messages",
+      "heading": "Messages"
+    },
+    {
+      "routeId": "messages",
+      "view": "error",
+      "fixture": "disposable / exceptional",
+      "state": "error",
+      "url": "/messages",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/messages-error-390.jpg",
+      "fullPageFile": "images/messages-error-390-full.jpg",
+      "renderedUrl": "/messages",
+      "heading": "Messages"
+    },
+    {
+      "routeId": "messages",
+      "view": "pending-send",
+      "fixture": "disposable / exceptional",
+      "state": "pending-send",
+      "url": "/messages",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/messages-pending-send-1440.jpg",
+      "fullPageFile": "images/messages-pending-send-1440-full.jpg",
+      "renderedUrl": "/messages",
+      "heading": "Messages"
+    },
+    {
+      "routeId": "messages",
+      "view": "pending-send",
+      "fixture": "disposable / exceptional",
+      "state": "pending-send",
+      "url": "/messages",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/messages-pending-send-390.jpg",
+      "fullPageFile": "images/messages-pending-send-390-full.jpg",
+      "renderedUrl": "/messages",
+      "heading": "Messages"
+    },
+    {
+      "routeId": "messages",
+      "view": "delete-dialog",
+      "fixture": "Anna + Marek / Anna",
+      "state": "delete-dialog",
+      "url": "/messages",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/messages-delete-dialog-1440.jpg",
+      "renderedUrl": "/messages",
+      "heading": "Messages"
+    },
+    {
+      "routeId": "messages",
+      "view": "delete-dialog",
+      "fixture": "Anna + Marek / Anna",
+      "state": "delete-dialog",
+      "url": "/messages",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/messages-delete-dialog-390.jpg",
+      "fullPageFile": "images/messages-delete-dialog-390-full.jpg",
+      "renderedUrl": "/messages",
+      "heading": "Messages"
+    },
+    {
+      "routeId": "messages",
+      "view": "pending-action",
+      "fixture": "disposable / exceptional",
+      "state": "pending-action",
+      "url": "/messages",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/messages-pending-action-1440.jpg",
+      "renderedUrl": "/messages",
+      "heading": "Messages"
+    },
+    {
+      "routeId": "messages",
+      "view": "pending-action",
+      "fixture": "disposable / exceptional",
+      "state": "pending-action",
+      "url": "/messages",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/messages-pending-action-390.jpg",
+      "fullPageFile": "images/messages-pending-action-390-full.jpg",
+      "renderedUrl": "/messages",
+      "heading": "Messages"
+    },
+    {
+      "routeId": "tasks",
+      "view": "general",
+      "fixture": "Anna + Marek / Anna",
+      "state": "general",
+      "url": "/tasks",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/tasks-general-1440.jpg",
+      "renderedUrl": "/tasks",
+      "heading": "Tasks"
+    },
+    {
+      "routeId": "tasks",
+      "view": "general",
+      "fixture": "Anna + Marek / Anna",
+      "state": "general",
+      "url": "/tasks",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/tasks-general-390.jpg",
+      "renderedUrl": "/tasks",
+      "heading": "Tasks"
+    },
+    {
+      "routeId": "tasks",
+      "view": "groceries",
+      "fixture": "Anna + Marek / Anna",
+      "state": "groceries",
+      "url": "/tasks?list=d3500000-0000-4000-8000-00000000044f",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/tasks-groceries-1440.jpg",
+      "renderedUrl": "/tasks?list=d3500000-0000-4000-8000-00000000044f",
+      "heading": "Tasks"
+    },
+    {
+      "routeId": "tasks",
+      "view": "groceries",
+      "fixture": "Anna + Marek / Anna",
+      "state": "groceries",
+      "url": "/tasks?list=d3500000-0000-4000-8000-00000000044f",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/tasks-groceries-390.jpg",
+      "renderedUrl": "/tasks?list=d3500000-0000-4000-8000-00000000044f",
+      "heading": "Tasks"
+    },
+    {
+      "routeId": "tasks",
+      "view": "completed",
+      "fixture": "Anna + Marek / Anna",
+      "state": "completed",
+      "url": "/tasks?list=d3500000-0000-4000-8000-00000000044f",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/tasks-completed-1440.jpg",
+      "renderedUrl": "/tasks?list=d3500000-0000-4000-8000-00000000044f",
+      "heading": "Tasks"
+    },
+    {
+      "routeId": "tasks",
+      "view": "completed",
+      "fixture": "Anna + Marek / Anna",
+      "state": "completed",
+      "url": "/tasks?list=d3500000-0000-4000-8000-00000000044f",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/tasks-completed-390.jpg",
+      "renderedUrl": "/tasks?list=d3500000-0000-4000-8000-00000000044f",
+      "heading": "Tasks"
+    },
+    {
+      "routeId": "tasks",
+      "view": "completion-error",
+      "fixture": "disposable / exceptional",
+      "state": "completion-error",
+      "url": "/tasks",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/tasks-completion-error-1440.jpg",
+      "renderedUrl": "/tasks",
+      "heading": "Tasks"
+    },
+    {
+      "routeId": "tasks",
+      "view": "completion-error",
+      "fixture": "disposable / exceptional",
+      "state": "completion-error",
+      "url": "/tasks",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/tasks-completion-error-390.jpg",
+      "fullPageFile": "images/tasks-completion-error-390-full.jpg",
+      "renderedUrl": "/tasks",
+      "heading": "Tasks"
+    },
+    {
+      "routeId": "task-new",
+      "view": "default",
+      "fixture": "Anna + Marek / Anna",
+      "state": "default",
+      "url": "/tasks/new",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/task-new-default-1440.jpg",
+      "fullPageFile": "images/task-new-default-1440-full.jpg",
+      "renderedUrl": "/tasks/new",
+      "heading": "Add task"
+    },
+    {
+      "routeId": "task-new",
+      "view": "default",
+      "fixture": "Anna + Marek / Anna",
+      "state": "default",
+      "url": "/tasks/new",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/task-new-default-390.jpg",
+      "fullPageFile": "images/task-new-default-390-full.jpg",
+      "renderedUrl": "/tasks/new",
+      "heading": "Add task"
+    },
+    {
+      "routeId": "task-new",
+      "view": "validation",
+      "fixture": "Anna + Marek / Anna",
+      "state": "validation",
+      "url": "/tasks/new",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/task-new-validation-1440.jpg",
+      "fullPageFile": "images/task-new-validation-1440-full.jpg",
+      "renderedUrl": "/tasks/new",
+      "heading": "Add task"
+    },
+    {
+      "routeId": "task-new",
+      "view": "validation",
+      "fixture": "Anna + Marek / Anna",
+      "state": "validation",
+      "url": "/tasks/new",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/task-new-validation-390.jpg",
+      "fullPageFile": "images/task-new-validation-390-full.jpg",
+      "renderedUrl": "/tasks/new",
+      "heading": "Add task"
+    },
+    {
+      "routeId": "task-detail",
+      "view": "default",
+      "fixture": "Anna + Marek / Anna",
+      "state": "default",
+      "url": "/tasks/d3500000-0000-4000-8000-00000000001e",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/task-detail-default-1440.jpg",
+      "renderedUrl": "/tasks/d3500000-0000-4000-8000-00000000001e",
+      "heading": "Book the pottery workshop"
+    },
+    {
+      "routeId": "task-detail",
+      "view": "default",
+      "fixture": "Anna + Marek / Anna",
+      "state": "default",
+      "url": "/tasks/d3500000-0000-4000-8000-00000000001e",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/task-detail-default-390.jpg",
+      "renderedUrl": "/tasks/d3500000-0000-4000-8000-00000000001e",
+      "heading": "Book the pottery workshop"
+    },
+    {
+      "routeId": "task-detail",
+      "view": "delete-dialog",
+      "fixture": "Anna + Marek / Anna",
+      "state": "delete-dialog",
+      "url": "/tasks/d3500000-0000-4000-8000-00000000001e",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/task-detail-delete-dialog-1440.jpg",
+      "renderedUrl": "/tasks/d3500000-0000-4000-8000-00000000001e",
+      "heading": "Book the pottery workshop"
+    },
+    {
+      "routeId": "task-detail",
+      "view": "delete-dialog",
+      "fixture": "Anna + Marek / Anna",
+      "state": "delete-dialog",
+      "url": "/tasks/d3500000-0000-4000-8000-00000000001e",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/task-detail-delete-dialog-390.jpg",
+      "renderedUrl": "/tasks/d3500000-0000-4000-8000-00000000001e",
+      "heading": "Book the pottery workshop"
+    },
+    {
+      "routeId": "task-detail",
+      "view": "unavailable",
+      "fixture": "disposable / exceptional",
+      "state": "unavailable",
+      "url": "/tasks/00000000-0000-4000-8000-000000000099",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/task-detail-unavailable-1440.jpg",
+      "renderedUrl": "/tasks/00000000-0000-4000-8000-000000000099",
+      "heading": "Task unavailable"
+    },
+    {
+      "routeId": "task-detail",
+      "view": "unavailable",
+      "fixture": "disposable / exceptional",
+      "state": "unavailable",
+      "url": "/tasks/00000000-0000-4000-8000-000000000099",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/task-detail-unavailable-390.jpg",
+      "renderedUrl": "/tasks/00000000-0000-4000-8000-000000000099",
+      "heading": "Task unavailable"
+    },
+    {
+      "routeId": "task-detail",
+      "view": "request-error",
+      "fixture": "disposable / exceptional",
+      "state": "request-error",
+      "url": "/tasks/c171034f-496e-4699-94a9-213009987b0a",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/task-detail-request-error-1440.jpg",
+      "renderedUrl": "/tasks/c171034f-496e-4699-94a9-213009987b0a",
+      "heading": "We could not load this task"
+    },
+    {
+      "routeId": "task-detail",
+      "view": "request-error",
+      "fixture": "disposable / exceptional",
+      "state": "request-error",
+      "url": "/tasks/418aef30-f352-4023-b783-8802ac01d0eb",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/task-detail-request-error-390.jpg",
+      "renderedUrl": "/tasks/418aef30-f352-4023-b783-8802ac01d0eb",
+      "heading": "We could not load this task"
+    },
+    {
+      "routeId": "task-detail",
+      "view": "pending-deletion",
+      "fixture": "disposable / exceptional",
+      "state": "pending-deletion",
+      "url": "/tasks/7fa8a263-38f3-4791-a506-5fc4a5ab7070",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/task-detail-pending-deletion-1440.jpg",
+      "renderedUrl": "/tasks/7fa8a263-38f3-4791-a506-5fc4a5ab7070",
+      "heading": "Task unavailable"
+    },
+    {
+      "routeId": "task-detail",
+      "view": "pending-deletion",
+      "fixture": "disposable / exceptional",
+      "state": "pending-deletion",
+      "url": "/tasks/418aef30-f352-4023-b783-8802ac01d0eb",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/task-detail-pending-deletion-390.jpg",
+      "renderedUrl": "/tasks/418aef30-f352-4023-b783-8802ac01d0eb",
+      "heading": "Task unavailable"
+    },
+    {
+      "routeId": "task-edit",
+      "view": "default",
+      "fixture": "Anna + Marek / Anna",
+      "state": "default",
+      "url": "/tasks/d3500000-0000-4000-8000-00000000001e/edit",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/task-edit-default-1440.jpg",
+      "fullPageFile": "images/task-edit-default-1440-full.jpg",
+      "renderedUrl": "/tasks/d3500000-0000-4000-8000-00000000001e/edit",
+      "heading": "Edit task"
+    },
+    {
+      "routeId": "task-edit",
+      "view": "default",
+      "fixture": "Anna + Marek / Anna",
+      "state": "default",
+      "url": "/tasks/d3500000-0000-4000-8000-00000000001e/edit",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/task-edit-default-390.jpg",
+      "fullPageFile": "images/task-edit-default-390-full.jpg",
+      "renderedUrl": "/tasks/d3500000-0000-4000-8000-00000000001e/edit",
+      "heading": "Edit task"
+    },
+    {
+      "routeId": "task-edit",
+      "view": "conflict",
+      "fixture": "disposable / exceptional",
+      "state": "conflict",
+      "url": "/tasks/c171034f-496e-4699-94a9-213009987b0a/edit",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/task-edit-conflict-1440.jpg",
+      "fullPageFile": "images/task-edit-conflict-1440-full.jpg",
+      "renderedUrl": "/tasks/c171034f-496e-4699-94a9-213009987b0a/edit",
+      "heading": "Edit task"
+    },
+    {
+      "routeId": "task-edit",
+      "view": "conflict",
+      "fixture": "disposable / exceptional",
+      "state": "conflict",
+      "url": "/tasks/418aef30-f352-4023-b783-8802ac01d0eb/edit",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/task-edit-conflict-390.jpg",
+      "fullPageFile": "images/task-edit-conflict-390-full.jpg",
+      "renderedUrl": "/tasks/418aef30-f352-4023-b783-8802ac01d0eb/edit",
+      "heading": "Edit task"
+    },
+    {
+      "routeId": "task-lists",
+      "view": "default",
+      "fixture": "Anna + Marek / Anna",
+      "state": "default",
+      "url": "/tasks/lists",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/task-lists-default-1440.jpg",
+      "renderedUrl": "/tasks/lists",
+      "heading": "Task lists"
+    },
+    {
+      "routeId": "task-lists",
+      "view": "default",
+      "fixture": "Anna + Marek / Anna",
+      "state": "default",
+      "url": "/tasks/lists",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/task-lists-default-390.jpg",
+      "renderedUrl": "/tasks/lists",
+      "heading": "Task lists"
+    },
+    {
+      "routeId": "task-lists",
+      "view": "create",
+      "fixture": "Anna + Marek / Anna",
+      "state": "create",
+      "url": "/tasks/lists",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/task-lists-create-1440.jpg",
+      "renderedUrl": "/tasks/lists",
+      "heading": "Task lists"
+    },
+    {
+      "routeId": "task-lists",
+      "view": "create",
+      "fixture": "Anna + Marek / Anna",
+      "state": "create",
+      "url": "/tasks/lists",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/task-lists-create-390.jpg",
+      "renderedUrl": "/tasks/lists",
+      "heading": "Task lists"
+    },
+    {
+      "routeId": "task-list-detail",
+      "view": "general",
+      "fixture": "Anna + Marek / Anna",
+      "state": "general",
+      "url": "/tasks/lists/c9ca3446-7db3-41cc-bab4-08f617468570",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/task-list-detail-general-1440.jpg",
+      "renderedUrl": "/tasks/lists/c9ca3446-7db3-41cc-bab4-08f617468570",
+      "heading": "General"
+    },
+    {
+      "routeId": "task-list-detail",
+      "view": "general",
+      "fixture": "Anna + Marek / Anna",
+      "state": "general",
+      "url": "/tasks/lists/c9ca3446-7db3-41cc-bab4-08f617468570",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/task-list-detail-general-390.jpg",
+      "renderedUrl": "/tasks/lists/c9ca3446-7db3-41cc-bab4-08f617468570",
+      "heading": "General"
+    },
+    {
+      "routeId": "task-list-detail",
+      "view": "nonempty",
+      "fixture": "Anna + Marek / Anna",
+      "state": "nonempty",
+      "url": "/tasks/lists/d3500000-0000-4000-8000-00000000044f",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/task-list-detail-nonempty-1440.jpg",
+      "renderedUrl": "/tasks/lists/d3500000-0000-4000-8000-00000000044f",
+      "heading": "Groceries"
+    },
+    {
+      "routeId": "task-list-detail",
+      "view": "nonempty",
+      "fixture": "Anna + Marek / Anna",
+      "state": "nonempty",
+      "url": "/tasks/lists/d3500000-0000-4000-8000-00000000044f",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/task-list-detail-nonempty-390.jpg",
+      "renderedUrl": "/tasks/lists/d3500000-0000-4000-8000-00000000044f",
+      "heading": "Groceries"
+    },
+    {
+      "routeId": "task-list-detail",
+      "view": "empty",
+      "fixture": "disposable / exceptional",
+      "state": "empty",
+      "url": "/tasks/lists/1ffe0b8c-8b63-4c42-acc0-027bfc1595fe",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/task-list-detail-empty-1440.jpg",
+      "renderedUrl": "/tasks/lists/1ffe0b8c-8b63-4c42-acc0-027bfc1595fe",
+      "heading": "Weekend plans"
+    },
+    {
+      "routeId": "task-list-detail",
+      "view": "empty",
+      "fixture": "disposable / exceptional",
+      "state": "empty",
+      "url": "/tasks/lists/a7395b6a-15a2-4486-9193-10e37f90cc88",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/task-list-detail-empty-390.jpg",
+      "renderedUrl": "/tasks/lists/a7395b6a-15a2-4486-9193-10e37f90cc88",
+      "heading": "Weekend plans"
+    },
+    {
+      "routeId": "task-list-detail",
+      "view": "move-dialog",
+      "fixture": "Anna + Marek / Anna",
+      "state": "move-dialog",
+      "url": "/tasks/lists/d3500000-0000-4000-8000-00000000044f",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/task-list-detail-move-dialog-1440.jpg",
+      "renderedUrl": "/tasks/lists/d3500000-0000-4000-8000-00000000044f",
+      "heading": "Groceries"
+    },
+    {
+      "routeId": "task-list-detail",
+      "view": "move-dialog",
+      "fixture": "Anna + Marek / Anna",
+      "state": "move-dialog",
+      "url": "/tasks/lists/d3500000-0000-4000-8000-00000000044f",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/task-list-detail-move-dialog-390.jpg",
+      "renderedUrl": "/tasks/lists/d3500000-0000-4000-8000-00000000044f",
+      "heading": "Groceries"
+    },
+    {
+      "routeId": "task-list-detail",
+      "view": "remove-dialog",
+      "fixture": "disposable / exceptional",
+      "state": "remove-dialog",
+      "url": "/tasks/lists/1ffe0b8c-8b63-4c42-acc0-027bfc1595fe",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/task-list-detail-remove-dialog-1440.jpg",
+      "renderedUrl": "/tasks/lists/1ffe0b8c-8b63-4c42-acc0-027bfc1595fe",
+      "heading": "Weekend plans"
+    },
+    {
+      "routeId": "task-list-detail",
+      "view": "remove-dialog",
+      "fixture": "disposable / exceptional",
+      "state": "remove-dialog",
+      "url": "/tasks/lists/a7395b6a-15a2-4486-9193-10e37f90cc88",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/task-list-detail-remove-dialog-390.jpg",
+      "renderedUrl": "/tasks/lists/a7395b6a-15a2-4486-9193-10e37f90cc88",
+      "heading": "Weekend plans"
+    },
+    {
+      "routeId": "ideas",
+      "view": "saved",
+      "fixture": "Anna + Marek / Anna",
+      "state": "saved",
+      "url": "/ideas",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/ideas-saved-1440.jpg",
+      "renderedUrl": "/ideas",
+      "heading": "Date ideas"
+    },
+    {
+      "routeId": "ideas",
+      "view": "saved",
+      "fixture": "Anna + Marek / Anna",
+      "state": "saved",
+      "url": "/ideas",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/ideas-saved-390.jpg",
+      "renderedUrl": "/ideas",
+      "heading": "Date ideas"
+    },
+    {
+      "routeId": "ideas",
+      "view": "planned",
+      "fixture": "disposable / exceptional",
+      "state": "planned",
+      "url": "/ideas",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/ideas-planned-1440.jpg",
+      "renderedUrl": "/ideas",
+      "heading": "Date ideas"
+    },
+    {
+      "routeId": "ideas",
+      "view": "planned",
+      "fixture": "disposable / exceptional",
+      "state": "planned",
+      "url": "/ideas",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/ideas-planned-390.jpg",
+      "renderedUrl": "/ideas",
+      "heading": "Date ideas"
+    },
+    {
+      "routeId": "ideas",
+      "view": "archived",
+      "fixture": "disposable / exceptional",
+      "state": "archived",
+      "url": "/ideas",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/ideas-archived-1440.jpg",
+      "renderedUrl": "/ideas",
+      "heading": "Date ideas"
+    },
+    {
+      "routeId": "ideas",
+      "view": "archived",
+      "fixture": "disposable / exceptional",
+      "state": "archived",
+      "url": "/ideas",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/ideas-archived-390.jpg",
+      "renderedUrl": "/ideas",
+      "heading": "Date ideas"
+    },
+    {
+      "routeId": "ideas",
+      "view": "empty",
+      "fixture": "disposable / empty",
+      "state": "empty",
+      "url": "/ideas",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/ideas-empty-1440.jpg",
+      "renderedUrl": "/ideas",
+      "heading": "Date ideas"
+    },
+    {
+      "routeId": "ideas",
+      "view": "empty",
+      "fixture": "disposable / empty",
+      "state": "empty",
+      "url": "/ideas",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/ideas-empty-390.jpg",
+      "renderedUrl": "/ideas",
+      "heading": "Date ideas"
+    },
+    {
+      "routeId": "idea-new",
+      "view": "default",
+      "fixture": "Anna + Marek / Anna",
+      "state": "default",
+      "url": "/ideas/new",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/idea-new-default-1440.jpg",
+      "fullPageFile": "images/idea-new-default-1440-full.jpg",
+      "renderedUrl": "/ideas/new",
+      "heading": "Add idea"
+    },
+    {
+      "routeId": "idea-new",
+      "view": "default",
+      "fixture": "Anna + Marek / Anna",
+      "state": "default",
+      "url": "/ideas/new",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/idea-new-default-390.jpg",
+      "fullPageFile": "images/idea-new-default-390-full.jpg",
+      "renderedUrl": "/ideas/new",
+      "heading": "Add idea"
+    },
+    {
+      "routeId": "idea-new",
+      "view": "validation",
+      "fixture": "Anna + Marek / Anna",
+      "state": "validation",
+      "url": "/ideas/new",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/idea-new-validation-1440.jpg",
+      "fullPageFile": "images/idea-new-validation-1440-full.jpg",
+      "renderedUrl": "/ideas/new",
+      "heading": "Add idea"
+    },
+    {
+      "routeId": "idea-new",
+      "view": "validation",
+      "fixture": "Anna + Marek / Anna",
+      "state": "validation",
+      "url": "/ideas/new",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/idea-new-validation-390.jpg",
+      "fullPageFile": "images/idea-new-validation-390-full.jpg",
+      "renderedUrl": "/ideas/new",
+      "heading": "Add idea"
+    },
+    {
+      "routeId": "idea-detail",
+      "view": "saved",
+      "fixture": "Anna + Marek / Anna",
+      "state": "saved",
+      "url": "/ideas/d3500000-0000-4000-8000-000000000014",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/idea-detail-saved-1440.jpg",
+      "renderedUrl": "/ideas/d3500000-0000-4000-8000-000000000014",
+      "heading": "Pottery evening"
+    },
+    {
+      "routeId": "idea-detail",
+      "view": "saved",
+      "fixture": "Anna + Marek / Anna",
+      "state": "saved",
+      "url": "/ideas/d3500000-0000-4000-8000-000000000014",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/idea-detail-saved-390.jpg",
+      "renderedUrl": "/ideas/d3500000-0000-4000-8000-000000000014",
+      "heading": "Pottery evening"
+    },
+    {
+      "routeId": "idea-detail",
+      "view": "planned",
+      "fixture": "disposable / exceptional",
+      "state": "planned",
+      "url": "/ideas/50255f8b-6e16-43da-aac2-46e7166deafb",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/idea-detail-planned-1440.jpg",
+      "renderedUrl": "/ideas/50255f8b-6e16-43da-aac2-46e7166deafb",
+      "heading": "Gallery visit"
+    },
+    {
+      "routeId": "idea-detail",
+      "view": "planned",
+      "fixture": "disposable / exceptional",
+      "state": "planned",
+      "url": "/ideas/217caba9-3e02-4f9c-a6f1-01ef749a1998",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/idea-detail-planned-390.jpg",
+      "renderedUrl": "/ideas/217caba9-3e02-4f9c-a6f1-01ef749a1998",
+      "heading": "Gallery visit"
+    },
+    {
+      "routeId": "idea-detail",
+      "view": "archived",
+      "fixture": "disposable / exceptional",
+      "state": "archived",
+      "url": "/ideas/241e12ea-43d8-47ca-b876-40f719d25c70",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/idea-detail-archived-1440.jpg",
+      "renderedUrl": "/ideas/241e12ea-43d8-47ca-b876-40f719d25c70",
+      "heading": "Summer picnic"
+    },
+    {
+      "routeId": "idea-detail",
+      "view": "archived",
+      "fixture": "disposable / exceptional",
+      "state": "archived",
+      "url": "/ideas/85506217-e626-491b-8acd-8668fe43e832",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/idea-detail-archived-390.jpg",
+      "renderedUrl": "/ideas/85506217-e626-491b-8acd-8668fe43e832",
+      "heading": "Summer picnic"
+    },
+    {
+      "routeId": "idea-detail",
+      "view": "archive-dialog",
+      "fixture": "Anna + Marek / Anna",
+      "state": "archive-dialog",
+      "url": "/ideas/d3500000-0000-4000-8000-000000000014",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/idea-detail-archive-dialog-1440.jpg",
+      "renderedUrl": "/ideas/d3500000-0000-4000-8000-000000000014",
+      "heading": "Pottery evening"
+    },
+    {
+      "routeId": "idea-detail",
+      "view": "archive-dialog",
+      "fixture": "Anna + Marek / Anna",
+      "state": "archive-dialog",
+      "url": "/ideas/d3500000-0000-4000-8000-000000000014",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/idea-detail-archive-dialog-390.jpg",
+      "renderedUrl": "/ideas/d3500000-0000-4000-8000-000000000014",
+      "heading": "Pottery evening"
+    },
+    {
+      "routeId": "idea-detail",
+      "view": "unavailable",
+      "fixture": "disposable / exceptional",
+      "state": "unavailable",
+      "url": "/ideas/00000000-0000-4000-8000-000000000099",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/idea-detail-unavailable-1440.jpg",
+      "renderedUrl": "/ideas/00000000-0000-4000-8000-000000000099",
+      "heading": "Idea unavailable"
+    },
+    {
+      "routeId": "idea-detail",
+      "view": "unavailable",
+      "fixture": "disposable / exceptional",
+      "state": "unavailable",
+      "url": "/ideas/00000000-0000-4000-8000-000000000099",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/idea-detail-unavailable-390.jpg",
+      "renderedUrl": "/ideas/00000000-0000-4000-8000-000000000099",
+      "heading": "Idea unavailable"
+    },
+    {
+      "routeId": "idea-detail",
+      "view": "request-error",
+      "fixture": "disposable / exceptional",
+      "state": "request-error",
+      "url": "/ideas/597f205a-bedb-4a79-9505-b770450c6c9a",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/idea-detail-request-error-1440.jpg",
+      "renderedUrl": "/ideas/597f205a-bedb-4a79-9505-b770450c6c9a",
+      "heading": "We could not load this idea"
+    },
+    {
+      "routeId": "idea-detail",
+      "view": "request-error",
+      "fixture": "disposable / exceptional",
+      "state": "request-error",
+      "url": "/ideas/b585d6e4-5558-4452-afa3-5eeed5ffe863",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/idea-detail-request-error-390.jpg",
+      "renderedUrl": "/ideas/b585d6e4-5558-4452-afa3-5eeed5ffe863",
+      "heading": "We could not load this idea"
+    },
+    {
+      "routeId": "idea-edit",
+      "view": "default",
+      "fixture": "Anna + Marek / Anna",
+      "state": "default",
+      "url": "/ideas/d3500000-0000-4000-8000-000000000014/edit",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/idea-edit-default-1440.jpg",
+      "fullPageFile": "images/idea-edit-default-1440-full.jpg",
+      "renderedUrl": "/ideas/d3500000-0000-4000-8000-000000000014/edit",
+      "heading": "Edit idea"
+    },
+    {
+      "routeId": "idea-edit",
+      "view": "default",
+      "fixture": "Anna + Marek / Anna",
+      "state": "default",
+      "url": "/ideas/d3500000-0000-4000-8000-000000000014/edit",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/idea-edit-default-390.jpg",
+      "fullPageFile": "images/idea-edit-default-390-full.jpg",
+      "renderedUrl": "/ideas/d3500000-0000-4000-8000-000000000014/edit",
+      "heading": "Edit idea"
+    },
+    {
+      "routeId": "idea-edit",
+      "view": "conflict",
+      "fixture": "disposable / exceptional",
+      "state": "conflict",
+      "url": "/ideas/597f205a-bedb-4a79-9505-b770450c6c9a/edit",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/idea-edit-conflict-1440.jpg",
+      "fullPageFile": "images/idea-edit-conflict-1440-full.jpg",
+      "renderedUrl": "/ideas/597f205a-bedb-4a79-9505-b770450c6c9a/edit",
+      "heading": "Edit idea"
+    },
+    {
+      "routeId": "idea-edit",
+      "view": "conflict",
+      "fixture": "disposable / exceptional",
+      "state": "conflict",
+      "url": "/ideas/b585d6e4-5558-4452-afa3-5eeed5ffe863/edit",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/idea-edit-conflict-390.jpg",
+      "fullPageFile": "images/idea-edit-conflict-390-full.jpg",
+      "renderedUrl": "/ideas/b585d6e4-5558-4452-afa3-5eeed5ffe863/edit",
+      "heading": "Edit idea"
+    },
+    {
+      "routeId": "notifications",
+      "view": "list",
+      "fixture": "disposable / exceptional",
+      "state": "list",
+      "url": "/notifications",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/notifications-list-1440.jpg",
+      "renderedUrl": "/notifications",
+      "heading": "Notifications"
+    },
+    {
+      "routeId": "notifications",
+      "view": "list",
+      "fixture": "disposable / exceptional",
+      "state": "list",
+      "url": "/notifications",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/notifications-list-390.jpg",
+      "renderedUrl": "/notifications",
+      "heading": "Notifications"
+    },
+    {
+      "routeId": "notifications",
+      "view": "empty",
+      "fixture": "disposable / empty",
+      "state": "empty",
+      "url": "/notifications",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/notifications-empty-1440.jpg",
+      "renderedUrl": "/notifications",
+      "heading": "Notifications"
+    },
+    {
+      "routeId": "notifications",
+      "view": "empty",
+      "fixture": "disposable / empty",
+      "state": "empty",
+      "url": "/notifications",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/notifications-empty-390.jpg",
+      "renderedUrl": "/notifications",
+      "heading": "Notifications"
+    },
+    {
+      "routeId": "notifications",
+      "view": "unavailable",
+      "fixture": "disposable / exceptional",
+      "state": "unavailable",
+      "url": "/notifications",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/notifications-unavailable-1440.jpg",
+      "renderedUrl": "/notifications",
+      "heading": "Notifications"
+    },
+    {
+      "routeId": "notifications",
+      "view": "unavailable",
+      "fixture": "disposable / exceptional",
+      "state": "unavailable",
+      "url": "/notifications",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/notifications-unavailable-390.jpg",
+      "renderedUrl": "/notifications",
+      "heading": "Notifications"
+    },
+    {
+      "routeId": "notifications",
+      "view": "error",
+      "fixture": "disposable / exceptional",
+      "state": "error",
+      "url": "/notifications",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/notifications-error-1440.jpg",
+      "renderedUrl": "/notifications",
+      "heading": "Notifications"
+    },
+    {
+      "routeId": "notifications",
+      "view": "error",
+      "fixture": "disposable / exceptional",
+      "state": "error",
+      "url": "/notifications",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/notifications-error-390.jpg",
+      "renderedUrl": "/notifications",
+      "heading": "Notifications"
+    },
+    {
+      "routeId": "settings",
+      "view": "default",
+      "fixture": "Anna + Marek / Anna",
+      "state": "default",
+      "url": "/settings",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/settings-default-1440.jpg",
+      "renderedUrl": "/settings",
+      "heading": "Settings"
+    },
+    {
+      "routeId": "settings",
+      "view": "default",
+      "fixture": "Anna + Marek / Anna",
+      "state": "default",
+      "url": "/settings",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/settings-default-390.jpg",
+      "fullPageFile": "images/settings-default-390-full.jpg",
+      "renderedUrl": "/settings",
+      "heading": "Settings"
+    },
+    {
+      "routeId": "settings",
+      "view": "unpaired",
+      "fixture": "disposable / unpaired",
+      "state": "unpaired",
+      "url": "/settings",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/settings-unpaired-1440.jpg",
+      "renderedUrl": "/settings",
+      "heading": "Settings"
+    },
+    {
+      "routeId": "settings",
+      "view": "unpaired",
+      "fixture": "disposable / unpaired",
+      "state": "unpaired",
+      "url": "/settings",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/settings-unpaired-390.jpg",
+      "fullPageFile": "images/settings-unpaired-390-full.jpg",
+      "renderedUrl": "/settings",
+      "heading": "Settings"
+    },
+    {
+      "routeId": "settings",
+      "view": "ended",
+      "fixture": "disposable / ended",
+      "state": "ended",
+      "url": "/settings",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/settings-ended-1440.jpg",
+      "renderedUrl": "/settings",
+      "heading": "Settings"
+    },
+    {
+      "routeId": "settings",
+      "view": "ended",
+      "fixture": "disposable / ended",
+      "state": "ended",
+      "url": "/settings",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/settings-ended-390.jpg",
+      "fullPageFile": "images/settings-ended-390-full.jpg",
+      "renderedUrl": "/settings",
+      "heading": "Settings"
+    },
+    {
+      "routeId": "settings-profile",
+      "view": "default",
+      "fixture": "Anna + Marek / Anna",
+      "state": "default",
+      "url": "/settings/profile",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/settings-profile-default-1440.jpg",
+      "fullPageFile": "images/settings-profile-default-1440-full.jpg",
+      "renderedUrl": "/settings/profile",
+      "heading": "Profile"
+    },
+    {
+      "routeId": "settings-profile",
+      "view": "default",
+      "fixture": "Anna + Marek / Anna",
+      "state": "default",
+      "url": "/settings/profile",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/settings-profile-default-390.jpg",
+      "fullPageFile": "images/settings-profile-default-390-full.jpg",
+      "renderedUrl": "/settings/profile",
+      "heading": "Profile"
+    },
+    {
+      "routeId": "settings-profile",
+      "view": "conflict",
+      "fixture": "disposable / exceptional",
+      "state": "conflict",
+      "url": "/settings/profile",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/settings-profile-conflict-1440.jpg",
+      "fullPageFile": "images/settings-profile-conflict-1440-full.jpg",
+      "renderedUrl": "/settings/profile",
+      "heading": "Profile"
+    },
+    {
+      "routeId": "settings-profile",
+      "view": "conflict",
+      "fixture": "disposable / exceptional",
+      "state": "conflict",
+      "url": "/settings/profile",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/settings-profile-conflict-390.jpg",
+      "fullPageFile": "images/settings-profile-conflict-390-full.jpg",
+      "renderedUrl": "/settings/profile",
+      "heading": "Profile"
+    },
+    {
+      "routeId": "settings-pair",
+      "view": "default",
+      "fixture": "Anna + Marek / Anna",
+      "state": "default",
+      "url": "/settings/pair",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/settings-pair-default-1440.jpg",
+      "fullPageFile": "images/settings-pair-default-1440-full.jpg",
+      "renderedUrl": "/settings/pair",
+      "heading": "Your pair"
+    },
+    {
+      "routeId": "settings-pair",
+      "view": "default",
+      "fixture": "Anna + Marek / Anna",
+      "state": "default",
+      "url": "/settings/pair",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/settings-pair-default-390.jpg",
+      "fullPageFile": "images/settings-pair-default-390-full.jpg",
+      "renderedUrl": "/settings/pair",
+      "heading": "Your pair"
+    },
+    {
+      "routeId": "settings-pair",
+      "view": "verification",
+      "fixture": "disposable / exceptional",
+      "state": "verification",
+      "url": "/settings/pair",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/settings-pair-verification-1440.jpg",
+      "fullPageFile": "images/settings-pair-verification-1440-full.jpg",
+      "renderedUrl": "/settings/pair",
+      "heading": "Your pair"
+    },
+    {
+      "routeId": "settings-pair",
+      "view": "verification",
+      "fixture": "disposable / exceptional",
+      "state": "verification",
+      "url": "/settings/pair",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/settings-pair-verification-390.jpg",
+      "fullPageFile": "images/settings-pair-verification-390-full.jpg",
+      "renderedUrl": "/settings/pair",
+      "heading": "Your pair"
+    },
+    {
+      "routeId": "settings-pair",
+      "view": "end-dialog",
+      "fixture": "disposable / exceptional",
+      "state": "end-dialog",
+      "url": "/settings/pair",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/settings-pair-end-dialog-1440.jpg",
+      "fullPageFile": "images/settings-pair-end-dialog-1440-full.jpg",
+      "renderedUrl": "/settings/pair",
+      "heading": "Your pair"
+    },
+    {
+      "routeId": "settings-pair",
+      "view": "end-dialog",
+      "fixture": "disposable / exceptional",
+      "state": "end-dialog",
+      "url": "/settings/pair",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/settings-pair-end-dialog-390.jpg",
+      "fullPageFile": "images/settings-pair-end-dialog-390-full.jpg",
+      "renderedUrl": "/settings/pair",
+      "heading": "Your pair"
+    },
+    {
+      "routeId": "settings-pair",
+      "view": "ended",
+      "fixture": "disposable / ended",
+      "state": "ended",
+      "url": "/settings/pair",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/settings-pair-ended-1440.jpg",
+      "fullPageFile": "images/settings-pair-ended-1440-full.jpg",
+      "renderedUrl": "/settings/pair",
+      "heading": "Your pair"
+    },
+    {
+      "routeId": "settings-pair",
+      "view": "ended",
+      "fixture": "disposable / ended",
+      "state": "ended",
+      "url": "/settings/pair",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/settings-pair-ended-390.jpg",
+      "fullPageFile": "images/settings-pair-ended-390-full.jpg",
+      "renderedUrl": "/settings/pair",
+      "heading": "Your pair"
+    },
+    {
+      "routeId": "settings-notifications",
+      "view": "default",
+      "fixture": "disposable / unpaired",
+      "state": "default",
+      "url": "/settings/notifications",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/settings-notifications-default-1440.jpg",
+      "fullPageFile": "images/settings-notifications-default-1440-full.jpg",
+      "renderedUrl": "/settings/notifications",
+      "heading": "Notification preferences"
+    },
+    {
+      "routeId": "settings-notifications",
+      "view": "default",
+      "fixture": "disposable / unpaired",
+      "state": "default",
+      "url": "/settings/notifications",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/settings-notifications-default-390.jpg",
+      "fullPageFile": "images/settings-notifications-default-390-full.jpg",
+      "renderedUrl": "/settings/notifications",
+      "heading": "Notification preferences"
+    },
+    {
+      "routeId": "settings-notifications",
+      "view": "quiet-hours",
+      "fixture": "disposable / unpaired",
+      "state": "quiet-hours",
+      "url": "/settings/notifications",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/settings-notifications-quiet-hours-1440.jpg",
+      "fullPageFile": "images/settings-notifications-quiet-hours-1440-full.jpg",
+      "renderedUrl": "/settings/notifications",
+      "heading": "Notification preferences"
+    },
+    {
+      "routeId": "settings-notifications",
+      "view": "quiet-hours",
+      "fixture": "disposable / unpaired",
+      "state": "quiet-hours",
+      "url": "/settings/notifications",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/settings-notifications-quiet-hours-390.jpg",
+      "fullPageFile": "images/settings-notifications-quiet-hours-390-full.jpg",
+      "renderedUrl": "/settings/notifications",
+      "heading": "Notification preferences"
+    },
+    {
+      "routeId": "settings-notifications",
+      "view": "conflict",
+      "fixture": "disposable / unpaired",
+      "state": "conflict",
+      "url": "/settings/notifications",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/settings-notifications-conflict-1440.jpg",
+      "fullPageFile": "images/settings-notifications-conflict-1440-full.jpg",
+      "renderedUrl": "/settings/notifications",
+      "heading": "Notification preferences"
+    },
+    {
+      "routeId": "settings-notifications",
+      "view": "conflict",
+      "fixture": "disposable / unpaired",
+      "state": "conflict",
+      "url": "/settings/notifications",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/settings-notifications-conflict-390.jpg",
+      "fullPageFile": "images/settings-notifications-conflict-390-full.jpg",
+      "renderedUrl": "/settings/notifications",
+      "heading": "Notification preferences"
+    },
+    {
+      "routeId": "settings-account",
+      "view": "default",
+      "fixture": "Anna + Marek / Anna",
+      "state": "default",
+      "url": "/settings/account",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/settings-account-default-1440.jpg",
+      "fullPageFile": "images/settings-account-default-1440-full.jpg",
+      "renderedUrl": "/settings/account",
+      "heading": "Account"
+    },
+    {
+      "routeId": "settings-account",
+      "view": "default",
+      "fixture": "Anna + Marek / Anna",
+      "state": "default",
+      "url": "/settings/account",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/settings-account-default-390.jpg",
+      "fullPageFile": "images/settings-account-default-390-full.jpg",
+      "renderedUrl": "/settings/account",
+      "heading": "Account"
+    },
+    {
+      "routeId": "settings-account",
+      "view": "unpaired",
+      "fixture": "disposable / unpaired",
+      "state": "unpaired",
+      "url": "/settings/account",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/settings-account-unpaired-1440.jpg",
+      "fullPageFile": "images/settings-account-unpaired-1440-full.jpg",
+      "renderedUrl": "/settings/account",
+      "heading": "Account"
+    },
+    {
+      "routeId": "settings-account",
+      "view": "unpaired",
+      "fixture": "disposable / unpaired",
+      "state": "unpaired",
+      "url": "/settings/account",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/settings-account-unpaired-390.jpg",
+      "fullPageFile": "images/settings-account-unpaired-390-full.jpg",
+      "renderedUrl": "/settings/account",
+      "heading": "Account"
+    },
+    {
+      "routeId": "settings-account",
+      "view": "ended",
+      "fixture": "disposable / ended",
+      "state": "ended",
+      "url": "/settings/account",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/settings-account-ended-1440.jpg",
+      "fullPageFile": "images/settings-account-ended-1440-full.jpg",
+      "renderedUrl": "/settings/account",
+      "heading": "Account"
+    },
+    {
+      "routeId": "settings-account",
+      "view": "ended",
+      "fixture": "disposable / ended",
+      "state": "ended",
+      "url": "/settings/account",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/settings-account-ended-390.jpg",
+      "fullPageFile": "images/settings-account-ended-390-full.jpg",
+      "renderedUrl": "/settings/account",
+      "heading": "Account"
+    },
+    {
+      "routeId": "unknown-route",
+      "view": "not-found",
+      "fixture": "disposable / signedOut",
+      "state": "not-found",
+      "url": "/no-such-page",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/unknown-route-not-found-1440.jpg",
+      "renderedUrl": "/no-such-page",
+      "heading": "Page not found"
+    },
+    {
+      "routeId": "unknown-route",
+      "view": "not-found",
+      "fixture": "disposable / signedOut",
+      "state": "not-found",
+      "url": "/no-such-page",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/unknown-route-not-found-390.jpg",
+      "renderedUrl": "/no-such-page",
+      "heading": "Page not found"
+    }
+  ]
+}
