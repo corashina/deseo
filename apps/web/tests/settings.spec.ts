@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { createEntryFixture, cleanupEntryFixture, entryFixtureClient, admin } from './support/entry-fixtures';
 import { createPortalPairFixture, cleanupPortalPairFixture, portalClient } from './support/fixtures';
-import { loginWithLocalEmailCode } from './support/local-auth';
+import { loginWithLocalEmailCode, readLocalCode } from './support/local-auth';
 // Importance 100: settings and sign-out remain available without an active pair.
 test('unpaired accounts can save preferences and sign out', async ({ page }) => {
   const fixture = await createEntryFixture('unpaired');
@@ -185,4 +185,88 @@ test('global sign-out focus unlocks a pending device revocation', async ({ page 
     await button.click(); await expect(page).toHaveURL(/\/welcome$/);
     expect(attempts).toHaveLength(2); expect(attempts[1]).toEqual(attempts[0]);
   } finally { release(); await cleanupEntryFixture(fixture); }
+});
+
+// Importance 100: Auth revocation failure must remain visible after the SDK removes the local session.
+test('global Auth logout failure shows public recovery after device revocation', async ({ page }) => {
+  test.setTimeout(120_000);
+  const fixture = await createEntryFixture('unpaired');
+  try {
+    const client = entryFixtureClient(fixture.email);
+    expect((await client.rpc('register_device', { p_input: { installationId: crypto.randomUUID(), platform: 'ios', permission: 'denied', token: null } })).data.ok).toBe(true);
+    await loginWithLocalEmailCode(page, fixture.email);
+    await page.goto('/settings/profile');
+    await page.getByLabel('Your name').fill('Private logout draft');
+    page.on('dialog', dialog => void dialog.accept());
+    await page.getByRole('button', { name: 'Account menu' }).click();
+    await page.getByRole('link', { name: 'Account settings', exact: true }).click();
+    let revocationSucceeded = false;
+    await page.route('**/rest/v1/rpc/revoke_device', async route => {
+      const response = await route.fetch(); expect((await response.json()).ok).toBe(true);
+      revocationSucceeded = true; await route.fulfill({ response });
+    });
+    let authFailed = false;
+    await page.route('**/auth/v1/logout?scope=global', route => {
+      expect(revocationSucceeded).toBe(true); authFailed = true;
+      return route.fulfill({ status: 503, json: { code: 'unexpected_failure', msg: 'Auth unavailable' } });
+    });
+    await page.getByRole('button', { name: 'Sign out on all devices', exact: true }).click();
+    await expect(page).toHaveURL(/\/welcome$/);
+    expect(authFailed).toBe(true);
+    const notice = page.getByRole('alert');
+    await expect(notice).toContainText('This browser is signed out. Other sessions may still be active.');
+    await expect(notice).toContainText('Sign in to the same account. In Account settings, choose Sign out on all devices again.');
+    await expect(notice).toHaveText(/^This browser is signed out\. Other sessions may still be active\.\s*Sign in to the same account\. In Account settings, choose Sign out on all devices again\.$/);
+    await expect(page.locator('body')).not.toContainText('Private logout draft');
+    await expect(page.getByLabel('Your name')).toHaveCount(0);
+    expect(await page.evaluate(() => Object.keys(localStorage).some(name => name.endsWith('-auth-token')))).toBe(false);
+    const devices = await admin.from('devices').select('revoked_at').eq('user_id', fixture.accountIds[0]);
+    expect(devices.data?.[0].revoked_at).not.toBeNull();
+    expect((await client.rpc('get_session_context')).data.ok).toBe(true);
+    await page.unroute('**/auth/v1/logout?scope=global');
+    // Reauthentication uses a new provider code after the account's OTP window.
+    await page.waitForTimeout(61_000);
+    await loginWithLocalEmailCode(page, fixture.email);
+    await page.goto('/settings/profile'); await expect(page.getByLabel('Your name')).toHaveValue('Anna');
+    await page.goto('/settings/account');
+    const authRevoked = page.waitForResponse(response => {
+      const url = new URL(response.url());
+      return url.pathname === '/auth/v1/logout' && url.searchParams.get('scope') === 'global';
+    });
+    await page.getByRole('button', { name: 'Sign out on all devices', exact: true }).click();
+    expect((await authRevoked).ok()).toBe(true);
+    await expect(page).toHaveURL(/\/welcome$/); await expect(page.getByRole('alert')).toHaveCount(0);
+    expect((await client.rpc('get_session_context')).data.ok).toBe(false);
+  } finally { await cleanupEntryFixture(fixture); }
+});
+
+// Importance 100: an old global logout callback must not attach its failure notice to a new account.
+test('late global Auth failure does not show a notice after a new account signs in', async ({ page }) => {
+  const first = await createEntryFixture('unpaired');
+  const next = await createEntryFixture('unpaired');
+  let release = () => {};
+  const released = new Promise<void>(resolve => { release = resolve; });
+  let arrived = () => {};
+  const requested = new Promise<void>(resolve => { arrived = resolve; });
+  try {
+    await loginWithLocalEmailCode(page, first.email);
+    await page.goto('/settings/account');
+    await page.route('**/auth/v1/logout?scope=global', async route => {
+      arrived(); await released;
+      await route.fulfill({ status: 503, json: { code: 'unexpected_failure', msg: 'Auth unavailable' } });
+    });
+    await page.getByRole('button', { name: 'Sign out on all devices', exact: true }).click();
+    await requested; await expect(page).toHaveURL(/\/welcome$/);
+    // Keep the same document so the delayed callback and next sign-in share the real Auth client.
+    await page.getByRole('link', { name: 'Continue with email', exact: true }).click();
+    await page.getByLabel('Email address').fill(next.email);
+    await page.getByRole('button', { name: 'Send code', exact: true }).click();
+    await page.getByLabel('Sign-in code').fill(await readLocalCode(next.email));
+    await page.getByRole('button', { name: 'Sign in', exact: true }).click();
+    await expect(page.getByRole('heading', { name: 'Make space for two', exact: true })).toBeVisible();
+    release();
+    // The SDK removes its local session on the delayed error. The old notice must remain suppressed.
+    await expect(page).toHaveURL(/\/welcome$/);
+    await expect(page.getByRole('alert')).toHaveCount(0);
+  } finally { release(); await cleanupEntryFixture(first); await cleanupEntryFixture(next); }
 });

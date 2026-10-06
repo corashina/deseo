@@ -5,6 +5,7 @@ import { getSupabase } from '../../lib/supabase';
 import { captureQueryScope, resetPrivateQueries } from '../../lib/query-client';
 import { setDraftScope } from '../../lib/drafts';
 import { assertOnline } from '../../lib/network';
+import { startSignOutNotice } from './sign-out-notice';
 export const entryIntent: { email: string; retryAt: string; invite: string | null; invalidInvite: boolean } = { email: '', retryAt: '', invite: null, invalidInvite: false };
 export async function requestEmailCode(email: string): Promise<Result<{ retryAt: string }>> {
   try {
@@ -43,6 +44,7 @@ export async function saveProfile(input: ProfileInput, expectedVersion?: number)
 }
 export async function signOut(scope: 'local' | 'global' = 'local') {
   const client = getSupabase();
+  const reportGlobalFailure = startSignOutNotice();
   if (scope === 'global') {
     assertOnline();
     const queryScope = captureQueryScope();
@@ -58,8 +60,13 @@ export async function signOut(scope: 'local' | 'global' = 'local') {
   entryIntent.invalidInvite = false;
   entryIntent.email = '';
   await resetPrivateQueries();
-  const { error } = await client.auth.signOut({ scope });
-  if (error) throw error;
+  try {
+    const { error } = await client.auth.signOut({ scope });
+    if (error) throw error;
+  } catch (error) {
+    if (scope === 'global') reportGlobalFailure();
+    throw error;
+  }
 }
 async function sensitiveRequest<T extends z.ZodTypeAny>(action: SensitiveAction, schema: T, code?: string): Promise<Result<z.infer<T>>> {
   try {

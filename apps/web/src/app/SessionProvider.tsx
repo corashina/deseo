@@ -2,7 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useRef, useState, ty
 import type { Account } from '@deseo/domain/auth';
 import type { PairContext } from '@deseo/domain/pair';
 import { toAppError } from '@deseo/domain/result';
-import { restoreSession } from '../features/auth';
+import { restoreSession, clearGlobalSignOutFailure } from '../features/auth';
 import { getPairContext } from '../features/pair';
 import { getSupabase } from '../lib/supabase';
 import { resetPrivateQueries } from '../lib/query-client';
@@ -61,6 +61,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     const { data } = client.auth.onAuthStateChange((event, session) => {
       if (event === 'INITIAL_SESSION') return;
       if (event === 'SIGNED_OUT') { clearTimeout(timer); reset(); return; }
+      if (event === 'SIGNED_IN') clearGlobalSignOutFailure();
       generation.current++;
       void resetPrivateQueries();
       if (session?.user.id !== verifiedUser.current) { setDraftScope(null, null); setState(empty); }
