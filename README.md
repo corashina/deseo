@@ -2,4 +2,4 @@
 
 The repository has no code yet.
 
-Claude sessions in this repository follow the writing rules in `CLAUDE.md`. Those rules load three skills from `.claude/skills/`; see `.claude/skills/SOURCES.md` for their sources and licenses.
+Claude sessions in this repository follow the writing rules in `CLAUDE.md`, which load the stop-slop skill from `.claude/skills/`. See `.claude/skills/SOURCES.md` for its source and license.
