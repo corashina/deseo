@@ -1,3 +1,5 @@
+import { MemoryCard, useMemorySignals } from '../../memories';
+import '../../../styles/memories.css';
 import { useQuery } from '@tanstack/react-query';
 import { DateTime } from 'luxon';
 import { Link } from 'react-router-dom';
@@ -19,6 +21,7 @@ export function TodayPage() {
   const zone = pair?.status === 'active' ? pair.timezone : 'UTC';
   const date = DateTime.now().setZone(zone).toISODate()!;
   const query = useQuery({ queryKey: todayKeys.day(account!.id, pairId, date), queryFn: () => getToday(pairId, date) });
+  useMemorySignals(account!.id, pair);
   useTaskSignals(account!.id, pair);
   useCalendarSignals(account!.id, pair);
   if (pair?.status !== 'active')
@@ -60,6 +63,7 @@ export function TodayPage() {
         </section>
       </div>
       <aside className="planning-column">
+      {query.data.memory && <section data-testid="today-memory"><h2>Latest memory</h2><MemoryCard memory={query.data.memory} author={pair.members.find(member => member.userId === query.data.memory!.createdBy)!.displayName} /></section>}
       {query.data.note && <div data-testid="today-note"><NoteCard message={query.data.note} name={pair.members.find(member => member.userId === query.data.note!.authorId)!.displayName} /></div>}
       {important && <section className="card important-card">
         <h2>Next important date</h2>

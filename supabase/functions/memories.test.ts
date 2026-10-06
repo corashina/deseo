@@ -119,6 +119,29 @@ Deno.test('unauthorized media requests never sign a path', async () => {
   const response = await handleMedia(post({ photoId }), f.authenticate);
   assert.equal(response.status, 403);
 });
+// Importance 100: native and browser clients require an authorized, reachable public URL.
+Deno.test('media uses the public base and preserves the signed path without leaking its internal host', async () => {
+  const previous = Deno.env.get('PUBLIC_SUPABASE_URL');
+  const f = fixture();
+  f.client.rpc = () => Promise.resolve(ok({ bucket: 'memory-photos', path: f.photo.fullPath, expiresIn: 60, photoId }));
+  const path = '/storage/v1/object/sign/memory-photos/' + f.photo.fullPath;
+  f.storage.createSignedUrl = async () => ({ data: { signedUrl: 'http://kong:8000' + path + '?token=synthetic' }, error: null });
+  try {
+    for (const invalid of [undefined, 'file:///private', 'https://user:password@example.test', 'https://example.test/path', 'https://example.test?secret=1']) {
+      if (invalid === undefined) Deno.env.delete('PUBLIC_SUPABASE_URL'); else Deno.env.set('PUBLIC_SUPABASE_URL', invalid);
+      assert.equal((await handleMedia(post({ photoId }), f.authenticate)).status, 503);
+    }
+    Deno.env.set('PUBLIC_SUPABASE_URL', 'https://public.example.test');
+    const response = await handleMedia(post({ photoId }), f.authenticate);
+    assert.equal(response.status, 200);
+    assert.equal(response.headers.get('Cache-Control'), 'no-store');
+    const result = await response.json();
+    assert.equal(result.data.url, 'https://public.example.test' + path + '?token=synthetic');
+    assert.ok(Date.parse(result.data.expiresAt) <= Date.now() + 60_000);
+  } finally {
+    if (previous === undefined) Deno.env.delete('PUBLIC_SUPABASE_URL'); else Deno.env.set('PUBLIC_SUPABASE_URL', previous);
+  }
+});
 Deno.test('cleanup retains failed removals and completes only successful removals', async () => {
   const f = fixture(); const outcomes: unknown[] = [];
   const job = { id: commandId, memoryId, bucket: 'memory-photos', paths: [f.photo.fullPath], leaseToken: photoId, attempt: 1 };

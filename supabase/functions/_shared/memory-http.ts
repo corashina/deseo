@@ -1,3 +1,4 @@
+import { browserOriginHeaders } from './browser-origin.ts';
 import { runtimeKeys } from './keys.ts';
 import { createClient, type SupabaseClient } from 'npm:@supabase/supabase-js@2.117.2';
 
@@ -14,10 +15,10 @@ const options = { auth: { persistSession: false, autoRefreshToken: false, detect
 export const isUuid = (value: unknown): value is string => typeof value === 'string'
   && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
 export const failed = (code: ErrorCode): Outcome<never> => ({ ok: false, error: { code } });
-export function reply(result: Outcome<unknown>): Response {
+export function reply(result: Outcome<unknown>, request?: Request): Response {
   const status = result.ok ? 200 : ({ UNAUTHENTICATED: 401, FORBIDDEN: 403, VALIDATION: 400,
     CONFLICT: 409, QUOTA_EXCEEDED: 409, RETRYABLE: 503 })[result.error.code];
-  return Response.json(result, { status, headers: { 'Cache-Control': 'no-store' } });
+  return Response.json(result, { status, headers: request ? browserOriginHeaders(request) : { 'Cache-Control': 'no-store' } });
 }
 export async function readBody(request: Request): Promise<Record<string, unknown> | null> {
   if (request.method !== 'POST' || Number(request.headers.get('content-length')) > 4096 || !request.body) return null;

@@ -1,3 +1,4 @@
+import { latestMemory } from '../memories';
 import { captureQueryScope } from '../../lib/query-client';
 import { DateTime } from 'luxon';
 import { listAgenda, nextImportantDate } from '../calendar';
@@ -15,8 +16,8 @@ export async function getToday(pairId: string, date: string) {
   const day = DateTime.fromISO(date, { zone: pair.timezone });
   if (!day.isValid || day.toISODate() !== date)
     throw new AppError({ code: 'VALIDATION', field: 'date' });
-  const [events, tasks, notes] = await Promise.all([
-    listAgenda({ pairId, from: date, to: day.plus({ days: 366 }).toISODate()! }), listDueTasks(pairId, date), listPinnedNotes(pairId),
+  const [events, tasks, notes, memory] = await Promise.all([
+    listAgenda({ pairId, from: date, to: day.plus({ days: 366 }).toISODate()! }), listDueTasks(pairId, date), listPinnedNotes(pairId), latestMemory(pairId),
   ]);
   scope.assertCurrent();
   const now = DateTime.now().setZone(pair.timezone);
@@ -26,6 +27,7 @@ export async function getToday(pairId: string, date: string) {
     : DateTime.fromISO(event.temporal.endsAt) > now && DateTime.fromISO(event.temporal.startsAt).setZone(pair.timezone).toISODate()! < weekEnd).slice(0, 3);
   return {
     pair,
+    memory,
     agenda,
     tasks: tasks.slice(0, 3),
     note: notes[0] ?? null,

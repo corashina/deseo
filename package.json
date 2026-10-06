@@ -18,7 +18,7 @@
     "test:mobile": "npm run test --workspace @deseo/mobile --",
     "test:db": "supabase test db",
     "test:db:race": "node --experimental-strip-types --test supabase/tests/pairing-races.test.ts supabase/tests/planning-races.test.ts supabase/tests/messages-races.test.ts",
-    "test:memories:functions": "npm exec --yes --package deno@2.9.6 -- deno test --allow-env --frozen --config supabase/functions/deno.json supabase/functions/finalize-memory/validate-jpeg.test.ts supabase/functions/memories.test.ts supabase/functions/_shared/keys.test.ts",
+    "test:memories:functions": "npm exec --yes --package deno@2.9.6 -- deno test --allow-env --frozen --config supabase/functions/deno.json supabase/functions/finalize-memory/validate-jpeg.test.ts supabase/functions/memories.test.ts supabase/functions/_shared/keys.test.ts supabase/functions/browser-origin.test.ts",
     "typecheck:memories:functions": "npm exec --yes --package deno@2.9.6 -- deno check --frozen --config supabase/functions/deno.json supabase/functions/finalize-memory/index.ts supabase/functions/get-memory-media/index.ts supabase/functions/cleanup/index.ts",
     "test:notifications:functions": "npm exec --yes --package deno@2.9.6 -- deno test --allow-env --frozen --config supabase/functions/deno.json supabase/functions/notifications.test.ts",
     "typecheck:notifications:functions": "npm exec --yes --package deno@2.9.6 -- deno check --frozen --config supabase/functions/deno.json supabase/functions/dispatch-notifications/index.ts supabase/functions/check-push-receipts/index.ts",
@@ -36,7 +36,8 @@
     "prepare:web:backend": "powershell -NoProfile -File supabase/dev/prepare-web-stack.ps1",
     "build:web": "npm run build --workspace @deseo/web",
     "test:domain": "npm run test --workspace @deseo/domain",
-    "seed:web": "node --experimental-strip-types supabase/dev/seed-web-pair.ts"
+    "seed:web": "node --experimental-strip-types supabase/dev/seed-web-pair.ts",
+    "start:web:functions": "powershell -NoProfile -File supabase/dev/serve-web-functions.ps1"
   },
   "devDependencies": {
     "eslint": "10.12.0",

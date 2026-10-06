@@ -1,0 +1,284 @@
+import { test, expect, type Page } from '@playwright/test';
+import { randomUUID } from 'node:crypto';
+import { mkdirSync } from 'node:fs';
+import { createPortalPairFixture, cleanupPortalPairFixture, portalClient } from './support/fixtures';
+import { admin } from './support/entry-fixtures';
+import { loginWithLocalEmailCode } from './support/local-auth';
+const asset = '../../supabase/dev/assets/sample-walk.jpg';
+async function select(page: Page, count = 1) {
+  await page.getByLabel('Photos', { exact: true }).setInputFiles(Array.from({ length: count }, () => asset));
+  await expect(page.getByRole('img', { name: 'Selected photo', exact: true })).toHaveCount(count);
+  await expect(page.getByRole('button', { name: 'Publish memory', exact: true })).toBeEnabled();
+}
+async function form(page: Page, caption: string) {
+  await page.goto('/memories/new');
+  await page.getByLabel('Memory date').fill('2026-10-05');
+  await page.getByLabel('Caption', { exact: true }).fill(caption);
+}
+// Importance 98: real publication and prepared JPEG limits protect shared photos.
+test('memories show private images and publish one to five prepared photos', async ({ page }) => {
+  test.setTimeout(60000);
+  const ids = await createPortalPairFixture();
+  try {
+    await loginWithLocalEmailCode(page, ids.annaEmail);
+    await page.goto('/memories');
+    await expect(page.getByRole('heading', { name: 'Memories', exact: true })).toBeVisible();
+    await expect(page.locator('.memory-card img')).toHaveCount(2);
+    for (const count of [1, 5]) {
+      await form(page, 'Browser memory ' + count);
+      // The existing feed orders by memory date, then UUID for tied dates.
+      if (count === 5) await page.getByLabel('Memory date').fill('2026-10-06');
+      await select(page, count);
+      await page.getByRole('button', { name: 'Publish memory', exact: true }).click();
+      await expect(page.getByRole('heading', { name: 'Browser memory ' + count, exact: true })).toBeVisible();
+      await expect(page.locator('.memory-detail img')).toHaveCount(count);
+      const client = await portalClient(ids.marekEmail);
+      const memory = await client.rpc('get_memory', { p_memory_id: page.url().split('/').at(-1) });
+      expect(memory.data.data.state).toBe('published');
+      for (const photo of memory.data.data.photos) {
+        expect(photo.fullBytes).toBeLessThanOrEqual(5242880);
+        expect(photo.thumbBytes).toBeLessThanOrEqual(5242880);
+        expect(Math.max(photo.width, photo.height)).toBeLessThanOrEqual(2560);
+        expect(Math.max(photo.thumbWidth, photo.thumbHeight)).toBeLessThanOrEqual(512);
+        expect(photo.validated).toBe(true);
+      }
+    }
+    await page.goto('/today');
+    await expect(page.getByTestId('today-memory').getByRole('heading', { name: 'Browser memory 5' })).toBeVisible();
+  } finally { await cleanupPortalPairFixture(ids); }
+});
+// Importance 96: selections must reject count, byte, and type violations and scale supported images.
+test('photo preparation enforces limits and removes source metadata', async ({ page }) => {
+  const ids = await createPortalPairFixture();
+  try {
+    await loginWithLocalEmailCode(page, ids.annaEmail);
+    await form(page, 'Scaled photo');
+    await page.getByRole('button', { name: 'Publish memory', exact: true }).click();
+    await expect(page.getByText('Choose at least one photo.', { exact: true })).toBeVisible();
+    await page.getByLabel('Photos', { exact: true }).setInputFiles(Array.from({ length: 6 }, () => asset));
+    await expect(page.getByText('Choose no more than five photos.', { exact: true })).toBeVisible();
+    await page.getByLabel('Photos', { exact: true }).setInputFiles({ name: 'unsupported.gif', mimeType: 'image/gif', buffer: Buffer.from('GIF89a') });
+    await expect(page.getByText('Choose a JPEG, PNG, or WebP photo.', { exact: true })).toBeVisible();
+    await page.getByLabel('Photos', { exact: true }).setInputFiles({ name: 'large.jpg', mimeType: 'image/jpeg', buffer: Buffer.alloc(30 * 1024 * 1024 + 1) });
+    await expect(page.getByText('Choose a photo smaller than 30 MiB.', { exact: true })).toBeVisible();
+    const png = await page.evaluate(() => {
+      const canvas = document.createElement('canvas'); canvas.width = 3000; canvas.height = 1800;
+      canvas.getContext('2d')!.fillRect(0, 0, 3000, 1800); return canvas.toDataURL('image/png').split(',')[1];
+    });
+    await page.getByLabel('Photos', { exact: true }).setInputFiles({ name: 'wide.png', mimeType: 'image/png', buffer: Buffer.from(png, 'base64') });
+    await expect(page.getByRole('img', { name: 'Selected photo', exact: true })).toBeVisible();
+    await page.getByRole('button', { name: 'Publish memory', exact: true }).click();
+    await expect(page.getByRole('heading', { name: 'Scaled photo', exact: true })).toBeVisible();
+    const client = await portalClient(ids.annaEmail);
+    const memory = (await client.rpc('get_memory', { p_memory_id: page.url().split('/').at(-1) })).data.data;
+    expect(memory.photos[0]).toMatchObject({ width: 2560, height: 1536, thumbWidth: 512, thumbHeight: 307, validated: true });
+    const { data } = await admin.storage.from('memory-photos').download(memory.photos[0].fullPath);
+    expect(data!.type).toBe('image/jpeg');
+    expect(Buffer.from(await data!.arrayBuffer()).includes(Buffer.from('ICC_PROFILE'))).toBe(false);
+  } finally { await cleanupPortalPairFixture(ids); }
+});
+// Importance 95: failures keep fields and bytes; removal releases the failed reservation.
+test('failed upload keeps caption and date and lets the author remove a photo', async ({ page }) => {
+  const ids = await createPortalPairFixture();
+  try {
+    await loginWithLocalEmailCode(page, ids.annaEmail);
+    await form(page, 'Kept caption'); await select(page, 2);
+    await page.route('**/storage/v1/object/memory-photos/**', route => route.abort());
+    await page.getByRole('button', { name: 'Publish memory', exact: true }).click();
+    await expect(page.getByRole('button', { name: 'Retry save', exact: true })).toBeEnabled();
+    await expect(page.getByLabel('Caption', { exact: true })).toHaveValue('Kept caption');
+    await expect(page.getByLabel('Memory date')).toHaveValue('2026-10-05');
+    await page.getByRole('button', { name: 'Discard upload and change photos', exact: true }).click();
+    await expect(page.getByRole('button', { name: 'Remove photo 2', exact: true })).toBeEnabled();
+    await page.getByRole('button', { name: 'Remove photo 2', exact: true }).click();
+    await expect(page.getByRole('img', { name: 'Selected photo', exact: true })).toHaveCount(1);
+    await expect(page.getByLabel('Caption', { exact: true })).toBeEditable();
+    await page.unroute('**/storage/v1/object/memory-photos/**');
+    await page.getByRole('button', { name: 'Publish memory', exact: true }).click();
+    await expect(page.getByRole('heading', { name: 'Kept caption', exact: true })).toBeVisible();
+    const client = await portalClient(ids.annaEmail);
+    const feed = (await client.rpc('list_memories', { p_pair_id: ids.pairId, p_limit: 50 })).data.data.items;
+    expect(feed.filter((memory: { caption: string }) => memory.caption === 'Kept caption')).toHaveLength(1);
+  } finally { await cleanupPortalPairFixture(ids); }
+});
+// Importance 98: uncertain immutable uploads and focus preserve one command and one publication.
+test('lost upload response survives focus and publishes once without overwriting', async ({ page }) => {
+  const ids = await createPortalPairFixture();
+  try {
+    await loginWithLocalEmailCode(page, ids.annaEmail); await form(page, 'One publication'); await select(page);
+    const reservations: unknown[] = []; const paths: string[] = []; let interrupted = false;
+    await page.route('**/rest/v1/rpc/reserve_memory', async route => { reservations.push(route.request().postDataJSON()); await route.continue(); });
+    await page.route('**/storage/v1/object/memory-photos/**', async route => {
+      paths.push(new URL(route.request().url()).pathname);
+      if (!interrupted) {
+        interrupted = true; await route.fetch();
+        await page.evaluate(() => window.dispatchEvent(new Event('focus')));
+        // Importance 98: unlock while the old response remains pending, then ignore it.
+        await expect(page.getByRole('button', { name: 'Retry save', exact: true })).toBeEnabled();
+        await route.abort();
+      }
+      else await route.continue();
+    });
+    await page.getByRole('button', { name: 'Publish memory', exact: true }).click();
+    await expect(page.getByRole('button', { name: 'Retry save', exact: true })).toBeEnabled();
+    await expect(page.getByLabel('Caption', { exact: true })).toHaveValue('One publication');
+    await page.getByRole('button', { name: 'Retry save', exact: true }).click();
+    await expect(page.getByRole('heading', { name: 'One publication', exact: true })).toBeVisible();
+    expect(reservations[1]).toEqual(reservations[0]);
+    expect(paths.filter(path => path.endsWith('/full.jpg'))).toHaveLength(1);
+    const client = await portalClient(ids.marekEmail);
+    const feed = (await client.rpc('list_memories', { p_pair_id: ids.pairId, p_limit: 50 })).data.data.items;
+    expect(feed.filter((memory: { caption: string }) => memory.caption === 'One publication')).toHaveLength(1);
+  } finally { await cleanupPortalPairFixture(ids); }
+});
+// Importance 100: partner reads, author controls, conflicts, download, and deletion enforce access.
+test('partner can view and download while only the author edits or deletes', async ({ page }) => {
+  const ids = await createPortalPairFixture();
+  try {
+    await loginWithLocalEmailCode(page, ids.marekEmail); await page.goto('/memories/' + ids.memoryId);
+    await expect(page.locator('.memory-detail img')).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Edit memory', exact: true })).toHaveCount(0);
+    await expect(page.getByRole('button', { name: 'Delete memory', exact: true })).toHaveCount(0);
+    const download = page.waitForEvent('download'); await page.getByRole('button', { name: 'Download photo 1', exact: true }).click(); expect((await download).suggestedFilename()).toMatch(/\.jpg$/);
+    await page.goto('/memories/' + ids.memoryId + '/edit'); await expect(page.getByRole('heading', { name: 'Memory unavailable', exact: true })).toBeVisible();
+    const client = await portalClient(ids.marekEmail);
+    expect((await client.rpc('delete_memory', { p_memory_id: ids.memoryId, p_expected_version: 1, p_command_id: randomUUID() })).data.error.code).toBe('FORBIDDEN');
+    await page.getByRole('button', { name: 'Account menu', exact: true }).first().click(); await page.getByRole('button', { name: 'Sign out', exact: true }).click();
+    await loginWithLocalEmailCode(page, ids.annaEmail); await page.goto('/memories/' + ids.memoryId + '/edit');
+    await page.getByLabel('Caption', { exact: true }).fill('Author draft');
+    const anna = await portalClient(ids.annaEmail);
+    const current = (await anna.rpc('get_memory', { p_memory_id: ids.memoryId })).data.data;
+    expect((await anna.rpc('update_memory', { p_memory_id: ids.memoryId, p_expected_version: current.version, p_command_id: randomUUID(), p_input: { caption: 'Remote edit', memoryDate: current.memoryDate } })).data.ok).toBe(true);
+    await page.getByRole('button', { name: 'Save changes', exact: true }).click();
+    await expect(page.getByText('This memory changed. Your draft is kept.', { exact: true })).toBeVisible();
+    await expect(page.getByLabel('Caption', { exact: true })).toHaveValue('Author draft');
+    await page.getByRole('button', { name: 'Reload memory and discard draft', exact: true }).click();
+    await page.getByLabel('Caption', { exact: true }).fill('Saved author caption');
+    await page.getByRole('button', { name: 'Save changes', exact: true }).click();
+    await expect(page.getByRole('heading', { name: 'Saved author caption', exact: true })).toBeVisible();
+    await page.getByRole('button', { name: 'Delete memory', exact: true }).click();
+    await page.getByRole('button', { name: 'Confirm deletion', exact: true }).click();
+    await expect(page).toHaveURL(/\/memories$/);
+    expect((await client.rpc('get_memory', { p_memory_id: ids.memoryId })).data.error.code).toBe('FORBIDDEN');
+  } finally { await cleanupPortalPairFixture(ids); }
+});
+// Importance 95: focus unlocks detail downloads while late image bytes remain private.
+test('focus unlocks a pending download without accepting its late response', async ({ page }) => {
+  const ids = await createPortalPairFixture();
+  try {
+    await loginWithLocalEmailCode(page, ids.annaEmail);
+    await page.goto('/memories/' + ids.memoryId);
+    await expect(page.locator('.memory-detail img')).toBeVisible();
+    let interrupted = false;
+    await page.route('**/storage/v1/object/sign/memory-photos/**', async route => {
+      if (!interrupted) {
+        interrupted = true;
+        const response = await route.fetch();
+        await page.evaluate(() => window.dispatchEvent(new Event('focus')));
+        await expect(page.getByRole('button', { name: 'Download photo 1', exact: true })).toBeEnabled();
+        await route.fulfill({ response });
+      } else await route.continue();
+    });
+    const downloads: string[] = [];
+    page.on('download', download => downloads.push(download.suggestedFilename()));
+    await page.getByRole('button', { name: 'Download photo 1', exact: true }).click();
+    await expect(page.locator('.memory-detail img')).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Download photo 1', exact: true })).toBeEnabled();
+    expect(downloads).toEqual([]);
+    const nextDownload = page.waitForEvent('download');
+    await page.getByRole('button', { name: 'Download photo 1', exact: true }).click();
+    expect((await nextDownload).suggestedFilename()).toMatch(/\.jpg$/);
+  } finally { await cleanupPortalPairFixture(ids); }
+});
+// Importance 98: a deletion keeps its command and version through focus and retries once.
+test('focus preserves an uncertain deletion and replays its command', async ({ page }) => {
+  const ids = await createPortalPairFixture();
+  try {
+    await loginWithLocalEmailCode(page, ids.annaEmail);
+    await page.goto('/memories/' + ids.memoryId);
+    await expect(page.locator('.memory-detail img')).toBeVisible();
+    const attempts: unknown[] = [];
+    let interrupted = false;
+    await page.route('**/rest/v1/rpc/delete_memory', async route => {
+      attempts.push(route.request().postDataJSON());
+      if (!interrupted) {
+        interrupted = true; await route.fetch();
+        await page.evaluate(() => window.dispatchEvent(new Event('focus')));
+        await expect(page.getByRole('button', { name: 'Retry deletion', exact: true })).toBeEnabled();
+        await route.abort();
+      } else await route.continue();
+    });
+    await page.getByRole('button', { name: 'Delete memory', exact: true }).click();
+    await page.getByRole('button', { name: 'Confirm deletion', exact: true }).click();
+    await page.getByRole('button', { name: 'Retry deletion', exact: true }).click();
+    await expect(page).toHaveURL(/\/memories$/);
+    expect(attempts).toHaveLength(2);
+    expect(attempts[1]).toEqual(attempts[0]);
+  } finally { await cleanupPortalPairFixture(ids); }
+});
+// Importance 100: a revoked pair cannot complete an in-flight publication.
+test('pair revocation during upload prevents publication', async ({ page }) => {
+  const ids = await createPortalPairFixture();
+  try {
+    await loginWithLocalEmailCode(page, ids.annaEmail); await form(page, 'Revoked upload'); await select(page);
+    let ended = false;
+    await page.route('**/storage/v1/object/memory-photos/**', async route => {
+      if (!ended) { ended = true; await route.fetch(); const result = await admin.from('pairs').update({ state: 'ended', ended_at: new Date().toISOString() }).eq('id', ids.pairId); expect(result.error).toBeNull(); }
+      await route.continue();
+    });
+    await page.getByRole('button', { name: 'Publish memory', exact: true }).click();
+    await expect.poll(async () => (await admin.from('memories').select('state').eq('pair_id', ids.pairId).eq('caption', 'Revoked upload')).data?.[0]?.state).toBe('deleting');
+    expect((await admin.from('memories').select('id').eq('pair_id', ids.pairId).eq('caption', 'Revoked upload').eq('state', 'published')).data).toEqual([]);
+    await page.evaluate(() => window.dispatchEvent(new Event('focus')));
+    await expect(page.locator('.memory-detail img')).toHaveCount(0);
+  } finally { await cleanupPortalPairFixture(ids); }
+});
+// Importance 100: private media refreshes once and object URLs disappear on sign-out.
+test('media refreshes once and sign-out removes images and object URLs', async ({ page }) => {
+  const ids = await createPortalPairFixture();
+  try {
+    await page.addInitScript(() => {
+      const active = new Set<string>(); const create = URL.createObjectURL.bind(URL); const revoke = URL.revokeObjectURL.bind(URL);
+      URL.createObjectURL = value => { const url = create(value); active.add(url); return url; };
+      URL.revokeObjectURL = value => { active.delete(value); revoke(value); };
+      Object.assign(window, { memoryObjectUrls: active });
+    });
+    await loginWithLocalEmailCode(page, ids.annaEmail);
+    let calls = 0;
+    await page.route('**/storage/v1/object/sign/memory-photos/**', async route => { calls++; if (calls === 1) await route.fulfill({ status: 403, body: '{}' }); else await route.continue(); });
+    await page.goto('/memories/' + ids.memoryId);
+    await expect(page.locator('.memory-detail img')).toBeVisible(); expect(calls).toBe(2);
+    await page.evaluate(() => window.dispatchEvent(new Event('focus')));
+    await expect(page.locator('.memory-detail img')).toBeVisible();
+    await page.getByRole('button', { name: 'Account menu', exact: true }).first().click(); await page.getByRole('button', { name: 'Sign out', exact: true }).click();
+    await expect(page).toHaveURL(/\/welcome$/); await expect(page.locator('img[src^="blob:"]')).toHaveCount(0);
+    expect(await page.evaluate(() => (window as unknown as { memoryObjectUrls: Set<string> }).memoryObjectUrls.size)).toBe(0);
+  } finally { await cleanupPortalPairFixture(ids); }
+});
+// Importance 100: forbidden private media stops after one refresh and shows recovery.
+test('forbidden media refreshes once and shows recovery', async ({ page }) => {
+  const ids = await createPortalPairFixture();
+  try {
+    await loginWithLocalEmailCode(page, ids.annaEmail);
+    let calls = 0;
+    await page.route('**/storage/v1/object/sign/memory-photos/**', async route => { calls++; await route.fulfill({ status: 403, body: '{}' }); });
+    await page.goto('/memories/' + ids.memoryId);
+    await expect(page.getByText('This photo is unavailable. Open the memory again.', { exact: true })).toBeVisible(); expect(calls).toBe(2);
+  } finally { await cleanupPortalPairFixture(ids); }
+});
+// Importance 92: loaded routes must fit narrow, rail, and sidebar layouts.
+test('loaded memory routes fit the shell and produce review captures', async ({ page }, info) => {
+  const ids = await createPortalPairFixture();
+  const folder = '../../.superpowers/sdd/2026-10-05-deseo-web-portal-implementation/task-7-captures'; mkdirSync(folder, { recursive: true });
+  try {
+    await loginWithLocalEmailCode(page, ids.annaEmail);
+    for (const [name, route] of [['feed', '/memories'], ['detail', '/memories/' + ids.memoryId], ['edit', '/memories/' + ids.memoryId + '/edit'], ['form', '/memories/new']]) {
+      await page.goto(route);
+      await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+      if (name === 'feed' || name === 'detail') await expect(page.locator('main img').first()).toBeVisible();
+      await page.screenshot({ path: folder + '/' + name + '-' + info.project.name + '.png', fullPage: true });
+      for (const width of [320, 768, 1024]) { await page.setViewportSize({ width, height: 1000 }); expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true); }
+      await page.setViewportSize(info.project.use.viewport!);
+    }
+  } finally { await cleanupPortalPairFixture(ids); }
+});
