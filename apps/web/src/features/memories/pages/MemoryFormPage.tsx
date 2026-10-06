@@ -16,7 +16,7 @@ import { reserveMemory, uploadMemoryPhoto, finalizeMemory, updateMemory, deleteM
 import { preparePhoto, reservationInput, type PreparedBrowserPhoto, type MemoryReservationInput } from '../prepare';
 import { PhotoSelection } from '../components/PhotoSelection';
 import '../../../styles/memories.css';
-type Attempt = { input: MemoryReservationInput; commandId: string; publishId: string; version?: number; discardId: string };
+type Attempt = { input: MemoryReservationInput; commandId: string; publishId: string; version?: number; discardId: string; reserved?: boolean; discardVersion?: number };
 type Draft = { values: MemoryInput; photos: PreparedBrowserPhoto[]; id: string; version?: number; attempt?: Attempt; dirty: boolean };
 export function MemoryFormPage() {
   const { memoryId } = useParams(); const { account, pair } = useSession(); const pairId = pair?.status === 'active' ? pair.pairId : '';
@@ -68,17 +68,18 @@ function MemoryEditor({ memory }: { memory?: Memory }) {
     finally { if (mounted.current && !scope.signal.aborted) { busy.current = false; setPreparing(false); } }
   }
   async function save(values: MemoryInput) {
-    if (!online || busy.current || conflict) return;
+    if (!online || busy.current || conflict || attempt.current?.discardVersion !== undefined) return;
     const parsed = memoryInputSchema.safeParse(values);
     if (!parsed.success) { setError(parsed.error.issues[0].message); return; }
     if (!memory && !photos.length) { setError('Choose at least one photo.'); return; }
-    const next = attempt.current ?? { input: reservationInput(id.current, pairId, parsed.data, photos), commandId: crypto.randomUUID(), publishId: crypto.randomUUID(), discardId: crypto.randomUUID(), version: version.current };
+    const next: Attempt = attempt.current ?? { input: reservationInput(id.current, pairId, parsed.data, photos), commandId: crypto.randomUUID(), publishId: crypto.randomUUID(), discardId: crypto.randomUUID(), version: version.current };
     // Persist immutable command, input, version, and prepared bytes before the first await.
     attempt.current = next; keep(values); const scope = beginScope();
     busy.current = true; setSaving(true); setFrozen(true); setError(''); setProgress(memory ? 'Saving changes…' : 'Reserving photo space…');
     let result = memory ? await updateMemory(memory.id, next.input, next.version!, next.commandId) : await reserveMemory(next.input, next.commandId);
     if (!mounted.current || scope.signal.aborted) return;
     if (result.ok && !memory && result.data.state !== 'published') {
+      next.reserved = true; keep(values);
       const reservation = result.data;
       for (let index = 0; index < photos.length; index++) {
         setProgress('Uploading photo ' + (index + 1) + ' of ' + photos.length + '…');
@@ -94,20 +95,28 @@ function MemoryEditor({ memory }: { memory?: Memory }) {
     setConflict(result.error.code === 'CONFLICT');
     setError(result.error.code === 'CONFLICT' ? 'This memory changed. Your draft is kept.' : result.error.message ?? 'Upload failed. Your photos, date, and caption are kept.');
     // A failed upload retains its reservation. Retry inspects immutable files before sending them again.
-    if (memory && result.error.code !== 'RETRYABLE') { attempt.current = undefined; setFrozen(false); keep(values); }
+    const rejectedReservation = !memory && !next.reserved
+      && ['QUOTA_EXCEEDED', 'VALIDATION'].includes(result.error.code);
+    if (rejectedReservation || memory && result.error.code !== 'RETRYABLE') {
+      attempt.current = undefined; setFrozen(false); keep(values);
+    }
   }
   async function discardUpload() {
     if (!attempt.current || busy.current || !online) return;
     const next = attempt.current; const scope = beginScope(); busy.current = true; setSaving(true);
-    let current: Memory;
-    try { current = await getMemory(pairId, next.input.id); }
-    catch { if (mounted.current && !scope.signal.aborted) { busy.current = false; setSaving(false); setError('Retry the upload before changing photos.'); } return; }
-    if (!mounted.current || scope.signal.aborted) return;
-    if (current.state === 'published') { removeDraft(accountId, pairId, key); setConfirmed(true); return; }
-    const result = await deleteMemory(next.input.id, current.version, next.discardId);
+    if (next.discardVersion === undefined) {
+      let current: Memory;
+      try { current = await getMemory(pairId, next.input.id); }
+      catch { if (mounted.current && !scope.signal.aborted) { busy.current = false; setSaving(false); setError('Retry the upload before changing photos.'); } return; }
+      if (!mounted.current || scope.signal.aborted) return;
+      if (current.state === 'published') { removeDraft(accountId, pairId, key); setConfirmed(true); return; }
+      // Persist the deletion version before sending a command that can hide its own row.
+      next.discardVersion = current.version; keep();
+    }
+    const result = await deleteMemory(next.input.id, next.discardVersion, next.discardId);
     if (!mounted.current || scope.signal.aborted) return;
     busy.current = false; setSaving(false);
-    if (!result.ok) { setError('We could not discard this upload. Retry the upload first.'); return; }
+    if (!result.ok) { setError('We could not confirm the discard. Retry the discard.'); return; }
     // Deleted reservations keep their globally unique photo IDs until cleanup finishes.
     const nextPhotos = photos.map(photo => ({ ...photo, id: crypto.randomUUID() }));
     attempt.current = undefined; id.current = crypto.randomUUID(); setPhotos(nextPhotos);
@@ -129,9 +138,9 @@ function MemoryEditor({ memory }: { memory?: Memory }) {
       <label className="field"><span>Caption</span><textarea rows={4} maxLength={1000} {...form.register('caption')} /></label>
     </fieldset>{!memory && <PhotoSelection photos={photos} disabled={saving || frozen} preparing={preparing} onSelect={files => void select(files)} onRemove={photoId => { const next = photos.filter(photo => photo.id !== photoId); setPhotos(next); keep(form.getValues(), next); }} progress={progress} />}
       {memory && <p role="status">{progress}</p>}{error && <Status error>{error}</Status>}
-      {frozen && !saving && <p>Your upload is unconfirmed. Retry with the same photos and details.</p>}
+      {frozen && !saving && <p>{attempt.current?.discardVersion !== undefined ? 'The discard is unconfirmed. Retry the discard.' : 'Your upload is unconfirmed. Retry with the same photos and details.'}</p>}
       {conflict && memory && <Button variant="secondary" onClick={() => void reload()}>Reload memory and discard draft</Button>}
       {frozen && !memory && !saving && <Button variant="secondary" disabled={!online} onClick={() => void discardUpload()}>Discard upload and change photos</Button>}
-      <div className="actions"><Button type="submit" disabled={!online || saving || preparing || conflict}>{saving ? 'Saving…' : frozen ? 'Retry save' : memory ? 'Save changes' : 'Publish memory'}</Button><Link to="/memories">Cancel</Link></div>
+      <div className="actions"><Button type="submit" disabled={!online || saving || preparing || conflict || attempt.current?.discardVersion !== undefined}>{saving ? 'Saving…' : frozen ? 'Retry save' : memory ? 'Save changes' : 'Publish memory'}</Button><Link to="/memories">Cancel</Link></div>
     </form></section></>;
 }

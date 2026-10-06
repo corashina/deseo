@@ -101,6 +101,102 @@ test('failed upload keeps caption and date and lets the author remove a photo', 
     expect(feed.filter((memory: { caption: string }) => memory.caption === 'Kept caption')).toHaveLength(1);
   } finally { await cleanupPortalPairFixture(ids); }
 });
+// Importance 95: a real quota rejection must release fields and retained photo controls.
+test('quota rejection releases the draft and permits a smaller reservation', async ({ page }) => {
+  test.setTimeout(60000);
+  const ids = await createPortalPairFixture();
+  try {
+    const client = await portalClient(ids.annaEmail);
+    await loginWithLocalEmailCode(page, ids.annaEmail);
+    await form(page, 'Quota draft'); await select(page, 2);
+    const attempts: { p_input: { id: string; photos: { id: string; fullBytes: number; thumbBytes: number }[] }; p_command_id: string }[] = [];
+    await page.route('**/rest/v1/rpc/reserve_memory', async route => {
+      const input = route.request().postDataJSON(); attempts.push(input);
+      if (attempts.length === 1) {
+        const existing = await admin.from('memory_photos').select('full_bytes,thumb_bytes').eq('pair_id', ids.pairId);
+        expect(existing.error).toBeNull();
+        const used = existing.data!.reduce((bytes, photo) => bytes + photo.full_bytes + photo.thumb_bytes, 0);
+        const first = input.p_input.photos[0];
+        let fill = 1073741824 - used - first.fullBytes - first.thumbBytes;
+        // Reserve the remaining quota through real commands. No image bytes are needed for pending records.
+        while (fill >= 2) {
+          const photos = [];
+          while (fill >= 2 && photos.length < 5) {
+            const bytes = Math.min(fill, 10 * 1024 * 1024);
+            photos.push({ id: randomUUID(), fullBytes: Math.floor(bytes / 2), thumbBytes: Math.ceil(bytes / 2), width: 1, height: 1, thumbWidth: 1, thumbHeight: 1 });
+            fill -= bytes;
+          }
+          const reservation = await client.rpc('reserve_memory', { p_input: { id: randomUUID(), pairId: ids.pairId, caption: 'Quota fixture', memoryDate: '2026-10-01', photos }, p_command_id: randomUUID() });
+          expect(reservation.error).toBeNull(); expect(reservation.data.ok).toBe(true);
+        }
+      }
+      await route.continue();
+    });
+    await page.getByRole('button', { name: 'Publish memory', exact: true }).click();
+    await expect(page.getByText('You reached the current limit.', { exact: true })).toBeVisible();
+    expect((await admin.from('memories').select('id').eq('id', attempts[0].p_input.id)).data).toEqual([]);
+    await expect(page.getByLabel('Caption', { exact: true })).toBeEditable();
+    page.once('dialog', dialog => dialog.accept());
+    await page.getByRole('link', { name: 'Cancel', exact: true }).click();
+    await page.getByRole('link', { name: 'Add memory', exact: true }).click();
+    await expect(page.getByLabel('Caption', { exact: true })).toBeEditable();
+    await expect(page.getByLabel('Caption', { exact: true })).toHaveValue('Quota draft');
+    await expect(page.getByLabel('Memory date')).toHaveValue('2026-10-05');
+    await expect(page.getByRole('img', { name: 'Selected photo', exact: true })).toHaveCount(2);
+    await page.getByRole('button', { name: 'Remove photo 2', exact: true }).click();
+    await page.getByRole('button', { name: 'Publish memory', exact: true }).click();
+    await expect(page.getByRole('heading', { name: 'Quota draft', exact: true })).toBeVisible();
+    expect(attempts).toHaveLength(2);
+    expect(attempts[1].p_command_id).not.toBe(attempts[0].p_command_id);
+    expect(attempts[1].p_input.photos[0].id).toBe(attempts[0].p_input.photos[0].id);
+  } finally { await cleanupPortalPairFixture(ids); }
+});
+// Importance 98: uncertain discard replays its command, retains bytes, and creates one new publication.
+for (const interruption of ['lost response', 'focus']) test('uncertain discard survives ' + interruption + ' and retains the draft', async ({ page }) => {
+  const ids = await createPortalPairFixture();
+  try {
+    await loginWithLocalEmailCode(page, ids.annaEmail);
+    await form(page, 'Retained after discard'); await select(page, 2);
+    const reservations: { p_input: { photos: { id: string }[] } }[] = [];
+    const deletions: unknown[] = []; let reads = 0;
+    await page.route('**/rest/v1/rpc/reserve_memory', async route => { reservations.push(route.request().postDataJSON()); await route.continue(); });
+    await page.route('**/rest/v1/rpc/get_memory', async route => { reads++; await route.continue(); });
+    await page.route('**/storage/v1/object/memory-photos/**', route => route.abort());
+    await page.getByRole('button', { name: 'Publish memory', exact: true }).click();
+    await expect(page.getByRole('button', { name: 'Retry save', exact: true })).toBeEnabled();
+    await page.unroute('**/storage/v1/object/memory-photos/**');
+    await page.route('**/rest/v1/rpc/delete_memory', async route => {
+      deletions.push(route.request().postDataJSON());
+      if (deletions.length === 1) {
+        await route.fetch();
+        if (interruption === 'focus') await page.evaluate(() => window.dispatchEvent(new Event('focus')));
+        await route.abort();
+      } else await route.continue();
+    });
+    await page.getByRole('button', { name: 'Discard upload and change photos', exact: true }).click();
+    await expect(page.getByRole('button', { name: 'Discard upload and change photos', exact: true })).toBeEnabled();
+    if (interruption === 'lost response') {
+      page.once('dialog', dialog => dialog.accept());
+      await page.getByRole('link', { name: 'Cancel', exact: true }).click();
+      await page.getByRole('link', { name: 'Add memory', exact: true }).click();
+    }
+    await expect(page.getByLabel('Caption', { exact: true })).toHaveValue('Retained after discard');
+    await expect(page.getByLabel('Memory date')).toHaveValue('2026-10-05');
+    await expect(page.getByRole('img', { name: 'Selected photo', exact: true })).toHaveCount(2);
+    await page.getByRole('button', { name: 'Discard upload and change photos', exact: true }).click();
+    await expect(page.getByLabel('Caption', { exact: true })).toBeEditable();
+    expect(reads).toBe(1); expect(deletions).toHaveLength(2); expect(deletions[1]).toEqual(deletions[0]);
+    await page.getByRole('button', { name: 'Publish memory', exact: true }).click();
+    await expect(page.getByRole('heading', { name: 'Retained after discard', exact: true })).toBeVisible();
+    await expect(page.locator('.memory-detail img')).toHaveCount(2);
+    expect(reservations).toHaveLength(2);
+    const oldIds = reservations[0].p_input.photos.map(photo => photo.id);
+    expect(reservations[1].p_input.photos.every(photo => !oldIds.includes(photo.id))).toBe(true);
+    const client = await portalClient(ids.marekEmail);
+    const feed = (await client.rpc('list_memories', { p_pair_id: ids.pairId, p_limit: 50 })).data.data.items;
+    expect(feed.filter((memory: { caption: string }) => memory.caption === 'Retained after discard')).toHaveLength(1);
+  } finally { await cleanupPortalPairFixture(ids); }
+});
 // Importance 98: uncertain immutable uploads and focus preserve one command and one publication.
 test('lost upload response survives focus and publishes once without overwriting', async ({ page }) => {
   const ids = await createPortalPairFixture();
