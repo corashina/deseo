@@ -76,12 +76,14 @@ test('complete screenshot gallery', async ({ browser }, info) => {
     if (role === 'signedOut') return undefined;
     if (states.has(role)) return states.get(role);
     // Reuse named UI sessions only after checking their stored owner and real account gate.
-    const path = scratch + 'session-' + role + '-' + width + '.json';
+    const path = scratch + 'session-' + role + '.json';
     if (role === 'anna' || role === 'marek') {
       try {
-        const stored: State = JSON.parse(await readFile(path, 'utf8'));
+        const saved: { state: State; uiCodeAt: number } = JSON.parse(await readFile(path, 'utf8'));
+        const stored = saved.state;
         const token = stored.origins.flatMap(origin => origin.localStorage).find(item => item.name.endsWith('-auth-token'));
         if (token && JSON.parse(token.value).user.id === accounts[role][1]) {
+          uiCodeAt.set(role, saved.uiCodeAt);
           const restored = await browser.newContext({ storageState: stored, baseURL: 'http://127.0.0.1:4174' });
           try {
             const check = await restored.newPage(); await check.goto('/settings/profile');
@@ -89,12 +91,14 @@ test('complete screenshot gallery', async ({ browser }, info) => {
             const current = await restored.storageState();
             const currentToken = current.origins.flatMap(origin => origin.localStorage).find(item => item.name.endsWith('-auth-token'));
             if (!currentToken || JSON.parse(currentToken.value).user.id !== accounts[role][1]) throw new Error('Restored account changed.');
-            await writeFile(path, JSON.stringify(current));
+            await writeFile(path, JSON.stringify({ state: current, uiCodeAt: saved.uiCodeAt }));
             states.set(role, current); return current;
           } finally { await restored.close(); }
         }
       } catch { /* Obtain a new normal UI email code after an expired local session. */ }
     }
+    const wait = Math.max(0, (uiCodeAt.get(role) ?? 0) + 61_000 - Date.now());
+    if (wait) { console.log('Waiting ' + Math.ceil(wait / 1000) + 's before a new UI sign-in.'); await new Promise(resolve => setTimeout(resolve, wait)); }
     const context = await browser.newContext({ viewport, timezoneId: 'Europe/Warsaw', locale: 'en-GB', baseURL: 'http://127.0.0.1:4174' });
     const page = await context.newPage(); page.on('dialog', dialog => void dialog.accept());
     await loginWithLocalEmailCode(page, accounts[role][0]);
@@ -102,7 +106,7 @@ test('complete screenshot gallery', async ({ browser }, info) => {
     const state = await context.storageState();
     const token = state.origins.flatMap(origin => origin.localStorage).find(item => item.name.endsWith('-auth-token'));
     expect(token && JSON.parse(token.value).user.id).toBe(accounts[role][1]);
-    await writeFile(path, JSON.stringify(state)); states.set(role, state); await context.close(); return state;
+    await writeFile(path, JSON.stringify({ state, uiCodeAt: uiCodeAt.get(role) })); states.set(role, state); await context.close(); return state;
   }
   try {
     let records = await savedRecords();

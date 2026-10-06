@@ -2140,13 +2140,13 @@
       "view": "request-error",
       "fixture": "disposable / exceptional",
       "state": "request-error",
-      "url": "/tasks/c171034f-496e-4699-94a9-213009987b0a",
+      "url": "/tasks/d6ca4e6e-9d96-4d5e-a0f5-ff3530f3b776",
       "viewport": {
         "width": 1440,
         "height": 1000
       },
       "file": "images/task-detail-request-error-1440.jpg",
-      "renderedUrl": "/tasks/c171034f-496e-4699-94a9-213009987b0a",
+      "renderedUrl": "/tasks/d6ca4e6e-9d96-4d5e-a0f5-ff3530f3b776",
       "heading": "We could not load this task"
     },
     {
@@ -2154,13 +2154,13 @@
       "view": "request-error",
       "fixture": "disposable / exceptional",
       "state": "request-error",
-      "url": "/tasks/418aef30-f352-4023-b783-8802ac01d0eb",
+      "url": "/tasks/f889674a-d9d1-4bf1-8d3a-fae5ae9151c0",
       "viewport": {
         "width": 390,
         "height": 844
       },
       "file": "images/task-detail-request-error-390.jpg",
-      "renderedUrl": "/tasks/418aef30-f352-4023-b783-8802ac01d0eb",
+      "renderedUrl": "/tasks/f889674a-d9d1-4bf1-8d3a-fae5ae9151c0",
       "heading": "We could not load this task"
     },
     {
@@ -2168,13 +2168,13 @@
       "view": "pending-deletion",
       "fixture": "disposable / exceptional",
       "state": "pending-deletion",
-      "url": "/tasks/7fa8a263-38f3-4791-a506-5fc4a5ab7070",
+      "url": "/tasks/d6ca4e6e-9d96-4d5e-a0f5-ff3530f3b776",
       "viewport": {
         "width": 1440,
         "height": 1000
       },
       "file": "images/task-detail-pending-deletion-1440.jpg",
-      "renderedUrl": "/tasks/7fa8a263-38f3-4791-a506-5fc4a5ab7070",
+      "renderedUrl": "/tasks/d6ca4e6e-9d96-4d5e-a0f5-ff3530f3b776",
       "heading": "Task unavailable"
     },
     {
@@ -2182,13 +2182,13 @@
       "view": "pending-deletion",
       "fixture": "disposable / exceptional",
       "state": "pending-deletion",
-      "url": "/tasks/418aef30-f352-4023-b783-8802ac01d0eb",
+      "url": "/tasks/f889674a-d9d1-4bf1-8d3a-fae5ae9151c0",
       "viewport": {
         "width": 390,
         "height": 844
       },
       "file": "images/task-detail-pending-deletion-390.jpg",
-      "renderedUrl": "/tasks/418aef30-f352-4023-b783-8802ac01d0eb",
+      "renderedUrl": "/tasks/f889674a-d9d1-4bf1-8d3a-fae5ae9151c0",
       "heading": "Task unavailable"
     },
     {

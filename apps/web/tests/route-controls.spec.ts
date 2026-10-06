@@ -63,6 +63,14 @@ test('Compare places shared plans once across personal columns', async ({ page }
       await expect(day.locator('a[href="/events/' + ids.sharedEventId + '"]')).toHaveCount(1);
       await expect(day.locator('.comparison-column .owner-together')).toHaveCount(0);
       await expect(day.locator('.comparison-shared .owner-together')).toHaveCount(2);
+      for (const [id, column] of [[ids.annaEventId, 0], [ids.marekEventId, 1]] as const) {
+        const personal = page.locator('.comparison-column a[href="/events/' + id + '"]');
+        await expect(personal).toHaveCount(1);
+        expect(await personal.evaluate(element => {
+          const columns = [...element.closest('.comparison-day')!.querySelectorAll('.comparison-column')];
+          return columns.indexOf(element.parentElement!);
+        })).toBe(column);
+      }
       const bounds = await day.evaluate(element => {
         const columns = [...element.querySelectorAll('.comparison-column')].map(column => column.getBoundingClientRect());
         const shared = element.querySelector('.comparison-shared')!.getBoundingClientRect();
