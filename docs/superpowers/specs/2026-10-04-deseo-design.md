@@ -1,6 +1,10 @@
 # Deseo product design
 
-Date: 4 October 2026. Status: Draft for owner review.
+Date: 4 October 2026. Status: Native design baseline; the owner approved the portal extension on 5 October 2026.
+
+The owner approved a separate React portal on 5 October 2026.
+Read [the portal design](2026-10-05-deseo-web-portal-design.md) for the browser scope and storage contract.
+The [portal handoff](../../handoffs/web-portal.md) records implemented source and current verification.
 
 ## 1. Brief
 
@@ -182,11 +186,15 @@ The [data contract](../../architecture/DATA.md) defines exact permissions, limit
 
 Use one Expo TypeScript app for Android and iOS. Use Expo Router for navigation.
 
+Use separate React DOM screens for the browser portal. Share domain contracts and the same authenticated backend.
+
 Use a small Astro TypeScript site for public pages and installation handoff. It contains no shared account data.
 
 Use Supabase for Auth, PostgreSQL, private Storage, Realtime, and scheduled backend work.
 
-Use TanStack Query for fetched state. Use React state for form interaction and encrypted storage for drafts.
+Use TanStack Query for fetched state. Use React state for forms. Native drafts use encrypted storage.
+
+Browser drafts and private content stay in memory. Only Auth uses supported browser session storage.
 
 Keep feature screens, queries, commands, validation, and tests together. Keep route files thin.
 

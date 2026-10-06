@@ -1,6 +1,43 @@
 # Verification plan
 
-Status: Required future evidence. No product tests have run.
+Status: Automated source, browser, backend, and bundle checks have measured evidence in the [portal handoff](../handoffs/web-portal.md).
+Physical Android and iOS acceptance remains unverified.
+
+## Portal verification
+
+Run `npm run verify:mobile`, `npm run test:domain`, and `npm run verify:web` on final source.
+Browser verification runs TypeScript, scoped lint, production build, and the complete Playwright suite.
+Use real local Auth, pair transactions, private media, and durable writes.
+Controlled transport failures cover unknown outcomes, replay, conflicts, focus, remount, and authority changes.
+
+Run SQL suites on the populated local web stack and a clean isolated replay.
+Scope test reads, updates, and assertions to fixture IDs. Keep real cross-pair and disabled-session denial checks.
+SQL transactions roll back. Cleanup worker assertions select their fixture from bounded claims.
+Preserve populated data and unknown rows. Fixture cleanup requires ownership records and checked deletion results.
+
+Run pairing, planning, messages, memory, and notification race harnesses in a separate test window.
+Do not overlap global worker claims with browser fixture setup.
+Notification races require an empty notification table and never call Expo.
+
+Check modified Edge functions with their committed Deno config and frozen dependency locks.
+The sensitive function uses `supabase/functions/verify-sensitive-action/deno.json`.
+Record live gateway behavior separately from direct handler tests.
+Valid-user unknown/null-origin requests must reject before action work. Native no-Origin requests remain supported.
+
+Export Android and iOS JavaScript after final shared changes. Record device checks separately.
+Scan compiled web assets for server values, fixture tokens, native imports, and obsolete paths.
+Check reachable compiled dependencies against the lockfile audit. Workspace audit flags alone do not isolate web production.
+
+Verify gallery links, JPEG bytes, viewport dimensions, and route/view coverage.
+The current gallery contains 39 routes, 119 views, 238 records, and 324 JPEGs.
+Check 320px, 768px, and 1024px layouts, keyboard controls, drawer focus, and 200% text sizes.
+Normal captures use Anna and Marek. Failure and destructive states use disposable accounts.
+Mask invitation tokens, verification codes, and proof values in evidence.
+
+Verify named users through normal email-code UI. Save new content, read it as the partner, and remove only that record.
+Keep earlier failed runs separate. A focused rerun does not replace the required fresh full suite.
+
+The remaining sections describe product acceptance, including separate account, site, and native delivery work.
 
 ## 1. Test selection
 
@@ -59,7 +96,9 @@ Use generated or licensed test photos. Include metadata, invalid extension, larg
 
 **Native:** Use development and release builds on both platforms. Expo Go is insufficient for storage and push evidence.
 
-**Website:** Test the generated static site, not only the development server.
+**Portal:** Test the production preview through real browser routes and local authenticated data.
+
+**Public site:** Test the generated static site when that separate delivery starts.
 
 ## 4. Complete journeys
 

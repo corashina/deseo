@@ -1,86 +1,77 @@
 # Deseo
 
-A private app for two people to plan their days, share messages, and keep memories.
+A private app for two people to plan days, share messages, and keep memories.
 
-**Platform:** Android and iOS. **App:** Expo and TypeScript. **Stage:** Integrated source, pending reminder decision and acceptance checks.
-
-The integration branch contains five tabs, Today content, reminder controls, and push workers. Backend and two-device flows remain unverified.
-
-Confirmed choices: Expo, TypeScript, Android, iOS, pastel styling, and icon 05.
-
-The core uses Supabase, email-code sign-in, and encrypted drafts. Later chats add the static Astro website.
+Deseo has a React browser portal and an Expo application for Android and iOS.
+Both applications use shared domain contracts and the same Supabase access rules.
+The public information site remains a separate delivery task.
 
 ## Product
 
-- **Today:** Upcoming plans, a recent memory, a pinned note, and tasks.
-- **Calendar:** Shared events, private events, important dates, reminders, and saved date ideas.
-- **Memories:** Photos with a date and caption.
-- **Messages:** One conversation for the pair. Pin a message as a love note.
-- **Tasks:** Shared lists with assignment, due dates, and completion.
+- **Today:** Upcoming plans with dates, due tasks, a memory, a note, and an important date.
+- **Calendar:** Shared events, private events, important dates, reminders, and date ideas.
+- **Memories:** Private photos with dates, captions, and author controls.
+- **Messages:** One conversation and one pinned note per person.
+- **Tasks:** Shared lists, assignment, due dates, and completion.
+- **Settings:** Profile, pair, preferences, fresh verification, and sign-out controls.
 
 Each account can join one active pair. Each pair has two people.
+Deseo uses pastel colors and the [Two voices icon](docs/design/icons-round-2/icon-05-two-voices.png).
 
-Cupla informs the planning features. Couply informs the personal content. Deseo uses its own design and copy.
+## Start
+
+Use Node 24.18.0 and npm 11.16.0. Install the root lockfile with `npm ci`.
+
+```powershell
+npm run verify:mobile
+npm run test:domain
+npm run prepare:web:backend
+npm run start:web:backend
+```
+
+Set the browser environment and start one Edge process before `npm run dev:web`.
+Follow [Development](docs/engineering/DEVELOPMENT.md) for exact commands, local keys, and origin modes.
 
 ## Read first
 
 | Document | Purpose |
 |---|---|
-| [Implementation across eight chats](docs/implementation/CHAT_GUIDE.md) | Numbered work, parallel tasks, materials, and ready-to-paste prompts |
-| [Product design](docs/superpowers/specs/2026-10-04-deseo-design.md) | Scope, decisions, release stages, and success criteria |
-| [Screen guide](docs/product/SCREENS.md) | Landing, sign-in, pairing, tabs, settings, and failure states |
-| [Style guide](STYLE.md) | Pastel colors, layout, typography, and selected icon |
-| [Architecture](docs/architecture/ARCHITECTURE.md) | Stack, module rules, folder structure, and data flow |
-| [Data and access](docs/architecture/DATA.md) | Records, permissions, transactions, and deletion |
-| [Implementation plan](docs/superpowers/plans/2026-10-04-deseo-implementation.md) | Ordered tasks, file paths, interfaces, and verification |
-| [Development](docs/engineering/DEVELOPMENT.md) | Setup contract and local workflow |
-| [Testing](docs/engineering/TESTING.md) | Test importance and acceptance cases |
-| [Release](docs/engineering/RELEASE.md) | Device checks, operations, and store submission |
-| [Glossary](GLOSSARY.md) | Product terms |
-| [Documentation index](docs/README.md) | All documents and research |
+| [Portal design](docs/superpowers/specs/2026-10-05-deseo-web-portal-design.md) | Approved browser scope |
+| [Screen guide](docs/product/SCREENS.md) | Routes, forms, states, and native flows |
+| [Style guide](STYLE.md) | Colors, dimensions, and platform navigation |
+| [Architecture](docs/architecture/ARCHITECTURE.md) | Modules, shared contracts, and platform capabilities |
+| [Data contract](docs/architecture/DATA.md) | Access, transactions, and lifecycle rules |
+| [Development](docs/engineering/DEVELOPMENT.md) | Setup and verification commands |
+| [Testing](docs/engineering/TESTING.md) | Importance ratings and acceptance limits |
+| [Portal handoff](docs/handoffs/web-portal.md) | Measured results, commits, and remaining checks |
+| [Documentation index](docs/README.md) | Design, implementation, research, and handoffs |
 
-## Project structure
+## Workspace
 
 ```text
-AGENTS.md                 Contributor rules
-STYLE.md                  Visual rules
-GLOSSARY.md               Product terms
-docs/                     Existing documentation and design assets
-apps/mobile/              Expo application and mobile tests
-apps/site/                Planned static public website
-supabase/                 Database migrations, function, and access tests
-brand/                    Shared color tokens and icon assets
+apps/mobile/       Expo screens and native capabilities
+apps/web/          React DOM screens and browser capabilities
+packages/domain/   Shared schemas, payloads, types, date rules, and results
+supabase/          Migrations, transactions, Edge functions, and fixtures
+brand/             Shared tokens and icon
+apps/site/         Planned public information site
 ```
 
-Use Node 24.18.0 and npm 11.16.0. Run `npm ci`, then `npm run verify:mobile`.
+## Screenshots
 
-Mobile checks do not need Docker. Local backend checks require a running Supabase stack.
-See [development setup](docs/engineering/DEVELOPMENT.md) for commands and current limits.
+Open [the portal gallery](docs/design/web-portal/index.html) or [the capture index](docs/design/web-portal/README.md).
+The gallery contains 324 JPEGs for 39 routes, 119 views, and 238 viewport records.
+It uses real local Anna and Marek accounts and disposable fixtures for other states.
 
-## Preview the current design
+The [older visual reference](docs/design/preview.html) contains sample interactions without persistence.
 
-Open [the visual reference](docs/design/preview.html) in a browser.
+## Delivery limits
 
-It shows sample screens. Its buttons do not save data or send messages.
+Browser checks, backend checks, and native JavaScript exports have separate evidence.
+Physical Android and iOS checks remain unverified. Windows cannot run an iOS simulator.
+Read the handoff before claiming device, push, deployment, or store acceptance.
 
-Selected icon: [05, Two voices](docs/design/icons-round-2/icon-05-two-voices.png).
+Account export, account deletion, avatar backend work, and public pages remain outside this portal delivery.
+Browser push, service workers, offline content storage, and installation prompts remain outside its scope.
 
-## Delivery
-
-1. Sign in, pair two accounts, and share one event.
-2. Add tasks, important dates, date ideas, and push reminders.
-3. Add messages, pinned notes, and memories.
-4. Complete account controls, public pages, device checks, and release preparation.
-
-These stages define product acceptance. The [chat guide](docs/implementation/CHAT_GUIDE.md) defines implementation order and safe parallel work.
-
-Finish Chat 01 security checks before starting Chats 02–04. Then run Chats 05–08 in order.
-Use separate worktrees for concurrent chats. Each chat writes a committed handoff for the next chat.
-
-## Scope limits
-
-The first release excludes billing, AI advice, quizzes, streaks, relationship scores, public feeds, and location tracking.
-
-External calendar sync, video, calls, and full offline editing require separate evidence and design decisions.
-
-Read [AGENTS.md](AGENTS.md) before changing this project.
+Read [AGENTS.md](AGENTS.md) before changing the project.

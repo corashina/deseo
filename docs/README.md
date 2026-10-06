@@ -1,12 +1,15 @@
 # Documentation
 
-Status: Chat 05 source integrated. A reminder timing decision, backend checks, and native device checks remain pending.
+Status: React portal and Expo source share domain contracts. The portal handoff records current checks and native limits.
 
 The saved design defines the accepted scope. The core handoff records implementation evidence and remaining checks.
 
 ## Product and design
 
 - [Product design](superpowers/specs/2026-10-04-deseo-design.md)
+- [Approved portal design](superpowers/specs/2026-10-05-deseo-web-portal-design.md)
+- [Portal screenshot gallery](design/web-portal/index.html)
+- [Portal capture index](design/web-portal/README.md)
 - [Screen guide](product/SCREENS.md)
 - [Style guide](../STYLE.md)
 - [Static visual reference](design/preview.html)
@@ -22,6 +25,7 @@ The saved design defines the accepted scope. The core handoff records implementa
 - [Eight-chat execution guide and prompts](implementation/CHAT_GUIDE.md)
 - [Chat handoff template](implementation/HANDOFF_TEMPLATE.md)
 - [Implementation handoff index](handoffs/README.md)
+- [Portal verification and platform handoff](handoffs/web-portal.md)
 - [Development workflow](engineering/DEVELOPMENT.md)
 - [Testing and acceptance](engineering/TESTING.md)
 - [Release and operations](engineering/RELEASE.md)
