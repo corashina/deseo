@@ -1,6 +1,6 @@
 import { createTask } from '../commands';
 import { readDraft, writeDraft, removeDraft, useUnsavedChanges } from '../../../lib/drafts';
-import { captureQueryScope } from '../../../lib/query-client';
+import { useCommandScope } from '../../../lib/use-command-scope';
 import { useNetworkStatus } from '../../../lib/network';
 import type { TaskInput } from '@deseo/domain/tasks';
 import { useRef, useState } from 'react';
@@ -27,7 +27,7 @@ export function TasksPage() {
   return <>
     <PageHeader
       title="Tasks"
-      description="Keep shared jobs in named lists."
+      description="Keep shared tasks in named lists."
       action={<Link className="button primary" to={'/tasks/new?list=' + listId}>Add task</Link>} />
     <section className="card">
       <div className="section-heading">
@@ -75,24 +75,19 @@ function QuickAdd({ accountId, pairId, listId }: {
   const [frozen, setFrozen] = useState(Boolean(attempt.current));
   const [error, setError] = useState('');
   useUnsavedChanges(Boolean(title));
+  const beginScope = useCommandScope(() => { setBusy(false); });
   async function add() {
     if (!online || busy)
       return;
     const next = attempt.current ?? { input: { id: crypto.randomUUID(), pairId, listId, title, assigneeId: null, dueDate: null }, commandId: crypto.randomUUID() };
-    const scope = captureQueryScope();
+    const scope = beginScope();
     attempt.current = next;
     writeDraft(accountId, pairId, key, { title, attempt: next });
     setBusy(true);
     setFrozen(true);
     const result = await createTask(next.input, next.commandId);
+    if (!scope.isCurrent()) return;
     setBusy(false);
-    try {
-      scope.assertCurrent();
-    }
-    catch {
-      setError('Task save is unconfirmed. Retry the same task.');
-      return;
-    }
     if (result.ok) {
       attempt.current = undefined;
       removeDraft(accountId, pairId, key);

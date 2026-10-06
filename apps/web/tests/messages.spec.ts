@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { randomUUID } from 'node:crypto';
+import { confirmNavigation } from './support/navigation';
 import { createPortalPairFixture, cleanupPortalPairFixture, portalClient } from './support/fixtures';
 import { loginWithLocalEmailCode } from './support/local-auth';
 
@@ -81,7 +82,7 @@ test('lost accepted response survives focus and reconciles one durable message',
     await expect(page.getByRole('button', { name: 'Retry message', exact: true })).toBeEnabled();
     await page.getByLabel('Message', { exact: true }).fill('A newer composer draft');
     if (await page.getByRole('button', { name: 'Open navigation', exact: true }).isVisible()) await page.getByRole('button', { name: 'Open navigation', exact: true }).click();
-    await page.getByRole('link', { name: 'Today', exact: true }).click();
+    await confirmNavigation(page, () => page.getByRole('link', { name: 'Today', exact: true }).click(), true);
     await page.getByRole('link', { name: 'Reply', exact: true }).click();
     await expect(page.getByTestId('pending-send')).toContainText('Keep this exact send.');
     await expect(page.getByLabel('Message', { exact: true })).toHaveValue('A newer composer draft');
@@ -140,8 +141,8 @@ test('draft and failed send retain text and retry the immutable UUID', async ({ 
     await page.context().setOffline(false);
     await expect(page.getByRole('button', { name: 'Send message', exact: true })).toBeEnabled();
     await page.getByRole('link', { name: 'Conversation', exact: true }).click();
-    await page.getByRole('link', { name: 'Pinned notes', exact: true }).click();
-    await page.getByRole('link', { name: 'Conversation', exact: true }).click();
+    await confirmNavigation(page, () => page.getByRole('link', { name: 'Pinned notes', exact: true }).click(), true);
+    await confirmNavigation(page, () => page.getByRole('link', { name: 'Conversation', exact: true }).click(), true);
     await expect(page.getByLabel('Message', { exact: true })).toHaveValue('My unsent draft');
     const bodies: unknown[] = [];
     await page.route('**/rest/v1/rpc/send_message', async route => {

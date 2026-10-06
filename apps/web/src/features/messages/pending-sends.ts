@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { messageBodySchema } from '@deseo/domain/messages';
-import { readDraft, writeDraft } from '../../lib/drafts';
+import { readDraft, writeDraft, removeDraft, useUnsavedChanges } from '../../lib/drafts';
 import { captureQueryScope, queryClient } from '../../lib/query-client';
 import { isOnline } from '../../lib/network';
 import { sendMessage } from './commands';
@@ -17,17 +17,24 @@ export function usePendingSends(accountId: string, pairId: string) {
   const inFlight = useRef(new Set<string>());
   const [busy, setBusy] = useState<readonly string[]>([]);
   const [error, setError] = useState('');
+  useUnsavedChanges(Boolean(draft.body) || draft.pending.length > 0);
   useEffect(() => { alive.current = true; return () => { alive.current = false; }; }, []);
   const commit = (next: MessageDraft) => {
     if (!alive.current) return;
     current.current = next;
-    writeDraft(accountId, pairId, draftKey, next);
+    if (next.body || next.pending.length) writeDraft(accountId, pairId, draftKey, next);
+    else removeDraft(accountId, pairId, draftKey);
     setDraft(next);
   };
   const remove = (clientId: string) => commit({ ...current.current, pending: current.current.pending.filter(row => row.clientId !== clientId) });
   const submit = async (item: PendingSend, retry: boolean) => {
     if (!isOnline() || inFlight.current.has(item.clientId)) return;
     const scope = captureQueryScope();
+    const unlock = () => {
+      inFlight.current.delete(item.clientId);
+      if (alive.current) setBusy([...inFlight.current]);
+    };
+    scope.signal.addEventListener('abort', unlock, { once: true });
     inFlight.current.add(item.clientId);
     setBusy([...inFlight.current]);
     setError('');
@@ -58,8 +65,8 @@ export function usePendingSends(accountId: string, pairId: string) {
         setError('We could not check delivery. Your pending text is kept.');
       } catch { /* Scope reset retains the original pending send for deliberate recovery. */ }
     } finally {
-      inFlight.current.delete(item.clientId);
-      if (alive.current) setBusy([...inFlight.current]);
+      scope.signal.removeEventListener('abort', unlock);
+      if (!scope.signal.aborted) unlock();
     }
   };
   const send = () => {

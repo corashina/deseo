@@ -1,3 +1,4 @@
+import { RouteErrorPage } from '../../../app/RouteErrorPage';
 import { useEffect, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link, useNavigate, useParams } from 'react-router-dom';
@@ -12,7 +13,8 @@ import { Button } from '../../../components/ui/Button';
 import { Dialog } from '../../../components/ui/Dialog';
 import { calendarKeys, getEvent } from '../queries';
 import { deleteEvent } from '../commands';
-import { captureQueryScope } from '../../../lib/query-client';
+import { readDraft, writeDraft, removeDraft } from '../../../lib/drafts';
+import { useCommandScope } from '../../../lib/use-command-scope';
 import { getSupabase } from '../../../lib/supabase';
 import '../../../styles/calendar.css';
 
@@ -24,9 +26,10 @@ export function EventDetailPage() {
   const [confirm, setConfirm] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
-  const command = useRef(crypto.randomUUID());
-  const deleteAttempt = useRef<{ version: number; commandId: string } | null>(null);
+  const beginScope = useCommandScope(() => { setSaving(false); });
   const pairId = pair?.status === 'active' ? pair.pairId : '';
+  const key = 'event-delete:' + eventId;
+  const deleteAttempt = useRef(readDraft<{ version: number; commandId: string }>(account!.id, pairId, key));
   const query = useQuery({
     queryKey: calendarKeys.event(account!.id, pairId, eventId),
     queryFn: () => getEvent(pairId, eventId),
@@ -44,20 +47,17 @@ export function EventDetailPage() {
 
   async function confirmDeletion() {
     const event = query.data;
-    if (!event) return;
-    const scope = captureQueryScope();
+    if (!online || saving || (!event && !deleteAttempt.current)) return;
+    const scope = beginScope();
     setSaving(true);
-    deleteAttempt.current ??= { version: event.version, commandId: command.current };
-    const result = await deleteEvent(event.id, deleteAttempt.current.version, deleteAttempt.current.commandId);
-    try {
-      scope.assertCurrent();
-    } catch {
-      setSaving(false);
-      setError('Deletion is unconfirmed. Retry deletion with the same event.');
-      return;
-    }
+    deleteAttempt.current ??= { version: event!.version, commandId: crypto.randomUUID() };
+    writeDraft(account!.id, pairId, key, deleteAttempt.current);
+    const result = await deleteEvent(eventId, deleteAttempt.current.version, deleteAttempt.current.commandId);
+    if (!scope.isCurrent()) return;
     setSaving(false);
     if (result.ok) {
+      removeDraft(account!.id, pairId, key);
+      deleteAttempt.current = undefined;
       navigate('/calendar');
       return;
     }
@@ -65,22 +65,19 @@ export function EventDetailPage() {
       ? 'This event changed. Open it again before deleting.'
       : result.error.message ?? 'Deletion failed. Try again.');
     if (result.error.code !== 'RETRYABLE') {
-      command.current = crypto.randomUUID();
-      deleteAttempt.current = null;
+      deleteAttempt.current = undefined;
+      removeDraft(account!.id, pairId, key);
     }
     setConfirm(false);
   }
 
   if (query.isPending) return <Status>Loading event…</Status>;
   if (query.isError) {
-    return <><Status error>We could not load this event.</Status><Button onClick={() => void query.refetch()}>Retry</Button></>;
+    return <RouteErrorPage title="Event" returnTo="/calendar" returnLabel="Return to calendar" error={query.error} onRetry={() => void query.refetch()}>{deleteAttempt.current && <Button disabled={!online || saving} onClick={() => void confirmDeletion()}>Retry deletion</Button>}{error && <Status error>{error}</Status>}</RouteErrorPage>;
   }
   const event = query.data;
   if (!event || pair?.status !== 'active') {
-    return <section className="card">
-      <h1>Event unavailable</h1><p>You cannot open this event.</p>
-      <Link to="/calendar">Return to calendar</Link>
-    </section>;
+    return <RouteErrorPage title="Event" returnTo="/calendar" returnLabel="Return to calendar">{deleteAttempt.current && <Button disabled={!online || saving} onClick={() => void confirmDeletion()}>Retry deletion</Button>}{error && <Status error>{error}</Status>}</RouteErrorPage>;
   }
   const names = {
     a: pair.members.find(member => member.slot === 'a')!.displayName,
@@ -123,8 +120,9 @@ export function EventDetailPage() {
         {editable && <Button variant="danger" disabled={!online} onClick={() => setConfirm(true)}>Delete event</Button>}
       </div>
       {error && <Status error>{error}</Status>}
+      {deleteAttempt.current && !saving && <Button disabled={!online} onClick={() => void confirmDeletion()}>Retry deletion</Button>}
     </section>
-    <Dialog title="Delete this event?" open={confirm} onClose={() => setConfirm(false)}>
+    <Dialog busy={saving} title="Delete this event?" open={confirm} onClose={() => setConfirm(false)}>
       <p>{event.visibility === 'private' ? 'You will lose access to this event.' : 'Both partners will lose access to this event.'}</p>
       <Button variant="danger" disabled={!online || saving} onClick={() => void confirmDeletion()}>Confirm deletion</Button>
     </Dialog>

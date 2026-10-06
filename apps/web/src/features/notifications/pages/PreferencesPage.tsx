@@ -66,7 +66,7 @@ export function PreferencesPage() {
   }
   return <section className="card form-page"><PageHeader title="Notification preferences" description="Choose your alerts and quiet hours." />
     {query.isPending && !input ? <Status>Loading preferences…</Status> : query.isError && !input ? <><Status error>We could not load preferences.</Status><Button onClick={() => void query.refetch()}>Retry</Button></> : input && <form onSubmit={event => { event.preventDefault(); void save(); }}>
-      <fieldset className="field-group" disabled={busy || Boolean(draft?.attempt) || conflict}>
+      <fieldset className="field-group" disabled={busy || Boolean(draft?.attempt)}>
       <label className="field field-check"><span><input type="checkbox" checked={input.messageAlerts} onChange={event => change({ messageAlerts: event.target.checked })} /> Message alerts</span></label>
       <label className="field"><span>Default event reminder</span><select value={input.defaultEventReminderMinutes ?? 'none'} onChange={event => change({ defaultEventReminderMinutes: event.target.value === 'none' ? null : Number(event.target.value) })}>
         <option value="none">None</option><option value="15">15 minutes before</option><option value="60">One hour before</option><option value="1440">One day before</option>
@@ -77,7 +77,7 @@ export function PreferencesPage() {
       </fieldset><p>Quiet hours defer native push alerts. Event alerts expire when the event starts.</p>
       <h2>Native push</h2><p>Manage device permission in the Deseo Android or iOS app.</p><p className="muted">This browser receives no push alerts.</p>
       {message && <Status error={conflict}>{message}</Status>}
-      {conflict && <Button variant="secondary" onClick={async () => { const fresh = await query.refetch(); if (!mounted.current || fresh.isError) return; removeDraft(account!.id, pairId, 'preferences'); setDraft(undefined); setConflict(false); setMessage(''); }}>Discard changes and reload</Button>}
+      {conflict && <Button disabled={!online || busy} variant="secondary" onClick={async () => { const fresh = await query.refetch(); if (!mounted.current || fresh.isError) return; removeDraft(account!.id, pairId, 'preferences'); setDraft(undefined); setConflict(false); setMessage(''); }}>Discard changes and reload</Button>}
       <Button type="submit" disabled={!online || busy || conflict}>{draft?.attempt ? 'Retry preferences' : 'Save preferences'}</Button>
     </form>}<Link to="/settings">Return to settings</Link></section>;
 }

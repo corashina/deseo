@@ -1,3 +1,4 @@
+import { RouteErrorPage } from '../../../app/RouteErrorPage';
 import { useEffect, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
@@ -22,7 +23,8 @@ export function MemoryFormPage() {
   const { memoryId } = useParams(); const { account, pair } = useSession(); const pairId = pair?.status === 'active' ? pair.pairId : '';
   const query = useQuery({ queryKey: memoryKeys.detail(account!.id, pairId, memoryId ?? 'new'), queryFn: () => getMemory(pairId, memoryId!), enabled: Boolean(memoryId), retry: false });
   if (memoryId && query.isPending) return <Status>Loading memory…</Status>;
-  if (memoryId && (query.isError || !query.data || query.data.createdBy !== account!.id || query.data.state !== 'published')) return <section className="card"><h1>Memory unavailable</h1><p>Only the author can edit this memory.</p><Link to="/memories">Return to memories</Link></section>;
+  if (memoryId && query.isError) return <RouteErrorPage title="Memory" returnTo="/memories" returnLabel="Return to memories" error={query.error} onRetry={() => void query.refetch()} />;
+  if (memoryId && ( !query.data || query.data.createdBy !== account!.id || query.data.state !== 'published')) return <RouteErrorPage title="Memory" returnTo="/memories" returnLabel="Return to memories" />;
   return <MemoryEditor key={memoryId ?? 'new'} memory={query.data} />;
 }
 function MemoryEditor({ memory }: { memory?: Memory }) {

@@ -2,7 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useRef, useState, ty
 import type { Account } from '@deseo/domain/auth';
 import type { PairContext } from '@deseo/domain/pair';
 import { toAppError } from '@deseo/domain/result';
-import { restoreSession, clearGlobalSignOutFailure } from '../features/auth';
+import { restoreSession, clearGlobalSignOutFailure, entryIntent } from '../features/auth';
 import { getPairContext } from '../features/pair';
 import { getSupabase } from '../lib/supabase';
 import { resetPrivateQueries } from '../lib/query-client';
@@ -17,6 +17,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const generation = useRef(0);
   const mounted = useRef(false);
   const verifiedUser = useRef<string | null>(null);
+  const verifiedAuthority = useRef<string | null>(null);
   const revalidate = useCallback(async () => {
     const request = ++generation.current;
     setState(current => current.status === 'authenticated' ? current : empty);
@@ -25,21 +26,32 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       const session = await restoreSession();
       if (!mounted.current || request !== generation.current) return;
       if (!session) {
+        if (verifiedAuthority.current !== null) await resetPrivateQueries();
+        if (!mounted.current || request !== generation.current) return;
         verifiedUser.current = null;
+        verifiedAuthority.current = null;
         setDraftScope(null, null);
         setState({ ...empty, status: 'signedOut' });
         return;
       }
       const pair = session.account ? await getPairContext() : null;
       if (!mounted.current || request !== generation.current) return;
-      setDraftScope(session.userId, pair && 'pairId' in pair ? pair.pairId : null);
+      const pairId = pair && 'pairId' in pair ? pair.pairId : null;
+      const authority = session.userId + ':' + (session.account?.status ?? 'setup') + ':' + pair?.status + ':' + pairId;
+      // Old pages can start reads during verification. Abort them before adopting another authority.
+      if (verifiedAuthority.current !== authority) {
+        await resetPrivateQueries();
+        if (!mounted.current || request !== generation.current) return;
+      }
+      verifiedAuthority.current = authority;
+      setDraftScope(session.userId, pair && 'pairId' in pair ? pair.pairId : null, pair?.status);
       verifiedUser.current = session.userId;
       setState({ status: 'authenticated', userId: session.userId, account: session.account, pair });
     } catch (error) {
       if (!mounted.current || request !== generation.current) return;
       const failure = toAppError(error);
       const rejected = failure.code === 'FORBIDDEN' || failure.code === 'UNAUTHENTICATED';
-      if (rejected) { verifiedUser.current = null; setDraftScope(null, null); }
+      if (rejected) { verifiedUser.current = null; verifiedAuthority.current = null; setDraftScope(null, null); }
       await resetPrivateQueries();
       if (request !== generation.current) return;
       setState({ ...empty, status: rejected ? 'signedOut' : 'error', error: failure.message });
@@ -52,6 +64,8 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     const reset = () => {
       generation.current++;
       verifiedUser.current = null;
+      verifiedAuthority.current = null;
+      entryIntent.email = ''; entryIntent.emailDraft = ''; entryIntent.codeDraft = ''; entryIntent.invite = null;
       void resetPrivateQueries();
       setDraftScope(null, null);
       setState({ ...empty, status: 'signedOut' });
@@ -61,7 +75,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     const { data } = client.auth.onAuthStateChange((event, session) => {
       if (event === 'INITIAL_SESSION') return;
       if (event === 'SIGNED_OUT') { clearTimeout(timer); reset(); return; }
-      if (event === 'SIGNED_IN') clearGlobalSignOutFailure();
+      if (event === 'SIGNED_IN') { clearGlobalSignOutFailure(); entryIntent.emailDraft = ''; entryIntent.codeDraft = ''; }
       generation.current++;
       void resetPrivateQueries();
       if (session?.user.id !== verifiedUser.current) { setDraftScope(null, null); setState(empty); }

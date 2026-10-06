@@ -7,6 +7,8 @@ import { PageHeader } from '../../../components/ui/PageHeader';
 import { Button } from '../../../components/ui/Button';
 import { Status } from '../../../components/ui/Status';
 import { Dialog } from '../../../components/ui/Dialog';
+import { readDraft, writeDraft, removeDraft } from '../../../lib/drafts';
+import { useCommandScope } from '../../../lib/use-command-scope';
 import { captureQueryScope } from '../../../lib/query-client';
 import { useNetworkStatus } from '../../../lib/network';
 import { compareMessageCursors, listMessages, messageKeys } from '../queries';
@@ -19,7 +21,7 @@ import { Composer } from '../components/Composer';
 import '../../../styles/planning.css';
 import '../../../styles/messages.css';
 
-type Attempt = { kind: 'pin' | 'unpin' | 'delete'; message: Message; commandId: string };
+type Attempt = Readonly<{ kind: 'pin' | 'unpin' | 'delete'; messageId: string; commandId: string }>;
 export function MessagesPage() {
   const { account, pair } = useSession();
   const pairId = pair?.status === 'active' ? pair.pairId : '';
@@ -44,10 +46,13 @@ export function MessagesPage() {
   const lastRead = useRef<MessageCursor | null>(null);
   const [readError, setReadError] = useState(false);
   const [readAttempt, setReadAttempt] = useState(0);
-  const [attempt, setAttempt] = useState<Attempt | null>(null);
+  const [attempt, setAttempt] = useState<Attempt | null>(() => readDraft<Attempt>(accountId, pairId, 'message-action') ?? null);
+  const currentAttempt = useRef(attempt);
+  const pendingAction = useRef(false);
   const [deleting, setDeleting] = useState<Message | null>(null);
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState(attempt ? 'We could not confirm this change. Retry.' : '');
+  const beginScope = useCommandScope(() => { pendingAction.current = false; setBusy(false); });
   const alive = useRef(true);
   useEffect(() => { alive.current = true; return () => { alive.current = false; }; }, []);
 
@@ -95,36 +100,41 @@ export function MessagesPage() {
   }, [conversation.data, notesView, online, pairId, readAttempt]);
 
   async function execute(next: Attempt) {
-    if (!online || busy) return;
-    const scope = captureQueryScope();
+    if (!online || pendingAction.current || currentAttempt.current && currentAttempt.current.commandId !== next.commandId) return;
+    const scope = beginScope();
+    pendingAction.current = true; currentAttempt.current = next;
+    writeDraft(accountId, pairId, 'message-action', next);
     setAttempt(next); setBusy(true); setError('');
-    const result = await (next.kind === 'delete' ? deleteMessage : next.kind === 'pin' ? pinMessage : unpinMessage)(next.message.id, next.commandId);
-    try { scope.assertCurrent(); } catch { if (alive.current) setBusy(false); return; }
-    if (!alive.current) return;
-    setBusy(false);
-    if (result.ok) { setAttempt(null); setDeleting(null); }
-    else setError('We could not save this change. Retry.');
+    const result = await (next.kind === 'delete' ? deleteMessage : next.kind === 'pin' ? pinMessage : unpinMessage)(next.messageId, next.commandId);
+    if (!scope.isCurrent()) return;
+    pendingAction.current = false; setBusy(false);
+    if (result.ok) { removeDraft(accountId, pairId, 'message-action'); currentAttempt.current = null; setAttempt(null); setDeleting(null); }
+    else {
+      setError(result.error.message ?? 'We could not save this change. Retry.');
+      if (result.error.code !== 'RETRYABLE') { removeDraft(accountId, pairId, 'message-action'); currentAttempt.current = null; setAttempt(null); setDeleting(null); }
+    }
   }
-  const pin = (message: Message) => void execute({ kind: message.pinnedAt ? 'unpin' : 'pin', message, commandId: crypto.randomUUID() });
+  const pin = (message: Message) => void execute({ kind: message.pinnedAt ? 'unpin' : 'pin', messageId: message.id, commandId: crypto.randomUUID() });
   if (pair?.status !== 'active') return null;
   const member = (message: Message) => pair.members.find(person => person.userId === message.authorId)!;
   const query = notesView ? notes : conversation;
   return <section className={'messages-page' + (notesView ? '' : ' conversation-page')}>
     <PageHeader title="Messages" description={pair.members.map(person => person.displayName).join(' + ')} />
     <div className="message-views" aria-label="Message views"><Link to="/messages" aria-current={!notesView ? 'page' : undefined}>Conversation</Link><Link to="/messages?view=notes" aria-current={notesView ? 'page' : undefined}>Pinned notes</Link></div>
-    {error && <><Status error>{error}</Status><Button disabled={!online || busy} onClick={() => attempt && void execute(attempt)}>Retry change</Button></>}
+    {error && <Status error>{error}</Status>}
+    {attempt && !busy && <Button disabled={!online} onClick={() => void execute(attempt)}>Retry change</Button>}
     {query.isPending ? <Status>Loading messages…</Status> : query.isError ? <><Status error>We could not load messages.</Status><Button disabled={!online} onClick={() => void query.refetch()}>Retry</Button></> : notesView ?
-      <div className="notes-grid">{notes.data?.length ? notes.data.map(message => <NoteCard key={message.id} message={message} name={member(message).displayName} own={message.authorId === accountId} disabled={!online || busy} onUnpin={pin} />) : <section className="card"><h2>No pinned notes</h2><p>Pin one of your messages to keep it on Today.</p><Link to="/messages">Open conversation</Link></section>}</div> : <>
+      <div className="notes-grid">{notes.data?.length ? notes.data.map(message => <NoteCard key={message.id} message={message} name={member(message).displayName} own={message.authorId === accountId} disabled={!online || busy || Boolean(attempt)} onUnpin={pin} />) : <section className="card"><h2>No pinned notes</h2><p>Pin one of your messages to keep it on Today.</p><Link to="/messages">Open conversation</Link></section>}</div> : <>
         {conversation.hasNextPage && <Button variant="secondary" disabled={!online || conversation.isFetchingNextPage} onClick={() => void conversation.fetchNextPage()}>{conversation.isFetchingNextPage ? 'Loading older messages…' : 'Load older messages'}</Button>}
         {!atLatest && <Button variant="secondary" onClick={() => { if (list.current) list.current.scrollTop = list.current.scrollHeight; }}>Latest messages</Button>}
         {readError && <><Status error>We could not update your unread count.</Status><Button disabled={!online} onClick={() => { lastRead.current = null; setReadAttempt(value => value + 1); }}>Retry unread count</Button></>}
-        <div className="conversation" ref={list} onScroll={event => { const element = event.currentTarget; scrollPosition.current = element.scrollTop; setAtLatest(element.scrollHeight - element.scrollTop - element.clientHeight <= 24); }} aria-label="Conversation messages">{messages.length ? messages.map(message => <MessageRow key={message.id} message={message} name={member(message).displayName} slot={member(message).slot} own={message.authorId === accountId} disabled={!online || busy} onPin={pin} onDelete={setDeleting} />) : <section className="card"><h2>Start your conversation</h2><p>Send a message to your partner.</p></section>}</div>
+        <div className="conversation" ref={list} onScroll={event => { const element = event.currentTarget; scrollPosition.current = element.scrollTop; setAtLatest(element.scrollHeight - element.scrollTop - element.clientHeight <= 24); }} aria-label="Conversation messages">{messages.length ? messages.map(message => <MessageRow key={message.id} message={message} name={member(message).displayName} slot={member(message).slot} own={message.authorId === accountId} disabled={!online || busy || Boolean(attempt)} onPin={pin} onDelete={setDeleting} />) : <section className="card"><h2>Start your conversation</h2><p>Send a message to your partner.</p></section>}</div>
       </>}
     {!notesView && <>
       {draft.error && <Status error>{draft.error}</Status>}
       {draft.pending.map(item => <article className="card pending-send" key={item.clientId} data-testid="pending-send"><p className="preserve-lines">{item.body}</p><Status>{draft.busy.includes(item.clientId) ? 'Sending…' : item.failed ? 'Delivery not confirmed' : 'Check delivery before retrying'}</Status><Button variant="secondary" disabled={!online || draft.busy.includes(item.clientId)} onClick={() => draft.retry(item.clientId)}>Retry message</Button></article>)}
       <Composer body={draft.body} onChange={draft.changeBody} onSend={draft.send} disabled={!online || draft.pending.length >= 100} />
     </>}
-    <Dialog title="Delete message?" open={Boolean(deleting)} onClose={() => { if (!busy) setDeleting(null); }}><p>Delete your message from this conversation and pinned notes.</p>{error && <Status error>{error}</Status>}<Button variant="danger" disabled={!online || busy} onClick={() => deleting && void execute(attempt?.kind === 'delete' && attempt.message.id === deleting.id ? attempt : { kind: 'delete', message: deleting, commandId: crypto.randomUUID() })}>Confirm deletion</Button><Button variant="secondary" disabled={busy} onClick={() => setDeleting(null)}>Cancel</Button></Dialog>
+    <Dialog busy={busy} title="Delete message?" open={Boolean(deleting)} onClose={() => { if (!busy) setDeleting(null); }}><p>Delete your message from this conversation and pinned notes.</p>{error && <Status error>{error}</Status>}<Button variant="danger" disabled={!online || busy} onClick={() => deleting && void execute(attempt?.kind === 'delete' && attempt.messageId === deleting.id ? attempt : { kind: 'delete', messageId: deleting.id, commandId: crypto.randomUUID() })}>Confirm deletion</Button><Button variant="secondary" disabled={busy} onClick={() => setDeleting(null)}>Cancel</Button></Dialog>
   </section>;
 }

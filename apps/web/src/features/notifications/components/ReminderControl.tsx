@@ -75,14 +75,14 @@ export function ReminderControl(props: Props) {
     <p className="muted">Reminders use native push. This browser receives no push alerts.</p>
     {current?.state === 'past' && <p>The reminder time has passed. No push was queued.</p>}
     {current?.nextDueAt && <p>Next reminder: {DateTime.fromISO(current.nextDueAt).setZone(props.timezone).toFormat('d LLL yyyy, HH:mm')} ({props.timezone})</p>}
-    <fieldset className="field-group" disabled={busy || Boolean(draft?.attempt) || conflict || props.completed}>
+    <fieldset className="field-group" disabled={busy || Boolean(draft?.attempt) || props.completed}>
     {props.eventId ? <label className="field"><span>Remind me</span><select value={values.choice} onChange={event => change({ choice: event.target.value })}>
       <option value="none">None</option><option value="15">15 minutes before</option><option value="60">One hour before</option><option value="1440">One day before</option>
     </select></label> : <><label className="field field-check"><span><input type="checkbox" checked={values.active} onChange={event => change({ active: event.target.checked })} /> Task reminder</span></label>
     {values.active && <><Field label="Reminder date" type="date" value={values.date} onChange={event => change({ date: event.target.value })} /><Field label="Reminder time" type="time" value={values.time} onChange={event => change({ time: event.target.value })} /></>}</>}
     </fieldset>{props.completed && <p>Completed tasks do not send reminders.</p>}
     {message && <Status error={conflict}>{message}</Status>}
-    {conflict && <Button variant="secondary" onClick={async () => { const fresh = await query.refetch(); if (fresh.isError) return; removeDraft(account!.id, pairId, key); setDraft(undefined); setConflict(false); setMessage(''); }}>Discard changes and reload</Button>}
+    {conflict && <Button disabled={!online || busy} variant="secondary" onClick={async () => { const scope = beginScope(); const fresh = await query.refetch(); if (!mounted.current || scope.signal.aborted || fresh.isError) return; removeDraft(account!.id, pairId, key); setDraft(undefined); setConflict(false); setMessage(''); }}>Discard changes and reload</Button>}
     <Button variant="secondary" disabled={!online || busy || conflict || props.completed} onClick={() => void save()}>{draft?.attempt ? 'Retry reminder' : 'Save reminder'}</Button>
   </section>;
 }

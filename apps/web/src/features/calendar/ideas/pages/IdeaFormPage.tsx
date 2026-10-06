@@ -1,3 +1,4 @@
+import { RouteErrorPage } from '../../../../app/RouteErrorPage';
 import { useEffect, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
@@ -6,7 +7,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { ideaFieldsSchema, type DateIdea, type IdeaInput } from '@deseo/domain/calendar';
 import { useSession } from '../../../../app/SessionProvider';
 import { readDraft, writeDraft, removeDraft, useUnsavedChanges } from '../../../../lib/drafts';
-import { captureQueryScope } from '../../../../lib/query-client';
+import { useCommandScope } from '../../../../lib/use-command-scope';
 import { useNetworkStatus } from '../../../../lib/network';
 import { PageHeader } from '../../../../components/ui/PageHeader';
 import { Button } from '../../../../components/ui/Button';
@@ -40,15 +41,9 @@ export function IdeaFormPage() {
   if (ideaId && query.isPending)
     return <Status>Loading idea…</Status>;
   if (query.isError)
-    return <>
-      <Status error>We could not load this idea.</Status>
-      <Button onClick={() => void query.refetch()}>Retry</Button>
-    </>;
+    return <RouteErrorPage title="Idea" returnTo="/ideas" returnLabel="Return to ideas" error={query.error} onRetry={() => void query.refetch()} />;
   if (ideaId && !query.data)
-    return <section className="card">
-      <h1>Idea unavailable</h1>
-      <Link to="/ideas">Return to ideas</Link>
-    </section>;
+    return <RouteErrorPage title="Idea" returnTo="/ideas" returnLabel="Return to ideas" />;
   return <IdeaEditor key={ideaId ?? 'new'} idea={query.data ?? undefined} />;
 }
 function IdeaEditor({ idea }: {
@@ -70,6 +65,7 @@ function IdeaEditor({ idea }: {
   const [error, setError] = useState('');
   const [conflict, setConflict] = useState(false);
   const [confirmed, setConfirmed] = useState(false);
+  const beginScope = useCommandScope(() => { busy.current = false; setSaving(false); });
   const form = useForm<Fields>({ resolver: zodResolver(ideaFieldsSchema), defaultValues: draft.current?.values ?? (idea ? fields(idea) : { title: '', note: '', link: '' }) });
   useUnsavedChanges(!confirmed && (form.formState.isDirty || draft.current?.dirty === true || frozen));
   useEffect(() => {
@@ -88,7 +84,7 @@ function IdeaEditor({ idea }: {
       commandId: crypto.randomUUID(),
       expectedVersion: version.current
     };
-    const scope = captureQueryScope();
+    const scope = beginScope();
     attempt.current = next;
     busy.current = true;
     setSaving(true);
@@ -96,15 +92,9 @@ function IdeaEditor({ idea }: {
     setError('');
     writeDraft(account!.id, next.input.pairId, key, { values, id: id.current, expectedVersion: version.current, attempt: next, dirty: true });
     const result = idea ? await updateIdea(next.input.id, next.input, next.expectedVersion!, next.commandId) : await createIdea(next.input, next.commandId);
+    if (!scope.isCurrent()) return;
     busy.current = false;
     setSaving(false);
-    try {
-      scope.assertCurrent();
-    }
-    catch {
-      setError('Your save is unconfirmed. Retry with the same details.');
-      return;
-    }
     if (result.ok) {
       removeDraft(account!.id, next.input.pairId, key);
       setConfirmed(true);
@@ -121,9 +111,11 @@ function IdeaEditor({ idea }: {
   async function reload() {
     if (saving)
       return;
+    const scope = beginScope();
     setSaving(true);
     try {
       const current = await getDateIdea(pair!.status === 'active' ? pair!.pairId : '', idea!.id);
+      if (!scope.isCurrent()) return;
       if (!current) {
         setError('Idea unavailable.');
         return;
@@ -137,10 +129,11 @@ function IdeaEditor({ idea }: {
       setError('');
     }
     catch {
+      if (!scope.isCurrent()) return;
       setError('We could not reload this idea. Try again.');
     }
     finally {
-      setSaving(false);
+      if (scope.isCurrent()) setSaving(false);
     }
   }
   return <>
@@ -166,7 +159,7 @@ function IdeaEditor({ idea }: {
         {error && <Status error>{error}
         </Status>}
         {frozen && <p>Your save is unconfirmed. Retry with the same details.</p>}
-        {conflict && <Button variant="secondary" type="button" onClick={() => void reload()}>Reload idea and discard draft</Button>}
+        {conflict && <Button disabled={!online || saving} variant="secondary" type="button" onClick={() => void reload()}>Reload idea and discard draft</Button>}
         <div className="actions">
           <Button type="submit" disabled={!online || saving || conflict}>{saving ? 'Saving…' : frozen ? 'Retry save' : idea ? 'Save changes' : 'Save idea'}
           </Button>

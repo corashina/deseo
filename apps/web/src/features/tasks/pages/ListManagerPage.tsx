@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { useSession } from '../../../app/SessionProvider';
 import { useNetworkStatus } from '../../../lib/network';
-import { captureQueryScope } from '../../../lib/query-client';
+import { useCommandScope } from '../../../lib/use-command-scope';
 import { readDraft, writeDraft, removeDraft, useUnsavedChanges } from '../../../lib/drafts';
 import { PageHeader } from '../../../components/ui/PageHeader';
 import { Status } from '../../../components/ui/Status';
@@ -29,6 +29,7 @@ export function ListManagerPage() {
   const [saving, setSaving] = useState(false);
   const [frozen, setFrozen] = useState(Boolean(attempt.current));
   const [error, setError] = useState('');
+  const beginScope = useCommandScope(() => { setSaving(false); });
   useTaskSignals(account!.id, pair);
   const query = useQuery({ queryKey: taskKeys.lists(account!.id, pairId), queryFn: () => listTaskLists(pairId) });
   useUnsavedChanges(Boolean(name));
@@ -38,18 +39,12 @@ export function ListManagerPage() {
     const next = attempt.current ?? { name, commandId: crypto.randomUUID() };
     attempt.current = next;
     writeDraft(account!.id, pairId, 'list-new', { name, attempt: next });
-    const scope = captureQueryScope();
+    const scope = beginScope();
     setSaving(true);
     setFrozen(true);
     const result = await createList(pairId, next.name, next.commandId);
+    if (!scope.isCurrent()) return;
     setSaving(false);
-    try {
-      scope.assertCurrent();
-    }
-    catch {
-      setError('List save is unconfirmed. Retry the same name.');
-      return;
-    }
     if (result.ok) {
       removeDraft(account!.id, pairId, 'list-new');
       attempt.current = undefined;

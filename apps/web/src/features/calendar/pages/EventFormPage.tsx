@@ -1,3 +1,4 @@
+import { RouteErrorPage } from '../../../app/RouteErrorPage';
 import { getDateIdea, ideaKeys, planDateIdea, type DateIdea } from '../ideas';
 import { useEffect, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
@@ -8,7 +9,7 @@ import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { eventFormSchema, eventToForm, toEventInput, type Event, type EventFormValues, type EventInput } from '@deseo/domain/calendar';
 import { useSession } from '../../../app/SessionProvider';
 import { readDraft, writeDraft, removeDraft, useUnsavedChanges } from '../../../lib/drafts';
-import { captureQueryScope } from '../../../lib/query-client';
+import { useCommandScope } from '../../../lib/use-command-scope';
 import { useNetworkStatus } from '../../../lib/network';
 import { PageHeader } from '../../../components/ui/PageHeader';
 import { Button } from '../../../components/ui/Button';
@@ -38,16 +39,14 @@ export function EventFormPage() {
   const idea = useQuery({ queryKey: ideaKeys.detail(account!.id, pairId, ideaId ?? 'none'), queryFn: () => getDateIdea(pairId, ideaId!), enabled: Boolean(ideaId) });
   if (!account || pair?.status !== 'active') return null;
   if (ideaId && idea.isPending) return <Status>Loading idea…</Status>;
-  if (ideaId && idea.isError) return <><Status error>We could not load this idea.</Status><Button onClick={() => void idea.refetch()}>Retry</Button></>;
-  if (ideaId && !idea.data) return <section className="card"><h1>Idea unavailable</h1><Link to="/ideas">Return to ideas</Link></section>;
+  if (ideaId && idea.isError) return <RouteErrorPage title="Idea" returnTo="/ideas" returnLabel="Return to ideas" error={idea.error} onRetry={() => void idea.refetch()} />;
+  if (ideaId && !idea.data) return <RouteErrorPage title="Idea" returnTo="/ideas" returnLabel="Return to ideas" />;
   if (eventId && query.isPending) return <Status>Loading event…</Status>;
   if (eventId && query.isError) {
-    return <><Status error>We could not load this event.</Status><Button onClick={() => void query.refetch()}>Retry</Button></>;
+    return <RouteErrorPage title="Event" returnTo="/calendar" returnLabel="Return to calendar" error={query.error} onRetry={() => void query.refetch()} />;
   }
   if (eventId && !query.data) {
-    return <section className="card">
-      <h1>Event unavailable</h1><Link to="/calendar">Return to calendar</Link>
-    </section>;
+    return <RouteErrorPage title="Event" returnTo="/calendar" returnLabel="Return to calendar" />;
   }
   return <EventEditor key={eventId ?? ideaId ?? 'new'} event={query.data ?? undefined} idea={idea.data ?? undefined} />;
 }
@@ -71,6 +70,7 @@ function EventEditor({ event, idea }: { event?: Event; idea?: DateIdea }) {
   const [error, setError] = useState('');
   const [conflict, setConflict] = useState(false);
   const [confirmed, setConfirmed] = useState(false);
+  const beginScope = useCommandScope(() => { setSaving(false); });
   const [frozen, setFrozen] = useState(initial.current?.frozen ?? false);
   const [sharing, setSharing] = useState<EventFormValues | null>(null);
   const now = useRef(DateTime.now().setZone(account.timezone));
@@ -99,13 +99,14 @@ function EventEditor({ event, idea }: { event?: Event; idea?: DateIdea }) {
 
   async function save(values: EventFormValues, confirmShared = false) {
     if (!online || saving) return;
-    const scope = captureQueryScope();
+    const scope = beginScope();
     setSaving(true);
     setError('');
     const input = submission.current ?? toEventInput({
       ...values, id: identity.current.id, pairId: pair!.status === 'active' ? pair!.pairId : '', confirmShared,
     });
     submission.current = input;
+    setFrozen(true);
     writeDraft(account!.id, input.pairId, key, {
       ...identity.current, values, frozen: true, dirty: true, submission: input,
     });
@@ -115,14 +116,7 @@ function EventEditor({ event, idea }: { event?: Event; idea?: DateIdea }) {
       : event
       ? await updateEvent(event.id, input, captured.expectedVersion!, captured.commandId)
       : await createEvent(input, captured.commandId);
-    try {
-      scope.assertCurrent();
-    } catch {
-      setSaving(false);
-      setFrozen(true);
-      setError('Your save is unconfirmed. Retry with the same details.');
-      return;
-    }
+    if (!scope.isCurrent()) return;
     setSaving(false);
     if (result.ok) {
       removeDraft(account!.id, input.pairId, key);
@@ -155,10 +149,12 @@ function EventEditor({ event, idea }: { event?: Event; idea?: DateIdea }) {
 
   async function reloadEvent() {
     if (saving) return;
+    const scope = beginScope();
     setSaving(true);
     try {
       if (idea) {
         const currentIdea = await getDateIdea(pair!.status === 'active' ? pair!.pairId : '', idea.id);
+        if (!scope.isCurrent()) return;
         if (!currentIdea) {
           setError('Idea unavailable.');
           return;
@@ -174,6 +170,7 @@ function EventEditor({ event, idea }: { event?: Event; idea?: DateIdea }) {
         return;
       }
       const current = await getEvent(pair!.status === 'active' ? pair!.pairId : '', event!.id);
+      if (!scope.isCurrent()) return;
       if (!current) {
         setError('Event unavailable.');
         return;
@@ -187,9 +184,10 @@ function EventEditor({ event, idea }: { event?: Event; idea?: DateIdea }) {
       setError('');
       removeDraft(account!.id, current.pairId, key);
     } catch {
+      if (!scope.isCurrent()) return;
       setError(idea ? 'We could not reload this idea. Try again.' : 'We could not reload this event. Try again.');
     } finally {
-      setSaving(false);
+      if (scope.isCurrent()) setSaving(false);
     }
   }
 
@@ -219,7 +217,7 @@ function EventEditor({ event, idea }: { event?: Event; idea?: DateIdea }) {
           <Button
             type="button"
             variant="secondary"
-            disabled={saving}
+            disabled={!online || saving}
             onClick={() => void reloadEvent()}
           >
             Reload event and discard draft
@@ -233,7 +231,7 @@ function EventEditor({ event, idea }: { event?: Event; idea?: DateIdea }) {
         </div>
       </form>
     </section>
-    <Dialog open={Boolean(sharing)} title="Share this event?" onClose={() => setSharing(null)}>
+    <Dialog busy={saving} open={Boolean(sharing)} title="Share this event?" onClose={() => setSharing(null)}>
       <p>Your partner will see this event.</p>
       <Button onClick={confirmSharing}>Share event</Button>
     </Dialog>

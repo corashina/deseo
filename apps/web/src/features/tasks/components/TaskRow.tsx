@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import type { Task } from '@deseo/domain/tasks';
 import { setTaskCompleted } from '../commands';
 import { useNetworkStatus } from '../../../lib/network';
-import { captureQueryScope } from '../../../lib/query-client';
+import { useCommandScope } from '../../../lib/use-command-scope';
 import { readDraft, writeDraft, removeDraft } from '../../../lib/drafts';
 import { Button } from '../../../components/ui/Button';
 import { Status } from '../../../components/ui/Status';
@@ -26,29 +26,22 @@ export function TaskRow({ task, accountId, assignee }: {
   const [optimistic, setOptimistic] = useState<boolean | null>(null);
   const [busy, setBusy] = useState(false);
   const pending = useRef(false);
+  const beginScope = useCommandScope(() => { pending.current = false; setBusy(false); setOptimistic(null); });
   const [error, setError] = useState(stored.current ? 'Completion is unconfirmed. Retry the same change.' : '');
   useEffect(() => { setCurrent(previous => previous.version > task.version ? previous : task); }, [task]);
   async function submit(next: Attempt) {
     if (!online || pending.current)
       return;
     pending.current = true;
-    const scope = captureQueryScope();
+    const scope = beginScope();
     writeDraft(accountId, task.pairId, key, next);
     setAttempt(next);
     setBusy(true);
     setOptimistic(next.completed);
     setError('');
     const result = await setTaskCompleted(next.id, next.completed, next.expectedVersion, next.commandId);
+    if (!scope.isCurrent()) return;
     pending.current = false;
-    try {
-      scope.assertCurrent();
-    }
-    catch {
-      setBusy(false);
-      setOptimistic(null);
-      setError('Completion is unconfirmed. Retry the same change.');
-      return;
-    }
     setBusy(false);
     setOptimistic(null);
     if (result.ok) {

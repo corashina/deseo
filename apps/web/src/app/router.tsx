@@ -16,8 +16,8 @@ import { TodayPage } from '../features/today/pages/TodayPage';
 import { CalendarPage } from '../features/calendar/pages/CalendarPage';
 import { EventDetailPage } from '../features/calendar/pages/EventDetailPage';
 import { EventFormPage } from '../features/calendar/pages/EventFormPage';
-import { useEffect, type ReactNode } from 'react';
-import { createBrowserRouter, Link, Navigate, Outlet, useLocation } from 'react-router-dom';
+import { Fragment, useEffect, type ReactNode } from 'react';
+import { createBrowserRouter, Navigate, Outlet, useLocation, useParams, useSearchParams } from 'react-router-dom';
 import { SessionProvider, useSession } from './SessionProvider';
 import { AppShell } from './AppShell';
 import { entryIntent, signOut } from '../features/auth';
@@ -34,6 +34,10 @@ import { PairWelcomePage } from '../features/pair/pages/WelcomePage';
 import { EndedPage } from '../features/pair/pages/EndedPage';
 import { Status } from '../components/ui/Status';
 import { Button } from '../components/ui/Button';
+import { z } from 'zod';
+import { RouteErrorPage, RouteFailureBoundary } from './RouteErrorPage';
+import { NotFoundPage } from './NotFoundPage';
+import { UnsavedChangesGuard } from '../lib/drafts';
 import { useNetworkStatus } from '../lib/network';
 function destination(session: ReturnType<typeof useSession>) {
   if (session.status !== 'authenticated') return '/welcome';
@@ -60,12 +64,12 @@ function InviteEntry() { const session = useSession(); return <Navigate to={dest
 function Frame() {
   const session = useSession();
   const online = useNetworkStatus();
-  const identity = session.userId + ':' + (session.pair && 'pairId' in session.pair ? session.pair.pairId : '');
+  const identity = session.userId + ':' + session.pair?.status + ':' + (session.pair && 'pairId' in session.pair ? session.pair.pairId : '');
   if (session.status === 'loading') return <div className="entry-loading"><Status>Checking your account…</Status></div>;
   if (session.status === 'error') return <section className="card form-page"><h1>We could not open your account</h1><Status error>{session.error}</Status><Button onClick={() => void session.revalidate()}>Retry</Button><Button variant="secondary" onClick={() => void signOut()}>Sign out</Button></section>;
   return session.status === 'authenticated' && session.account ? <AppShell key={identity}><Outlet /></AppShell> : <div className="entry-container" key={identity}>{!online && <Status>You are offline. Keep this tab open to retain your draft.</Status>}<Outlet /></div>;
 }
-function Root() { return <SessionProvider><Frame /></SessionProvider>; }
+function Root() { return <SessionProvider><UnsavedChangesGuard /><Frame /></SessionProvider>; }
 function Page({ title, children }: { title: string; children: ReactNode }) {
   useEffect(() => { document.title = title + ' · Deseo'; }, [title]);
   return <>{children}</>;
@@ -81,8 +85,27 @@ if (location.pathname === '/invite') {
 }
 const publicPage = (title: string, element: ReactNode) => <Page title={title}><Gate kind="public">{element}</Gate></Page>;
 const accountPage = (title: string, element: ReactNode) => <Page title={title}><Gate kind='account'>{element}</Gate></Page>;
-const pairPage = (title: string, element: ReactNode) => <Page title={title}><Gate>{element}</Gate></Page>;
-export const router = createBrowserRouter([{ element: <Root />, children: [
+function RecordRoute({ children }: { children: ReactNode }) {
+  const { pathname } = useLocation();
+  const params = useParams();
+  const [search] = useSearchParams();
+  const records = [
+    ['eventId', 'Event', '/calendar', 'Return to calendar'],
+    ['taskId', 'Task', '/tasks', 'Return to tasks'],
+    ['ideaId', 'Idea', '/ideas', 'Return to ideas'],
+    ['memoryId', 'Memory', '/memories', 'Return to memories'],
+    ['listId', 'List', '/tasks/lists', 'Return to lists'],
+  ];
+  for (const [key, title, returnTo, returnLabel] of records) {
+    if (params[key] && !z.string().uuid().safeParse(params[key]).success)
+      return <RouteErrorPage title={title} returnTo={returnTo} returnLabel={returnLabel} />;
+  }
+  if (pathname === '/events/new' && search.has('idea') && !z.string().uuid().safeParse(search.get('idea')).success)
+    return <RouteErrorPage title="Idea" returnTo="/ideas" returnLabel="Return to ideas" />;
+  return <Fragment key={pathname}>{children}</Fragment>;
+}
+const pairPage = (title: string, element: ReactNode) => <Page title={title}><Gate><RecordRoute>{element}</RecordRoute></Gate></Page>;
+export const router = createBrowserRouter([{ element: <Root />, errorElement: <RouteFailureBoundary />, children: [
   { path: '/', element: <Page title="Welcome"><Entry /></Page> },
   { path: '/welcome', element: publicPage('Welcome', <WelcomePage />) },
   { path: '/sign-in', element: publicPage('Sign in', <EmailPage />) },
@@ -121,5 +144,5 @@ export const router = createBrowserRouter([{ element: <Root />, children: [
   { path: '/events/:eventId', element: pairPage('Event', <EventDetailPage />) },
   { path: '/events/:eventId/edit', element: pairPage('Edit event', <EventFormPage />) },
   { path: '/invite', element: <Page title="Your invitation"><InviteEntry /></Page> },
-  { path: '*', element: <Page title="Page not found"><section className="card form-page"><h1>Page not found</h1><Link to="/">Return to Deseo</Link></section></Page> },
+  { path: '*', element: <Page title="Page not found"><NotFoundPage /></Page> },
 ] }]);

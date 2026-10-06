@@ -6,14 +6,17 @@ import { captureQueryScope, resetPrivateQueries } from '../../lib/query-client';
 import { setDraftScope } from '../../lib/drafts';
 import { assertOnline } from '../../lib/network';
 import { startSignOutNotice } from './sign-out-notice';
-export const entryIntent: { email: string; retryAt: string; invite: string | null; invalidInvite: boolean } = { email: '', retryAt: '', invite: null, invalidInvite: false };
+export const entryIntent: { email: string; emailDraft: string; codeDraft: string; retryAt: string; invite: string | null; invalidInvite: boolean } = { email: '', emailDraft: '', codeDraft: '', retryAt: '', invite: null, invalidInvite: false };
 export async function requestEmailCode(email: string): Promise<Result<{ retryAt: string }>> {
   try {
     assertOnline();
+    const scope = captureQueryScope();
     const parsed = emailSchema.parse(email);
     const { error } = await getSupabase().auth.signInWithOtp({ email: parsed, options: { shouldCreateUser: true } });
+    scope.assertCurrent();
     if (error) throw error;
     entryIntent.email = parsed;
+    entryIntent.codeDraft = '';
     entryIntent.retryAt = new Date(Date.now() + 60_000).toISOString();
     return { ok: true, data: { retryAt: entryIntent.retryAt } };
   } catch (error) { return errorResult(error); }
@@ -59,6 +62,8 @@ export async function signOut(scope: 'local' | 'global' = 'local') {
   entryIntent.invite = null;
   entryIntent.invalidInvite = false;
   entryIntent.email = '';
+  entryIntent.emailDraft = '';
+  entryIntent.codeDraft = '';
   await resetPrivateQueries();
   try {
     const { error } = await client.auth.signOut({ scope });

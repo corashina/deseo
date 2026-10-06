@@ -1,3 +1,4 @@
+import { RouteErrorPage } from '../../../app/RouteErrorPage';
 import { ReminderControl } from '../../notifications';
 import { useTaskSignals } from '../realtime';
 import { useRef, useState } from 'react';
@@ -5,7 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useSession } from '../../../app/SessionProvider';
 import { useNetworkStatus } from '../../../lib/network';
-import { captureQueryScope } from '../../../lib/query-client';
+import { useCommandScope } from '../../../lib/use-command-scope';
 import { readDraft, writeDraft, removeDraft } from '../../../lib/drafts';
 import { PageHeader } from '../../../components/ui/PageHeader';
 import { Status } from '../../../components/ui/Status';
@@ -29,6 +30,7 @@ export function TaskDetailPage() {
   const [confirm, setConfirm] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const beginScope = useCommandScope(() => { setSaving(false); });
   useTaskSignals(account!.id, pair);
   const query = useQuery({ queryKey: taskKeys.task(account!.id, pairId, taskId), queryFn: () => getTask(pairId, taskId) });
   const lists = useQuery({ queryKey: taskKeys.lists(account!.id, pairId), queryFn: () => listTaskLists(pairId) });
@@ -38,17 +40,11 @@ export function TaskDetailPage() {
     const next = attempt.current ?? { version: query.data!.version, commandId: crypto.randomUUID() };
     attempt.current = next;
     writeDraft(account!.id, pairId, key, next);
-    const scope = captureQueryScope();
+    const scope = beginScope();
     setSaving(true);
     const result = await deleteTask(taskId, next.version, next.commandId);
+    if (!scope.isCurrent()) return;
     setSaving(false);
-    try {
-      scope.assertCurrent();
-    }
-    catch {
-      setError('Deletion is unconfirmed. Retry the same deletion.');
-      return;
-    }
     if (result.ok) {
       removeDraft(account!.id, pairId, key);
       navigate('/tasks');
@@ -61,22 +57,15 @@ export function TaskDetailPage() {
     }
     setConfirm(false);
   }
-  if (query.isPending)
+  if (query.isPending || lists.isPending)
     return <Status>Loading task…</Status>;
-  if (query.isError)
-    return <>
-      <Status error>We could not load this task.</Status>
-      <Button onClick={() => void query.refetch()}>Retry</Button>
-    </>;
+  if (query.isError || lists.isError)
+    return <RouteErrorPage title="Task" returnTo="/tasks" returnLabel="Return to tasks" error={query.error ?? lists.error} onRetry={() => { void query.refetch(); void lists.refetch(); }}>{attempt.current && <Button disabled={!online || saving} onClick={() => void remove()}>Retry deletion</Button>}{error && <Status error>{error}</Status>}</RouteErrorPage>;
   const task = query.data;
   if (!task || pair?.status !== 'active')
-    return <section className="card">
-      <h1>Task unavailable</h1>
-      {attempt.current && <Button disabled={!online || saving} onClick={() => void remove()}>Retry deletion</Button>}
+    return <RouteErrorPage title="Task" returnTo="/tasks" returnLabel="Return to tasks">{attempt.current && <Button disabled={!online || saving} onClick={() => void remove()}>Retry deletion</Button>}
       {error && <Status error>{error}
-      </Status>}
-      <Link to="/tasks">Return to tasks</Link>
-    </section>;
+      </Status>}</RouteErrorPage>;
   return <>
     <PageHeader
       title={task.title}
@@ -96,7 +85,7 @@ export function TaskDetailPage() {
       {error && <Status error>{error}
       </Status>}
     </section>
-    <Dialog open={confirm} title="Delete this task?" onClose={() => setConfirm(false)}>
+    <Dialog busy={saving} open={confirm} title="Delete this task?" onClose={() => setConfirm(false)}>
       <p>Both partners will lose this task.</p>
       <Button variant="danger" disabled={!online || saving} onClick={() => void remove()}>Confirm deletion</Button>
     </Dialog>

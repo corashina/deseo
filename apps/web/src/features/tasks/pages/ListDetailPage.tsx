@@ -1,10 +1,11 @@
+import { RouteErrorPage } from '../../../app/RouteErrorPage';
 import { useTaskSignals } from '../realtime';
 import { useEffect, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useSession } from '../../../app/SessionProvider';
 import { useNetworkStatus } from '../../../lib/network';
-import { captureQueryScope } from '../../../lib/query-client';
+import { useCommandScope } from '../../../lib/use-command-scope';
 import { readDraft, writeDraft, removeDraft, useUnsavedChanges } from '../../../lib/drafts';
 import { PageHeader } from '../../../components/ui/PageHeader';
 import { Status } from '../../../components/ui/Status';
@@ -38,6 +39,7 @@ export function ListDetailPage() {
   const [saving, setSaving] = useState(false);
   const [frozen, setFrozen] = useState(Boolean(saved.current?.attempt));
   const [error, setError] = useState('');
+  const beginScope = useCommandScope(() => { setSaving(false); });
   useTaskSignals(account!.id, pair);
   const [removed, setRemoved] = useState(false);
   useUnsavedChanges(!removed && Boolean(name));
@@ -54,19 +56,13 @@ export function ListDetailPage() {
     const next = attempt.current ?? { kind, name, version: list!.version, commandId: crypto.randomUUID() };
     attempt.current = next;
     writeDraft(account!.id, pairId, key, { name, attempt: next });
-    const scope = captureQueryScope();
+    const scope = beginScope();
     setSaving(true);
     setFrozen(true);
     const result = next.kind === 'rename' ? await renameList(listId, next.name, next.version, next.commandId) : next.kind === 'move' ? await moveListTasksToGeneral(listId, next.commandId) : await deleteEmptyList(listId, next.commandId);
+    if (!scope.isCurrent()) return;
     setSaving(false);
     setConfirm(null);
-    try {
-      scope.assertCurrent();
-    }
-    catch {
-      setError('List change is unconfirmed. Retry the same change.');
-      return;
-    }
     if (result.ok) {
       attempt.current = undefined;
       removeDraft(account!.id, pairId, key);
@@ -88,18 +84,11 @@ export function ListDetailPage() {
   if (lists.isPending || tasks.isPending)
     return <Status>Loading list…</Status>;
   if (lists.isError || tasks.isError)
-    return <>
-      <Status error>We could not load this list.</Status>
-      <Button onClick={() => { void lists.refetch(); void tasks.refetch(); }}>Retry</Button>
-    </>;
+    return <RouteErrorPage title="List" returnTo="/tasks/lists" returnLabel="Return to lists" error={lists.error ?? tasks.error} onRetry={() => { void lists.refetch(); void tasks.refetch(); }} />;
   if (!list || pair?.status !== 'active')
-    return <section className="card">
-      <h1>List unavailable</h1>
-      {attempt.current && <Button disabled={!online || saving} onClick={() => void run(attempt.current!.kind)}>Retry list change</Button>}
+    return <RouteErrorPage title="List" returnTo="/tasks/lists" returnLabel="Return to lists">{attempt.current && <Button disabled={!online || saving} onClick={() => void run(attempt.current!.kind)}>Retry list change</Button>}
       {error && <Status error>{error}
-      </Status>}
-      <Link to="/tasks/lists">Return to lists</Link>
-    </section>;
+      </Status>}</RouteErrorPage>;
   return <>
     <PageHeader
       title={list.name}
@@ -144,6 +133,7 @@ export function ListDetailPage() {
       </p>
     </section>
     <Dialog
+      busy={saving}
       open={Boolean(confirm)}
       title={confirm === 'move' ? 'Move tasks to General?' : 'Remove this list?'}
       onClose={() => setConfirm(null)}>

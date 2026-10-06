@@ -1,3 +1,4 @@
+import { RouteErrorPage } from '../../../app/RouteErrorPage';
 import { useEffect, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
@@ -5,7 +6,7 @@ import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { taskInputSchema, type Task, type TaskInput } from '@deseo/domain/tasks';
 import { useSession } from '../../../app/SessionProvider';
 import { readDraft, writeDraft, removeDraft, useUnsavedChanges } from '../../../lib/drafts';
-import { captureQueryScope } from '../../../lib/query-client';
+import { useCommandScope } from '../../../lib/use-command-scope';
 import { useNetworkStatus } from '../../../lib/network';
 import { PageHeader } from '../../../components/ui/PageHeader';
 import { Button } from '../../../components/ui/Button';
@@ -41,15 +42,9 @@ export function TaskFormPage() {
   if (lists.isPending || (taskId && query.isPending))
     return <Status>Loading task…</Status>;
   if (lists.isError || query.isError)
-    return <>
-      <Status error>We could not load this task.</Status>
-      <Button onClick={() => { void query.refetch(); void lists.refetch(); }}>Retry</Button>
-    </>;
+    return <RouteErrorPage title="Task" returnTo="/tasks" returnLabel="Return to tasks" error={(lists.isError ? lists : query).error} onRetry={() => { void query.refetch(); void lists.refetch(); }} />;
   if (taskId && !query.data)
-    return <section className="card">
-      <h1>Task unavailable</h1>
-      <Link to="/tasks">Return to tasks</Link>
-    </section>;
+    return <RouteErrorPage title="Task" returnTo="/tasks" returnLabel="Return to tasks" />;
   return <TaskEditor key={taskId ?? 'new'} task={query.data ?? undefined} lists={lists.data} />;
 }
 function TaskEditor({ task, lists }: {
@@ -73,6 +68,7 @@ function TaskEditor({ task, lists }: {
   const [error, setError] = useState('');
   const [conflict, setConflict] = useState(false);
   const [confirmed, setConfirmed] = useState(false);
+  const beginScope = useCommandScope(() => { busy.current = false; setSaving(false); });
   const form = useForm<Fields>({
     defaultValues: draft.current?.values ?? (task ? fields(task) : { title: '', listId: lists.find(list => list.id === params.get('list'))?.id ?? lists.find(list => list.isGeneral)!.id, assigneeId: '', dueDate: '' })
   });
@@ -94,7 +90,7 @@ function TaskEditor({ task, lists }: {
       return;
     }
     const next = attempt.current ?? { input: parsed.data, commandId: crypto.randomUUID(), expectedVersion: version.current };
-    const scope = captureQueryScope();
+    const scope = beginScope();
     attempt.current = next;
     busy.current = true;
     setSaving(true);
@@ -102,15 +98,9 @@ function TaskEditor({ task, lists }: {
     setError('');
     writeDraft(account!.id, next.input.pairId, key, { values, id: id.current, expectedVersion: version.current, attempt: next, dirty: true });
     const result = task ? await updateTask(next.input.id, next.input, next.expectedVersion!, next.commandId) : await createTask(next.input, next.commandId);
+    if (!scope.isCurrent()) return;
     busy.current = false;
     setSaving(false);
-    try {
-      scope.assertCurrent();
-    }
-    catch {
-      setError('Your save is unconfirmed. Retry with the same details.');
-      return;
-    }
     if (result.ok) {
       removeDraft(account!.id, next.input.pairId, key);
       setConfirmed(true);
@@ -127,9 +117,11 @@ function TaskEditor({ task, lists }: {
   async function reload() {
     if (saving)
       return;
+    const scope = beginScope();
     setSaving(true);
     try {
       const current = await getTask(pair!.status === 'active' ? pair!.pairId : '', task!.id);
+      if (!scope.isCurrent()) return;
       if (!current) {
         setError('Task unavailable.');
         return;
@@ -143,10 +135,11 @@ function TaskEditor({ task, lists }: {
       setError('');
     }
     catch {
+      if (!scope.isCurrent()) return;
       setError('We could not reload this task. Try again.');
     }
     finally {
-      setSaving(false);
+      if (scope.isCurrent()) setSaving(false);
     }
   }
   return <>
@@ -180,7 +173,7 @@ function TaskEditor({ task, lists }: {
         {error && <Status error>{error}
         </Status>}
         {frozen && <p>Your save is unconfirmed. Retry with the same details.</p>}
-        {conflict && <Button variant="secondary" type="button" onClick={() => void reload()}>Reload task and discard draft</Button>}
+        {conflict && <Button disabled={!online || saving} variant="secondary" type="button" onClick={() => void reload()}>Reload task and discard draft</Button>}
         <div className="actions">
           <Button type="submit" disabled={!online || saving || conflict}>{saving ? 'Saving…' : frozen ? 'Retry save' : task ? 'Save changes' : 'Save task'}
           </Button>

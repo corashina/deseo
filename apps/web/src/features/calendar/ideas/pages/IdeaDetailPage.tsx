@@ -1,10 +1,11 @@
+import { RouteErrorPage } from '../../../../app/RouteErrorPage';
 import { useCalendarSignals } from '../../realtime';
 import { useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link, useParams } from 'react-router-dom';
 import { useSession } from '../../../../app/SessionProvider';
 import { useNetworkStatus } from '../../../../lib/network';
-import { captureQueryScope } from '../../../../lib/query-client';
+import { useCommandScope } from '../../../../lib/use-command-scope';
 import { readDraft, writeDraft, removeDraft } from '../../../../lib/drafts';
 import { PageHeader } from '../../../../components/ui/PageHeader';
 import { Status } from '../../../../components/ui/Status';
@@ -26,6 +27,7 @@ export function IdeaDetailPage() {
   const [confirm, setConfirm] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const beginScope = useCommandScope(() => { setSaving(false); });
   useCalendarSignals(account!.id, pair);
   const query = useQuery({ queryKey: ideaKeys.detail(account!.id, pairId, ideaId), queryFn: () => getDateIdea(pairId, ideaId) });
   async function archive() {
@@ -34,18 +36,12 @@ export function IdeaDetailPage() {
     const next = attempt.current ?? { version: query.data.version, commandId: crypto.randomUUID() };
     attempt.current = next;
     writeDraft(account!.id, pairId, key, next);
-    const scope = captureQueryScope();
+    const scope = beginScope();
     setSaving(true);
     const result = await archiveIdea(ideaId, next.version, next.commandId);
+    if (!scope.isCurrent()) return;
     setSaving(false);
     setConfirm(false);
-    try {
-      scope.assertCurrent();
-    }
-    catch {
-      setError('Archive is unconfirmed. Retry the same archive.');
-      return;
-    }
     if (result.ok) {
       removeDraft(account!.id, pairId, key);
       attempt.current = undefined;
@@ -62,16 +58,10 @@ export function IdeaDetailPage() {
   if (query.isPending)
     return <Status>Loading idea…</Status>;
   if (query.isError)
-    return <>
-      <Status error>We could not load this idea.</Status>
-      <Button onClick={() => void query.refetch()}>Retry</Button>
-    </>;
+    return <RouteErrorPage title="Idea" returnTo="/ideas" returnLabel="Return to ideas" error={query.error} onRetry={() => void query.refetch()} />;
   const idea = query.data;
   if (!idea)
-    return <section className="card">
-      <h1>Idea unavailable</h1>
-      <Link to="/ideas">Return to ideas</Link>
-    </section>;
+    return <RouteErrorPage title="Idea" returnTo="/ideas" returnLabel="Return to ideas" />;
   return <>
     <PageHeader
       title={idea.title}
@@ -93,7 +83,7 @@ export function IdeaDetailPage() {
       </Status>}
       {attempt.current && !saving && <Button disabled={!online} onClick={() => void archive()}>Retry archive</Button>}
     </section>
-    <Dialog open={confirm} title="Archive this idea?" onClose={() => setConfirm(false)}>
+    <Dialog busy={saving} open={confirm} title="Archive this idea?" onClose={() => setConfirm(false)}>
       <p>You can find this idea in Archived.</p>
       <Button disabled={!online || saving} onClick={() => void archive()}>Confirm archive</Button>
     </Dialog>
