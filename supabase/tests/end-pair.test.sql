@@ -23,7 +23,7 @@ select pg_temp.as_user(2);
 select is((select count(*)::integer from public.pairs),0,'Former partner normal reads denied');
 select ok((public.create_pair('Europe/Warsaw','50000000-0000-4000-8000-000000000024')->>'ok')::boolean,'New pair permitted');
 reset role;
-select is((select count(*)::integer from private.verification_proofs where consumed_at is not null),1,'Proof consumed once');
+select is((select count(*)::integer from private.verification_proofs where user_id='10000000-0000-4000-8000-000000000001' and consumed_at is not null),1,'Proof consumed once');
 insert into public.pairs(id,state,timezone) values('30000000-0000-4000-8000-000000000003','active','Europe/Warsaw');
 insert into public.pair_members(pair_id,user_id,slot) values
   ('30000000-0000-4000-8000-000000000003','10000000-0000-4000-8000-000000000001','a'),

@@ -1,37 +1,9 @@
-import { SettingsPage, ProfileSettingsPage, PairSettingsPage, AccountSettingsPage } from '../features/settings';
-import { NotificationsPage, PreferencesPage } from '../features/notifications';
-import { MemoriesPage } from '../features/memories/pages/MemoriesPage';
-import { MemoryDetailPage } from '../features/memories/pages/MemoryDetailPage';
-import { MemoryFormPage } from '../features/memories/pages/MemoryFormPage';
-import { TasksPage } from '../features/tasks/pages/TasksPage';
-import { MessagesPage } from '../features/messages';
-import { TaskDetailPage } from '../features/tasks/pages/TaskDetailPage';
-import { TaskFormPage } from '../features/tasks/pages/TaskFormPage';
-import { ListManagerPage } from '../features/tasks/pages/ListManagerPage';
-import { ListDetailPage } from '../features/tasks/pages/ListDetailPage';
-import { IdeasPage } from '../features/calendar/ideas/pages/IdeasPage';
-import { IdeaDetailPage } from '../features/calendar/ideas/pages/IdeaDetailPage';
-import { IdeaFormPage } from '../features/calendar/ideas/pages/IdeaFormPage';
-import { TodayPage } from '../features/today/pages/TodayPage';
-import { CalendarPage } from '../features/calendar/pages/CalendarPage';
-import { EventDetailPage } from '../features/calendar/pages/EventDetailPage';
-import { EventFormPage } from '../features/calendar/pages/EventFormPage';
-import { Fragment, useEffect, type ReactNode } from 'react';
+import { Fragment, lazy, Suspense, useEffect, type ReactNode } from 'react';
 import { createBrowserRouter, Navigate, Outlet, useLocation, useParams, useSearchParams } from 'react-router-dom';
 import { SessionProvider, useSession } from './SessionProvider';
 import { AppShell } from './AppShell';
 import { entryIntent, signOut } from '../features/auth';
 import { inviteTokenSchema } from '../features/pair';
-import { WelcomePage } from '../features/auth/pages/WelcomePage';
-import { EmailPage } from '../features/auth/pages/EmailPage';
-import { VerifyPage } from '../features/auth/pages/VerifyPage';
-import { ProfilePage } from '../features/auth/pages/ProfilePage';
-import { StartPage } from '../features/pair/pages/StartPage';
-import { InvitePage } from '../features/pair/pages/InvitePage';
-import { JoinPage } from '../features/pair/pages/JoinPage';
-import { WaitingPage } from '../features/pair/pages/WaitingPage';
-import { PairWelcomePage } from '../features/pair/pages/WelcomePage';
-import { EndedPage } from '../features/pair/pages/EndedPage';
 import { Status } from '../components/ui/Status';
 import { Button } from '../components/ui/Button';
 import { z } from 'zod';
@@ -39,6 +11,38 @@ import { RouteErrorPage, RouteFailureBoundary } from './RouteErrorPage';
 import { NotFoundPage } from './NotFoundPage';
 import { UnsavedChangesGuard } from '../lib/drafts';
 import { useNetworkStatus } from '../lib/network';
+const SettingsPage = lazy(() => import('../features/settings').then(module => ({ default: module.SettingsPage })));
+const ProfileSettingsPage = lazy(() => import('../features/settings').then(module => ({ default: module.ProfileSettingsPage })));
+const PairSettingsPage = lazy(() => import('../features/settings').then(module => ({ default: module.PairSettingsPage })));
+const AccountSettingsPage = lazy(() => import('../features/settings').then(module => ({ default: module.AccountSettingsPage })));
+const NotificationsPage = lazy(() => import('../features/notifications').then(module => ({ default: module.NotificationsPage })));
+const PreferencesPage = lazy(() => import('../features/notifications').then(module => ({ default: module.PreferencesPage })));
+const MemoriesPage = lazy(() => import('../features/memories/pages/MemoriesPage').then(module => ({ default: module.MemoriesPage })));
+const MemoryDetailPage = lazy(() => import('../features/memories/pages/MemoryDetailPage').then(module => ({ default: module.MemoryDetailPage })));
+const MemoryFormPage = lazy(() => import('../features/memories/pages/MemoryFormPage').then(module => ({ default: module.MemoryFormPage })));
+const TasksPage = lazy(() => import('../features/tasks/pages/TasksPage').then(module => ({ default: module.TasksPage })));
+const MessagesPage = lazy(() => import('../features/messages/pages/MessagesPage').then(module => ({ default: module.MessagesPage })));
+const TaskDetailPage = lazy(() => import('../features/tasks/pages/TaskDetailPage').then(module => ({ default: module.TaskDetailPage })));
+const TaskFormPage = lazy(() => import('../features/tasks/pages/TaskFormPage').then(module => ({ default: module.TaskFormPage })));
+const ListManagerPage = lazy(() => import('../features/tasks/pages/ListManagerPage').then(module => ({ default: module.ListManagerPage })));
+const ListDetailPage = lazy(() => import('../features/tasks/pages/ListDetailPage').then(module => ({ default: module.ListDetailPage })));
+const IdeasPage = lazy(() => import('../features/calendar/ideas/pages/IdeasPage').then(module => ({ default: module.IdeasPage })));
+const IdeaDetailPage = lazy(() => import('../features/calendar/ideas/pages/IdeaDetailPage').then(module => ({ default: module.IdeaDetailPage })));
+const IdeaFormPage = lazy(() => import('../features/calendar/ideas/pages/IdeaFormPage').then(module => ({ default: module.IdeaFormPage })));
+const TodayPage = lazy(() => import('../features/today/pages/TodayPage').then(module => ({ default: module.TodayPage })));
+const CalendarPage = lazy(() => import('../features/calendar/pages/CalendarPage').then(module => ({ default: module.CalendarPage })));
+const EventDetailPage = lazy(() => import('../features/calendar/pages/EventDetailPage').then(module => ({ default: module.EventDetailPage })));
+const EventFormPage = lazy(() => import('../features/calendar/pages/EventFormPage').then(module => ({ default: module.EventFormPage })));
+const WelcomePage = lazy(() => import('../features/auth/pages/WelcomePage').then(module => ({ default: module.WelcomePage })));
+const EmailPage = lazy(() => import('../features/auth/pages/EmailPage').then(module => ({ default: module.EmailPage })));
+const VerifyPage = lazy(() => import('../features/auth/pages/VerifyPage').then(module => ({ default: module.VerifyPage })));
+const ProfilePage = lazy(() => import('../features/auth/pages/ProfilePage').then(module => ({ default: module.ProfilePage })));
+const StartPage = lazy(() => import('../features/pair/pages/StartPage').then(module => ({ default: module.StartPage })));
+const InvitePage = lazy(() => import('../features/pair/pages/InvitePage').then(module => ({ default: module.InvitePage })));
+const JoinPage = lazy(() => import('../features/pair/pages/JoinPage').then(module => ({ default: module.JoinPage })));
+const WaitingPage = lazy(() => import('../features/pair/pages/WaitingPage').then(module => ({ default: module.WaitingPage })));
+const PairWelcomePage = lazy(() => import('../features/pair/pages/WelcomePage').then(module => ({ default: module.PairWelcomePage })));
+const EndedPage = lazy(() => import('../features/pair/pages/EndedPage').then(module => ({ default: module.EndedPage })));
 function destination(session: ReturnType<typeof useSession>) {
   if (session.status !== 'authenticated') return '/welcome';
   if (!session.account) return '/profile/setup';
@@ -72,7 +76,7 @@ function Frame() {
 function Root() { return <SessionProvider><UnsavedChangesGuard /><Frame /></SessionProvider>; }
 function Page({ title, children }: { title: string; children: ReactNode }) {
   useEffect(() => { document.title = title + ' · Deseo'; }, [title]);
-  return <>{children}</>;
+  return <Suspense fallback={<Status>Loading page…</Status>}>{children}</Suspense>;
 }
 // Capture the invitation before router creation, then remove it from browser history.
 // No analytics or logging receives the secret.

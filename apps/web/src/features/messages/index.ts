@@ -2,4 +2,3 @@ export { listMessages, getUnreadCount, reconcileMessageSends, messageKeys, useMe
 export { sendMessage, deleteMessage, setReadCursor } from './commands';
 export { pinMessage, unpinMessage, listPinnedNotes } from './notes';
 export { NoteCard } from './components/NoteCard';
-export { MessagesPage } from './pages/MessagesPage';

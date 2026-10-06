@@ -48,6 +48,7 @@ export function TodayPage() {
             key={event.id + (event.temporal.kind === 'allDay' ? event.temporal.startDate : event.temporal.startsAt)}
             event={event}
             names={names}
+            showDate
             timezone={zone} />) : <p>Nothing planned for the next seven days.</p>}
         </section>
         <section className="card" data-testid="today-tasks">

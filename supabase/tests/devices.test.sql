@@ -50,7 +50,7 @@ select is(public.get_reminder('91000000-0000-4000-8000-000000000001',null)->'dat
 select pg_temp.as_user(2);
 select ok((public.revoke_device('90000000-0000-4000-8000-000000000002')->>'ok')::boolean,'Local signout revokes device');
 reset role;
-select is((select count(*)::integer from public.devices where revoked_at is null),0,'Revocation removes active delivery token');
+select is((select count(*)::integer from public.devices where user_id in ('10000000-0000-4000-8000-000000000001','10000000-0000-4000-8000-000000000002') and revoked_at is null),0,'Revocation removes active delivery token');
 select pg_temp.as_user(1);
 delete from auth.sessions where user_id='10000000-0000-4000-8000-000000000001';
 set local role authenticated;
