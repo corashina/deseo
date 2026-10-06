@@ -7,7 +7,7 @@ import { AppError, toAppError } from '@deseo/domain/result';
 import { restoreSession } from './queries';
 import { onSessionReset } from './session-events';
 import type { AuthState } from '@deseo/domain/auth';
-import { flushPrivateDrafts } from '../../lib/draft-lifecycle';
+import { flushPrivateDrafts } from '../../lib/draft';
 
 interface AuthContextValue {
   state: AuthState;

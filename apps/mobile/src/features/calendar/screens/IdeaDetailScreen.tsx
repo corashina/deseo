@@ -13,7 +13,7 @@ import { useCore } from '../../pair';
 import { CalendarAccess } from '../CalendarAccess';
 import { ideaFieldsSchema } from '@deseo/domain/calendar';
 import { archiveIdea, getDateIdea, ideaKeys } from '../date-ideas';
-import { readArchiveIntent, writeArchiveIntent, removeIdeaDraft, type ArchiveIntent } from '../idea-drafts';
+import { readArchiveIntent, writeArchiveIntent, removeArchiveIntent, type ArchiveIntent } from '../archive-intent';
 import { useCalendarSignals } from '../realtime';
 export function IdeaDetailScreen({ ideaId }: { ideaId: string }) { return <CalendarAccess><Entry ideaId={ideaId} /></CalendarAccess>; }
 function Entry({ ideaId }: { ideaId: string }) {
@@ -42,7 +42,7 @@ function Detail({ ideaId, pairId }: { ideaId: string; pairId: string }) {
     try {
       await writeArchiveIntent(core.account.id, pairId, key, next); scope.assertCurrent();
       const result = await archiveIdea(next.id, next.expectedVersion, next.commandId); scope.assertCurrent();
-      if (result.ok || result.error.code !== 'RETRYABLE') { await removeIdeaDraft(core.account.id, pairId, key); scope.assertCurrent(); setIntent(null); }
+      if (result.ok || result.error.code !== 'RETRYABLE') { await removeArchiveIntent(core.account.id, pairId, key); scope.assertCurrent(); setIntent(null); }
       if (!result.ok) setError(result.error);
     } catch { try { scope.assertCurrent(); setError({ code: 'RETRYABLE', message: 'We could not confirm archiving. Retry when connected.' }); } catch { /* The gate owns recovery. */ } }
     finally { busy.current = false; try { scope.assertCurrent(); setSaving(false); } catch { /* The gate owns recovery. */ } }

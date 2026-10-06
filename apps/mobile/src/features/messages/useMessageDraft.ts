@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { randomUUID } from 'expo-crypto';
-import { registerDraftFlush } from '../../lib/draft-lifecycle';
+import { registerDraftFlush } from '../../lib/draft';
 import { captureQueryScope } from '../../lib/query-client';
 import { sendMessage } from './commands';
 import { loadMessageDraft, saveMessageDraft } from './drafts';

@@ -18,7 +18,7 @@ const list: TaskList = { id: '60000000-0000-4000-8000-000000000001', pairId, nam
 let stored: Map<string, string>;
 beforeEach(() => {
   jest.clearAllMocks(); stored = new Map();
-  jest.mocked(randomUUID).mockReset().mockReturnValue('50000000-0000-4000-8000-000000000001');
+  let ids = 0; jest.mocked(randomUUID).mockReset().mockImplementation(() => `50000000-0000-4000-8000-00000000000${++ids}` as never);
   jest.mocked(getPrivateStorage).mockResolvedValue({
     getDraft: async (_account: string, _pair: string, key: string) => stored.get(key) ?? null,
     setDraft: async (_account: string, _pair: string, key: string, value: string) => { stored.set(key, value); },
@@ -46,7 +46,6 @@ it('retains the opened version while the partner refreshes the list', async () =
 
 // Importance: 98. Both conflict stages must preserve the entered name after restart.
 it('restores conflict review and entered names through two restarts', async () => {
-  jest.mocked(randomUUID).mockReturnValueOnce('50000000-0000-4000-8000-000000000001').mockReturnValueOnce('50000000-0000-4000-8000-000000000002');
   jest.mocked(renameList).mockResolvedValue({ ok: false, error: { code: 'CONFLICT' } });
   await mount();
   await fireEvent.changeText(screen.getByLabelText('List name'), 'Local shopping');
@@ -69,14 +68,14 @@ it('restores conflict review and entered names through two restarts', async () =
   jest.mocked(renameList).mockResolvedValue({ ok: true, data: { ...list, name: 'Local shopping', version: 5 } });
   await fireEvent.press(screen.getByText('Rename list'));
   await waitFor(() => expect(jest.mocked(renameList).mock.calls[1]?.[2]).toBe(4));
-  expect(jest.mocked(renameList).mock.calls[1]?.[3]).toBe('50000000-0000-4000-8000-000000000002');
+  expect(jest.mocked(renameList).mock.calls[1]?.[3]).not.toBe(jest.mocked(renameList).mock.calls[0]?.[3]);
 });
 
 // Importance: 98. An unsent draft must retain its version when the saved name changes during restart.
 it('restores an unsent name draft with its opened version', async () => {
   await mount();
   await fireEvent.changeText(screen.getByLabelText('List name'), 'Local shopping');
-  await waitFor(() => expect(stored.get(`tasks:list:${list.id}:name`)).toContain('Local shopping'));
+  await waitFor(() => expect(stored.get(`tasks:list-name:${list.id}`)).toContain('Local shopping'));
   await screen.unmount();
   await mount({ ...list, name: 'Partner shopping', version: 4 });
   expect(screen.getByLabelText('List name').props.value).toBe('Local shopping');
@@ -91,15 +90,26 @@ it('retries the original uncertain rename after restart', async () => {
   await mount();
   await fireEvent.changeText(screen.getByLabelText('List name'), 'Local shopping');
   await fireEvent.press(screen.getByText('Rename list'));
-  await waitFor(() => expect(screen.getByText('Retry')).toBeTruthy());
+  await waitFor(() => expect(screen.getByText('Retry save')).toBeTruthy());
   const original = jest.mocked(renameList).mock.calls[0];
   await screen.unmount();
   await render(<ListManager accountId={accountId} pairId={pairId} list={{ ...list, name: 'Partner shopping', version: 4 }} online />);
-  await waitFor(() => expect(screen.getByText('Retry')).toBeTruthy());
+  await waitFor(() => expect(screen.getByText('Retry save')).toBeTruthy());
   expect(screen.getByLabelText('List name').props.editable).toBe(false);
   expect(screen.getByLabelText('List name').props.value).toBe('Local shopping');
-  await fireEvent.press(screen.getByText('Retry'));
+  await fireEvent.press(screen.getByText('Retry save'));
   await waitFor(() => expect(renameList).toHaveBeenCalledTimes(2));
   expect(jest.mocked(renameList).mock.calls[1]).toEqual(original);
   expect(original?.[2]).toBe(3);
+});
+
+// Importance: 95. A taken name is a field error, not a partner conflict.
+it('shows a taken name on the field and keeps the name editable', async () => {
+  jest.mocked(renameList).mockResolvedValue({ ok: false, error: { code: 'CONFLICT', field: 'name' } });
+  await mount();
+  await fireEvent.changeText(screen.getByLabelText('List name'), 'Shopping');
+  await fireEvent.press(screen.getByText('Rename list'));
+  await waitFor(() => expect(screen.getByText('This value is already in use.')).toBeTruthy());
+  expect(screen.queryByText('Reload saved version')).toBeNull();
+  expect(screen.getByLabelText('List name').props.editable).toBe(true);
 });

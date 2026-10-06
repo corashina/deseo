@@ -27,7 +27,7 @@ jest.mock('../../lib/supabase', () => {
   return { getSupabase: async () => client };
 });
 jest.mock('../../lib/private-storage', () => ({ onPrivateStorageFailure: jest.fn() }));
-jest.mock('../../lib/draft-lifecycle', () => ({ registerDraftFlush: jest.fn() }));
+jest.mock('../../lib/draft', () => ({ registerDraftFlush: jest.fn() }));
 jest.mock('./queries', () => ({ subscribeMemorySignals: jest.fn().mockResolvedValue(jest.fn()) }));
 jest.mock('./commands', () => ({ reserveMemory: jest.fn(), deleteMemory: jest.fn(), finalizeMemory: jest.fn(), uploadMemoryPhoto: jest.fn(), updateMemory: jest.fn() }));
 jest.mock('./prepare', () => ({ prepareMemoryDraft: jest.fn() }));

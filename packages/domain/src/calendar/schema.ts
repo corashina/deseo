@@ -26,6 +26,11 @@ export const eventInputSchema = z.object({
   if (!valid) context.addIssue({ code: 'custom', path: ['temporal'], message: 'End must follow start.' });
   if (value.visibility === 'private' && value.owner === 'together') context.addIssue({ code: 'custom', path: ['owner'], message: 'A private event must belong to you.' });
 });
+/** Stored form values. Accepts incomplete input. */
+export const eventValuesSchema = z.object({ title: z.string(), allDay: z.boolean(), repeat: z.enum(['none', 'yearly']).optional(), importantDate: z.boolean().optional(), startDate: z.string(), endDate: z.string(),
+    startTime: z.string(), endTime: z.string(), startOffset: z.number().optional(), endOffset: z.number().optional(),
+    timezone: z.string(), owner: z.enum(['a', 'b', 'together']), visibility: z.enum(['shared', 'private']),
+    location: z.string(), description: z.string() });
 export const eventFormSchema = z.object({
   title: z.string().trim().min(1, 'Enter a title.').max(120, 'Use 120 characters or less.'),
   allDay: z.boolean(), repeat: z.enum(['none', 'yearly']).optional(), importantDate: z.boolean().optional(), startDate: dateSchema, endDate: dateSchema,

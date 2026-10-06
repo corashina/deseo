@@ -10,3 +10,12 @@ export const taskRowSchema = z.object({ id: z.string().uuid(), pair_id: z.string
   authorId: row.created_by, completedAt: row.completed_at, completedBy: row.completed_by, version: row.version,
 }));
 export const listRowSchema = z.object({ id: z.string().uuid(), pair_id: z.string().uuid(), name: listNameSchema, is_general: z.boolean(), created_by: z.string().uuid().nullable(), version: z.number().int().positive() }).transform((row): TaskList => ({ id: row.id, pairId: row.pair_id, name: row.name, isGeneral: row.is_general, authorId: row.created_by, version: row.version }));
+export const taskValuesSchema = z.object({ title: z.string(), listId: z.string().uuid(), assigneeId: z.string().uuid().nullable(), dueDate: z.string() });
+export type TaskValues = z.infer<typeof taskValuesSchema>;
+export function taskFormSchema(memberIds: readonly string[]) {
+  return taskValuesSchema.extend({
+    title: z.string().trim().min(1, 'Enter a title.').max(200, 'Use 200 characters or less.'),
+    assigneeId: z.string().uuid().nullable().refine(value => value === null || memberIds.includes(value), 'Choose a current pair member.'),
+    dueDate: z.union([z.literal(''), taskDateSchema]),
+  });
+}
