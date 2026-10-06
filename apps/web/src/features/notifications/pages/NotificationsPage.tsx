@@ -10,6 +10,7 @@ import { Status } from '../../../components/ui/Status';
 import { Button } from '../../../components/ui/Button';
 import { listNotifications, notificationKeys } from '../queries';
 import { resolveNotification, markNotificationRead } from '../commands';
+import '../../../styles/notifications.css';
 const states = { queued: 'Queued', submitted: 'Submitted to Expo', provider_accepted: 'Accepted by push provider', failed: 'Push failed', expired: 'Push expired', canceled: 'Push canceled' };
 export function NotificationsPage() {
   const { account, pair } = useSession();

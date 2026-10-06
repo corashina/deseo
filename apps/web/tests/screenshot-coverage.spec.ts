@@ -135,7 +135,8 @@ test('complete screenshot gallery', async ({ browser }, info) => {
         if (scene.routeId !== 'entry-root') await page.screenshot({ ...options, path: gallery + file });
         const fullPage = await page.evaluate(() => document.documentElement.scrollHeight > innerHeight);
         const longForm = /-(new|edit)$/.test(scene.routeId) || scene.routeId.startsWith('settings-');
-        const fullPageFile = fullPage || longForm ? file.replace('.jpg', '-full.jpg') : undefined;
+        const previous = records.find(record => record.routeId === scene.routeId && record.view === scene.view && record.viewport.width === width);
+        const fullPageFile = fullPage || longForm || previous?.fullPageFile ? file.replace('.jpg', '-full.jpg') : undefined;
         if (fullPageFile && scene.routeId !== 'entry-root') await page.screenshot({ ...options, path: gallery + fullPageFile, fullPage: true });
         const currentUrl = new URL(page.url());
         const record: ScreenshotRecord = { ...scene, url: rendered.url, state: scene.view, fixture: role === 'anna' || role === 'marek' ? 'Anna + Marek / ' + role : 'disposable / ' + role,

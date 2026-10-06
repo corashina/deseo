@@ -445,11 +445,13 @@ Keep static data, formatters, and icon definitions outside repeated render work 
 
 ## 10. Frontend structure
 
-Use the Expo and TypeScript structure in [ARCHITECTURE.md](docs/architecture/ARCHITECTURE.md).
+Follow the module rules in [ARCHITECTURE.md](docs/architecture/ARCHITECTURE.md).
 
-The app lives in `apps/mobile`. The static public site lives in `apps/site`. Share brand tokens, not UI controls.
+Use `apps/mobile` for Expo screens and native capabilities. Use `apps/web` for React DOM screens and browser capabilities.
 
-The workspace currently contains documentation only. Create runtime files through the implementation plan.
+Keep shared schemas, payloads, types, and date rules in `packages/domain`. Keep platform UI controls in their application.
+
+Reserve `apps/site` for the planned public information site. Share brand tokens across applications.
 
 Keep server access inside feature data modules. Pass explicit view data into display components.
 

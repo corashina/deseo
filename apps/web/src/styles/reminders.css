@@ -1,0 +1,2 @@
+.event-reminder { border-top:1px solid var(--line); padding:24px 0; margin:24px 0; max-width:480px; }
+.event-reminder select { width:100%; min-height:48px; padding:12px; border:1px solid var(--control); border-radius:12px; background:var(--surface); color:var(--ink); }

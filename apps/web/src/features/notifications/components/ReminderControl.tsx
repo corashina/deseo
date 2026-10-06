@@ -12,6 +12,7 @@ import { Field } from '../../../components/ui/Field';
 import { Status } from '../../../components/ui/Status';
 import { getReminder, getNotificationPreferences, notificationKeys } from '../queries';
 import { setReminder } from '../commands';
+import '../../../styles/reminders.css';
 type Props = { eventId?: string; taskId?: string; sourceVersion: number; timezone: string; allDay?: boolean; completed?: boolean; dueDate?: string | null };
 type Draft = { choice: string; date: string; time: string; active: boolean; attempt: { input: ReminderInput; commandId: string } | null };
 export function ReminderControl(props: Props) {

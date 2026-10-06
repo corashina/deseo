@@ -19,3 +19,7 @@ dialog { border: 1px solid var(--line); border-radius: 20px; padding: 24px; colo
 dialog::backdrop { background: rgb(56 53 71 / .35); }
 .dialog-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 24px; }
 .dialog-heading h2 { margin: 0; }
+.view-tabs { display:flex; gap:8px; flex-wrap:wrap; padding:4px; background:var(--canvas); border:1px solid var(--line); border-radius:12px; }
+.view-tabs button { min-height:48px; border:1px solid transparent; border-radius:12px; background:transparent; padding:10px 16px; color:var(--ink); cursor:pointer; }
+.view-tabs button[aria-pressed=true] { background:var(--shared-soft); border-color:var(--shared); }
+@media (max-width:767px) { .view-tabs { width:100%; } .view-tabs button { flex:1; padding:8px; } }

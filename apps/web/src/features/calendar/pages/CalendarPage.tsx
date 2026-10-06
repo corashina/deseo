@@ -1,5 +1,6 @@
 
 import { DateTime } from 'luxon';
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useSession } from '../../../app/SessionProvider';
@@ -18,7 +19,8 @@ export function CalendarPage() {
   const { account, pair } = useSession(); const [params, setParams] = useSearchParams();
   const parsed = DateTime.fromISO(params.get('date') ?? '', { zone: pair && 'timezone' in pair ? pair.timezone : 'Europe/Warsaw' });
   const date = parsed.isValid ? parsed.toISODate()! : DateTime.now().setZone(account!.timezone).toISODate()!;
-  const view = ['month', 'agenda', 'compare'].includes(params.get('view') ?? '') ? params.get('view')! : 'month';
+  const [defaultView] = useState(() => window.matchMedia('(max-width:767px)').matches ? 'agenda' : 'month');
+  const view = ['month', 'agenda', 'compare'].includes(params.get('view') ?? '') ? params.get('view')! : defaultView;
   const owner = ['a', 'b', 'together'].includes(params.get('owner') ?? '') ? params.get('owner')! : 'all';
   const month = DateTime.fromISO(date).startOf('month');
   const range = { pairId: pair?.status === 'active' ? pair.pairId : '', from: month.startOf('week').toISODate()!, to: month.endOf('month').endOf('week').plus({ days: 1 }).toISODate()! };

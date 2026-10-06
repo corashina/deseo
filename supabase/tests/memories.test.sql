@@ -2,6 +2,10 @@
 begin;
 \ir fixtures/setup.sql.inc
 select no_plan();
+\ir fixtures/memory-worker.sql.inc
+-- Importance 100: fixture leases and expiry must survive more than one global worker batch.
+select is((select count(*)::integer from private.memory_cleanup_jobs where pair_id='30000000-0000-4000-8000-000000000003' and state='queued' and due_at<=now()),120,'Unrelated eligible cleanup backlog exceeds 50');
+select is((select count(*)::integer from private.memory_reservations where pair_id='30000000-0000-4000-8000-000000000003' and expires_at<=now() and released_at is null),120,'Unrelated expired reservation backlog exceeds 50');
 select has_table('public','memories','public.memories exists');
 select has_table('public','memory_photos','public.memory_photos exists');
 select ok(not has_table_privilege('authenticated','public.memories','INSERT'),'Clients cannot insert metadata');
@@ -85,20 +89,20 @@ reset role;
 select is((select bytes::integer from private.memory_reservations where released_at is null and pair_id='30000000-0000-4000-8000-000000000001'),130,'Deleting bytes still occupy quota');
 select set_config('request.jwt.claims','{"role":"service_role"}',true);
 set local role service_role;
-create temporary table claimed as select job from jsonb_array_elements(public.claim_memory_cleanup(50)->'data') job where job->>'memoryId'='40000000-0000-4000-8000-000000000101';
+create temporary table claimed as select job from jsonb_array_elements(pg_temp.claim_fixture_memory(50)->'data') job where job->>'memoryId'='40000000-0000-4000-8000-000000000101';
 select is((select job->>'attempt' from claimed),'1','Cleanup leases one job');
-select is((select count(*)::integer from jsonb_array_elements(public.claim_memory_cleanup(50)->'data') job where job->>'memoryId'='40000000-0000-4000-8000-000000000101'),0,'Active lease blocks duplicate worker');
+select is((select count(*)::integer from jsonb_array_elements(pg_temp.claim_fixture_memory(50)->'data') job where job->>'memoryId'='40000000-0000-4000-8000-000000000101'),0,'Active lease blocks duplicate worker');
 select is(public.complete_memory_cleanup((select(job->>'id')::uuid from claimed),gen_random_uuid())->'error'->>'code','CONFLICT','Wrong lease cannot complete');
 select is(public.complete_memory_cleanup((select(job->>'id')::uuid from claimed),(select(job->>'leaseToken')::uuid from claimed))->'error'->>'code','RETRYABLE','Remaining objects block quota release');
 select is(public.complete_memory_cleanup((select(job->>'id')::uuid from claimed),(select(job->>'leaseToken')::uuid from claimed),'STORAGE_FAILURE')->'data'->>'state','queued','Object deletion failure queues retry');
 reset role;
 update private.memory_cleanup_jobs set due_at=now()-interval '1 minute',attempts=4 where pair_id='30000000-0000-4000-8000-000000000001';
 set local role service_role;
-update claimed set job=(select cleanup.item from jsonb_array_elements(public.claim_memory_cleanup(50)->'data') as cleanup(item) where cleanup.item->>'memoryId'='40000000-0000-4000-8000-000000000101');
+update claimed set job=(select cleanup.item from jsonb_array_elements(pg_temp.claim_fixture_memory(50)->'data') as cleanup(item) where cleanup.item->>'memoryId'='40000000-0000-4000-8000-000000000101');
 select is(public.complete_memory_cleanup((select(job->>'id')::uuid from claimed),(select(job->>'leaseToken')::uuid from claimed),'STORAGE_FAILURE')->'data'->>'state','failed','Fifth failure stays visible to operations');
-select is((select count(*)::integer from jsonb_array_elements(public.claim_memory_cleanup(50)->'data') job where job->>'memoryId'='40000000-0000-4000-8000-000000000101'),0,'Retained failure is not silently reclaimed');
+select is((select count(*)::integer from jsonb_array_elements(pg_temp.claim_fixture_memory(50)->'data') job where job->>'memoryId'='40000000-0000-4000-8000-000000000101'),0,'Retained failure is not silently reclaimed');
 select ok((public.retry_memory_cleanup((select(job->>'id')::uuid from claimed))->>'ok')::boolean,'Service can retry retained failure');
-update claimed set job=(select cleanup.item from jsonb_array_elements(public.claim_memory_cleanup(50)->'data') as cleanup(item) where cleanup.item->>'memoryId'='40000000-0000-4000-8000-000000000101');
+update claimed set job=(select cleanup.item from jsonb_array_elements(pg_temp.claim_fixture_memory(50)->'data') as cleanup(item) where cleanup.item->>'memoryId'='40000000-0000-4000-8000-000000000101');
 -- This transaction contains synthetic metadata only. No Storage API objects exist.
 -- The installed storage.protect_delete guard permits this transaction-local override.
 set local storage.allow_delete_query='true';

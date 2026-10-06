@@ -22,7 +22,7 @@ test('shell and forms fit five widths with long text at 200 percent', async ({ p
     await loginWithLocalEmailCode(page, ids.annaEmail);
     await page.clock.setFixedTime(new Date('2026-10-05T10:00:00+02:00'));
     const routes = ['/today', '/calendar?date=2026-10-05', '/calendar?date=2026-10-05&view=compare', '/events/' + ids.sharedEventId,
-      '/events/new', '/events/' + ids.sharedEventId + '/edit', '/tasks/new', '/ideas/new', '/messages', '/memories/new', '/settings/profile', '/settings/notifications'];
+      '/events/new', '/events/' + ids.sharedEventId + '/edit', '/tasks', '/tasks/' + ids.taskId, '/tasks/new', '/ideas', '/ideas/new', '/notifications', '/messages', '/memories/new', '/settings/profile', '/settings/notifications'];
     for (const width of [320, 390, 768, 1024, 1440]) {
       await page.setViewportSize({ width, height: 1000 });
       for (const route of routes) {

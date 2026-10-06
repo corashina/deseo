@@ -4,10 +4,9 @@
 .calendar-date-controls { justify-content:flex-start; }
 .calendar-date-controls h2 { margin:0; min-width:180px; }
 .calendar-date-controls .button { padding:10px 16px; }
-.view-tabs, .owner-filters { display:flex; gap:8px; flex-wrap:wrap; }
-.view-tabs { padding:4px; background:var(--canvas); border:1px solid var(--line); border-radius:12px; }
-.view-tabs button, .owner-filters button { min-height:48px; border:1px solid transparent; border-radius:12px; background:transparent; padding:10px 16px; color:var(--ink); cursor:pointer; }
-.view-tabs button[aria-pressed=true], .owner-filters button[aria-pressed=true] { background:var(--shared-soft); border-color:var(--shared); }
+.owner-filters { display:flex; gap:8px; flex-wrap:wrap; }
+.owner-filters button { min-height:48px; border:1px solid transparent; border-radius:12px; background:transparent; padding:10px 16px; color:var(--ink); cursor:pointer; }
+.owner-filters button[aria-pressed=true] { background:var(--shared-soft); border-color:var(--shared); }
 .owner-filters button.owner-a { color:var(--rose); background:var(--rose-soft); }
 .owner-filters button.owner-b { color:var(--teal); background:var(--teal-soft); }
 .owner-filters button[aria-pressed=true].owner-a { border-color:var(--rose); }
@@ -41,6 +40,7 @@
 .comparison-head .owner-a { color:var(--rose); }
 .comparison-head .owner-b { color:var(--teal); }
 .comparison-day h3 { font-size:16px; }
+.comparison-shared { grid-column:2/-1; min-width:0; }
 .event-fields fieldset { border:0; padding:0; margin:0; min-width:0; }
 .event-fields .field select, .event-fields .field textarea { width:100%; padding:12px 16px; border:1px solid var(--control); border-radius:12px; color:var(--ink); background:var(--surface); font-weight:400; }
 .form-grid { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:0 24px; }
@@ -50,6 +50,4 @@
 .event-detail dt { color:var(--muted); }
 .event-detail dd { margin:0; overflow-wrap:anywhere; white-space:pre-wrap; }
 @media (max-width:1023px) { .day-events .event-row-content > span { display:none; } .month-day { padding:4px; } }
-@media (max-width:767px) { .calendar-card { padding:20px; } .calendar-date-controls { gap:8px; } .calendar-date-controls h2 { min-width:0; font-size:20px; } .calendar-date-controls .button { padding:8px 12px; } .calendar-filters { gap:16px; } .view-tabs { width:100%; } .view-tabs button { flex:1; padding:8px; } .owner-filters { gap:4px; } .owner-filters button { padding:8px 10px; } .month-day { min-height:72px; padding:0; } .month-weekdays span { padding:8px 0; font-size:11px; } .day-number { width:100%; height:42px; border-radius:8px; } .day-events { display:none; } .day-count { display:block; font-size:9px; text-align:center; color:var(--muted); padding-bottom:8px; } .agenda-day { grid-template-columns:1fr; gap:8px; padding:16px 0; } .agenda-day h3 { margin-bottom:8px; } .comparison-head, .comparison-day { grid-template-columns:1fr 1fr; gap:8px; } .comparison-head > span { display:none; } .comparison-day h3 { grid-column:1/-1; margin:0; } .comparison-head h2 { font-size:18px; } .comparison-column .event-row { padding:10px; flex-direction:column; gap:2px; } .form-grid { grid-template-columns:minmax(0,1fr); } .event-detail dl { grid-template-columns:1fr; gap:8px; } .event-detail dd { margin-bottom:16px; } }
-.event-reminder { border-top:1px solid var(--line); padding:24px 0; margin:24px 0; max-width:480px; }
-.event-reminder select { width:100%; min-height:48px; padding:12px; border:1px solid var(--control); border-radius:12px; background:var(--surface); color:var(--ink); }
+@media (max-width:767px) { .calendar-card { padding:20px; } .calendar-date-controls { gap:8px; } .calendar-date-controls h2 { min-width:0; font-size:20px; } .calendar-date-controls .button { padding:8px 12px; } .calendar-filters { gap:16px; } .owner-filters { gap:4px; } .owner-filters button { padding:8px 10px; } .month-day { min-height:72px; padding:0; } .month-weekdays span { padding:8px 0; font-size:11px; } .day-number { width:100%; height:42px; border-radius:8px; } .day-events { display:none; } .day-count { display:block; font-size:9px; text-align:center; color:var(--muted); padding-bottom:8px; } .agenda-day { grid-template-columns:1fr; gap:8px; padding:16px 0; } .agenda-day h3 { margin-bottom:8px; } .comparison-head, .comparison-day { grid-template-columns:1fr 1fr; gap:8px; } .comparison-head > span { display:none; } .comparison-day h3, .comparison-shared { grid-column:1/-1; } .comparison-day h3 { margin:0; } .comparison-head h2 { font-size:18px; } .comparison-column .event-row { padding:10px; flex-direction:column; gap:2px; } .form-grid { grid-template-columns:minmax(0,1fr); } .event-detail dl { grid-template-columns:1fr; gap:8px; } .event-detail dd { margin-bottom:16px; } }

@@ -1,0 +1,2 @@
+.notification-list { display:grid; gap:24px; max-width:960px; }
+@media (max-width:767px) { .notification-list { gap:16px; } }
