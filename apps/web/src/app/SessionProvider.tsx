@@ -12,12 +12,33 @@ type State = { status: 'loading' | 'signedOut' | 'authenticated' | 'error'; acco
 type SessionValue = State & { revalidate(): Promise<void> };
 const empty: State = { status: 'loading', account: null, pair: null };
 const Context = createContext<SessionValue | null>(null);
+type VerifiedSnapshot = { userId: string; account: Account | null; pair: PairContext | null };
+function representedProfile(snapshot: VerifiedSnapshot | null, row: Record<string, unknown>) {
+  const account = snapshot?.account;
+  if (!account || account.id !== snapshot!.userId || row.user_id !== account.id
+    || account.status !== 'active' || row.account_status !== 'active'
+    || typeof row.version !== 'number' || !Number.isSafeInteger(row.version) || row.version < 1
+    || typeof row.display_name !== 'string' || !row.display_name.length || row.display_name.length > 40
+    || typeof row.timezone !== 'string' || !row.timezone.length || row.timezone.length > 100
+    || typeof row.locale !== 'string' || row.locale.length < 2 || row.locale.length > 35) return false;
+  return row.version < account.version || (row.version === account.version
+    && row.display_name === account.displayName && row.timezone === account.timezone && row.locale === account.locale);
+}
+function representedMembership(snapshot: VerifiedSnapshot | null, row: Record<string, unknown>, event: string) {
+  const pair = snapshot?.pair;
+  if (!snapshot || !pair || !['pending', 'active'].includes(pair.status)
+    || event !== 'INSERT' || row.user_id !== snapshot.userId || row.left_at !== null) return false;
+  const member = pair.status === 'pending' ? pair.member : pair.status === 'active' ? pair.members.find(member => member.userId === snapshot.userId) : undefined;
+  return Boolean(member && member.userId === snapshot.userId && row.pair_id === ('pairId' in pair ? pair.pairId : null) && row.slot === member.slot);
+}
 export function SessionProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<State>(empty);
+  const accountId = state.account?.id;
   const generation = useRef(0);
   const mounted = useRef(false);
   const verifiedUser = useRef<string | null>(null);
   const verifiedAuthority = useRef<string | null>(null);
+  const verifiedSnapshot = useRef<VerifiedSnapshot | null>(null);
   const revalidate = useCallback(async () => {
     const request = ++generation.current;
     setState(current => current.status === 'authenticated' ? current : empty);
@@ -30,6 +51,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         if (!mounted.current || request !== generation.current) return;
         verifiedUser.current = null;
         verifiedAuthority.current = null;
+        verifiedSnapshot.current = null;
         setDraftScope(null, null);
         setState({ ...empty, status: 'signedOut' });
         return;
@@ -44,12 +66,14 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         if (!mounted.current || request !== generation.current) return;
       }
       verifiedAuthority.current = authority;
+      verifiedSnapshot.current = { userId: session.userId, account: session.account, pair };
       setDraftScope(session.userId, pair && 'pairId' in pair ? pair.pairId : null, pair?.status);
       verifiedUser.current = session.userId;
       setState({ status: 'authenticated', userId: session.userId, account: session.account, pair });
     } catch (error) {
       if (!mounted.current || request !== generation.current) return;
       const failure = toAppError(error);
+      verifiedSnapshot.current = null;
       const rejected = failure.code === 'FORBIDDEN' || failure.code === 'UNAUTHENTICATED';
       if (rejected) { verifiedUser.current = null; verifiedAuthority.current = null; setDraftScope(null, null); }
       await resetPrivateQueries();
@@ -65,6 +89,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       generation.current++;
       verifiedUser.current = null;
       verifiedAuthority.current = null;
+      verifiedSnapshot.current = null;
       entryIntent.email = ''; entryIntent.emailDraft = ''; entryIntent.codeDraft = ''; entryIntent.invite = null;
       void resetPrivateQueries();
       setDraftScope(null, null);
@@ -78,7 +103,10 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       if (event === 'SIGNED_IN') { clearGlobalSignOutFailure(); entryIntent.emailDraft = ''; entryIntent.codeDraft = ''; }
       generation.current++;
       void resetPrivateQueries();
-      if (session?.user.id !== verifiedUser.current) { setDraftScope(null, null); setState(empty); }
+      if (session?.user.id !== verifiedUser.current) {
+        verifiedUser.current = null; verifiedAuthority.current = null; verifiedSnapshot.current = null;
+        setDraftScope(null, null); setState(empty);
+      }
       clearTimeout(timer);
       // Leave the Auth callback before acquiring its session lock.
       timer = setTimeout(() => void revalidate(), 0);
@@ -99,14 +127,20 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     };
   }, [revalidate]);
   useEffect(() => {
-    if (state.status !== 'authenticated' || !state.account) return;
+    if (state.status !== 'authenticated' || !accountId) return;
     const client = getSupabase();
-    const channel = client.channel('portal-membership:' + state.account.id)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'pair_members', filter: 'user_id=eq.' + state.account.id }, () => void revalidate())
-      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'profiles', filter: 'user_id=eq.' + state.account.id }, () => void revalidate());
+    const channel = client.channel('portal-membership:' + accountId)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'pair_members', filter: 'user_id=eq.' + accountId }, payload => {
+        if (verifiedUser.current !== accountId) return;
+        if (!representedMembership(verifiedSnapshot.current, payload.new, payload.eventType)) void revalidate();
+      })
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'profiles', filter: 'user_id=eq.' + accountId }, payload => {
+        if (verifiedUser.current !== accountId) return;
+        if (!representedProfile(verifiedSnapshot.current, payload.new)) void revalidate();
+      });
     channel.subscribe();
     return () => { void client.removeChannel(channel); };
-  }, [state.status, state.account, state.pair, revalidate]);
+  }, [state.status, accountId, revalidate]);
   return <Context.Provider value={{ ...state, revalidate }}>{children}</Context.Provider>;
 }
 export function useSession(): SessionValue {
