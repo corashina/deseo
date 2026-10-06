@@ -1,3 +1,4 @@
+import { ReminderControl } from '../../notifications';
 import { useTaskSignals } from '../realtime';
 import { useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
@@ -87,6 +88,7 @@ export function TaskDetailPage() {
         task={task}
         accountId={account!.id}
         assignee={pair.members.find(member => member.userId === task.assigneeId)?.displayName ?? 'Unassigned'} />
+      <ReminderControl taskId={task.id} sourceVersion={task.version} timezone={pair.timezone} completed={Boolean(task.completedAt)} dueDate={task.dueDate} />
       <div className="actions">
         <Link to="/tasks">Return to tasks</Link>
         <Button variant="danger" disabled={!online || saving} onClick={() => setConfirm(true)}>Delete task</Button>

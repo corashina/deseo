@@ -1,3 +1,5 @@
+import { SettingsPage, ProfileSettingsPage, PairSettingsPage, AccountSettingsPage } from '../features/settings';
+import { NotificationsPage, PreferencesPage } from '../features/notifications';
 import { MemoriesPage } from '../features/memories/pages/MemoriesPage';
 import { MemoryDetailPage } from '../features/memories/pages/MemoryDetailPage';
 import { MemoryFormPage } from '../features/memories/pages/MemoryFormPage';
@@ -41,13 +43,14 @@ function destination(session: ReturnType<typeof useSession>) {
   if (entryIntent.invite) return '/pair/join';
   return session.pair?.status === 'ended' ? '/pair/ended' : '/pair/start';
 }
-function Gate({ children, kind = 'pair' }: { children: ReactNode; kind?: 'public' | 'profile' | 'pair' }) {
+function Gate({ children, kind = 'pair' }: { children: ReactNode; kind?: 'public' | 'profile' | 'pair' | 'account' }) {
   const session = useSession();
   const { pathname } = useLocation();
   const target = destination(session);
   if (kind === 'public') return session.status === 'authenticated' ? <Navigate to={target} replace /> : <>{children}</>;
   if (session.status !== 'authenticated') return <Navigate to="/welcome" replace />;
   if (!session.account) return kind === 'profile' ? <>{children}</> : <Navigate to="/profile/setup" replace />;
+  if (kind === 'account') return <>{children}</>;
   if (kind === 'profile') return <Navigate to={target} replace />;
   const allowed = session.pair?.status === 'active' ? ['/pair/welcome', '/today', '/calendar', '/events/new', '/tasks', '/ideas', '/messages', '/memories', ...( /^\/(events|tasks|ideas|memories)\//.test(pathname) ? [pathname] : [])] : session.pair?.status === 'pending' ? ['/pair/waiting', '/pair/invite'] : session.pair?.status === 'ended' ? ['/pair/ended', '/pair/start', '/pair/join'] : ['/pair/start', '/pair/join'];
   return allowed.includes(pathname) ? <>{children}</> : <Navigate to={target} replace />;
@@ -77,6 +80,7 @@ if (location.pathname === '/invite') {
   history.replaceState(null, '', '/invite');
 }
 const publicPage = (title: string, element: ReactNode) => <Page title={title}><Gate kind="public">{element}</Gate></Page>;
+const accountPage = (title: string, element: ReactNode) => <Page title={title}><Gate kind='account'>{element}</Gate></Page>;
 const pairPage = (title: string, element: ReactNode) => <Page title={title}><Gate>{element}</Gate></Page>;
 export const router = createBrowserRouter([{ element: <Root />, children: [
   { path: '/', element: <Page title="Welcome"><Entry /></Page> },
@@ -90,6 +94,12 @@ export const router = createBrowserRouter([{ element: <Root />, children: [
   { path: '/pair/waiting', element: pairPage('Waiting for your partner', <WaitingPage />) },
   { path: '/pair/welcome', element: pairPage('Your pair', <PairWelcomePage />) },
   { path: '/pair/ended', element: pairPage('Your pair has ended', <EndedPage />) },
+  { path: '/settings', element: accountPage('Settings', <SettingsPage />) },
+  { path: '/settings/profile', element: accountPage('Profile', <ProfileSettingsPage />) },
+  { path: '/settings/pair', element: accountPage('Your pair', <PairSettingsPage />) },
+  { path: '/settings/account', element: accountPage('Account', <AccountSettingsPage />) },
+  { path: '/settings/notifications', element: accountPage('Notification preferences', <PreferencesPage />) },
+  { path: '/notifications', element: accountPage('Notifications', <NotificationsPage />) },
   { path: '/today', element: pairPage('Today', <TodayPage />) },
   { path: '/memories', element: pairPage('Memories', <MemoriesPage />) },
   { path: '/memories/new', element: pairPage('Add memory', <MemoryFormPage />) },

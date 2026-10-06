@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { accountSchema, emailCodeSchema, emailSchema, profileSchema, type Account, type ProfileInput } from '@deseo/domain/auth';
+import { accountSchema, emailCodeSchema, emailSchema, profileSchema, sensitiveActionSchema, type Account, type ProfileInput, type SensitiveAction } from '@deseo/domain/auth';
 import { AppError, errorResult, resultSchema, type Result } from '@deseo/domain/result';
 import { getSupabase } from '../../lib/supabase';
 import { captureQueryScope, resetPrivateQueries } from '../../lib/query-client';
@@ -42,12 +42,42 @@ export async function saveProfile(input: ProfileInput, expectedVersion?: number)
   } catch (error) { return errorResult(error); }
 }
 export async function signOut(scope: 'local' | 'global' = 'local') {
+  const client = getSupabase();
+  if (scope === 'global') {
+    assertOnline();
+    const queryScope = captureQueryScope();
+    const { data, error } = await client.rpc('revoke_device', { p_installation_id: null, p_all: true }).abortSignal(queryScope.signal);
+    queryScope.assertCurrent();
+    if (error) throw error;
+    const result = resultSchema(z.object({ revoked: z.literal(true) })).parse(data);
+    if (!result.ok) throw new AppError(result.error);
+  }
   window.dispatchEvent(new Event('deseo:signout'));
   setDraftScope(null, null);
   entryIntent.invite = null;
   entryIntent.invalidInvite = false;
   entryIntent.email = '';
   await resetPrivateQueries();
-  const { error } = await getSupabase().auth.signOut({ scope });
+  const { error } = await client.auth.signOut({ scope });
   if (error) throw error;
 }
+async function sensitiveRequest<T extends z.ZodTypeAny>(action: SensitiveAction, schema: T, code?: string): Promise<Result<z.infer<T>>> {
+  try {
+    assertOnline(); sensitiveActionSchema.parse(action);
+    if (code !== undefined) emailCodeSchema.parse(code);
+    const scope = captureQueryScope();
+    const { data, error } = await getSupabase().functions.invoke('verify-sensitive-action', { body: { action, ...(code === undefined ? {} : { code }) }, method: 'POST', signal: scope.signal });
+    scope.assertCurrent();
+    if (error) {
+      const response = error.context as Response | undefined;
+      const payload = response && typeof response.json === 'function' ? await response.json().catch(() => null) : null;
+      scope.assertCurrent();
+      const parsed = resultSchema(schema).safeParse(payload);
+      if (parsed.success && !parsed.data.ok) return parsed.data;
+      throw new AppError({ code: 'RETRYABLE' });
+    }
+    return resultSchema(schema).parse(data);
+  } catch (error) { return errorResult(error); }
+}
+export const requestSensitiveActionCode = (action: SensitiveAction) => sensitiveRequest(action, z.object({ retryAt: z.string().datetime({ offset: true }) }));
+export const verifySensitiveAction = (action: SensitiveAction, code: string) => sensitiveRequest(action, z.object({ proof: z.string().min(40).max(200), expiresAt: z.string().datetime({ offset: true }) }), code);

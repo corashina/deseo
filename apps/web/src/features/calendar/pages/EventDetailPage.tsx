@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { DateTime } from 'luxon';
-import { readDraft, writeDraft, removeDraft, useUnsavedChanges } from '../../../lib/drafts';
+import { ReminderControl } from '../../notifications';
 import { inclusiveEndDate } from '@deseo/domain/calendar';
 import { useSession } from '../../../app/SessionProvider';
 import { useNetworkStatus } from '../../../lib/network';
@@ -10,8 +10,8 @@ import { PageHeader } from '../../../components/ui/PageHeader';
 import { Status } from '../../../components/ui/Status';
 import { Button } from '../../../components/ui/Button';
 import { Dialog } from '../../../components/ui/Dialog';
-import { calendarKeys, getEvent, getEventReminder } from '../queries';
-import { deleteEvent, setEventReminder } from '../commands';
+import { calendarKeys, getEvent } from '../queries';
+import { deleteEvent } from '../commands';
 import { captureQueryScope } from '../../../lib/query-client';
 import { getSupabase } from '../../../lib/supabase';
 import '../../../styles/calendar.css';
@@ -114,8 +114,8 @@ export function EventDetailPage() {
         {event.location && <><dt>Location</dt><dd>{event.location}</dd></>}
         {event.description && <><dt>Description</dt><dd>{event.description}</dd></>}
       </dl>
-      <EventReminder
-        key={event.id} eventId={event.id} pairId={pair.pairId} accountId={account!.id}
+      <ReminderControl
+        key={event.id} eventId={event.id} sourceVersion={event.version}
         allDay={event.temporal.kind === 'allDay'} timezone={event.timezone}
       />
       <div className="actions">
@@ -129,111 +129,4 @@ export function EventDetailPage() {
       <Button variant="danger" disabled={!online || saving} onClick={() => void confirmDeletion()}>Confirm deletion</Button>
     </Dialog>
   </>;
-}
-
-type ReminderDraft = {
-  choice: string;
-  identity: { id: string; commandId: string };
-  submission: Parameters<typeof setEventReminder>[0] | null;
-  uncertain: boolean;
-};
-
-function EventReminder({ eventId, pairId, accountId, allDay, timezone }: {
-  eventId: string; pairId: string; accountId: string; allDay: boolean; timezone: string;
-}) {
-  const online = useNetworkStatus();
-  const query = useQuery({
-    queryKey: [...calendarKeys.event(accountId, pairId, eventId), 'reminder'],
-    queryFn: () => getEventReminder(eventId),
-  });
-  const draftKey = 'reminder:' + eventId;
-  const draft = useRef(readDraft<ReminderDraft>(accountId, pairId, draftKey));
-  const [choice, setChoice] = useState<string | null>(draft.current?.choice ?? null);
-  const [message, setMessage] = useState('');
-  const [saving, setSaving] = useState(false);
-  const [uncertain, setUncertain] = useState(draft.current?.uncertain ?? false);
-  const identity = useRef(draft.current?.identity ?? { id: crypto.randomUUID(), commandId: crypto.randomUUID() });
-  const submission = useRef<ReminderDraft['submission']>(draft.current?.submission ?? null);
-  useUnsavedChanges(choice !== null);
-  useEffect(() => {
-    if (choice !== null) {
-      writeDraft(accountId, pairId, draftKey, { choice, identity: { ...identity.current }, submission: submission.current, uncertain });
-    }
-  }, [choice, uncertain, accountId, pairId, draftKey]);
-  const current = query.data;
-  const selected = choice ?? (current?.active ? String(current.minutesBefore) : 'none');
-
-  function changeChoice(value: string) {
-    setChoice(value);
-    identity.current.commandId = crypto.randomUUID();
-    submission.current = null;
-    setMessage('');
-  }
-
-  async function saveReminder() {
-    const scope = captureQueryScope();
-    setSaving(true);
-    submission.current ??= {
-      id: current?.id ?? identity.current.id, pairId, eventId, taskId: null,
-      minutesBefore: selected === 'none' ? null : Number(selected),
-      remindAt: null, active: selected !== 'none', expectedVersion: current?.version ?? null,
-    };
-    // Save the entire attempt before a scope reset can unmount this component.
-    const attempt = {
-      choice: selected, identity: { ...identity.current }, submission: submission.current, uncertain: true,
-    };
-    writeDraft(accountId, pairId, draftKey, attempt);
-    setChoice(selected);
-    setUncertain(true);
-    const result = await setEventReminder(attempt.submission, attempt.identity.commandId);
-    try {
-      scope.assertCurrent();
-    } catch {
-      setSaving(false);
-      setMessage('Reminder save is unconfirmed. Retry with the same choice.');
-      return;
-    }
-    setSaving(false);
-    if (result.ok) {
-      removeDraft(accountId, pairId, draftKey);
-      submission.current = null;
-      setMessage('Reminder saved.');
-      setUncertain(false);
-      setChoice(null);
-      identity.current.commandId = crypto.randomUUID();
-      await query.refetch();
-      return;
-    }
-    setMessage(result.error.code === 'CONFLICT'
-      ? 'Your reminder changed. Reload this page before saving.'
-      : result.error.message ?? 'Reminder save failed. Try again.');
-    setUncertain(result.error.code === 'RETRYABLE');
-    if (result.error.code !== 'RETRYABLE') {
-      submission.current = null;
-      identity.current.commandId = crypto.randomUUID();
-    }
-  }
-
-  if (query.isPending) return <Status>Loading your reminder…</Status>;
-  if (query.isError) {
-    return <><Status error>We could not load your reminder.</Status><Button onClick={() => void query.refetch()}>Retry</Button></>;
-  }
-  return <section className="event-reminder">
-    <h2>Your reminder</h2>
-    <p>{allDay ? `All-day reminders use 09:00 in ${timezone}.` : 'Choose how early you want a reminder.'}</p>
-    <p className="muted">Reminders use native push. This browser receives no push alerts.</p>
-    <label className="field">
-      <span>Remind me</span>
-      <select value={selected} disabled={saving || uncertain} onChange={e => changeChoice(e.target.value)}>
-        <option value="none">None</option>
-        <option value="15">15 minutes before</option>
-        <option value="60">One hour before</option>
-        <option value="1440">One day before</option>
-      </select>
-    </label>
-    <Button variant="secondary" disabled={!online || saving} onClick={() => void saveReminder()}>
-      {uncertain ? 'Retry reminder' : 'Save reminder'}
-    </Button>
-    {message && <Status>{message}</Status>}
-  </section>;
 }

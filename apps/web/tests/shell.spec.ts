@@ -12,6 +12,12 @@ test('drawer and account controls preserve keyboard focus across portal widths',
       const trigger = page.getByRole('button', { name: 'Account menu' });
       await trigger.focus(); await page.keyboard.press('Enter');
       await expect(page.getByRole('dialog', { name: 'Your account' })).toBeVisible();
+      await page.keyboard.press('Tab');
+      await expect(page.getByRole('link', { name: 'Account settings', exact: true })).toBeFocused();
+      await page.keyboard.press('Tab');
+      await expect(page.getByRole('button', { name: 'Sign out', exact: true })).toBeFocused();
+      await page.keyboard.press('Tab');
+      await expect(page.getByRole('button', { name: 'Close your account' })).toBeFocused();
       await page.keyboard.press('Escape'); await expect(trigger).toBeFocused();
       if (width < 768) {
         const menu = page.getByRole('button', { name: 'Open navigation' });
@@ -25,9 +31,15 @@ test('drawer and account controls preserve keyboard focus across portal widths',
         await page.keyboard.press('Tab');
         await expect(page.getByRole('link', { name: 'Calendar', exact: true })).toBeFocused();
         await page.keyboard.press('Tab');
+        await expect(page.getByRole('link', { name: 'Memories', exact: true })).toBeFocused();
+        await page.keyboard.press('Tab');
         await expect(page.getByRole('link', { name: 'Messages', exact: true })).toBeFocused();
         await page.keyboard.press('Tab');
         await expect(page.getByRole('link', { name: 'Tasks', exact: true })).toBeFocused();
+        await page.keyboard.press('Tab');
+        await expect(page.getByRole('link', { name: 'Notifications', exact: true })).toBeFocused();
+        await page.keyboard.press('Tab');
+        await expect(page.getByRole('link', { name: 'Settings', exact: true })).toBeFocused();
         await page.keyboard.press('Tab');
         await expect(page.getByRole('button', { name: 'Close navigation' })).toBeFocused();
         await page.keyboard.press('Escape'); await expect(menu).toBeFocused();

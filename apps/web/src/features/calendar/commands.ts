@@ -62,17 +62,3 @@ export async function deleteEvent(id: string, expectedVersion: number, commandId
     return result;
   } catch (error) { return errorResult(error); }
 }
-
-import { reminderInputSchema, reminderSchema } from '@deseo/domain/notifications';
-import type { z as Zod } from 'zod';
-export async function setEventReminder(input: Zod.infer<typeof reminderInputSchema>, commandId: string) {
-  try {
-    assertOnline();
-    z.string().uuid().parse(commandId);
-    const scope = captureQueryScope();
-    const response = await getSupabase().rpc('set_reminder', { p_input: reminderInputSchema.parse(input), p_command_id: commandId }).abortSignal(scope.signal);
-    scope.assertCurrent();
-    if (response.error) return errorResult(response.error);
-    return resultSchema(reminderSchema).parse(response.data);
-  } catch (error) { return errorResult(error); }
-}

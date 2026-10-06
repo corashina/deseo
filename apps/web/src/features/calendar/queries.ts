@@ -54,15 +54,3 @@ export function agendaDates(event: AgendaItem, viewerTimezone: string, from: str
   }
   return dates;
 }
-
-import { reminderSchema } from '@deseo/domain/notifications';
-export async function getEventReminder(eventId: string) {
-  z.string().uuid().parse(eventId);
-  const scope = captureQueryScope();
-  const response = await getSupabase().rpc('get_reminder', { p_event_id: eventId, p_task_id: null }).abortSignal(scope.signal);
-  scope.assertCurrent();
-  if (response.error) throw response.error;
-  const result = resultSchema(reminderSchema.nullable()).parse(response.data);
-  if (!result.ok) throw new AppError(result.error);
-  return result.data;
-}

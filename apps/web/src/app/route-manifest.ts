@@ -32,5 +32,11 @@ export const routeManifest: readonly RouteCoverage[] = [
   { id: 'idea-new', path: '/ideas/new', fixture: 'active', views: ['default', 'validation'] },
   { id: 'idea-detail', path: '/ideas/:ideaId', fixture: 'active', views: ['saved', 'planned', 'archived', 'archive-dialog', 'unavailable'] },
   { id: 'idea-edit', path: '/ideas/:ideaId/edit', fixture: 'active', views: ['default', 'conflict'] },
+  { id: 'notifications', path: '/notifications', fixture: 'active', views: ['list', 'empty', 'unavailable', 'error'] },
+  { id: 'settings', path: '/settings', fixture: 'active', views: ['default', 'unpaired', 'ended'] },
+  { id: 'settings-profile', path: '/settings/profile', fixture: 'active', views: ['default', 'conflict'] },
+  { id: 'settings-pair', path: '/settings/pair', fixture: 'active', views: ['default', 'verification', 'end-dialog', 'ended'] },
+  { id: 'settings-notifications', path: '/settings/notifications', fixture: 'unpaired', views: ['default', 'quiet-hours', 'conflict'] },
+  { id: 'settings-account', path: '/settings/account', fixture: 'active', views: ['default', 'unpaired', 'ended'] },
   { id: 'unknown-route', path: '*', fixture: 'signedOut', views: ['not-found'] },
 ];

@@ -265,6 +265,7 @@ for (const changed of [true, false]) {
       await page.getByRole('link', { name: 'Return to calendar', exact: true }).click();
       await expect(page.getByRole('heading', { name: 'Calendar', exact: true })).toBeVisible();
       await page.evaluate(() => window.dispatchEvent(new Event('focus')));
+      await page.getByLabel('Selected date').fill('2026-10-05');
       await page.getByRole('link', { name: /Dinner together/ }).first().click();
       await expect(page.getByRole('button', { name: 'Retry reminder', exact: true })).toBeEnabled();
       await expect(page.getByLabel('Remind me')).toBeDisabled();

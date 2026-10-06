@@ -339,6 +339,8 @@ test('focus unlocks a pending download without accepting its late response', asy
 // Importance 98: a deletion keeps its command and version through focus and retries once.
 test('focus preserves an uncertain deletion and replays its command', async ({ page }) => {
   const ids = await createPortalPairFixture();
+  let confirmUnlock = () => {};
+  const unlocked = new Promise<void>(resolve => { confirmUnlock = resolve; });
   try {
     await loginWithLocalEmailCode(page, ids.annaEmail);
     await page.goto('/memories/' + ids.memoryId);
@@ -351,11 +353,13 @@ test('focus preserves an uncertain deletion and replays its command', async ({ p
         interrupted = true; await route.fetch();
         await page.evaluate(() => window.dispatchEvent(new Event('focus')));
         await expect(page.getByRole('button', { name: 'Retry deletion', exact: true })).toBeEnabled();
+        confirmUnlock();
         await route.abort();
       } else await route.continue();
     });
     await page.getByRole('button', { name: 'Delete memory', exact: true }).click();
     await page.getByRole('button', { name: 'Confirm deletion', exact: true }).click();
+    await unlocked;
     await page.getByRole('button', { name: 'Retry deletion', exact: true }).click();
     await expect(page).toHaveURL(/\/memories$/);
     expect(attempts).toHaveLength(2);
