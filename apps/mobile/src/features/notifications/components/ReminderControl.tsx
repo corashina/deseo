@@ -64,7 +64,7 @@ function ReminderForm({ pairId, online, saved, defaultMinutes, ...props }: Props
       {([{ value: null, label: 'None' }, { value: 15, label: props.allDay ? '15 minutes before 09:00' : '15 minutes before' },
         { value: 60, label: props.allDay ? 'One hour before 09:00' : 'One hour before' },
         { value: 1440, label: props.allDay ? '24 hours before 09:00' : 'One day before' }] as const).map(option =>
-        <Button key={String(option.value)} label={`${choice === option.value ? 'Selected: ' : ''}${option.label}`} variant="secondary" disabled={busy} onPress={() => setChoice(option.value)} />)}
+        <Button key={String(option.value)} label={`${choice === option.value ? 'Selected: ' : ''}${option.label}`} variant={choice === option.value ? 'primary' : 'secondary'} disabled={busy} onPress={() => setChoice(option.value)} />)}
     </> : <>
       <Button label={taskEnabled ? 'Turn reminder off' : 'Choose reminder time'} variant="secondary" disabled={busy || props.completed} onPress={() => setTaskEnabled(value => !value)} />
       {taskEnabled && <><Field label="Reminder date" value={date} onChangeText={setDate} placeholder="YYYY-MM-DD" editable={!busy} />

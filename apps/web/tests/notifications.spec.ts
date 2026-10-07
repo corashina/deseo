@@ -26,7 +26,7 @@ test('reminders use supported choices and all-day 09:00', async ({ page }) => {
     expect(new Date(reminder.data.data.nextDueAt).toISOString()).toBe('2030-10-05T06:00:00.000Z');
     await page.goto('/notifications');
     await expect(page.getByRole('heading', { name: 'Notifications', exact: true })).toBeVisible();
-    await expect(page.getByText('Provider acceptance does not confirm display on your device.')).toBeVisible();
+    await expect(page.getByText('Your updates and reminders.')).toBeVisible();
   } finally { await cleanupPortalPairFixture(ids); }
 });
 // Importance 100: notification links require current source access and mark only the viewer's row.

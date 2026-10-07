@@ -156,7 +156,7 @@ test('late task success cannot restore an unmounted page or clear its retained a
     await expect(page.getByLabel('Title', { exact: true })).toHaveValue('Late task');
     // Reopen once more after the late response. The retained store must still contain the attempt.
     await confirmNavigation(page, () => page.getByRole('link', { name: 'Cancel', exact: true }).click(), true);
-    await expect(page.getByRole('link', { name: 'Late task', exact: true })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Details: Late task', exact: true })).toBeVisible();
     await page.getByRole('link', { name: 'Add task', exact: true }).click();
     await expect(page.getByLabel('Title', { exact: true })).toHaveValue('Late task');
     await expect(page.getByRole('button', { name: 'Retry save', exact: true })).toBeEnabled();

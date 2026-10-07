@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Text } from 'react-native';
+import { Section } from '../../../components/ui/Section';
 import { Screen } from '../../../components/ui/Screen';
 import { Field } from '../../../components/ui/Field';
 import { Button } from '../../../components/ui/Button';
@@ -39,19 +40,23 @@ function PreferencesForm({ saved, online, reload }: { saved: NotificationPrefere
     } catch (error) { try { scope.assertCurrent(); setError(toAppError(error).message); } catch { /* Access guard owns recovery. */ } }
     finally { pending.current = false; try { scope.assertCurrent(); setBusy(false); } catch { /* Access guard owns recovery. */ } }
   };
-  return <Screen title="Notifications" subtitle="These preferences apply to your account.">
-    <DevicePermission refresh={permissionRefresh} />
+  return <Screen title="Notification preferences" subtitle="These preferences apply to your account.">
+    <Section card title="Device permission"><DevicePermission refresh={permissionRefresh} /></Section>
+    <Section card title="Alerts">
     <Button label={alerts ? 'Message alerts: On' : 'Message alerts: Off'} variant="secondary" disabled={busy} onPress={() => setAlerts(value => !value)} />
     <Text style={theme.typography.secondary}>Push messages contain no event, task, or message text.</Text>
-    <Text accessibilityRole="header" style={theme.typography.section}>Default event reminder</Text>
+    <Text accessibilityRole="header" style={theme.typography.headline}>Default event reminder</Text>
     {([{ value: null, label: 'None' }, { value: 15, label: '15 minutes before' }, { value: 60, label: 'One hour before' }, { value: 1440, label: 'One day before' }] as const)
-      .map(option => <Button key={String(option.value)} label={`${defaultMinutes === option.value ? 'Selected: ' : ''}${option.label}`} variant="secondary" disabled={busy} onPress={() => setDefaultMinutes(option.value)} />)}
+      .map(option => <Button key={String(option.value)} label={`${defaultMinutes === option.value ? 'Selected: ' : ''}${option.label}`} variant={defaultMinutes === option.value ? 'primary' : 'secondary'} disabled={busy} onPress={() => setDefaultMinutes(option.value)} />)}
     <Text style={theme.typography.secondary}>Choose Save reminder on each event to confirm its reminder.</Text>
+    </Section>
+    <Section card title="Quiet hours">
     <Button label={quiet ? 'Quiet hours: On' : 'Quiet hours: Off'} variant="secondary" disabled={busy} onPress={() => setQuiet(value => !value)} />
     {quiet && <><Field label="Quiet hours start" value={start} onChangeText={setStart} placeholder="HH:mm" editable={!busy} />
       <Field label="Quiet hours end" value={end} onChangeText={setEnd} placeholder="HH:mm" editable={!busy} /></>}
     <Field label="Notification timezone" value={timezone} onChangeText={setTimezone} autoCapitalize="none" editable={!busy} />
     <Text style={theme.typography.secondary}>Quiet hours defer pushes. Event pushes expire after the event starts.</Text>
+    </Section>
     {!online && <Status message="Reconnect before saving preferences." />}
     {error && <Status message={error} tone="error" />}
     {conflict && <Button label="Discard changes and reload" variant="secondary" onPress={reload} />}

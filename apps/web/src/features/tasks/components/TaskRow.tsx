@@ -68,14 +68,12 @@ export function TaskRow({ task, accountId, assignee }: {
           checked={completed}
           disabled={!online || busy || Boolean(attempt)}
           onChange={event => change(event.target.checked)} />
-      </label>
-      <div className="task-row-content">
-        <Link to={'/tasks/' + task.id}>{task.title}
-        </Link>
-        <span>{assignee}
-          {task.dueDate ? ' · Due ' + task.dueDate : ''}
+        <span className="task-row-content">
+          <span className="task-title">{task.title}</span>
+          <span className="task-metadata"><span>{assignee}</span>{task.dueDate && <span>Due <time dateTime={task.dueDate}>{task.dueDate}</time></span>}</span>
         </span>
-      </div>
+      </label>
+      <Link className="task-details" aria-label={'Details: ' + task.title} to={'/tasks/' + task.id}>Details</Link>
       {current.completedAt && <Button variant="secondary" disabled={!online || busy || Boolean(attempt)} onClick={() => change(false)}>Undo</Button>}
     </div>
     {error && <Status error>{error}

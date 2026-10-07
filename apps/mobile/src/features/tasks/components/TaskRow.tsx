@@ -58,8 +58,9 @@ export function TaskRow({ task, accountId, assignee, online, onOpen, onCompleted
         <Ionicons name={completed ? 'checkbox' : 'square-outline'} size={26} color={completed ? theme.colors.success : theme.colors.control}
           accessibilityElementsHidden importantForAccessibility="no" />
         <View style={styles.text}>
-          <Text style={[theme.typography.body, completed && styles.done]}>{task.title}</Text>
-          <Text style={theme.typography.secondary}>{assignee}{task.dueDate ? ` · Due ${DateTime.fromISO(task.dueDate).toLocaleString(DateTime.DATE_MED)}` : ''}</Text>
+          <Text style={[theme.typography.headline, completed && styles.done]}>{task.title}</Text>
+          <Text style={theme.typography.secondary}>{assignee}</Text>
+          {task.dueDate && <Text style={theme.typography.secondary}>Due {DateTime.fromISO(task.dueDate).toLocaleString(DateTime.DATE_MED)}</Text>}
         </View>
       </Pressable>
       <IconButton icon="chevron-forward" label="Task details" onPress={onOpen} />
@@ -75,6 +76,6 @@ const styles = StyleSheet.create({
   checkbox: { flex: 1, minHeight: theme.touchTarget, flexDirection: 'row', alignItems: 'center', gap: theme.space[3], borderRadius: theme.radius.control },
   pressed: { opacity: 0.6 },
   text: { flex: 1, gap: 2 },
-  done: { textDecorationLine: 'line-through', color: theme.colors.muted },
+  done: { textDecorationLine: 'line-through' },
   undo: { paddingLeft: 38 },
 });

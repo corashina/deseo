@@ -145,12 +145,14 @@ function TaskEditor({ task, lists }: {
   return <>
     <PageHeader title={task ? 'Edit task' : 'Add task'} description="Choose a list, a person, and a due date." />
     <section className="card form-page">
-      <form onSubmit={form.handleSubmit(save)}>
+      <form className="task-form" onSubmit={form.handleSubmit(save)}>
         <fieldset disabled={saving || frozen}>
           <label className="field">
             <span>Title</span>
             <input {...form.register('title')} maxLength={200} required autoFocus />
           </label>
+          <div className="task-form-group">
+          <h2>Assignment and due date</h2>
           <label className="field">
             <span>List</span>
             <select {...form.register('listId')}>{lists.map(list => <option key={list.id} value={list.id}>{list.name}
@@ -166,9 +168,10 @@ function TaskEditor({ task, lists }: {
             </select>
           </label>
           <label className="field">
-            <span>Due date</span>
+            <span>Due date (optional)</span>
             <input type="date" {...form.register('dueDate')} />
           </label>
+          </div>
         </fieldset>
         {error && <Status error>{error}
         </Status>}

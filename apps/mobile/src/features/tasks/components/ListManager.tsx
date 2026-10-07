@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Alert, Text } from 'react-native';
+import { Alert, StyleSheet, Text, View } from 'react-native';
 import { randomUUID } from 'expo-crypto';
 import { Controller } from 'react-hook-form';
 import { z } from 'zod';
@@ -90,14 +90,18 @@ function ListEditor({ accountId, pairId, list, listId, online, onSaved, onNameSa
       <Status message="Review the saved name. Restore your draft to edit it." />
       <Button label="Restore my draft" variant="secondary" disabled={draft.saving} onPress={() => { void draft.restore(); }} />
     </>}
-    {list && <>
+    {list && <View style={styles.listActions}>
       <Button label="Move tasks to General" variant="secondary" disabled={disabled} onPress={() => Alert.alert(`Move tasks from ${list.name}?`, 'Move all tasks to General. Keep this list.', [
         { text: 'Cancel', style: 'cancel' }, { text: 'Move tasks', onPress: () => { void submit({ kind: 'moveList', id: list.id, commandId: randomUUID() }); } },
       ])} />
       <Button label="Delete empty list" variant="danger" disabled={disabled} onPress={() => Alert.alert(`Delete ${list.name}?`, 'You can delete this list only when it has no tasks.', [
         { text: 'Cancel', style: 'cancel' }, { text: 'Delete list', style: 'destructive', onPress: () => { void submit({ kind: 'deleteList', id: list.id, commandId: randomUUID() }); } },
       ])} />
-    </>}
+    </View>}
     {error && <Status tone="error" message={error.message ?? 'We could not change this list.'} actionLabel={action ? 'Retry' : undefined} onAction={action ? () => { void submit(action); } : undefined} />}
   </>;
 }
+
+const styles = StyleSheet.create({
+  listActions: { borderTopWidth: 1, borderTopColor: theme.colors.line, marginTop: theme.space[3], paddingTop: theme.space[5], gap: theme.space[3] },
+});

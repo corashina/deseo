@@ -3,6 +3,7 @@ import { randomUUID } from 'node:crypto';
 import { createPortalPairFixture, cleanupPortalPairFixture, portalClient } from './support/fixtures';
 import { loginWithLocalEmailCode } from './support/local-auth';
 // Importance 98: real completion, Undo, assignment, dates, and conflicts protect shared tasks.
+// Importance 95: clicking a task title in its full-row label must change completion.
 test('tasks complete, undo, edit, and reject a stale title', async ({ page }) => {
 
   const ids = await createPortalPairFixture();
@@ -10,8 +11,8 @@ test('tasks complete, undo, edit, and reject a stale title', async ({ page }) =>
   try {
     await loginWithLocalEmailCode(page, ids.annaEmail);
     await page.goto('/tasks');
-    const row = page.getByRole('article').filter({ has: page.getByRole('link', { name: 'Book the pottery workshop', exact: true }) });
-    await row.getByRole('checkbox').check();
+    const row = page.getByRole('article').filter({ has: page.getByRole('link', { name: 'Details: Book the pottery workshop', exact: true }) });
+    await row.locator('.task-check').getByText('Book the pottery workshop', { exact: true }).click();
     await expect(row.getByRole('button', { name: 'Undo', exact: true })).toBeEnabled();
     const marek = await portalClient(ids.marekEmail);
     expect((await marek.from('tasks').select('completed_at').eq('id', ids.taskId).single()).data!.completed_at).not.toBeNull();
@@ -67,7 +68,7 @@ test('failed completion rolls back and retries the original attempt after focus'
         await route.continue();
 
     });
-    const row = page.getByRole('article').filter({ has: page.getByRole('link', { name: 'Book the pottery workshop', exact: true }) });
+    const row = page.getByRole('article').filter({ has: page.getByRole('link', { name: 'Details: Book the pottery workshop', exact: true }) });
     await row.getByRole('checkbox').check();
     await expect(row.getByRole('button', { name: 'Retry completion', exact: true })).toBeEnabled();
     await expect(row.getByRole('checkbox')).not.toBeChecked();
@@ -121,8 +122,8 @@ test('partner browser receives completion and Undo without reload', async ({ pag
     await page.goto('/tasks');
     await loginWithLocalEmailCode(partner, ids.marekEmail);
     await partner.goto('/tasks');
-    const row = page.getByRole('article').filter({ has: page.getByRole('link', { name: 'Book the pottery workshop', exact: true }) });
-    const partnerRow = partner.getByRole('article').filter({ has: partner.getByRole('link', { name: 'Book the pottery workshop', exact: true }) });
+    const row = page.getByRole('article').filter({ has: page.getByRole('link', { name: 'Details: Book the pottery workshop', exact: true }) });
+    const partnerRow = partner.getByRole('article').filter({ has: partner.getByRole('link', { name: 'Details: Book the pottery workshop', exact: true }) });
     await expect(partnerRow.getByRole('checkbox')).not.toBeChecked();
     await row.getByRole('checkbox').check();
     await expect(partnerRow.getByRole('checkbox')).toBeChecked();

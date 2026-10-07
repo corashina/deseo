@@ -32,7 +32,7 @@ export function TasksPage() {
     <section className="card">
       <div className="section-heading">
         <h2>Your lists</h2>
-        <Link to="/tasks/lists">Manage lists</Link>
+        <Link className="task-details" to="/tasks/lists">Manage lists</Link>
       </div>
       {lists.isPending ? <Status>Loading lists…</Status> : lists.isError ? <>
         <Status error>We could not load lists.</Status>
