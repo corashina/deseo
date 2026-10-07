@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [master, main]
+    branches: [master]
   pull_request:
 
 concurrency:
@@ -39,12 +39,9 @@ jobs:
           node-version-file: .node-version
       - run: npm install --global npm@11.16.0
       - run: npm ci
-      # The race tests only run against the disposable integration ports.
-      - name: Move the stack to the integration ports
-        run: |
-          sed -i -E 's/^(port|shadow_port) = 5432([0-9])$/\1 = 5562\2/; s/^inspector_port = 8083$/inspector_port = 55628/; s/^project_id = "deseo"$/project_id = "deseo-integration"/' supabase/config.toml
       - run: npx supabase start --exclude studio,vector,logflare,imgproxy,supavisor
-      - run: npm run test:db
+      # test:db wraps this command in a Windows-only guard script.
+      - run: npx supabase test db --local
       - name: Check generated database types
         run: |
           npm run gen:types

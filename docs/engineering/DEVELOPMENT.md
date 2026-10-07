@@ -141,12 +141,12 @@ CI fails when the committed file differs from the schema.
 
 ### Continuous integration
 
-`.github/workflows/ci.yml` runs on pushes to `master` and `main` and on every pull request.
+`.github/workflows/ci.yml` runs on pushes to `master` and on every pull request.
 
 - The apps job runs `verify:mobile`, the domain tests, and the web typecheck, lint, and build.
-- The backend job moves Supabase to the integration ports and starts it. It runs the SQL suites, the type check, the three race harnesses, and the Deno function checks.
+- The backend job starts Supabase and runs the SQL suites, the type check, the three race harnesses, and the Deno function checks.
 
-Playwright portal tests need the PowerShell web stack. Run them locally with `npm run test:web`.
+Playwright portal tests need the seeded development backend and its Edge functions. Run them locally with `npm run test:web`.
 
 ## 6. Expo mobile
 
