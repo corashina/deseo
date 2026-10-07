@@ -438,7 +438,7 @@ The six product layers have clean independent or scoped review outcomes.
 | 4. Tasks and notifications | Complete; reviewed |
 | 5. Memories and photo forms | Complete; form correction reviewed |
 | 6. Messages and notes | Complete; native grouping/time correction reviewed |
-| 7. Final gallery, checks, and evidence | Fix round 1 applied; scoped re-review pending |
+| 7. Final gallery, checks, and evidence | Complete; fix round 1 review clean |
 | Native physical acceptance | Unverified; no device tools |
 | Whole-branch review | Pending; controller owns this gate |
 
@@ -573,10 +573,10 @@ Keep draft documentation status distinct from shipped behavior. Update the READM
 <a id="frontend-design-handoff"></a>
 ## Frontend design handoff
 
-Date: 7 October 2026. Status: checks passed; Task 7 scoped re-review and whole-branch review remain pending.
+Date: 7 October 2026. Status: all seven task reviews passed; whole-branch review remains pending.
 
 The owner approved the frontend spec, plan, and sequential subagent execution.
-Tasks 1–6 passed independent or scoped review. The controller owns final whole-branch review.
+Tasks 1–7 passed independent or scoped review. The controller owns final whole-branch review.
 Implementation base: aaa066d483b547252a3b9a33927d0e296363c2f7.
 Product revision: af1f109be95ba5f7b7ec3e63d3b8344ea12f7bab.
 Capture writer commits: 5b21b1a and e4fd34c. Canonical paths: 701f078.
@@ -922,7 +922,7 @@ Cannot verify: device rendering/accessibility remains explicitly unverified. Ori
 Controller preservation resolution: all product edits and explicit commits used the managed worktree. Original source writes were excluded. Runtime checks preserved the populated service. Disposable fixture ownership and cleanup are recorded;40 journals are cleaned. Named photos were read only. Historical327 hashes match. Concurrent original-checkout changes belong to other chats.
 Fix round1/5 dispatched to original Task7 implementer from e1a2ddd94d7e5cc7bbb0a13617df844bb508e62a.
 
-The Important finding remains open until scoped re-review. The fix was tested; reviewer approval is pending.
+Scoped review addressed the Important finding. No new breakage was found.
 The capture writer now cleans main fixtures if secondary journal setup fails.
 If cleanup also fails, it retains both errors and the main ownership journal.
 Importance 95 checks force a real exclusive-write collision after all 11 main accounts exist.
@@ -935,3 +935,14 @@ All 60 ownership journals are cleaned. Historical 327 hashes and current 323 JPE
 The raw native export log remains preserved. Its color-environment warnings are a deferred Minor finding.
 Controller preservation evidence uses managed-worktree boundaries, explicit commits, owned journals, and unchanged historical hashes.
 Native device checks and final whole-branch review remain open.
+
+### Task 7 scoped review
+
+Reviewer: /root/rereview7_cleanup, gpt-6.1-sol/medium.
+Secondary journal cleanup: ADDRESSED. The helper cleans main fixtures and retains both errors if cleanup fails.
+Importance 95 behavior checks cover real EEXIST, 11 accounts, secondary ownership, cleanup failure, and saved-journal recovery.
+Baseline: two failures. Fixed batch: 16 passed, two generation skips. Types and lint passed.
+No new Critical or Important breakage. No tests repeated by the reviewer.
+The native export color warnings remain a deferred Minor for whole-branch review.
+Device acceptance remains unverified.
+Task 7 is complete. The final whole-branch review remains pending.
