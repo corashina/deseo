@@ -7,9 +7,9 @@ export function assertLoopback(url: string) {
   if (target.protocol !== 'http:' || !['127.0.0.1', 'localhost', '[::1]'].includes(target.hostname) || target.username || target.password) throw new Error('Fixtures require a loopback backend.');
 }
 export function localFixtureBackend() {
-  const config = JSON.parse(readFileSync(new URL('../../.superpowers/web-backend/status.local.json', import.meta.url), 'utf8'));
+  const config = JSON.parse(readFileSync(new URL('../../.superpowers/backend/status.local.json', import.meta.url), 'utf8'));
   assertLoopback(config.API_URL);
-  if (new URL(config.API_URL).port !== '55721') throw new Error('Use the dedicated deseo-web backend.');
+  if (new URL(config.API_URL).port !== '55721') throw new Error('Use the dedicated deseo backend.');
   return { url: config.API_URL as string, publicKey: config.PUBLISHABLE_KEY as string,
     admin: createClient(config.API_URL, config.SERVICE_ROLE_KEY, { auth: { persistSession: false, autoRefreshToken: false } }) };
 }

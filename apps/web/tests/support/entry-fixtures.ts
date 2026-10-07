@@ -5,9 +5,9 @@ import { join } from 'node:path';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 
 // Credentials remain in the test process and the ignored local status file.
-const config = JSON.parse(readFileSync(new URL('../../../../.superpowers/web-backend/status.local.json', import.meta.url), 'utf8'));
+const config = JSON.parse(readFileSync(new URL('../../../../.superpowers/backend/status.local.json', import.meta.url), 'utf8'));
 export const localUrl: string = config.API_URL;
-if (new URL(localUrl).hostname !== '127.0.0.1' || new URL(localUrl).port !== '55721') throw new Error('Use the disposable deseo-web stack.');
+if (new URL(localUrl).hostname !== '127.0.0.1' || new URL(localUrl).port !== '55721') throw new Error('Use the disposable deseo stack.');
 export const admin = createClient(localUrl, config.SERVICE_ROLE_KEY, { auth: { persistSession: false, autoRefreshToken: false } });
 export const publicKey: string = config.PUBLISHABLE_KEY;
 const fixtureClients = new Map<string, SupabaseClient>();
@@ -73,6 +73,6 @@ export async function cleanupEntryFixtureSessions(accountIds: readonly string[])
 export function expireEntryCode(accountId: string): void {
   if (!/^[0-9a-f-]{36}$/.test(accountId)) throw new Error('Invalid fixture ID');
   const docker = join(process.env.LOCALAPPDATA!, 'Programs/DockerDesktop/resources/bin/docker.exe');
-  execFileSync(docker, ['exec', 'supabase_db_deseo-web', 'psql', '-U', 'postgres', '-d', 'postgres', '-v', 'ON_ERROR_STOP=1', '-c',
+  execFileSync(docker, ['exec', 'supabase_db_deseo', 'psql', '-U', 'postgres', '-d', 'postgres', '-v', 'ON_ERROR_STOP=1', '-c',
     `update auth.users set confirmation_sent_at=now()-interval '2 hours', recovery_sent_at=now()-interval '2 hours' where id='${accountId}' and email like 'entry-%@example.test'`], { stdio: 'pipe' });
 }

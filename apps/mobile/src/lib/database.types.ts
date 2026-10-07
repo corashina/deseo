@@ -417,17 +417,47 @@ isOneToOne: false
 "archive_date_idea":
 { Args: { "p_command_id": string,"p_expected_version": number,"p_idea_id": string }; Returns: Json
                            },
+"authorize_email_change":
+{ Args: { "p_proof": string }; Returns: Json
+                           },
+"authorize_export_part":
+{ Args: { "p_job_id": string,"p_part_id": string }; Returns: Json
+                           },
 "cancel_pending_pair":
 { Args: { "p_command_id": string,"p_pair_id": string }; Returns: Json
                            },
+"claim_avatar_cleanup":
+{ Args: { "p_limit"?: number }; Returns: Json
+                           },
+"claim_deletion_jobs":
+{ Args: { "p_limit"?: number }; Returns: Json
+                           },
 "claim_due_jobs":
 { Args: { "p_lease_seconds"?: number,"p_limit"?: number }; Returns: Json
+                           },
+"claim_export_cleanup":
+{ Args: { "p_limit"?: number }; Returns: Json
+                           },
+"claim_export_jobs":
+{ Args: { "p_limit"?: number }; Returns: Json
                            },
 "claim_memory_cleanup":
 { Args: { "p_limit"?: number }; Returns: Json
                            },
 "claim_push_receipts":
 { Args: { "p_lease_seconds"?: number,"p_limit"?: number }; Returns: Json
+                           },
+"complete_avatar_cleanup":
+{ Args: { "p_error_code"?: string,"p_id": string,"p_lease_token": string }; Returns: Json
+                           },
+"complete_deletion_step":
+{ Args: { "p_error_code"?: string,"p_job_id": string,"p_lease_token": string }; Returns: Json
+                           },
+"complete_export_cleanup":
+{ Args: { "p_error_code"?: string,"p_lease_token": string,"p_part_id": string }; Returns: Json
+                           },
+"complete_export_step":
+{ Args: { "p_bytes": number,"p_error_code"?: string,"p_job_id": string,"p_lease_token": string,"p_part_id": string,"p_sha256": string }; Returns: Json
                            },
 "complete_job":
 { Args: { "p_id": string,"p_lease_id": string,"p_outcome": Json }; Returns: Json
@@ -473,6 +503,30 @@ isOneToOne: false
                            },
 "end_pair":
 { Args: { "p_command_id": string,"p_pair_id": string,"p_verification_proof": string }; Returns: Json
+                           },
+"get_account_settings":
+{ Args: Record<PropertyKey, never>; Returns: Json
+                           },
+"get_avatar_media":
+{ Args: { "p_user_id": string }; Returns: Json
+                           },
+"get_deletion_monitoring":
+{ Args: Record<PropertyKey, never>; Returns: Json
+                           },
+"get_deletion_status":
+{ Args: { "p_receipt": string }; Returns: Json
+                           },
+"get_export":
+{ Args: { "p_job_id": string }; Returns: Json
+                           },
+"get_export_pairs":
+{ Args: { "p_cursor"?: string }; Returns: Json
+                           },
+"get_export_parts":
+{ Args: { "p_cursor"?: string,"p_job_id": string }; Returns: Json
+                           },
+"get_exports":
+{ Args: { "p_cursor"?: string }; Returns: Json
                            },
 "get_memory":
 { Args: { "p_memory_id": string }; Returns: Json
@@ -522,8 +576,14 @@ isOneToOne: false
 "plan_date_idea":
 { Args: { "p_command_id": string,"p_event_input": Json,"p_expected_version": number,"p_idea_id": string }; Returns: Json
                            },
+"prepare_export_step":
+{ Args: { "p_job_id": string,"p_lease_token": string }; Returns: Json
+                           },
 "preview_invite":
 { Args: { "p_token": string }; Returns: Json
+                           },
+"process_deletion_step":
+{ Args: { "p_job_id": string,"p_lease_token": string,"p_limit"?: number }; Returns: Json
                            },
 "publish_memory":
 { Args: { "p_actor_id": string,"p_command_id": string,"p_memory_id": string,"p_session_id": string }; Returns: Json
@@ -540,13 +600,28 @@ isOneToOne: false
 "rename_list":
 { Args: { "p_command_id": string,"p_expected_version": number,"p_list_id": string,"p_name": string }; Returns: Json
                            },
+"replay_account_deletion":
+{ Args: { "p_command_id": string,"p_receipt": string,"p_verification_proof": string }; Returns: Json
+                           },
+"request_account_deletion":
+{ Args: { "p_actor_id": string,"p_command_id": string,"p_receipt": string,"p_session_id": string,"p_verification_proof": string }; Returns: Json
+                           },
+"request_export":
+{ Args: { "p_command_id": string,"p_pair_id": string,"p_verification_proof": string }; Returns: Json
+                           },
+"reserve_avatar":
+{ Args: { "p_bytes": number,"p_expected_version": number,"p_height": number,"p_id": string,"p_width": number }; Returns: Json
+                           },
+"reserve_export_evidence":
+{ Args: { "p_bytes": number,"p_job_id": string,"p_lease_token": string,"p_part_id": string,"p_sha256": string }; Returns: Json
+                           },
 "reserve_memory":
 { Args: { "p_command_id": string,"p_input": Json }; Returns: Json
                            },
 "resolve_notification":
 { Args: { "p_id": string }; Returns: Json
                            },
-"retry_memory_cleanup":
+"retry_export":
 { Args: { "p_job_id": string }; Returns: Json
                            },
 "revalidate_notification_job":
@@ -585,11 +660,17 @@ isOneToOne: false
 "update_memory":
 { Args: { "p_command_id": string,"p_expected_version": number,"p_input": Json,"p_memory_id": string }; Returns: Json
                            },
+"update_pair_timezone":
+{ Args: { "p_expected_timezone": string,"p_pair_id": string,"p_timezone": string }; Returns: Json
+                           },
 "update_task":
 { Args: { "p_command_id": string,"p_expected_version": number,"p_input": Json,"p_task_id": string }; Returns: Json
                            },
 "validate_memory_photo":
 { Args: { "p_actor_id": string,"p_evidence": Json,"p_memory_id": string,"p_photo_id": string,"p_session_id": string }; Returns: Json
+                           },
+"verify_avatar":
+{ Args: { "p_actor": string,"p_evidence"?: Json,"p_id": string,"p_session": string }; Returns: Json
                            },
 "verify_memory_reservation":
 { Args: { "p_actor_id": string,"p_memory_id": string,"p_session_id": string }; Returns: Json

@@ -1,5 +1,5 @@
 // Importance: 100 for send/cursor races; 94 for pin replacement and deletion.
-// Run against the disposable integration or web stack: npm run test:db:race.
+// Run against the disposable deseo stack: npm run test:db:race.
 import assert from 'node:assert/strict';
 import { randomBytes, randomUUID } from 'node:crypto';
 
@@ -7,13 +7,13 @@ type Account = { id: string; token: string };
 type Message = { id: string; pair_id: string; author_id: string; client_id: string; body: string; created_at: string; pinned_at: string | null };
 type Result<T> = { ok: true; data: T } | { ok: false; error: { code: string } };
 
-const base = process.env.SUPABASE_TEST_URL ?? 'http://127.0.0.1:55621';
+const base = process.env.SUPABASE_TEST_URL ?? 'http://127.0.0.1:55721';
 const publicKey = process.env.SUPABASE_TEST_PUBLISHABLE_KEY;
 const secretKey = process.env.SUPABASE_TEST_SERVICE_ROLE_KEY;
 const localUrl = new URL(base);
 assert.ok(localUrl.protocol === 'http:' && ['127.0.0.1', 'localhost', '[::1]'].includes(localUrl.hostname)
-  && ['55621', '55721'].includes(localUrl.port) && localUrl.pathname === '/' && !localUrl.search && !localUrl.hash
-  && !localUrl.username && !localUrl.password, 'Use the disposable integration or web stack on port 55621 or 55721');
+  && ['55721'].includes(localUrl.port) && localUrl.pathname === '/' && !localUrl.search && !localUrl.hash
+  && !localUrl.username && !localUrl.password, 'Use the disposable deseo stack on port 55721');
 assert.ok(publicKey && secretKey, 'Set local Messages test keys. Keep the server key outside the repository.');
 const users: Account[] = [];
 const pairs = new Set<string>();

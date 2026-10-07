@@ -18,7 +18,9 @@ npx supabase db advisors --local --type all --fail-on warn
 npx supabase gen types --local --schema public
 ```
 
-`db reset --local` deletes the local test database. Use a disposable local stack.
+Use the `deseo` project on ports 55720–55729. It contains the combined development data.
+
+`db reset --local` deletes this data. Back up the database and storage before a reset.
 
 Write generated schema output to `apps/mobile/src/lib/database.types.ts` after migrations pass.
 Do not replace that file with hand-written schema types.
@@ -30,7 +32,7 @@ Set these environment values before the race harness:
 
 | Name | Value |
 |---|---|
-| `SUPABASE_TEST_URL` | Local API URL; default `http://127.0.0.1:54321` |
+| `SUPABASE_TEST_URL` | Local API URL; default `http://127.0.0.1:55721` |
 | `SUPABASE_TEST_PUBLISHABLE_KEY` | Local publishable key |
 | `SUPABASE_TEST_SERVICE_ROLE_KEY` | Local server key |
 

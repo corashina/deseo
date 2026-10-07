@@ -25,8 +25,7 @@ Use Node 24.18.0 and npm 11.16.0. Install the root lockfile with `npm ci`.
 ```powershell
 npm run verify:mobile
 npm run test:domain
-npm run prepare:web:backend
-npm run start:web:backend
+npm run start:backend
 ```
 
 Set the browser environment and start one Edge process before `npm run dev:web`.

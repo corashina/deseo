@@ -35,7 +35,7 @@ reset role;
 select is((select state from public.pairs where id='30000000-0000-4000-8000-000000000003'),'active','Proof replay leaves new pair active');
 select set_config('request.jwt.claims','{"role":"service_role"}',true);
 set local role service_role;
-select is(public.issue_verification_proof('10000000-0000-4000-8000-000000000001','20000000-0000-4000-8000-000000000001','export',repeat('c',64))->'error'->>'code','VALIDATION','Wrong action denied');
+select is(public.issue_verification_proof('10000000-0000-4000-8000-000000000001','20000000-0000-4000-8000-000000000001','unknown',repeat('c',64))->'error'->>'code','VALIDATION','Unknown action denied');
 reset role;
 select * from finish();
 rollback;
