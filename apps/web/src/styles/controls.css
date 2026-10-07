@@ -1,11 +1,13 @@
-.button { min-height: 48px; border: 1px solid var(--action-border); border-radius: var(--radius-control); padding: 11px 20px; font-weight: 600; display: inline-flex; justify-content: center; align-items: center; gap: 10px; cursor: pointer; text-decoration: none; line-height: 1.4; }
+.button { min-height: var(--nav-target); max-width: 100%; border: 1px solid var(--action-border); border-radius: var(--radius-control); padding: 12px 16px; font-size: 14px; font-weight: 600; display: inline-flex; justify-content: center; align-items: center; gap: 10px; cursor: pointer; text-decoration: none; line-height: 1.4; transition: background-color var(--duration-feedback) var(--ease); }
 .button.primary { background: var(--action); color: var(--on-action); }
-.button.primary:hover { background: var(--action-hover); }
+.button.primary:hover:not(:disabled) { background: var(--action-hover); }
 .button.secondary { background: var(--surface); color: var(--ink); border-color: var(--control); }
 .button.danger { background: var(--danger); color: white; border-color: var(--danger); }
+.button.secondary:hover:not(:disabled) { background: var(--sidebar); }
+.button.danger:hover:not(:disabled) { background: var(--danger-soft); color: var(--danger); }
 .button:disabled { opacity: .6; cursor: default; }
-.field { display: flex; flex-direction: column; gap: 8px; margin-bottom: 24px; font-weight: 600; }
-.field input, .field select, .form-page .field textarea { width: 100%; min-width: 0; min-height: 48px; padding: 12px 16px; border: 1px solid var(--control); border-radius: 12px; color: var(--ink); background: var(--surface); font-weight: 400; }
+.field { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; font-weight: 600; }
+.field input, .field select, .form-page .field textarea { width: 100%; min-width: 0; min-height: 48px; padding: 12px 16px; border: 1px solid var(--control); border-radius: 12px; color: var(--ink); background: var(--surface); font-size: 16px; font-weight: 400; }
 .form-page fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
 .field-check > span { display: flex; align-items: center; gap: 12px; min-height: 48px; }
 .field-check input { width: 24px; height: 24px; min-height: 24px; padding: 0; margin: 0; flex-shrink: 0; accent-color: var(--link); }
@@ -15,9 +17,9 @@
 .avatar { display: inline-flex; width: 32px; height: 32px; border-radius: 50%; align-items: center; justify-content: center; flex-shrink: 0; font-size: 14px; font-weight: 600; }
 .slot-a { background: var(--rose-soft); color: var(--rose); }
 .slot-b { background: var(--teal-soft); color: var(--teal); }
-dialog { border: 1px solid var(--line); border-radius: 20px; padding: 24px; color: var(--ink); background: var(--surface); width: min(480px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); overflow: auto; }
+dialog { border: 1px solid var(--line); border-radius: 20px; padding: 24px; color: var(--ink); background: var(--surface); box-shadow: var(--shadow-popover); width: min(480px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); overflow: auto; }
 dialog::backdrop { background: rgb(56 53 71 / .35); }
-.dialog-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 24px; }
+.dialog-heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 24px; }
 .dialog-heading h2 { margin: 0; }
 .view-tabs { display:flex; gap:8px; flex-wrap:wrap; padding:4px; background:var(--canvas); border:1px solid var(--line); border-radius:12px; }
 .view-tabs button { min-height:48px; border:1px solid transparent; border-radius:12px; background:transparent; padding:10px 16px; color:var(--ink); cursor:pointer; }

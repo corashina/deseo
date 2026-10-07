@@ -13,5 +13,5 @@ export function RowGroup({ children }: PropsWithChildren) {
 
 const styles = StyleSheet.create({
   group: { backgroundColor: theme.colors.surface, borderColor: theme.colors.line, borderWidth: 1, borderRadius: theme.radius.card,
-    paddingHorizontal: theme.space[4], overflow: 'hidden' },
+    paddingHorizontal: theme.space[5], overflow: 'hidden' },
 });

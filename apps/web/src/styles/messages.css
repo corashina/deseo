@@ -23,8 +23,4 @@
 .notes-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:24px; }
 .note-card { background:var(--note); border-color:var(--note-line); min-width:0; }
 .pending-send { margin:16px 0; overflow-wrap:anywhere; }
-.unread-count { margin-left:auto; background:var(--shared-soft); color:var(--shared); border-radius:8px; padding:2px 8px; font-size:12px; }
-.collapsed .sidebar nav a { position:relative; }
-.collapsed .sidebar .unread-count { position:absolute; top:0; right:0; padding:0 4px; }
-@media(min-width:768px) and (max-width:1023px) { .sidebar nav a { position:relative; } .sidebar .unread-count { position:absolute; top:0; right:0; padding:0 4px; } }
 @media(max-width:767px) { .conversation-page { height:calc(100dvh - 120px); } .message-row { padding:20px; } .conversation { gap:16px; } .notes-grid { grid-template-columns:minmax(0,1fr); gap:16px; } .message-actions { gap:8px; } }

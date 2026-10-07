@@ -10,6 +10,7 @@ export const theme = {
     body: { fontSize: 16, lineHeight: 24, color: tokens.colors.ink },
     button: { fontSize: 14, lineHeight: 20, fontWeight: '600' },
     secondary: { fontSize: 13, lineHeight: 20, color: tokens.colors.muted },
+    navigation: { fontSize: 12, lineHeight: 17, fontWeight: '600' },
     badge: { fontSize: 12, lineHeight: 16, fontWeight: '600' },
     figure: { fontSize: 34, lineHeight: 40, fontWeight: '700', color: tokens.colors.ink, fontVariant: ['tabular-nums'] },
   }),
