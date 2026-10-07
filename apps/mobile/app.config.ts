@@ -6,7 +6,7 @@ const config: ExpoConfig = {
   version: '0.1.0',
   scheme: 'deseo-dev',
   orientation: 'portrait',
-  userInterfaceStyle: 'light',
+  userInterfaceStyle: 'automatic',
   icon: './assets/icon.png',
   ios: { supportsTablet: true, bundleIdentifier: 'dev.deseo.mobile' },
   android: {
@@ -30,7 +30,13 @@ const config: ExpoConfig = {
       granularPermissions: ['photo'],
       isAccessMediaLocationEnabled: false,
     }],
-    ['expo-splash-screen', { image: './assets/icon.png', imageWidth: 180, backgroundColor: '#FAF7F5' }],
+    ['@sentry/react-native/expo', {
+      organization: process.env.SENTRY_ORG,
+      project: process.env.SENTRY_PROJECT,
+      disableAutoUpload: !process.env.SENTRY_AUTH_TOKEN,
+    }],
+    ['expo-splash-screen', { image: './assets/icon.png', imageWidth: 180, backgroundColor: '#FAF7F5',
+      dark: { image: './assets/icon.png', backgroundColor: '#1C1A22' } }],
   ],
   experiments: { typedRoutes: true },
   ...(process.env.EXPO_PUBLIC_EAS_PROJECT_ID ? { extra: { eas: { projectId: process.env.EXPO_PUBLIC_EAS_PROJECT_ID } } } : {}),

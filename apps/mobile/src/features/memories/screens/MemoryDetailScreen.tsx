@@ -8,7 +8,7 @@ import { useCore } from '../../pair';
 import { Button } from '../../../components/ui/Button';
 import { Screen } from '../../../components/ui/Screen';
 import { Status } from '../../../components/ui/Status';
-import { theme, ui } from '../../../theme';
+import { useTheme } from '../../../theme';
 import { captureQueryScope, queryClient } from '../../../lib/query-client';
 import { toAppError } from '@deseo/domain/result';
 import { getMemory, memoryKeys } from '../queries';
@@ -17,6 +17,7 @@ import { MemoryImage } from '../components/MemoryImage';
 import { saveMemoryCopy } from '../save-copy';
 
 export function MemoryDetailScreen({ memoryId }: { memoryId: string }) {
+  const theme = useTheme();
   const { account, pair, online } = useCore();
   const router = useRouter();
   const pairId = 'pairId' in pair ? pair.pairId : '';
@@ -54,7 +55,7 @@ export function MemoryDetailScreen({ memoryId }: { memoryId: string }) {
       <Text style={theme.typography.section}>{DateTime.fromISO(memory.memoryDate).toLocaleString(DateTime.DATE_FULL)}</Text>
       <Text style={theme.typography.secondary}>{pair.status === 'active' ? pair.members.find(member => member.userId === memory.createdBy)?.displayName : ''}</Text>
       {!!memory.caption && <Text style={theme.typography.body}>{memory.caption}</Text>}
-      {memory.photos.map((photo, index) => <View key={photo.id} style={ui.stack}>
+      {memory.photos.map((photo, index) => <View key={photo.id} style={theme.ui.stack}>
         <MemoryImage photoId={photo.id} variant="full" width={photo.width} height={photo.height} />
         <Button label={`Save photo ${index + 1}`} variant="secondary" disabled={busy || !online} onPress={() => Alert.alert('Save a copy?',
           'Library copies remain after you delete this memory or disconnect.', [{ text: 'Cancel', style: 'cancel' }, { text: 'Save copy', onPress: () => { void save(photo.id); } }])} />

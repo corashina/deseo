@@ -1,3 +1,4 @@
 import type { AgendaItem } from '../calendar';
-import type { PairContext } from '../pair';
-export type TodayView = { pair: Extract<PairContext, { status: 'active' }>; agenda: AgendaItem[] };
+import type { Task } from '../tasks';
+import type { Message } from '../messages';
+export type TodayView = { agenda: AgendaItem[]; importantDates: AgendaItem[]; dueTasks: Task[]; notes: Message[] };

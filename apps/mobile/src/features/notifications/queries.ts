@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { getSupabase } from '../../lib/supabase';
+import { getSupabase, type RpcName } from '../../lib/supabase';
 import { captureQueryScope } from '../../lib/query-client';
 import { AppError, resultSchema } from '@deseo/domain/result';
 import { notificationPageSchema, preferencesSchema, reminderSchema } from '@deseo/domain/notifications';
@@ -8,7 +8,7 @@ export const notificationKeys = {
   list: (account: string, pair: string) => ['notifications', account, pair, 'list'] as const,
   reminder: (account: string, pair: string, source: string) => ['notifications', account, pair, 'reminder', source] as const,
 };
-async function read<T extends z.ZodTypeAny>(name: string, parameters: Record<string, unknown>, schema: T, wrapped = true): Promise<z.infer<T>> {
+async function read<T extends z.ZodTypeAny>(name: RpcName, parameters: Record<string, unknown>, schema: T, wrapped = true): Promise<z.infer<T>> {
   const scope = captureQueryScope(); const client = await getSupabase(); scope.assertCurrent();
   const { data, error } = await client.rpc(name, parameters).abortSignal(scope.signal); scope.assertCurrent();
   if (error) throw error;

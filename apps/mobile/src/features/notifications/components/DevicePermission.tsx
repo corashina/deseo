@@ -2,10 +2,11 @@ import { useEffect, useState } from 'react';
 import { AppState, Linking, Text } from 'react-native';
 import { Button } from '../../../components/ui/Button';
 import { Status } from '../../../components/ui/Status';
-import { theme } from '../../../theme';
+import { useTheme } from '../../../theme';
 import { readNotificationPermission } from '../device';
 import type { Permission } from '../types';
 export function DevicePermission({ refresh = 0 }: { refresh?: number }) {
+  const theme = useTheme();
   const [permission, setPermission] = useState<Permission | null>(null); const [failed, setFailed] = useState(false);
   useEffect(() => {
     let live = true;

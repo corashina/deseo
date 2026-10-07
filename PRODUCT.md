@@ -32,7 +32,7 @@ They write their own date ideas and choose which events to share.
 Users sign in with an email code, set a name and timezone, and create or accept a partner invitation.
 Today combines upcoming plans, due tasks, a memory, a pinned note, and an important date.
 Calendar, Memories, Messages, Tasks, and Settings provide the main workflows.
-The current portal uses English text. Date rules use event, profile, or pair timezones as defined in DATA.md.
+The current portal uses English text. Date rules use event, profile, or pair timezones in the data contract.
 Users can reload record URLs and use browser Back.
 Browser drafts remain in memory and disappear after reload. Users receive a warning before leaving changed input.
 
@@ -52,24 +52,22 @@ Browser drafts remain in memory and disappear after reload. Users receive a warn
 - Account export, deletion, avatar backend work, pair-timezone writes, and public pages remain separate delivery scope.
 - Product scope excludes relationship scores, streaks, coaching, profiling, public feeds, advertising, and partner surveillance.
 
-Use [ARCHITECTURE.md](docs/architecture/ARCHITECTURE.md) for module rules.
-Use [DATA.md](docs/architecture/DATA.md) for permissions, dates, retries, and content lifecycle.
-These documents remain authoritative for their subjects.
+Use [Architecture](docs/ARCHITECTURE.md) for module rules.
+Use [the data contract](docs/ARCHITECTURE.md#data-contract) for permissions, dates, retries, and content lifecycle.
 
 ## Brand Commitments
 
 The owner selected the Deseo name, pastel styling, and the Two voices icon.
-Use [STYLE.md](STYLE.md) for visual rules and [the selected icon](docs/design/icons-round-2/icon-05-two-voices.png).
+Use [STYLE.md](STYLE.md) for visual rules and [the selected icon](design/icons-round-2/icon-05-two-voices.png).
 Write short sentences, name concrete actions, and describe the actual state.
 Keep instructions within 20 words. Use [Stop Slop](https://github.com/hardikpandya/stop-slop/blob/main/SKILL.md) for UI text and documentation.
 
 ## Evidence on Hand
 
-- [Approved portal design](docs/superpowers/specs/2026-10-05-deseo-web-portal-design.md): browser scope and confirmed choices.
-- [Screen guide](docs/product/SCREENS.md): journeys, routes, forms, and states.
-- [Portal gallery](docs/design/web-portal/index.html): local fixture captures, not customer testimonials.
-- [Portal handoff](docs/handoffs/web-portal.md): verification records and remaining checks.
-- [Development guide](docs/engineering/DEVELOPMENT.md): local commands and backend ownership rules.
+- [Screen guide](docs/README.md#screens): journeys, routes, forms, and states.
+- [Portal gallery](design/web-portal/index.html): local fixture captures, not customer testimonials.
+- [Verification](docs/DEVELOPMENT.md#verification): required checks and remaining work.
+- [Development guide](docs/DEVELOPMENT.md#setup): local commands and backend ownership rules.
 
 Use the pair's own photos with consent. Identify prototype and test content as such.
 The project provides no confirmed customer testimonials, usage claims, store approvals, or launch commitments in these records.

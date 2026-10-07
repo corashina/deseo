@@ -20,34 +20,34 @@ Use at least 48dp touch targets. Respect safe areas, Dynamic Type, VoiceOver, Ta
 
 Use Expo Router stacks and bottom tabs on native devices. Use React Router links and a sidebar in the portal.
 
-Follow the approved [portal design](docs/superpowers/specs/2026-10-05-deseo-web-portal-design.md) for browser dimensions and routes.
+Follow [browser scope](docs/README.md#browser-portal) for routes. Use the responsive layout rules below for browser dimensions.
 
-Follow [the screen guide](docs/product/SCREENS.md) for native routes and complete flows.
+Follow [the screen guide](docs/README.md#screens) for native routes and complete flows.
 
 ## 1. Visual reference
 
-Open [the design reference](docs/design/preview.html) in a browser. Choose a navigation item to inspect its sample screen.
+Open [the design reference](design/preview.html) in a browser. Choose a navigation item to inspect its sample screen.
 
 The reference includes Today, Calendar, Memories, Messages, and Tasks. Sample actions do not save or send data.
 
-![Desktop design reference](docs/design/desktop.jpg)
+![Desktop design reference](design/desktop.jpg)
 
-![Mobile design reference](docs/design/mobile.jpg)
+![Mobile design reference](design/mobile.jpg)
 
 The landscape is an original placeholder illustration. Use the couple's own photos in the product.
 
 ### App icon selection
 
-Review [the ten numbered icon concepts](docs/design/icons/comparison.html). See [the saved prompts](docs/design/icons/README.md) for generation details.
+Review [the ten numbered icon concepts](design/icons/comparison.html). See [the saved prompts](docs/README.md#visual-assets) for generation details.
 
-![Ten pastel app icon concepts](docs/design/icons/comparison.jpg)
+![Ten pastel app icon concepts](design/icons/comparison.jpg)
 
 Selected icon: **05 — Two voices, round two**. Two pastel speech bubbles frame an ivory heart.
 
-Use [the selected icon](docs/design/icons-round-2/icon-05-two-voices.png) as the app identity reference.
+Use [the selected icon](design/icons-round-2/icon-05-two-voices.png) as the app identity reference.
 Keep the blush and lavender colors, rounded shapes, and central heart.
 
-![Selected Deseo icon: Two voices](docs/design/icons-round-2/icon-05-two-voices.png)
+![Selected Deseo icon: Two voices](design/icons-round-2/icon-05-two-voices.png)
 
 ## 2. Reference analysis and design decision
 
@@ -161,7 +161,52 @@ Do not assign colors by gender or change colors when the viewer changes.
 
 Show a name beside each owner color. Use an icon and explicit text for errors and warnings.
 
-Start with one light theme. Add another theme only after a separate design decision.
+The mobile app follows the device appearance. The browser portal stays light.
+
+### Dark appearance
+
+`brand/tokens.json` keeps the dark palette in `darkColors`. It uses the same roles as `colors`.
+
+| Token | Dark value | Use |
+|---|---|---|
+| `canvas` | `#1C1A22` | Page background |
+| `surface` | `#25222D` | Cards, forms, navigation |
+| `ink` | `#F1ECF4` | Headings and body text |
+| `muted` | `#B4AABD` | Secondary text and timestamps |
+| `line` | `#3A3543` | Decorative dividers and card borders |
+| `control` | `#8F859A` | Input and checkbox boundaries |
+| `action` | `#4A3F5E` | Main buttons and selected dates |
+| `actionHover` | `#564A6C` | Pressed main button |
+| `onAction` | `#F1EBFA` | Text on action surfaces |
+| `actionBorder` | `#9C8CB3` | Action boundary |
+| `link` | `#C9B8EA` | Text buttons and links |
+| `sidebar` | `#221F29` | Chips and pressed rows |
+| `roseAccent` | `#8A5468` | Decorative blush marks |
+| `tealAccent` | `#4C7C70` | Decorative mint marks |
+| `sharedAccent` | `#6E5F8C` | Decorative lilac marks |
+| `rose` | `#F0A9C2` | Partner A foreground |
+| `roseSoft` | `#3F2731` | Partner A background |
+| `teal` | `#8FD3C4` | Partner B foreground |
+| `tealSoft` | `#1F3632` | Partner B background |
+| `shared` | `#C9B8EA` | Shared content foreground |
+| `sharedSoft` | `#2E2840` | Shared content background |
+| `note` | `#3A2F25` | Personal note background |
+| `noteLine` | `#57473A` | Note border |
+| `focus` | `#B9A3E0` | Focus ring |
+| `success` | `#8FD6AE` | Success text |
+| `successSoft` | `#1D3326` | Success background |
+| `warning` | `#F0C46B` | Warning text |
+| `warningSoft` | `#3A2E15` | Warning background |
+| `danger` | `#F2939F` | Error text and destructive actions |
+| `dangerSoft` | `#3E2227` | Error background |
+
+Dark foregrounds are light and fills are dark. Keep each role's meaning from the light table.
+
+Read colors through `useTheme()` or `makeStyles()` in `apps/mobile/src/theme`. Do not import `tokens.json` in components.
+
+Add a new color role to both palettes in one change. A test compares their keys.
+
+In the dark palette, every text color passes 4.5:1 on canvas, surface, sidebar, note, and its own soft fill.
 
 ### CSS foundation
 
@@ -339,7 +384,7 @@ Show the image, caption, date, and author. Keep captions outside images for reli
 
 Use a 3:2 crop in compact cards. Show the full image in the detail view.
 
-Prepare uploads without location metadata, within the size limits in [DATA.md](docs/architecture/DATA.md).
+Prepare uploads without location metadata, within the size limits in [Data contract](docs/ARCHITECTURE.md#data-contract).
 
 Preserve the accepted full image. Display card crops without changing that image. Keep the camera original on the person's device.
 
@@ -445,7 +490,7 @@ Keep static data, formatters, and icon definitions outside repeated render work 
 
 ## 10. Frontend structure
 
-Follow the module rules in [ARCHITECTURE.md](docs/architecture/ARCHITECTURE.md).
+Follow the module rules in [ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 Use `apps/mobile` for Expo screens and native capabilities. Use `apps/web` for React DOM screens and browser capabilities.
 
@@ -474,15 +519,15 @@ Use production images with explicit dimensions and responsive sizes. Avoid runti
 5. Add messages, delivery states, and pinned notes.
 6. Compose Today from the working features.
 
-The [implementation plan](docs/superpowers/plans/2026-10-04-deseo-implementation.md) adds Today incrementally as each feature works.
+Add each working feature to Today through its public queries.
 
-Follow that plan for backend, native, public-site, and release work. This list describes visual dependencies only.
+Follow [Development](docs/DEVELOPMENT.md) for backend, native, public-site, and release work. This list describes visual dependencies only.
 
 Keep each layer usable before adding the next. Do not expose routes with placeholder product behavior.
 
 ## 12. Verification and release checks
 
-Use [the review record](docs/design/REVIEW.md) for the checks performed on this reference.
+Use [the review record](docs/README.md#visual-review) for the checks performed on this reference.
 
 ### Measured palette contrast
 
@@ -500,6 +545,19 @@ These ratios use the WCAG relative luminance formula. They apply to the listed s
 | Control / white | 3.68:1 |
 | Focus / canvas | 6.26:1 |
 | Action border / action | 3.48:1 |
+
+| Dark foreground / background | Ratio |
+|---|---|
+| Ink / surface | 13.41:1 |
+| Muted / canvas | 7.72:1 |
+| Action text / action | 8.32:1 |
+| Rose / rose-soft | 7.22:1 |
+| Teal / teal-soft | 7.53:1 |
+| Shared / shared-soft | 7.72:1 |
+| Muted / note | 5.84:1 |
+| Control / surface | 4.45:1 |
+| Focus / canvas | 7.69:1 |
+| Action border / action | 3.15:1 |
 
 Require 4.5:1 for normal text. Require 3:1 for essential control boundaries and focus indicators.
 

@@ -6,7 +6,7 @@ import { z } from 'zod';
 import { Button } from '../../../components/ui/Button';
 import { Field } from '../../../components/ui/Field';
 import { Status } from '../../../components/ui/Status';
-import { theme } from '../../../theme';
+import { useTheme } from '../../../theme';
 import { captureQueryScope } from '../../../lib/query-client';
 import { useDraft } from '../../../lib/draft';
 import type { CommandError } from '@deseo/domain/result';
@@ -24,6 +24,7 @@ const nameInput = z.object({ id: z.string().uuid(), pairId: z.string().uuid(), n
 type NameInput = z.infer<typeof nameInput>;
 
 export function ListManager(props: Props) {
+  const theme = useTheme();
   // A confirmed save starts a fresh draft from the saved list.
   const [saved, setSaved] = useState<{ generation: number; list?: TaskList }>({ generation: 0, list: props.list });
   if (props.list?.isGeneral) return <Text style={theme.typography.secondary}>General keeps tasks from removed lists.</Text>;

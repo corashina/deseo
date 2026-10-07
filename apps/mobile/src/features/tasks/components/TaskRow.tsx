@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { DateTime } from 'luxon';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import { randomUUID } from 'expo-crypto';
 import { Button } from '../../../components/ui/Button';
 import { IconButton } from '../../../components/ui/IconButton';
 import { Status } from '../../../components/ui/Status';
-import { theme } from '../../../theme';
+import { makeStyles, useTheme } from '../../../theme';
 import { captureQueryScope } from '../../../lib/query-client';
 import type { CommandError } from '@deseo/domain/result';
 import { setTaskCompleted } from '../commands';
@@ -14,6 +14,8 @@ import { readTaskAction, removeTaskAction, writeTaskAction, type TaskAction } fr
 import type { Task } from '@deseo/domain/tasks';
 export type TaskRowProps = { task: Task; accountId: string; assignee: string; online: boolean; onOpen(): void; onCompleted?(task: Task): void };
 export function TaskRow({ task, accountId, assignee, online, onOpen, onCompleted }: TaskRowProps) {
+  const theme = useTheme();
+  const styles = useStyles();
   const [current, setCurrent] = useState(task);
   const [optimistic, setOptimistic] = useState<boolean | null>(null);
   const [pending, setPending] = useState(false); const busy = useRef(false);
@@ -69,7 +71,7 @@ export function TaskRow({ task, accountId, assignee, online, onOpen, onCompleted
       actionLabel={action ? 'Retry' : 'Review task'} onAction={action ? () => { void submit(action); } : onOpen} />}
   </View>;
 }
-const styles = StyleSheet.create({
+const useStyles = makeStyles(theme => ({
   row: { paddingVertical: theme.space[2], gap: theme.space[2] },
   line: { flexDirection: 'row', alignItems: 'center' },
   checkbox: { flex: 1, minHeight: theme.touchTarget, flexDirection: 'row', alignItems: 'center', gap: theme.space[3], borderRadius: theme.radius.control },
@@ -77,4 +79,4 @@ const styles = StyleSheet.create({
   text: { flex: 1, gap: 2 },
   done: { textDecorationLine: 'line-through', color: theme.colors.muted },
   undo: { paddingLeft: 38 },
-});
+}));

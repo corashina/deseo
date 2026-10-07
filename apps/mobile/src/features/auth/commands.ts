@@ -36,7 +36,7 @@ export async function saveProfile(input: ProfileInput, expectedVersion?: number)
     if (expectedVersion !== undefined) z.number().int().positive().parse(expectedVersion);
     const { data, error } = await (await getSupabase()).rpc('save_profile', {
       p_display_name: profile.displayName, p_timezone: profile.timezone, p_locale: profile.locale,
-      p_expected_version: expectedVersion ?? null,
+      p_expected_version: expectedVersion,
     });
     if (error) throw toAppError(error);
     const result = resultSchema(accountSchema).safeParse(data);

@@ -1,4 +1,4 @@
-export { listTaskLists, listTasks, getTask, listDueTasks, taskKeys } from './queries';
+export { listTaskLists, listTasks, getTask, taskKeys } from './queries';
 export { createTask, updateTask, setTaskCompleted, deleteTask, createList, renameList, moveListTasksToGeneral, deleteEmptyList } from './commands';
 export { taskInputSchema, taskDateSchema, listNameSchema } from '@deseo/domain/tasks';
 export type { Task, TaskInput, TaskList } from '@deseo/domain/tasks';

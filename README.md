@@ -16,7 +16,7 @@ The public information site remains a separate delivery task.
 - **Settings:** Profile, pair, preferences, fresh verification, and sign-out controls.
 
 Each account can join one active pair. Each pair has two people.
-Deseo uses pastel colors and the [Two voices icon](docs/design/icons-round-2/icon-05-two-voices.png).
+Deseo uses pastel colors and the [Two voices icon](design/icons-round-2/icon-05-two-voices.png).
 
 ## Start
 
@@ -29,21 +29,16 @@ npm run start:backend
 ```
 
 Set the browser environment and start one Edge process before `npm run dev:web`.
-Follow [Development](docs/engineering/DEVELOPMENT.md) for exact commands, local keys, and origin modes.
+Follow [Development](docs/DEVELOPMENT.md#setup) for exact commands, local keys, and origin modes.
 
 ## Read first
 
 | Document | Purpose |
 |---|---|
-| [Portal design](docs/superpowers/specs/2026-10-05-deseo-web-portal-design.md) | Approved browser scope |
-| [Screen guide](docs/product/SCREENS.md) | Routes, forms, states, and native flows |
-| [Style guide](STYLE.md) | Colors, dimensions, and platform navigation |
-| [Architecture](docs/architecture/ARCHITECTURE.md) | Modules, shared contracts, and platform capabilities |
-| [Data contract](docs/architecture/DATA.md) | Access, transactions, and lifecycle rules |
-| [Development](docs/engineering/DEVELOPMENT.md) | Setup and verification commands |
-| [Testing](docs/engineering/TESTING.md) | Importance ratings and acceptance limits |
-| [Portal handoff](docs/handoffs/web-portal.md) | Measured results, commits, and remaining checks |
-| [Documentation index](docs/README.md) | Design, implementation, research, and handoffs |
+| [Documentation](docs/README.md) | Screens, design references, and sources |
+| [Architecture](docs/ARCHITECTURE.md) | Modules, data, access, and lifecycle rules |
+| [Development](docs/DEVELOPMENT.md) | Setup, verification, remaining work, and release |
+| [Style](STYLE.md) | Colors, layout, controls, and writing |
 
 ## Workspace
 
@@ -58,17 +53,17 @@ apps/site/         Planned public information site
 
 ## Screenshots
 
-Open [the portal gallery](docs/design/web-portal/index.html) or [the capture index](docs/design/web-portal/README.md).
+Open [the portal gallery](design/web-portal/index.html).
 The gallery contains 324 JPEGs for 39 routes, 119 views, and 238 viewport records.
 It uses real local Anna and Marek accounts and disposable fixtures for other states.
 
-The [older visual reference](docs/design/preview.html) contains sample interactions without persistence.
+The [older visual reference](design/preview.html) contains sample interactions without persistence.
 
 ## Delivery limits
 
 Browser checks, backend checks, and native JavaScript exports have separate evidence.
 Physical Android and iOS checks remain unverified. Windows cannot run an iOS simulator.
-Read the handoff before claiming device, push, deployment, or store acceptance.
+Check [verification requirements](docs/DEVELOPMENT.md#verification) before claiming device, push, deployment, or store acceptance.
 
 Account export, account deletion, avatar backend work, and public pages remain outside this portal delivery.
 Browser push, service workers, offline content storage, and installation prompts remain outside its scope.

@@ -8,7 +8,6 @@ export { eventInputSchema, eventFormSchema, resolveWallTime, wallTimeChoices, in
 export type { AgendaItem, AgendaRange, Event, EventInput, EventTime, EventFormValues, Owner, Visibility } from '@deseo/domain/calendar';
 export { reconcileEventDrafts } from './revocation';
 export { importantDateCountdown, nextImportantDate } from '@deseo/domain/calendar';
-export { listImportantDates } from './important-dates';
 export { ideaInputSchema } from '@deseo/domain/calendar';
 export { listDateIdeas, getDateIdea, createIdea, updateIdea, archiveIdea, planDateIdea, ideaKeys } from './date-ideas';
 export type { DateIdea, IdeaInput, IdeaState } from '@deseo/domain/calendar';

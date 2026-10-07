@@ -8,12 +8,13 @@ import { Button } from '../../../components/ui/Button';
 import { Status } from '../../../components/ui/Status';
 import { getPendingInvite, setPendingInvite, clearPendingInvite, parseInviteLink, inviteTokenSchema } from '../../../lib/links';
 import { toAppError } from '@deseo/domain/result';
-import { theme } from '../../../theme';
+import { useTheme } from '../../../theme';
 import { useCore } from '../context';
 import { acceptInvite, previewInvite } from '../commands';
 import type { InvitePreview } from '@deseo/domain/pair';
 
 export function JoinScreen() {
+  const theme = useTheme();
   const { pair, refresh, online } = useCore();
   const [value, setValue] = useState('');
   const [preview, setPreview] = useState<InvitePreview>();

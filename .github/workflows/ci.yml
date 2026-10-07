@@ -1,0 +1,61 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  apps:
+    name: Mobile, web and domain
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+      - run: npm install --global npm@11.16.0
+      - run: npm ci
+      - run: npm run verify:mobile
+      - run: npm run test:domain
+      - run: npm run typecheck --workspace @deseo/web
+      - run: npx eslint apps/web packages/domain/src
+      - run: npm run build:web
+
+  backend:
+    name: Database, races and functions
+    runs-on: ubuntu-latest
+    env:
+      DO_NOT_TRACK: '1'
+      SUPABASE_TELEMETRY_DISABLED: 'true'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+      - run: npm install --global npm@11.16.0
+      - run: npm ci
+      - run: npx supabase start --exclude studio,vector,logflare,imgproxy,supavisor
+      # test:db wraps this command in a Windows-only guard script.
+      - run: npx supabase test db --local
+      - name: Check generated database types
+        run: |
+          npm run gen:types
+          git diff --exit-code packages/domain/src/database.types.ts
+      - name: Run race tests
+        run: |
+          npx supabase status -o json > "$RUNNER_TEMP/status.json"
+          export SUPABASE_TEST_URL=$(jq -r .API_URL "$RUNNER_TEMP/status.json")
+          export SUPABASE_TEST_PUBLISHABLE_KEY=$(jq -r .PUBLISHABLE_KEY "$RUNNER_TEMP/status.json")
+          export SUPABASE_TEST_SERVICE_ROLE_KEY=$(jq -r .SERVICE_ROLE_KEY "$RUNNER_TEMP/status.json")
+          npm run test:db:race
+          npm run test:memories:race
+          npm run test:notifications:race
+      - run: npm run typecheck:memories:functions
+      - run: npm run test:memories:functions
+      - run: npm run typecheck:notifications:functions
+      - run: npm run test:notifications:functions

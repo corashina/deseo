@@ -2,14 +2,14 @@ import { useMemo, useState } from 'react';
 import { DateTime } from 'luxon';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import { Button } from '../../../components/ui/Button';
 import { Chips } from '../../../components/ui/Chips';
 import { Countdown } from '../../../components/ui/Countdown';
 import { IconButton } from '../../../components/ui/IconButton';
 import { Screen } from '../../../components/ui/Screen';
 import { Status } from '../../../components/ui/Status';
-import { ownerTones, theme, ui } from '../../../theme';
+import { makeStyles, useTheme } from '../../../theme';
 import { useCore } from '../../pair';
 import { EventRow } from '../components/EventRow';
 import { useCalendarSignals } from '../realtime';
@@ -27,6 +27,8 @@ export function CalendarScreen() {
 
 type Core = ReturnType<typeof useCore>;
 function ActiveCalendar({ account, pair, online, refresh }: { account: Core['account']; pair: Extract<Core['pair'], { status: 'active' }>; online: boolean; refresh: Core['refresh'] }) {
+  const theme = useTheme();
+  const styles = useStyles();
   const router = useRouter();
   useCalendarSignals(account.id, pair.pairId, refresh);
   const today = DateTime.now().setZone(pair.timezone).startOf('day');
@@ -72,7 +74,7 @@ function ActiveCalendar({ account, pair, online, refresh }: { account: Core['acc
     {!online && <Status tone="warning" message="You are offline. Refresh your calendar when you reconnect." />}
     {important.isError && <Status message="We could not load important dates." tone="error" actionLabel="Retry" onAction={() => { void important.refetch(); }} />}
     {nextDate && nextDate.temporal.kind === 'allDay' && countdown !== null && <Pressable accessibilityRole="button" accessibilityLabel={`Open important date: ${nextDate.title}`}
-      onPress={() => router.push({ pathname: '/events/[eventId]', params: { eventId: nextDate.id } })} style={({ pressed }) => [ui.card, pressed && styles.pressed]}>
+      onPress={() => router.push({ pathname: '/events/[eventId]', params: { eventId: nextDate.id } })} style={({ pressed }) => [theme.ui.card, pressed && styles.pressed]}>
       <Countdown days={countdown} title={nextDate.title} date={DateTime.fromISO(nextDate.temporal.startDate).toLocaleString(DateTime.DATE_HUGE)} />
     </Pressable>}
     <Button label="Saved date ideas" variant="text" icon="bulb-outline" trailingIcon="chevron-forward" onPress={() => router.push('/ideas')} />
@@ -83,7 +85,7 @@ function ActiveCalendar({ account, pair, online, refresh }: { account: Core['acc
     </View>
     <Chips label="Calendar view" value={view} onChange={setView} options={[{ value: 'agenda', label: 'Agenda' }, { value: 'month', label: 'Month' }]} />
     <Chips label="Show events for" value={filter} onChange={setFilter} options={filters} />
-    {view === 'month' && <View style={[ui.card, styles.monthCard]}><View style={styles.grid}>
+    {view === 'month' && <View style={[theme.ui.card, styles.monthCard]}><View style={styles.grid}>
       {weekdays.map((day) => <Text key={day} style={[theme.typography.badge, styles.cell, styles.weekday]}>{day}</Text>)}
       {Array.from({ length: month.weekday - 1 }, (_, index) => <View key={`blank-${index}`} style={styles.cell} />)}
       {days.map((date) => {
@@ -93,7 +95,7 @@ function ActiveCalendar({ account, pair, online, refresh }: { account: Core['acc
           style={styles.cell} onPress={() => setSelectedDate(date)}>
           {({ pressed }) => <View style={[styles.day, selected && styles.selected, pressed && !selected && styles.dayPressed]}>
             <Text style={[theme.typography.body, styles.dayNumber, date === todayIso && styles.today, selected && styles.selectedText]}>{Number(date.slice(-2))}</Text>
-            <View style={styles.dots}>{events.slice(0, 3).map(event => <View key={event.id} style={[styles.dot, { backgroundColor: ownerTones[event.owner].accent }]} />)}</View>
+            <View style={styles.dots}>{events.slice(0, 3).map(event => <View key={event.id} style={[styles.dot, { backgroundColor: theme.ownerTones[event.owner].accent }]} />)}</View>
           </View>}
         </Pressable>;
       })}
@@ -111,7 +113,7 @@ function ActiveCalendar({ account, pair, online, refresh }: { account: Core['acc
     </View>)}
   </Screen>;
 }
-const styles = StyleSheet.create({
+const useStyles = makeStyles(theme => ({
   pressed: { backgroundColor: theme.colors.sidebar },
   monthBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginHorizontal: -theme.space[2] },
   monthTitle: { flex: 1, textAlign: 'center' },
@@ -129,4 +131,4 @@ const styles = StyleSheet.create({
   dots: { flexDirection: 'row', gap: 3, height: 6 },
   dot: { width: 6, height: 6, borderRadius: 3 },
   dayGroup: { gap: theme.space[2], paddingTop: theme.space[2] },
-});
+}));

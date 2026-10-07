@@ -8,7 +8,7 @@ import { RowGroup } from '../../../components/ui/RowGroup';
 import { Section } from '../../../components/ui/Section';
 import { Screen } from '../../../components/ui/Screen';
 import { Status } from '../../../components/ui/Status';
-import { theme, ui } from '../../../theme';
+import { useTheme } from '../../../theme';
 import { useCore } from '../../pair';
 import { TaskAccess } from '../TaskAccess';
 import { listTaskLists, listTasks, taskKeys } from '../queries';
@@ -22,6 +22,7 @@ function TasksEntry() {
   return <Tasks key={`${core.account.id}:${core.pair.pairId}`} pairId={core.pair.pairId} />;
 }
 function Tasks({ pairId }: { pairId: string }) {
+  const theme = useTheme();
   const core = useCore(); const router = useRouter();
   const [selected, setSelected] = useState<string | null>(null); const [expanded, setExpanded] = useState(false);
   const [recent, setRecent] = useState<Task | null>(null);
@@ -47,7 +48,7 @@ function Tasks({ pairId }: { pairId: string }) {
       {tasks.isError && <Status tone="error" message="We could not load this list." actionLabel="Retry" onAction={() => { void tasks.refetch(); }} />}
       {tasks.data?.length === 0 && <Status message="This list has no tasks. Add your first task." />}
       <RowGroup>{open.map(row)}</RowGroup>
-      {recentRow && <View style={ui.stack}><Text style={theme.typography.secondary}>Task completed</Text><RowGroup>{row(recentRow)}</RowGroup></View>}
+      {recentRow && <View style={theme.ui.stack}><Text style={theme.typography.secondary}>Task completed</Text><RowGroup>{row(recentRow)}</RowGroup></View>}
       {completed.length > 0 && <Button label={`${expanded ? 'Hide' : 'Show'} completed (${completed.length})`} variant="text"
         trailingIcon={expanded ? 'chevron-up' : 'chevron-down'} onPress={() => setExpanded(!expanded)} />}
       {expanded && <RowGroup>{completed.filter(task => task.id !== recent?.id).map(row)}</RowGroup>}

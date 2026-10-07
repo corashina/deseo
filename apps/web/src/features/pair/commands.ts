@@ -2,12 +2,12 @@ import { z } from 'zod';
 import { createdInviteSchema, invitePreviewSchema } from '@deseo/domain/pair';
 import { timezoneSchema } from '@deseo/domain/auth';
 import { errorResult, resultSchema, type Result } from '@deseo/domain/result';
-import { getSupabase } from '../../lib/supabase';
+import { getSupabase, type RpcName } from '../../lib/supabase';
 import { captureQueryScope, resetPrivateQueries } from '../../lib/query-client';
 import { entryIntent } from '../auth';
 import { assertOnline } from '../../lib/network';
 export const inviteTokenSchema = z.string().transform(value => value.replace(/[\s-]/g, '').toUpperCase()).pipe(z.string().regex(/^[0-9A-HJKMNP-TV-Z]{12}$/));
-async function command<T extends z.ZodTypeAny>(name: string, args: Record<string, unknown>, schema: T): Promise<Result<z.infer<T>>> {
+async function command<T extends z.ZodTypeAny>(name: RpcName, args: Record<string, unknown>, schema: T): Promise<Result<z.infer<T>>> {
   try {
     assertOnline();
     const scope = captureQueryScope();
