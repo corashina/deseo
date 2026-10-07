@@ -8,6 +8,7 @@ The saved design defines the accepted scope. The core handoff records implementa
 
 - [Product design](superpowers/specs/2026-10-04-deseo-design.md)
 - [Approved portal design](superpowers/specs/2026-10-05-deseo-web-portal-design.md)
+- [Approved frontend design update](superpowers/specs/2026-10-07-deseo-frontend-design.md)
 - [Portal screenshot gallery](design/web-portal/index.html)
 - [Portal capture index](design/web-portal/README.md)
 - [Screen guide](product/SCREENS.md)
@@ -22,6 +23,7 @@ The saved design defines the accepted scope. The core handoff records implementa
 - [Architecture skill review](architecture/REVIEW.md)
 - [Architecture decision](adr/0001-mobile-stack-and-module-structure.md)
 - [Implementation plan](superpowers/plans/2026-10-04-deseo-implementation.md)
+- [Frontend design implementation plan](superpowers/plans/2026-10-07-deseo-frontend-design.md)
 - [Eight-chat execution guide and prompts](implementation/CHAT_GUIDE.md)
 - [Chat handoff template](implementation/HANDOFF_TEMPLATE.md)
 - [Implementation handoff index](handoffs/README.md)

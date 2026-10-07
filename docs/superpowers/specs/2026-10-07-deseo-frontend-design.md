@@ -2,7 +2,7 @@
 
 Date: 7 October 2026.
 
-Status: The owner selected the existing pastel identity. This written spec awaits owner review.
+Status: The owner approved this written spec on 7 October 2026. Implementation planning follows this spec.
 
 ## 1. Intent
 
