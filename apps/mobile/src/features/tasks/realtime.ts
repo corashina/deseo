@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { AppState } from 'react-native';
-import type { RealtimeChannel, SupabaseClient } from '@supabase/supabase-js';
+import type { RealtimeChannel } from '@supabase/supabase-js';
+import type { DeseoClient } from '../../lib/supabase';
 import { getSupabase } from '../../lib/supabase';
 import { captureQueryScope, queryClient } from '../../lib/query-client';
 import { taskKeys } from './queries';
@@ -15,7 +16,7 @@ export function connectTaskSignals(accountId: string, pairId: string, refresh: (
   if (!connection) {
     const listeners = new Map<symbol, () => Promise<void>>();
     const scope = captureQueryScope();
-    let channel: RealtimeChannel | undefined; let client: SupabaseClient | undefined;
+    let channel: RealtimeChannel | undefined; let client: DeseoClient | undefined;
     let active = true; let generation = 0;
     const invalidate = () => {
       try { scope.assertCurrent(); } catch { return; }

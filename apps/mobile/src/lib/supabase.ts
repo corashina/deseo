@@ -2,9 +2,13 @@ import 'react-native-url-polyfill/auto';
 import { createClient, processLock, type SupabaseClient } from '@supabase/supabase-js';
 import { getPrivateStorage } from './private-storage';
 import { captureQueryScope } from './query-client';
+import type { Database } from '@deseo/domain/database';
 import { AppError } from '@deseo/domain/result';
 
-let client: Promise<SupabaseClient> | undefined;
+export type DeseoClient = SupabaseClient<Database>;
+export type RpcName = keyof Database['public']['Functions'];
+
+let client: Promise<DeseoClient> | undefined;
 async function scopedFetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
   const scope = captureQueryScope();
   const controller = new AbortController();
@@ -22,7 +26,7 @@ async function scopedFetch(input: RequestInfo | URL, init?: RequestInit): Promis
     original?.removeEventListener('abort', abort);
   }
 }
-export function getSupabase(): Promise<SupabaseClient> {
+export function getSupabase(): Promise<DeseoClient> {
   client ??= (async () => {
     const url = process.env.EXPO_PUBLIC_SUPABASE_URL;
     const key = process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
@@ -30,7 +34,7 @@ export function getSupabase(): Promise<SupabaseClient> {
       throw new AppError({ code: 'RETRYABLE', message: 'Set the Supabase URL and publishable key before you sign in.' });
     }
     const storage = await getPrivateStorage();
-    return createClient(url, key, {
+    return createClient<Database>(url, key, {
       auth: { storage: storage.session, autoRefreshToken: true, persistSession: true, detectSessionInUrl: false, lock: processLock },
       global: { fetch: scopedFetch },
     });

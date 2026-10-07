@@ -1,7 +1,7 @@
 import { assertOnline } from '../../lib/network';
 import { taskPayload } from '@deseo/domain/tasks';
 import { z } from 'zod';
-import { getSupabase } from '../../lib/supabase';
+import { getSupabase, type RpcName } from '../../lib/supabase';
 import { captureQueryScope, queryClient } from '../../lib/query-client';
 import { errorResult, resultSchema, type Result } from '@deseo/domain/result';
 import { listNameSchema, listRowSchema, taskInputSchema, taskRowSchema } from '@deseo/domain/tasks';
@@ -9,7 +9,7 @@ import type { Task, TaskInput, TaskList } from '@deseo/domain/tasks';
 const uuid = z.string().uuid();
 const version = z.number().int().positive();
 const idRow = z.object({ id: uuid });
-async function command<T extends z.ZodTypeAny>(name: string, parameters: Record<string, unknown>, schema: T): Promise<Result<z.infer<T>>> {
+async function command<T extends z.ZodTypeAny>(name: RpcName, parameters: Record<string, unknown>, schema: T): Promise<Result<z.infer<T>>> {
   try {
     assertOnline();
     uuid.parse(parameters.p_command_id);

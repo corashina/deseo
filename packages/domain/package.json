@@ -4,6 +4,7 @@
   "private": true,
   "exports": {
     "./result": "./src/result.ts",
+    "./database": "./src/database.types.ts",
     "./auth": "./src/auth/index.ts",
     "./pair": "./src/pair/index.ts",
     "./calendar": "./src/calendar/index.ts",
