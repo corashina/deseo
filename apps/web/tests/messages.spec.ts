@@ -26,7 +26,27 @@ test('Anna sends, Marek reads, and both notes appear', async ({ page, browser },
     const marek = await portalClient(ids.marekEmail);
     await expect.poll(async () => (await marek.rpc('get_unread_count', { p_pair_id: ids.pairId })).data.data.count).toBeGreaterThan(0);
     await partner.goto('/messages');
-    const received = partner.getByTestId('message-row').filter({ hasText: 'Dinner at seven?' }).locator('p');
+    // Importance 95: author identity stays fixed while ownership changes alignment.
+    const sentRow = page.getByTestId('message-row').filter({ hasText: 'Dinner at seven?' });
+    const receivedRow = partner.getByTestId('message-row').filter({ hasText: 'Dinner at seven?' });
+    await expect(sentRow.locator('strong')).toHaveText('Anna');
+    await expect(receivedRow.locator('strong')).toHaveText('Anna');
+    const ownStyle = await sentRow.evaluate(element => ({
+      background: getComputedStyle(element).backgroundColor,
+      edge: element.getBoundingClientRect().right,
+      trailing: element.parentElement!.getBoundingClientRect().right - parseFloat(getComputedStyle(element.parentElement!).paddingRight),
+    }));
+    const otherStyle = await receivedRow.evaluate(element => ({
+      background: getComputedStyle(element).backgroundColor,
+      edge: element.getBoundingClientRect().left,
+      leading: element.parentElement!.getBoundingClientRect().left + parseFloat(getComputedStyle(element.parentElement!).paddingLeft),
+    }));
+    expect(otherStyle.background).toBe(ownStyle.background);
+    expect(Math.abs(ownStyle.edge - ownStyle.trailing)).toBeLessThanOrEqual(1);
+    expect(Math.abs(otherStyle.edge - otherStyle.leading)).toBeLessThanOrEqual(1);
+    await expect(sentRow).toHaveClass(/own-message/);
+    await expect(receivedRow).not.toHaveClass(/own-message/);
+    const received = receivedRow.locator('p');
     await expect(received).toHaveText(body);
     const lines = await received.evaluate(element => {
       const text = element.firstChild!;
@@ -42,6 +62,14 @@ test('Anna sends, Marek reads, and both notes appear', async ({ page, browser },
     await partner.getByLabel('Message', { exact: true }).fill('Yes, see you there.');
     await partner.getByRole('button', { name: 'Send message', exact: true }).click();
     await expect(page.getByText('Yes, see you there.', { exact: true })).toBeVisible();
+    const partnerOwn = partner.getByTestId('message-row').filter({ hasText: 'Yes, see you there.' });
+    const partnerOther = page.getByTestId('message-row').filter({ hasText: 'Yes, see you there.' });
+    await expect(partnerOwn.locator('strong')).toHaveText('Marek');
+    await expect(partnerOther.locator('strong')).toHaveText('Marek');
+    expect(await partnerOwn.evaluate(element => getComputedStyle(element).backgroundColor))
+      .toBe(await partnerOther.evaluate(element => getComputedStyle(element).backgroundColor));
+    await expect(partnerOwn).toHaveClass(/own-message/);
+    await expect(partnerOther).not.toHaveClass(/own-message/);
     await page.screenshot({ path: testInfo.outputPath('messages-' + testInfo.project.name + '.png'), fullPage: true });
     await expect(page.getByText(/typing|read by|online now/i)).toHaveCount(0);
   } finally { await partnerContext.close(); await cleanupPortalPairFixture(ids); }

@@ -25,7 +25,7 @@ import { NoteCard } from '../components/NoteCard';
 import type { Message, MessageCursor } from '@deseo/domain/messages';
 import type { PendingMessage } from '../types';
 
-type Row = { kind: 'message'; message: Message } | { kind: 'pending'; message: PendingMessage };
+type Row = { kind: 'message'; message: Message; startsGroup: boolean } | { kind: 'pending'; message: PendingMessage };
 type MessageAction = { kind: 'delete' | 'pin' | 'unpin'; id: string; commandId: string };
 const visibility = { viewAreaCoveragePercentThreshold: 50, minimumViewTime: 500 };
 const preservePosition = { minIndexForVisible: 0 };
@@ -75,7 +75,7 @@ function Conversation({ account, pair, online }: {
   const rows = useMemo<Row[]>(() => [
     ...draft.pending.filter(pending => !messages.some(message => message.authorId === account.id && message.clientId === pending.clientId))
       .slice().reverse().map(message => ({ kind: 'pending' as const, message })),
-    ...messages.map(message => ({ kind: 'message' as const, message })),
+    ...messages.map((message, index) => ({ kind: 'message' as const, message, startsGroup: messages[index + 1]?.authorId !== message.authorId })),
   ], [messages, draft.pending, account.id]);
   const ownMember = pair.members.find(member => member.userId === account.id)!;
   const list = useRef<FlatList<Row>>(null);
@@ -204,9 +204,9 @@ function Conversation({ account, pair, online }: {
   const renderRow = useCallback(({ item }: { item: Row }) => item.kind === 'pending'
     ? <PendingMessageRow message={item.message} member={ownMember} online={online}
       onRetry={id => { void draft.retry(id); }} onDiscard={discard} />
-    : <MessageRow message={item.message} member={pair.members.find(member => member.userId === item.message.authorId)!}
+    : <View style={item.startsGroup && styles.messageGroup}><MessageRow message={item.message} member={pair.members.find(member => member.userId === item.message.authorId)!}
       own={item.message.authorId === account.id} timezone={account.timezone} locale={account.locale}
-      disabled={!online || !!action} onPin={choosePin} onDelete={chooseDelete} />,
+      disabled={!online || !!action} onPin={choosePin} onDelete={chooseDelete} /></View>,
   [ownMember, online, draft.retry, discard, pair.members, account.id, account.timezone, account.locale, action, choosePin, chooseDelete]);
   return <SafeAreaView edges={['left', 'right', 'bottom']} style={styles.fill}>
     <KeyboardAvoidingView style={styles.fill} behavior={Platform.OS === 'ios' ? 'padding' : 'height'} keyboardVerticalOffset={headerHeight}>
@@ -255,6 +255,7 @@ function Conversation({ account, pair, online }: {
 
 const styles = StyleSheet.create({
   fill: { flex: 1, backgroundColor: theme.colors.canvas }, heading: { paddingHorizontal: 16, paddingVertical: 8 },
+  messageGroup: { paddingBottom: theme.space[2] },
   notice: { ...theme.typography.secondary, paddingHorizontal: 16, paddingVertical: 8 },
-  notes: { maxHeight: 180, flexGrow: 0 }, notesContent: { paddingHorizontal: 16, gap: 8, paddingBottom: 8 },
+  notes: { maxHeight: '35%', flexGrow: 0 }, notesContent: { paddingHorizontal: theme.space[4], gap: theme.space[3], paddingBottom: theme.space[3] },
 });

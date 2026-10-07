@@ -224,3 +224,46 @@ test('pair closure cancels a held read started during account verification', asy
     await expect(page.getByRole('heading', { name: 'Your pair has ended', exact: true })).toBeVisible();
   } finally { releasePair(); releaseRead(); await cleanupPortalPairFixture(ids); }
 });
+
+// Importance 92: fresh routes retain note surfaces and photo bounds without earlier feature visits.
+test('fresh Today and pinned notes routes load their own presentation', async ({ page, browser }) => {
+  const ids = await createPortalPairFixture();
+  try {
+    await loginWithLocalEmailCode(page, ids.annaEmail);
+    const storageState = await page.context().storageState();
+    for (const url of ['/today', '/messages?view=notes']) {
+      const context = await browser.newContext({ storageState, viewport: page.viewportSize()! });
+      const direct = await context.newPage();
+      let release = () => {};
+      const mediaReady = new Promise<void>(resolve => { release = resolve; });
+      try {
+        await direct.route('**/functions/v1/get-memory-media', async route => { await mediaReady; await route.continue(); });
+        await direct.goto(url);
+        const note = direct.getByTestId('note-card').first();
+        await expect(note).toBeVisible();
+        const colors = await note.evaluate(element => {
+          const probe = document.createElement('span');
+          probe.style.backgroundColor = 'var(--note)';
+          element.append(probe);
+          const token = getComputedStyle(probe).backgroundColor;
+          probe.remove();
+          return { actual: getComputedStyle(element).backgroundColor, token };
+        });
+        expect(colors.actual).toBe(colors.token);
+        if (url === '/today') {
+          const cover = direct.locator('.memory-cover');
+          await expect(cover.getByText('Loading photo…', { exact: true })).toBeVisible();
+          const loading = await cover.boundingBox();
+          expect(loading!.width).toBeGreaterThan(0);
+          expect(loading!.height).toBeGreaterThan(0);
+          expect(loading!.width / loading!.height).toBeCloseTo(1.5, 1);
+          release();
+          await expect(cover.locator('img')).toBeVisible();
+          const loaded = await cover.boundingBox();
+          expect(loaded!.width).toBeCloseTo(loading!.width, 0);
+          expect(loaded!.height).toBeCloseTo(loading!.height, 0);
+        }
+      } finally { release(); await context.close(); }
+    }
+  } finally { await cleanupPortalPairFixture(ids); }
+});
