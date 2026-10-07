@@ -6,7 +6,7 @@ import { useCore } from '../../pair';
 import { Screen } from '../../../components/ui/Screen';
 import { Button } from '../../../components/ui/Button';
 import { Status } from '../../../components/ui/Status';
-import { theme } from '../../../theme';
+import { useTheme } from '../../../theme';
 import { listMemories, memoryKeys } from '../queries';
 import { MemoryCard } from '../components/MemoryCard';
 
@@ -38,5 +38,6 @@ function Feed({ accountId, pair, online }: { accountId: string; pair: Extract<Re
   </Screen>;
 }
 function MemoryFeedItem({ heading, ...props }: Parameters<typeof MemoryCard>[0] & { heading?: string }) {
+  const theme = useTheme();
   return <>{heading && <Text accessibilityRole="header" style={[theme.typography.section, { paddingTop: theme.space[2] }]}>{heading}</Text>}<MemoryCard {...props} /></>;
 }

@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { Alert, StyleSheet, Text, View } from 'react-native';
+import { Alert, Text, View } from 'react-native';
 import { randomUUID } from 'expo-crypto';
 import { router } from 'expo-router';
 import { Screen } from '../../../components/ui/Screen';
@@ -9,13 +9,15 @@ import { Status } from '../../../components/ui/Status';
 import { Avatar } from '../../../components/ui/Avatar';
 import { Badge } from '../../../components/ui/Badge';
 import { Section } from '../../../components/ui/Section';
-import { theme, ui } from '../../../theme';
+import { makeStyles, useTheme } from '../../../theme';
 import { requestSensitiveActionCode, verifySensitiveAction, signOut } from '../../auth';
 import { toAppError } from '@deseo/domain/result';
 import { useCore } from '../context';
 import { endPair } from '../commands';
 
 export function PairSettingsScreen() {
+  const theme = useTheme();
+  const styles = useStyles();
   const { pair, refresh, online } = useCore();
   const [code, setCode] = useState('');
   const [sent, setSent] = useState(false);
@@ -55,7 +57,7 @@ export function PairSettingsScreen() {
         <Badge owner={member.slot} label={member.displayName} />
       </View>)}
     </View>}
-    <View style={ui.card}>
+    <View style={theme.ui.card}>
       <Button label="Notification preferences" variant="text" icon="notifications-outline" trailingIcon="chevron-forward"
         onPress={() => router.push('/settings/notifications')} />
     </View>
@@ -68,14 +70,14 @@ export function PairSettingsScreen() {
         <Button label="End pair" variant="danger" disabled={busy || !online || code.length !== 6} onPress={confirm} />
       </>}
     </Section>}
-    <View style={ui.stack}>
+    <View style={theme.ui.stack}>
       <Button label="Sign out on this device" variant="secondary" icon="log-out-outline" onPress={() => { void signOut('local').catch(cause => setError(toAppError(cause).message)); }} />
       <Button label="Sign out on all devices" variant="text" onPress={() => { void signOut('global').catch(cause => setError(toAppError(cause).message)); }} />
     </View>
   </Screen>;
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles(theme => ({
   members: { flexDirection: 'row', justifyContent: 'center', gap: theme.space[8], paddingVertical: theme.space[4] },
   member: { alignItems: 'center', gap: theme.space[2] },
-});
+}));

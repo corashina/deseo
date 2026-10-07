@@ -1,4 +1,5 @@
-import { Stack } from 'expo-router';
+import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
+import { useMemo } from 'react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
@@ -6,7 +7,7 @@ import { AuthProvider, useAuth } from '../features/auth';
 import { PairProvider, usePairGate } from '../features/pair';
 import { reconcileEventDrafts } from '../features/calendar';
 import { queryClient } from '../lib/query-client';
-import { theme } from '../theme';
+import { useTheme } from '../theme';
 import { FeatureLifecycle } from '../components/FeatureLifecycle';
 import { NotificationLifecycle } from '../features/notifications';
 import { startCrashReporting, withCrashReporting } from '../lib/crash-reporting';
@@ -14,13 +15,16 @@ import { startCrashReporting, withCrashReporting } from '../lib/crash-reporting'
 startCrashReporting();
 
 function Navigation() {
+  const theme = useTheme();
   const { state } = useAuth();
   const gate = usePairGate();
   const signedOut = state.status === 'signedOut';
   const authenticated = state.status === 'authenticated';
   const hasProfile = authenticated && !!state.account;
   const paired = hasProfile && gate.pair?.status === 'active';
-  return <Stack screenOptions={{ headerStyle: { backgroundColor: theme.colors.canvas }, headerTintColor: theme.colors.ink,
+  const navigationTheme = useMemo(() => theme.dark ? { ...DarkTheme, colors: { ...DarkTheme.colors, primary: theme.colors.link,
+    background: theme.colors.canvas, card: theme.colors.surface, text: theme.colors.ink, border: theme.colors.line } } : DefaultTheme, [theme]);
+  return <ThemeProvider value={navigationTheme}><Stack screenOptions={{ headerStyle: { backgroundColor: theme.colors.canvas }, headerTintColor: theme.colors.ink,
     contentStyle: { backgroundColor: theme.colors.canvas }, headerBackTitle: 'Back' }}>
     <Stack.Screen name="index" options={{ headerShown: false }} />
     <Stack.Screen name="invite" options={{ title: 'Invitation' }} />
@@ -48,12 +52,12 @@ function Navigation() {
       <Stack.Screen name="settings/notifications" options={{ title: 'Notification preferences' }} />
       <Stack.Screen name="notifications" options={{ title: 'Notifications' }} />
     </Stack.Protected>
-  </Stack>;
+  </Stack></ThemeProvider>;
 }
 
 function RootLayout() {
   return <SafeAreaProvider><QueryClientProvider client={queryClient}><AuthProvider><PairProvider reconcileDrafts={reconcileEventDrafts}>
-    <FeatureLifecycle /><NotificationLifecycle /><StatusBar style="dark" /><Navigation />
+    <FeatureLifecycle /><NotificationLifecycle /><StatusBar style="auto" /><Navigation />
   </PairProvider></AuthProvider></QueryClientProvider></SafeAreaProvider>;
 }
 

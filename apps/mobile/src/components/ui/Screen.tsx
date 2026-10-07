@@ -1,7 +1,7 @@
 import type { PropsWithChildren, ReactNode } from 'react';
-import { KeyboardAvoidingView, Platform, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { theme } from '../../theme';
+import { makeStyles, useTheme } from '../../theme';
 
 type Props = PropsWithChildren<{
   title?: string; subtitle?: string; refreshing?: boolean; onRefresh?: () => void;
@@ -12,6 +12,8 @@ type Props = PropsWithChildren<{
 }>;
 
 export function Screen({ title, subtitle, action, toolbar, children, refreshing = false, onRefresh }: Props) {
+  const theme = useTheme();
+  const styles = useStyles();
   return <SafeAreaView style={styles.safe} edges={['top', 'left', 'right', 'bottom']}>
     <KeyboardAvoidingView style={styles.safe} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.scroll}
@@ -32,7 +34,7 @@ export function Screen({ title, subtitle, action, toolbar, children, refreshing 
   </SafeAreaView>;
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles(theme => ({
   safe: { flex: 1, backgroundColor: theme.colors.canvas },
   scroll: { flexGrow: 1, paddingHorizontal: theme.space[4], paddingTop: theme.space[2], paddingBottom: theme.space[8] },
   content: { width: '100%', maxWidth: 680, alignSelf: 'center', gap: theme.space[4] },
@@ -41,4 +43,4 @@ const styles = StyleSheet.create({
     columnGap: theme.space[4], rowGap: theme.space[3], paddingTop: theme.space[2], paddingBottom: theme.space[2] },
   heading: { flexGrow: 1, flexShrink: 1, flexBasis: 200, gap: theme.space[1] },
   subtitle: { color: theme.colors.muted },
-});
+}));

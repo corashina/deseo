@@ -8,7 +8,7 @@ import { Badge } from '../../../components/ui/Badge';
 import { DetailRow } from '../../../components/ui/DetailRow';
 import { Screen } from '../../../components/ui/Screen';
 import { Status } from '../../../components/ui/Status';
-import { ui } from '../../../theme';
+import { useTheme } from '../../../theme';
 import { useCore } from '../../pair';
 import { ReminderControl } from '../../notifications';
 import { captureQueryScope } from '../../../lib/query-client';
@@ -25,6 +25,7 @@ export function EventDetailScreen({ eventId }: { eventId: string }) {
   return <ActiveDetail key={`${core.account.id}:${core.pair.pairId}:${eventId}`} eventId={eventId} account={core.account} pair={core.pair} online={core.online} refresh={core.refresh} />;
 }
 function ActiveDetail({ eventId, account, pair, online, refresh }: { eventId: string; account: Core['account']; pair: Extract<Core['pair'], { status: 'active' }>; online: boolean; refresh: Core['refresh'] }) {
+  const theme = useTheme();
   const router = useRouter();
   useCalendarSignals(account.id, pair.pairId, refresh);
   const query = useQuery({ queryKey: calendarKeys.event(account.id, pair.pairId, eventId), queryFn: () => getEvent(pair.pairId, eventId) });
@@ -56,7 +57,7 @@ function ActiveDetail({ eventId, account, pair, online, refresh }: { eventId: st
   return <Screen title={event.title} refreshing={query.isRefetching} onRefresh={() => { void query.refetch(); }}>
     {event.repeat === 'yearly' && <Status message="This date repeats yearly. Edits and deletion apply to the series. February 29 uses February 28 in non-leap years." />}
     {!online && <Status tone="warning" message="You are offline. Reconnect before you change this event." />}
-    <View style={ui.card}>
+    <View style={theme.ui.card}>
       <DetailRow icon="calendar-outline" note={[event.temporal.kind === 'allDay' && 'All day',
         event.temporal.kind === 'timed' && account.timezone !== event.timezone && `In ${event.timezone}: ${eventDateLabel(event, event.timezone)}`]}>
         {eventDateLabel(event, account.timezone)}

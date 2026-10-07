@@ -9,7 +9,7 @@ import { DetailRow } from '../../../components/ui/DetailRow';
 import { RowGroup } from '../../../components/ui/RowGroup';
 import { Screen } from '../../../components/ui/Screen';
 import { Status } from '../../../components/ui/Status';
-import { ui } from '../../../theme';
+import { useTheme } from '../../../theme';
 import { captureQueryScope } from '../../../lib/query-client';
 import type { CommandError } from '@deseo/domain/result';
 import { useCore } from '../../pair';
@@ -26,6 +26,7 @@ function DetailEntry({ taskId }: { taskId: string }) {
   return <Detail key={`${core.account.id}:${core.pair.pairId}:${taskId}`} taskId={taskId} pairId={core.pair.pairId} />;
 }
 function Detail({ taskId, pairId }: { taskId: string; pairId: string }) {
+  const theme = useTheme();
   const core = useCore(); const router = useRouter();
   const query = useQuery({ queryKey: taskKeys.task(core.account.id, pairId, taskId), queryFn: () => getTask(pairId, taskId) });
   const lists = useQuery({ queryKey: taskKeys.lists(core.account.id, pairId), queryFn: () => listTaskLists(pairId) });
@@ -64,7 +65,7 @@ function Detail({ taskId, pairId }: { taskId: string; pairId: string }) {
   return <Screen title="Task" refreshing={query.isRefetching} onRefresh={() => { void query.refetch(); }}>
     {!core.online && <Status tone="warning" message="You are offline. You can open Edit task to keep a draft." />}
     <RowGroup><TaskRow task={task} accountId={core.account.id} online={core.online && !saving && !action} assignee={assignee} onOpen={() => router.push({ pathname: '/tasks/[taskId]/edit', params: { taskId } })} /></RowGroup>
-    <View style={ui.card}>
+    <View style={theme.ui.card}>
       <DetailRow icon="list-outline">{`List: ${lists.data?.find(list => list.id === task.listId)?.name ?? (lists.isError ? 'Could not load list' : 'Loading list…')}`}</DetailRow>
       <DetailRow icon="calendar-outline" note={core.pair.status === 'active' ? `Pair timezone: ${core.pair.timezone}` : undefined}>
         {`Due: ${task.dueDate ? DateTime.fromISO(task.dueDate).toLocaleString(DateTime.DATE_HUGE) : 'No due date'}`}

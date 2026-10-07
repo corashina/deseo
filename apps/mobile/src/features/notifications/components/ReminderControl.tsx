@@ -8,7 +8,7 @@ import { Field } from '../../../components/ui/Field';
 import { Status } from '../../../components/ui/Status';
 import { captureQueryScope } from '../../../lib/query-client';
 import { toAppError } from '@deseo/domain/result';
-import { theme, ui } from '../../../theme';
+import { useTheme } from '../../../theme';
 import { useCore } from '../../pair';
 import { getNotificationPreferences, getReminder, notificationKeys } from '../queries';
 import { setReminder } from '../commands';
@@ -29,6 +29,7 @@ export function ReminderControl(props: Props) {
     {...props} pairId={pairId} online={core.online} saved={query.data} defaultMinutes={preferences.data?.defaultEventReminderMinutes ?? null} />;
 }
 function ReminderForm({ pairId, online, saved, defaultMinutes, ...props }: Props & { pairId: string; online: boolean; saved: Reminder | null; defaultMinutes: number | null }) {
+  const theme = useTheme();
   const [choice, setChoice] = useState<number | null>(saved ? saved.active ? saved.minutesBefore : null : defaultMinutes);
   const initial = saved?.remindAt ? DateTime.fromISO(saved.remindAt).setZone(props.timezone) : DateTime.now().setZone(props.timezone);
   const [date, setDate] = useState(saved?.remindAt ? initial.toISODate()! : props.dueDate ?? initial.toISODate()!);
@@ -54,7 +55,7 @@ function ReminderForm({ pairId, online, saved, defaultMinutes, ...props }: Props
     } catch (error) { try { scope.assertCurrent(); setError(toAppError(error).message); } catch { /* Access guard owns recovery. */ } }
     finally { pending.current = false; try { scope.assertCurrent(); setBusy(false); } catch { /* Access guard owns recovery. */ } }
   };
-  return <View style={ui.card}>
+  return <View style={theme.ui.card}>
     <Text accessibilityRole="header" style={theme.typography.section}>Your reminder</Text>
     <DevicePermission refresh={permissionRefresh} />
     {saved && <Text style={theme.typography.secondary}>{saved.state === 'past' ? 'The selected reminder time has passed.' : saved.active ? 'Your reminder is on.' : 'Your reminder is off.'}</Text>}

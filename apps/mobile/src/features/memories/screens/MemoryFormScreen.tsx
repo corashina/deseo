@@ -8,7 +8,7 @@ import { Screen } from '../../../components/ui/Screen';
 import { Button } from '../../../components/ui/Button';
 import { Field } from '../../../components/ui/Field';
 import { Status } from '../../../components/ui/Status';
-import { theme, ui } from '../../../theme';
+import { useTheme } from '../../../theme';
 import { toAppError } from '@deseo/domain/result';
 import { memoryKeys, getMemory } from '../queries';
 import { photoFile } from '../drafts';
@@ -27,6 +27,7 @@ export function MemoryFormScreen({ memoryId }: { memoryId?: string }) {
   return <Form memory={query.data} timezone={account.timezone} online={online} reload={async () => (await query.refetch()).data} />;
 }
 function Form({ memory, timezone, online, reload }: { memory?: Memory; timezone: string; online: boolean; reload: () => Promise<Memory | undefined> }) {
+  const theme = useTheme();
   const access = useSyncExternalStore(subscribeMemoryLifecycle, getMemoryLifecycle);
   const router = useRouter();
   const [localError, setLocalError] = useState<string | null>(null);
@@ -56,7 +57,7 @@ function Form({ memory, timezone, online, reload }: { memory?: Memory; timezone:
     <Field label="Caption (optional)" value={draft.caption} editable={!locked} multiline maxLength={1000}
       onChangeText={caption => changeMemoryDraft(key, { caption })} />
     {!memory && <>
-      {draft.photos.map((photo, index) => <View key={photo.id} style={ui.card}>
+      {draft.photos.map((photo, index) => <View key={photo.id} style={theme.ui.card}>
         {photo.status !== 'missing' && <Image source={{ uri: photoFile(draft.draftId, photo.id, 'thumb').uri }} cachePolicy="memory"
           style={{ width: '100%', aspectRatio: 1.4 }} contentFit="cover" accessibilityLabel={`Selected photo ${index + 1}`} />}
         <Text style={theme.typography.body}>Photo {index + 1}: {photo.status === 'ready' ? 'Ready to upload' : photo.status === 'uploading' ? 'Uploading' : photo.status === 'validated' ? 'Uploaded' : photo.status === 'missing' ? 'Select this photo again' : 'Upload failed'}</Text>
@@ -71,7 +72,7 @@ function Form({ memory, timezone, online, reload }: { memory?: Memory; timezone:
     </>}
     {draft.conflict && <Status tone="error" message="This memory changed. Your caption and date remain in this draft."
       actionLabel="Review saved version" onAction={() => run(async () => { const result = await reload(); if (result) setSaved(result); })} />}
-    {saved && <View style={ui.card}><Text style={theme.typography.section}>Saved version</Text>
+    {saved && <View style={theme.ui.card}><Text style={theme.typography.section}>Saved version</Text>
       <Text style={theme.typography.body}>{saved.memoryDate}</Text><Text style={theme.typography.body}>{saved.caption || 'No caption'}</Text>
       <Button label="Keep my draft" onPress={() => run(async () => { await reviewMemoryConflict(saved); setSaved(null); })} />
     </View>}

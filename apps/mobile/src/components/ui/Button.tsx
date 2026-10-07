@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
-import { ActivityIndicator, Pressable, StyleSheet, Text } from 'react-native';
-import { theme } from '../../theme';
+import { ActivityIndicator, Pressable, Text } from 'react-native';
+import { makeStyles, useTheme } from '../../theme';
 
 export type IconName = keyof typeof Ionicons.glyphMap;
 
@@ -17,6 +17,9 @@ export type ButtonProps = {
 };
 
 export function Button({ label, onPress, variant = 'primary', loading = false, disabled = false, icon, trailingIcon, compact = false }: ButtonProps) {
+  const theme = useTheme();
+  const styles = useStyles();
+  const pressedStyles = usePressedStyles();
   const inactive = loading || disabled;
   const color = variant === 'danger' ? theme.colors.danger : variant === 'text' ? theme.colors.link : theme.colors.onAction;
   return <Pressable accessibilityRole="button" accessibilityLabel={label}
@@ -29,7 +32,7 @@ export function Button({ label, onPress, variant = 'primary', loading = false, d
   </Pressable>;
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles(theme => ({
   base: { minHeight: theme.touchTarget, paddingHorizontal: theme.space[4], paddingVertical: theme.space[3], borderRadius: theme.radius.control,
     flexDirection: 'row', gap: theme.space[2], justifyContent: 'center', alignItems: 'center', borderWidth: 1 },
   compact: { alignSelf: 'flex-start' },
@@ -40,11 +43,11 @@ const styles = StyleSheet.create({
   danger: { backgroundColor: theme.colors.dangerSoft, borderColor: theme.colors.danger },
   label: { flexShrink: 1, textAlign: 'center' },
   inactive: { opacity: 0.5 },
-});
+}));
 
-const pressedStyles = StyleSheet.create({
+const usePressedStyles = makeStyles(theme => ({
   primary: { backgroundColor: theme.colors.actionHover },
   secondary: { backgroundColor: theme.colors.sidebar },
   text: { opacity: 0.6 },
   danger: { opacity: 0.8 },
-});
+}));

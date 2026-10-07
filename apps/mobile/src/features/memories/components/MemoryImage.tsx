@@ -1,14 +1,15 @@
 import { useState, useSyncExternalStore } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Image } from 'expo-image';
-import { StyleSheet, View } from 'react-native';
+import { View } from 'react-native';
 import { Status } from '../../../components/ui/Status';
-import { theme } from '../../../theme';
+import { makeStyles } from '../../../theme';
 import { AppError } from '@deseo/domain/result';
 import { getMemoryMedia, memoryKeys } from '../queries';
 import { getMemoryLifecycle, subscribeMemoryLifecycle } from '../lifecycle';
 
 export function MemoryImage({ photoId, variant, width, height }: { photoId: string; variant: 'full' | 'thumb'; width: number; height: number }) {
+  const styles = useStyles();
   const access = useSyncExternalStore(subscribeMemoryLifecycle, getMemoryLifecycle);
   const [failedGeneration, setFailedGeneration] = useState<string | null>(null);
   const [retried, setRetried] = useState<string | null>(null);
@@ -29,8 +30,8 @@ export function MemoryImage({ photoId, variant, width, height }: { photoId: stri
       }} /> : query.isError || failedGeneration === identity ? <Status message="We could not load this photo." /> : <Status tone="loading" message="Loading photo…" />}
   </View>;
 }
-const styles = StyleSheet.create({
+const useStyles = makeStyles(theme => ({
   frame: { width: '100%', overflow: 'hidden', borderRadius: theme.radius.control, backgroundColor: theme.colors.sidebar,
     alignItems: 'center', justifyContent: 'center' },
   image: { width: '100%', height: '100%' },
-});
+}));

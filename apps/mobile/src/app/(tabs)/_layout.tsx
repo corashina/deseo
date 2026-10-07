@@ -1,10 +1,11 @@
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { theme } from '../../theme';
+import { useTheme } from '../../theme';
 import { useQuery } from '@tanstack/react-query';
 import { getUnreadCount, messageKeys } from '../../features/messages';
 import { usePairGate } from '../../features/pair';
 export default function TabsLayout() {
+  const theme = useTheme();
   const { account, pair } = usePairGate();
   const accountId = account?.id ?? '';
   const pairId = pair?.status === 'active' ? pair.pairId : '';

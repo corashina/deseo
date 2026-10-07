@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { DateTime } from 'luxon';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { ownerTones, theme } from '../../../theme';
+import { Pressable, Text, View } from 'react-native';
+import { makeStyles, useTheme } from '../../../theme';
 import { inclusiveEndDate } from '@deseo/domain/calendar';
 import type { AgendaItem } from '@deseo/domain/calendar';
 
@@ -25,10 +25,12 @@ export function eventDateLabel(event: AgendaItem, timezone: string): string {
 }
 
 export function EventRow({ event, viewerTimezone, ownerNames, onPress }: EventRowProps) {
+  const theme = useTheme();
+  const styles = useStyles();
   const ownerName = event.owner === 'together' ? 'Together' : ownerNames[event.owner];
   const temporal = event.temporal;
   const time = temporal.kind === 'allDay' ? 'All day' : DateTime.fromISO(temporal.startsAt).setZone(viewerTimezone).toLocaleString(DateTime.TIME_SIMPLE);
-  const tone = ownerTones[event.owner];
+  const tone = theme.ownerTones[event.owner];
   const body = <>
     <Text style={theme.typography.headline}>{event.title}</Text>
     <View style={styles.metadata}>
@@ -48,7 +50,7 @@ export function EventRow({ event, viewerTimezone, ownerNames, onPress }: EventRo
   </View>;
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles(theme => ({
   row: { flexDirection: 'row', gap: theme.space[3] },
   time: { width: 56, paddingTop: theme.space[3], fontVariant: ['tabular-nums'] },
   body: { flex: 1, gap: theme.space[1], minHeight: theme.touchTarget, paddingVertical: theme.space[3], paddingHorizontal: theme.space[4],
@@ -56,4 +58,4 @@ const styles = StyleSheet.create({
   pressed: { opacity: 0.75 },
   metadata: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', columnGap: theme.space[3], rowGap: theme.space[1] },
   meta: { flexDirection: 'row', alignItems: 'center', gap: theme.space[1] },
-});
+}));

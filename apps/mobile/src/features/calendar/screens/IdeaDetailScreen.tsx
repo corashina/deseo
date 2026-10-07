@@ -6,7 +6,7 @@ import { Alert, Linking, Text, View } from 'react-native';
 import { Button } from '../../../components/ui/Button';
 import { Screen } from '../../../components/ui/Screen';
 import { Status } from '../../../components/ui/Status';
-import { theme, ui } from '../../../theme';
+import { useTheme } from '../../../theme';
 import { captureQueryScope } from '../../../lib/query-client';
 import type { CommandError } from '@deseo/domain/result';
 import { useCore } from '../../pair';
@@ -21,6 +21,7 @@ function Entry({ ideaId }: { ideaId: string }) {
   return <Detail key={`${core.account.id}:${pairId}:${ideaId}`} ideaId={ideaId} pairId={pairId} />;
 }
 function Detail({ ideaId, pairId }: { ideaId: string; pairId: string }) {
+  const theme = useTheme();
   const core = useCore(); const router = useRouter(); const key = `calendar:idea-archive:${ideaId}`;
   useCalendarSignals(core.account.id, pairId, core.refresh);
   const query = useQuery({ queryKey: ideaKeys.detail(core.account.id, pairId, ideaId), queryFn: () => getDateIdea(pairId, ideaId) });
@@ -55,7 +56,7 @@ function Detail({ ideaId, pairId }: { ideaId: string; pairId: string }) {
   if (!idea) return <Screen title="Idea"><Status message="This idea is unavailable." />{retry}</Screen>;
   return <Screen title={idea.title} refreshing={query.isRefetching} onRefresh={() => { void query.refetch(); }}>
     {!core.online && <Status tone="warning" message="You are offline. Reconnect before you plan or archive this idea." />}
-    <View style={ui.card}>
+    <View style={theme.ui.card}>
       <Text style={theme.typography.body}>{idea.state === 'saved' ? 'Saved' : idea.state === 'planned' ? 'Planned' : 'Archived'}</Text>
       {idea.note ? <Text style={theme.typography.body}>{idea.note}</Text> : null}
       {idea.link && <Button label="Open link" variant="text" onPress={() => {

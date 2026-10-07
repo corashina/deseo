@@ -2,9 +2,10 @@ import { Image, Linking, Text } from 'react-native';
 import { router } from 'expo-router';
 import { Screen } from '../../../components/ui/Screen';
 import { Button } from '../../../components/ui/Button';
-import { theme } from '../../../theme';
+import { useTheme } from '../../../theme';
 
 export function WelcomeScreen() {
+  const theme = useTheme();
   const site = process.env.EXPO_PUBLIC_SITE_URL;
   return <Screen title="Deseo" subtitle="Plan your days together.">
     <Image source={require('../../../../assets/icon.png')} accessibilityLabel="Deseo: two voices" style={{ width: 160, height: 160, alignSelf: 'center', borderRadius: 36 }} />
