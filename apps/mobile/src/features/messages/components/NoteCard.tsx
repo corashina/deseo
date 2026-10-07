@@ -5,8 +5,8 @@ import { Button } from '../../../components/ui/Button';
 import { theme } from '../../../theme';
 import type { Message } from '@deseo/domain/messages';
 
-export type NoteCardProps = { message: Message; authorName: string; onReply(): void; onOpen?(): void };
-export function NoteCard({ message, authorName, onReply, onOpen }: NoteCardProps) {
+export type NoteCardProps = { message: Message; authorName: string; timezone: string; locale: string; onReply(): void; onOpen?(): void };
+export function NoteCard({ message, authorName, timezone, locale, onReply, onOpen }: NoteCardProps) {
   return <View style={styles.card}>
     <View style={styles.from}>
       <Ionicons name="pin-outline" size={14} color={theme.colors.muted} />
@@ -14,7 +14,7 @@ export function NoteCard({ message, authorName, onReply, onOpen }: NoteCardProps
     </View>
     <Text numberOfLines={3} style={theme.typography.body}>{message.body}</Text>
     <Text style={[theme.typography.secondary, styles.timestamp]}>
-      Pinned {DateTime.fromISO(message.pinnedAt ?? message.createdAt).toLocaleString(DateTime.DATETIME_MED)}
+      Pinned {DateTime.fromISO(message.pinnedAt ?? message.createdAt).setZone(timezone).setLocale(locale).toLocaleString(DateTime.DATETIME_MED)}
     </Text>
     <View style={styles.actions}>
       {onOpen && <Button label="Read note" variant="text" onPress={onOpen} />}

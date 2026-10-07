@@ -6,7 +6,7 @@ import { router } from 'expo-router';
 import { TodayScreen } from './TodayScreen';
 import { getToday } from '../queries';
 import { listDueTasks, taskKeys } from '../../tasks';
-import { listPinnedNotes } from '../../messages';
+import { listPinnedNotes, NoteCard } from '../../messages';
 import { latestMemory } from '../../memories';
 import { listImportantDates } from '../../calendar';
 import { listNotifications, notificationKeys } from '../../notifications';
@@ -34,8 +34,8 @@ jest.mock('../../tasks', () => {
 jest.mock('../../messages', () => {
   const { Text, Pressable } = jest.requireActual('react-native');
   return { listPinnedNotes: jest.fn(), messageKeys: { notes: (...parts: string[]) => ['messages', ...parts, 'notes'] },
-    NoteCard: ({ message, onReply }: { message: { body: string }; onReply: () => void }) =>
-      <Pressable accessibilityRole="button" accessibilityLabel="Reply" onPress={onReply}><Text>{message.body}</Text></Pressable> };
+    NoteCard: jest.fn(({ message, onReply }: { message: { body: string }; onReply: () => void }) =>
+      <Pressable accessibilityRole="button" accessibilityLabel="Reply" onPress={onReply}><Text>{message.body}</Text></Pressable>) };
 });
 jest.mock('../../memories', () => {
   const { Text } = jest.requireActual('react-native');
@@ -43,7 +43,7 @@ jest.mock('../../memories', () => {
     MemoryAccessBoundary: ({ children }: { children: React.ReactNode }) => mockMemoryReady ? children : null,
     MemoryCard: ({ memory }: { memory: { caption: string } }) => <Text>{memory.caption}</Text> };
 });
-const mockAccount = { id: 'account', displayName: 'Alex', timezone: 'America/Los_Angeles' };
+const mockAccount = { id: 'account', displayName: 'Alex', timezone: 'America/Los_Angeles', locale: 'en-GB' };
 const mockPair = { status: 'active', pairId: 'pair', timezone: 'Europe/Warsaw', members: [
   { userId: 'account', displayName: 'Alex', slot: 'a' }, { userId: 'partner', displayName: 'Sam', slot: 'b' },
 ] };
@@ -68,6 +68,10 @@ it('uses the pair date and opens the shared conversation from its latest note', 
   await mount();
   await waitFor(() => expect(screen.getByText('Our day at the sea')).toBeOnTheScreen());
   expect(screen.getByText('See you tonight')).toBeOnTheScreen();
+  // Importance 95: Today forwards account time settings to its note card.
+  expect(jest.mocked(NoteCard).mock.calls.at(-1)?.[0]).toEqual(expect.objectContaining({
+    timezone: mockAccount.timezone, locale: mockAccount.locale,
+  }));
   expect(screen.getByText('Bring flowers')).toBeOnTheScreen();
   expect(screen.getByText('Our anniversary')).toBeOnTheScreen();
   expect(screen.getByText('Tuesday, October 6, 2026')).toBeOnTheScreen();

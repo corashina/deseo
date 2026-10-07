@@ -213,7 +213,7 @@ function Conversation({ account, pair, online }: {
       <View style={styles.heading}><Text accessibilityRole="header" style={theme.typography.title}>Messages</Text></View>
       {!keyboardOpen && !!notes.data?.length && <ScrollView style={styles.notes} contentContainerStyle={styles.notesContent}>
         {notes.data.map(message => <NoteCard key={message.id} message={message}
-          authorName={pair.members.find(member => member.userId === message.authorId)!.displayName}
+          authorName={pair.members.find(member => member.userId === message.authorId)!.displayName} timezone={account.timezone} locale={account.locale}
           onReply={() => composer.current?.focus()} onOpen={() => Alert.alert('Note', message.body, [
             ...(message.authorId === account.id && !action && online ? [{ text: 'Unpin', onPress: () => choosePin(message) }] : []),
             { text: 'Close', style: 'cancel' },
@@ -255,7 +255,7 @@ function Conversation({ account, pair, online }: {
 
 const styles = StyleSheet.create({
   fill: { flex: 1, backgroundColor: theme.colors.canvas }, heading: { paddingHorizontal: 16, paddingVertical: 8 },
-  messageGroup: { paddingBottom: theme.space[2] },
+  messageGroup: { paddingTop: theme.space[2] },
   notice: { ...theme.typography.secondary, paddingHorizontal: 16, paddingVertical: 8 },
   notes: { maxHeight: '35%', flexGrow: 0 }, notesContent: { paddingHorizontal: theme.space[4], gap: theme.space[3], paddingBottom: theme.space[3] },
 });

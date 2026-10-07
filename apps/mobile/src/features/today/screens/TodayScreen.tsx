@@ -91,7 +91,7 @@ function Today() {
     <Section title="Your note" link={{ label: 'Messages', onPress: () => router.push('/(tabs)/messages') }}>
       {notes.isPending ? <Status tone="loading" message="Loading your note…" /> : notes.isError ?
         <Status message="We could not load your note." tone="error" actionLabel="Retry note" onAction={() => { void notes.refetch(); }} /> :
-        note ? <NoteCard message={note} authorName={author(note.authorId)} onReply={() => router.push('/(tabs)/messages')}
+        note ? <NoteCard message={note} authorName={author(note.authorId)} timezone={account.timezone} locale={account.locale} onReply={() => router.push('/(tabs)/messages')}
           onOpen={() => router.push('/(tabs)/messages')} /> : <Text style={theme.typography.body}>Pin a message to keep it here.</Text>}
     </Section>
     <Section title="Due today" link={{ label: 'All tasks', onPress: () => router.push('/(tabs)/tasks') }}>
