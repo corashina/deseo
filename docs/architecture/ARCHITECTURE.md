@@ -137,6 +137,7 @@ Do not add service workers, offline content storage, browser push, or installati
 RLS checks current account status and membership. Ignore editable JWT metadata for authorization.
 Restricted helpers check JWT session IDs against Auth sessions. Global sign-out blocks revoked sessions.
 Use ordinary RLS reads and named transactions for multi-record invariants.
+In row policies, compare `pair_id` with `(select private.actor_pair())`. PostgreSQL then checks membership once per statement, not once per row.
 Expose narrow invoker wrappers around hardened private implementations.
 Revoke default execution, grant required roles, set an empty search path, and check callers.
 Keep internal tables outside exposed schemas. Do not accept client-supplied trusted actor IDs.
