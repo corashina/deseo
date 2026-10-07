@@ -4,6 +4,7 @@ import type { createScreenshotFixtures } from './screenshot-fixtures';
 import type { ScreenshotScenario } from './screenshot-scenarios';
 import { readLocalCode } from './local-auth';
 import { admin } from './entry-fixtures';
+import { messageAction } from './message-actions';
 
 export type CaptureFixtures = Awaited<ReturnType<typeof createScreenshotFixtures>>;
 export type CaptureRole = 'signedOut' | 'anna' | 'marek' | 'exceptional' | 'empty' | 'unpaired' | 'pending' | 'ended' | 'logout' | 'fresh';
@@ -114,7 +115,7 @@ export async function renderScene(page: Page, scene: ScreenshotScenario, fixture
   if (id === 'pair-waiting' && view === 'cancel-dialog') { await button(page, 'Cancel pending pair').click(); await expect(page.getByRole('dialog', { name: 'Cancel this pair?' })).toBeVisible(); }
   if (view === 'delete-dialog' || view === 'archive-dialog') {
     const kind = id.split('-')[0];
-    if (kind === 'messages') await page.locator('[data-message-id="' + fixtures.named.annaMessageId + '"]').getByRole('button', { name: 'Delete message', exact: true }).click();
+    if (kind === 'messages') await (await messageAction(page.locator('[data-message-id="' + fixtures.named.annaMessageId + '"]'), 'Delete message')).click();
     else await button(page, kind === 'idea' ? 'Archive idea' : 'Delete ' + kind).click();
     await expect(page.getByRole('dialog').last()).toBeVisible();
   }
@@ -149,7 +150,7 @@ export async function renderScene(page: Page, scene: ScreenshotScenario, fixture
   }
   if (id === 'messages' && view === 'pending-action') {
     await page.route('**/rest/v1/rpc/unpin_message', route => route.abort());
-    await page.locator('[data-message-id="' + fixtures.exceptional.annaMessageId + '"]').getByRole('button', { name: 'Unpin note', exact: true }).click();
+    await (await messageAction(page.locator('[data-message-id="' + fixtures.exceptional.annaMessageId + '"]'), 'Unpin note')).click();
     await expect(button(page, 'Retry change')).toBeEnabled();
   }
   if (view === 'pending-deletion') {

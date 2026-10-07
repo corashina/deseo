@@ -23,8 +23,11 @@ test('Today limits plans and tasks and shows the important date', async ({ page 
     await expect(page.getByTestId('today-events').getByRole('link').filter({ has: page.locator('.event-row-content') })).toHaveCount(3);
     await expect(page.getByTestId('today-events').getByText('5 Oct · Together', { exact: true })).toBeVisible();
     await expect(page.getByTestId('today-events').getByText('6 Oct · Anna', { exact: true })).toBeVisible();
+    // Importance 98: overlapping plans must show their inclusive range and current state.
+    await expect(page.getByTestId('today-events').getByText('30 Sep – 6 Oct · Ongoing · Together', { exact: true })).toBeVisible();
     await expect(page.getByTestId('today-tasks').getByRole('article')).toHaveCount(3);
     await expect(page.getByTestId('today-tasks').getByRole('checkbox', { checked: true })).toHaveCount(0);
+    await expect(page.getByTestId('today-tasks').getByText(/Due today · 5 Oct/).first()).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Our anniversary', exact: true })).toBeVisible();
     const days = DateTime.fromISO('2026-10-18').diff(DateTime.fromISO('2026-10-05'), 'days').days;
     await expect(page.getByText('In ' + days + ' days', { exact: true })).toBeVisible();
@@ -34,6 +37,32 @@ test('Today limits plans and tasks and shows the important date', async ({ page 
     await cleanupPortalPairFixture(ids);
   }
 
+});
+
+// Importance 90: phone keyboard users must reach personal content before due tasks.
+test('phone Today keeps personal content before tasks in keyboard order', async ({ page }) => {
+  const ids = await createPortalPairFixture();
+  try {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.clock.setFixedTime(new Date('2026-10-05T10:00:00+02:00'));
+    await loginWithLocalEmailCode(page, ids.annaEmail);
+    await page.goto('/today');
+    const memory = page.getByTestId('today-memory');
+    const note = page.getByTestId('today-note');
+    const tasks = page.getByTestId('today-tasks');
+    await expect(memory).toBeVisible();
+    await expect(memory.locator('img, .memory-image-state [role="alert"]')).toHaveCount(1);
+    const memoryBounds = await memory.boundingBox();
+    const noteBounds = await note.boundingBox();
+    const taskBounds = await tasks.boundingBox();
+    expect(memoryBounds!.y + memoryBounds!.height).toBeLessThanOrEqual(noteBounds!.y);
+    expect(noteBounds!.y + noteBounds!.height).toBeLessThanOrEqual(taskBounds!.y);
+    await memory.locator('a, button').last().focus();
+    await page.keyboard.press('Tab');
+    await expect(note.getByRole('link', { name: 'Reply', exact: true })).toBeFocused();
+    await page.keyboard.press('Tab');
+    await expect(tasks.getByRole('link', { name: 'View tasks', exact: true })).toBeFocused();
+  } finally { await cleanupPortalPairFixture(ids); }
 });
 // Importance 90: product routes must render without overflow at the approved browser widths.
 test('planning pages render at each portal width and provide product captures', async ({ page }, testInfo) => {

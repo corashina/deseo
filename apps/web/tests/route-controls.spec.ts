@@ -15,7 +15,7 @@ test('fresh routes and reloads own their controls at five widths', async ({ page
       const context = await browser.newContext({ storageState, viewport: { width, height: 1000 } });
       try {
         const fresh = await context.newPage();
-        await fresh.goto('http://127.0.0.1:4174' + route);
+        await fresh.goto(route);
         for (const reload of [false, true]) {
           if (reload) await fresh.reload();
           await ready(fresh);

@@ -4,6 +4,26 @@ const { wallTimeChoices, resolveWallTime } = createRequire(import.meta.url)('@de
 import { createPortalPairFixture, cleanupPortalPairFixture, portalClient } from './support/fixtures';
 import { loginWithLocalEmailCode } from './support/local-auth';
 import { randomUUID } from 'node:crypto';
+
+// Importance 95: users must find the invalid field and receive its error through assistive technology.
+test('event validation associates the error with its field', async ({ page }) => {
+  const ids = await createPortalPairFixture();
+  try {
+    await loginWithLocalEmailCode(page, ids.annaEmail);
+    await page.goto('/events/new?date=2026-10-05');
+    await page.getByLabel('Title', { exact: true }).fill('Evening together');
+    const endTime = page.getByLabel('End time', { exact: true });
+    await endTime.fill('17:00');
+    await page.getByRole('button', { name: 'Save event', exact: true }).click();
+    await expect(endTime).toHaveAttribute('aria-invalid', 'true');
+    const errorId = await endTime.getAttribute('aria-describedby');
+    expect(errorId).toBeTruthy();
+    await expect(page.locator('[id="' + errorId + '"]')).toHaveText('End must follow start.');
+    await endTime.fill('19:00');
+    await page.getByRole('button', { name: 'Save event', exact: true }).click();
+    await expect(page.getByRole('heading', { name: 'Evening together', exact: true })).toBeVisible();
+  } finally { await cleanupPortalPairFixture(ids); }
+});
 // Importance: paired writes and conflicts 98; privacy 100; dates 96; responsive layout 92.
 test('Warsaw daylight-saving requires an explicit valid time', () => {
   expect(() => wallTimeChoices('2026-03-29', '02:30', 'Europe/Warsaw')).toThrow();

@@ -57,6 +57,7 @@ test('screenshot declarations cover the current route manifest', () => { assertS
 test('complete screenshot gallery', async ({ browser }, info) => {
   test.skip(process.env.DESEO_CAPTURE !== '1', 'Set DESEO_CAPTURE=1 to regenerate real local captures.');
   test.setTimeout(1_800_000);
+  const baseURL = info.project.use.baseURL!;
   assertScenarioCoverage(); await mkdir(gallery + 'images', { recursive: true }); await mkdir(scratch, { recursive: true });
   const ledgerFile = scratch + 'fixture-ledger-' + info.project.name + '-' + randomUUID() + '.json';
   const fixtures = await createScreenshotFixtures(ledgerFile);
@@ -84,7 +85,7 @@ test('complete screenshot gallery', async ({ browser }, info) => {
         const token = stored.origins.flatMap(origin => origin.localStorage).find(item => item.name.endsWith('-auth-token'));
         if (token && JSON.parse(token.value).user.id === accounts[role][1]) {
           uiCodeAt.set(role, saved.uiCodeAt);
-          const restored = await browser.newContext({ storageState: stored, baseURL: 'http://127.0.0.1:4174' });
+          const restored = await browser.newContext({ storageState: stored, baseURL });
           try {
             const check = await restored.newPage(); await check.goto('/settings/profile');
             await expect(check.getByLabel('Your name')).toHaveValue(role === 'anna' ? 'Anna' : 'Marek');
@@ -99,7 +100,7 @@ test('complete screenshot gallery', async ({ browser }, info) => {
     }
     const wait = Math.max(0, (uiCodeAt.get(role) ?? 0) + 61_000 - Date.now());
     if (wait) { console.log('Waiting ' + Math.ceil(wait / 1000) + 's before a new UI sign-in.'); await new Promise(resolve => setTimeout(resolve, wait)); }
-    const context = await browser.newContext({ viewport, timezoneId: 'Europe/Warsaw', locale: 'en-GB', baseURL: 'http://127.0.0.1:4174' });
+    const context = await browser.newContext({ viewport, timezoneId: 'Europe/Warsaw', locale: 'en-GB', baseURL });
     const page = await context.newPage(); page.on('dialog', dialog => void dialog.accept());
     await loginWithLocalEmailCode(page, accounts[role][0]);
     uiCodeAt.set(role, Date.now());
@@ -121,7 +122,7 @@ test('complete screenshot gallery', async ({ browser }, info) => {
         const wait = Math.max(0, Math.max(uiCodeAt.get(role) ?? 0, sensitiveCodeAt) + 61_000 - Date.now());
         if (wait) { console.log('Waiting ' + Math.ceil(wait / 1000) + 's for the real OTP window.'); await new Promise(resolve => setTimeout(resolve, wait)); }
       }
-      const context = await browser.newContext({ viewport, storageState: state, timezoneId: 'Europe/Warsaw', locale: 'en-GB', baseURL: 'http://127.0.0.1:4174' });
+      const context = await browser.newContext({ viewport, storageState: state, timezoneId: 'Europe/Warsaw', locale: 'en-GB', baseURL });
       const page = await context.newPage(); page.on('dialog', dialog => void dialog.accept());
       await page.clock.setFixedTime(displayTime);
       let release = () => {};

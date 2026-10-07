@@ -14,10 +14,16 @@
 .list-links span { color:var(--muted); font-size:13px; }
 .idea-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:24px; }
 .idea-grid .card { min-height:190px; }
-.today-layout { display:grid; grid-template-columns:minmax(0,1fr) 360px; gap:24px; align-items:start; }
-.planning-column { display:grid; gap:24px; min-width:0; }
+.today-layout { display:grid; grid-template-columns:minmax(0,1fr) 360px; grid-template-rows:min-content 1fr; gap:24px; align-items:start; }
+.today-layout > * { min-width:0; }
+.today-events { grid-column:1; grid-row:1; }
+.today-tasks { grid-column:1; grid-row:2; }
+.today-personal { grid-column:2; grid-row:1 / span 2; display:grid; gap:24px; align-content:start; }
+.today-important { grid-column:2; }
+.today-intro-actions { display:flex; flex-wrap:wrap; gap:16px; }
+.today-intro-actions a { min-height:48px; display:inline-flex; align-items:center; }
 .important-card { background:var(--note); }
-@media (max-width:1199px) { .today-layout { grid-template-columns:minmax(0,1fr); } }
-@media (max-width:767px) { .idea-grid { grid-template-columns:1fr; gap:16px; } .today-layout, .planning-column { gap:16px; } .task-row-main { gap:12px; flex-wrap:wrap; } .task-row-content { min-width:120px; } .section-heading { margin-bottom:16px; } }
+@media (max-width:1199px) { .today-layout { grid-template-columns:minmax(0,1fr); grid-template-rows:none; } .today-layout > * { grid-column:auto; grid-row:auto; } .today-personal { display:contents; } }
+@media (max-width:767px) { .idea-grid { grid-template-columns:1fr; gap:16px; } .today-layout { gap:16px; } .task-row-main { gap:12px; flex-wrap:wrap; } .task-row-content { min-width:120px; } .section-heading { margin-bottom:16px; } }
 .quick-add { display:flex; gap:16px; flex-wrap:wrap; width:100%; margin:24px 0; } .quick-add .field { flex:1; min-width:160px; margin:0; } .quick-add > .button { align-self:flex-end; } .quick-add > .status { width:100%; }
 .task-check { display:flex; align-items:center; justify-content:center; width:48px; height:48px; flex-shrink:0; cursor:pointer; }

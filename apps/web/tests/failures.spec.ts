@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { messageAction } from './support/message-actions';
 import { createPortalPairFixture, cleanupPortalPairFixture, portalClient } from './support/fixtures';
 import { loginWithLocalEmailCode } from './support/local-auth';
 import { confirmNavigation } from './support/navigation';
@@ -218,19 +219,19 @@ test('lost unpin acknowledgement keeps its command through focus and remount', a
       if (bodies.length === 1) { await route.fetch(); saved(); await resume; await route.abort(); finished(); }
       else await route.continue();
     });
-    await page.locator('[data-message-id="' + ids.annaMessageId + '"]').getByRole('button', { name: 'Unpin note', exact: true }).click();
+    await (await messageAction(page.locator('[data-message-id="' + ids.annaMessageId + '"]'), 'Unpin note')).click();
     await reached;
     await page.evaluate(() => window.dispatchEvent(new Event('focus')));
     await expect(page.getByRole('button', { name: 'Retry change', exact: true })).toBeEnabled();
-    await expect(page.locator('[data-message-id="' + ids.annaMessageId + '"]').getByRole('button', { name: 'Pin note', exact: true })).toBeDisabled();
+    await expect(page.locator('[data-message-id="' + ids.annaMessageId + '"]').getByRole('button', { name: 'Message actions', exact: true })).toHaveAttribute('aria-disabled', 'true');
     await clickSidebar(page, 'Today');
     await page.getByRole('link', { name: 'Reply', exact: true }).click();
     await expect(page.getByRole('button', { name: 'Retry change', exact: true })).toBeEnabled();
-    await expect(page.locator('[data-message-id="' + ids.annaMessageId + '"]').getByRole('button', { name: 'Delete message', exact: true })).toBeDisabled();
+    await expect(page.locator('[data-message-id="' + ids.annaMessageId + '"]').getByRole('button', { name: 'Message actions', exact: true })).toHaveAttribute('aria-disabled', 'true');
     release(); await returned;
     await page.getByRole('button', { name: 'Retry change', exact: true }).click();
     await expect(page.getByRole('button', { name: 'Retry change', exact: true })).toHaveCount(0);
-    await expect(page.locator('[data-message-id="' + ids.annaMessageId + '"]').getByRole('button', { name: 'Pin note', exact: true })).toBeEnabled();
+    await expect(await messageAction(page.locator('[data-message-id="' + ids.annaMessageId + '"]'), 'Pin note')).toBeEnabled();
     expect(bodies).toHaveLength(2); expect(bodies[1]).toEqual(bodies[0]);
   } finally { release(); await cleanupPortalPairFixture(ids); }
 });

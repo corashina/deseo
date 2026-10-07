@@ -4,8 +4,9 @@ import { randomUUID } from 'node:crypto';
 import { mkdir } from 'node:fs/promises';
 import { createEntryFixture, cleanupEntryFixture } from './support/entry-fixtures';
 import { loginWithLocalEmailCode, readLocalCode } from './support/local-auth';
+import { messageAction } from './support/message-actions';
 
-async function checkDialog(page: Page, trigger: Locator, title: string) {
+async function checkDialog(page: Page, trigger: Locator, title: string, returnTarget = trigger) {
   await trigger.focus(); await trigger.press('Enter');
   const dialog = page.getByRole('dialog', { name: title, exact: true });
   await expect(dialog).toBeVisible();
@@ -17,7 +18,7 @@ async function checkDialog(page: Page, trigger: Locator, title: string) {
   await expect(buttons.first()).toBeFocused();
   await page.keyboard.press('Shift+Tab'); await expect(buttons.last()).toBeFocused();
   await page.keyboard.press('Escape'); await expect(dialog).not.toBeVisible();
-  await expect(trigger).toBeFocused();
+  await expect(returnTarget).toBeFocused();
 }
 // Importance 93: native confirmation dialogs must contain focus and restore the trigger after Escape.
 test('record confirmation dialogs support keyboard focus and Escape', async ({ page }) => {
@@ -40,7 +41,8 @@ test('record confirmation dialogs support keyboard focus and Escape', async ({ p
     await page.goto('/tasks/lists/' + empty.data.data.id);
     await checkDialog(page, page.getByRole('button', { name: 'Remove list', exact: true }), 'Remove this list?');
     await page.goto('/messages');
-    await checkDialog(page, page.locator('[data-message-id="' + ids.annaMessageId + '"]').getByRole('button', { name: 'Delete message', exact: true }), 'Delete message?');
+    const message = page.locator('[data-message-id="' + ids.annaMessageId + '"]');
+    await checkDialog(page, await messageAction(message, 'Delete message'), 'Delete message?', message.getByRole('button', { name: 'Message actions', exact: true }));
     await page.goto('/events/' + ids.privateEventId + '/edit');
     await page.getByLabel('Visibility').selectOption('shared');
     await checkDialog(page, page.getByRole('button', { name: 'Save changes', exact: true }), 'Share this event?');

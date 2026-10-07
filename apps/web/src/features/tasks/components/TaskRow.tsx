@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { DateTime } from 'luxon';
 import type { Task } from '@deseo/domain/tasks';
 import { setTaskCompleted } from '../commands';
 import { useNetworkStatus } from '../../../lib/network';
@@ -13,10 +14,11 @@ type Attempt = {
   expectedVersion: number;
   commandId: string;
 };
-export function TaskRow({ task, accountId, assignee }: {
+export function TaskRow({ task, accountId, assignee, timezone }: {
   task: Task;
   accountId: string;
   assignee: string;
+  timezone: string;
 }) {
   const online = useNetworkStatus();
   const key = 'task-completion:' + task.id;
@@ -58,6 +60,9 @@ export function TaskRow({ task, accountId, assignee }: {
     }
   }
   const completed = optimistic ?? current.completedAt !== null;
+  const due = current.dueDate ? DateTime.fromISO(current.dueDate, { zone: timezone }).setLocale('en') : null;
+  const today = DateTime.now().setZone(timezone).startOf('day');
+  const dueLabel = due ? (due.hasSame(today, 'day') ? 'Due today' : due.hasSame(today.plus({ days: 1 }), 'day') ? 'Due tomorrow' : !completed && due < today ? 'Overdue' : 'Due') + ' · ' + due.toFormat(due.year === today.year ? 'd LLL' : 'd LLL yyyy') : '';
   function change(completed: boolean) { void submit({ id: task.id, completed, expectedVersion: current.version, commandId: crypto.randomUUID() }); }
   return <article className={'task-row' + (completed ? ' task-completed' : '')}>
     <div className="task-row-main">
@@ -73,7 +78,7 @@ export function TaskRow({ task, accountId, assignee }: {
         <Link to={'/tasks/' + task.id}>{task.title}
         </Link>
         <span>{assignee}
-          {task.dueDate ? ' · Due ' + task.dueDate : ''}
+          {dueLabel ? ' · ' + dueLabel : ''}
         </span>
       </div>
       {current.completedAt && <Button variant="secondary" disabled={!online || busy || Boolean(attempt)} onClick={() => change(false)}>Undo</Button>}

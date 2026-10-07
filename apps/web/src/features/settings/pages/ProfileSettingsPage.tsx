@@ -7,6 +7,7 @@ import { captureQueryScope } from '../../../lib/query-client';
 import { readDraft, writeDraft, removeDraft, useUnsavedChanges } from '../../../lib/drafts';
 import { useNetworkStatus } from '../../../lib/network';
 import { Field } from '../../../components/ui/Field';
+import { TimezoneField } from '../../../components/ui/TimezoneField';
 import { Button } from '../../../components/ui/Button';
 import { Status } from '../../../components/ui/Status';
 import { PageHeader } from '../../../components/ui/PageHeader';
@@ -58,7 +59,7 @@ export function ProfileSettingsPage() {
   return <section className="card form-page"><PageHeader title="Profile" description="Your timezone changes display times. Stored events keep their dates and instants." />
     <form onSubmit={event => { event.preventDefault(); void save(); }}><fieldset className="field-group" disabled={busy || Boolean(draft?.uncertain)}>
       <Field label="Your name" required maxLength={40} value={input.displayName} onChange={event => change({ displayName: event.target.value })} />
-      <Field label="Timezone" required value={input.timezone} onChange={event => change({ timezone: event.target.value })} />
+      <TimezoneField required value={input.timezone} onChange={event => change({ timezone: event.target.value })} />
     </fieldset>{message && <Status error={conflict}>{message}</Status>}
     {conflict && <Button disabled={!online || busy} variant="secondary" onClick={async () => { await revalidate(); if (!mounted.current) return; removeDraft(account!.id, pairId, 'profile-settings'); setDraft(undefined); setConflict(false); setMessage(''); }}>Discard changes and reload</Button>}
     <Button type="submit" disabled={!online || busy || conflict}>{draft?.uncertain ? 'Retry profile' : 'Save profile'}</Button></form><Link to="/settings">Return to settings</Link></section>;

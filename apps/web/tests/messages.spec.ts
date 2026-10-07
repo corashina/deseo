@@ -3,6 +3,27 @@ import { randomUUID } from 'node:crypto';
 import { confirmNavigation } from './support/navigation';
 import { createPortalPairFixture, cleanupPortalPairFixture, portalClient } from './support/fixtures';
 import { loginWithLocalEmailCode } from './support/local-auth';
+import { messageAction } from './support/message-actions';
+
+// Importance 95: message management must stay reachable by keyboard and preserve focus after cancellation.
+test('message actions support keyboard opening and Escape', async ({ page }) => {
+  const ids = await createPortalPairFixture();
+  try {
+    await loginWithLocalEmailCode(page, ids.annaEmail);
+    await page.goto('/messages');
+    const row = page.locator('[data-message-id="' + ids.annaMessageId + '"]');
+    const actions = row.getByRole('button', { name: 'Message actions', exact: true });
+    await expect(row.getByRole('button', { name: 'Delete message', exact: true })).toBeHidden();
+    await actions.focus();
+    await page.keyboard.press('Enter');
+    await expect(actions).toHaveAttribute('aria-expanded', 'true');
+    await expect(row.getByRole('button', { name: 'Delete message', exact: true })).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(actions).toHaveAttribute('aria-expanded', 'false');
+    await expect(row.getByRole('button', { name: 'Delete message', exact: true })).toBeHidden();
+    await expect(actions).toBeFocused();
+  } finally { await cleanupPortalPairFixture(ids); }
+});
 
 // Importance 98: real sends, private read cursors, and notes must work across both sessions.
 test('Anna sends, Marek reads, and both notes appear', async ({ page, browser }, testInfo) => {
@@ -56,22 +77,22 @@ test('each person can pin or delete only their own messages', async ({ page }) =
     const own = page.getByTestId('message-row').filter({ hasText: 'I’m looking forward to dinner with you.' });
     const other = page.getByTestId('message-row').filter({ hasText: 'I’ll bring flowers. See you tonight.' });
     await expect(other.getByRole('button')).toHaveCount(0);
-    await own.getByRole('button', { name: 'Unpin note', exact: true }).click();
-    await own.getByRole('button', { name: 'Pin note', exact: true }).click();
+    await (await messageAction(own, 'Unpin note')).click();
+    await (await messageAction(own, 'Pin note')).click();
     const marek = await portalClient(ids.marekEmail);
     for (const command of ['pin_message', 'unpin_message', 'delete_message']) {
       expect((await marek.rpc(command, { p_message_id: ids.annaMessageId, p_command_id: randomUUID() })).data.error.code).toBe('FORBIDDEN');
     }
-    await own.getByRole('button', { name: 'Delete message', exact: true }).click();
+    await (await messageAction(own, 'Delete message')).click();
     await page.getByRole('button', { name: 'Confirm deletion', exact: true }).click();
     await expect(own).toHaveCount(0);
     await page.getByRole('button', { name: 'Account menu', exact: true }).click();
     await page.getByRole('button', { name: 'Sign out', exact: true }).click();
     await loginWithLocalEmailCode(page, ids.marekEmail);
     await page.goto('/messages');
-    await other.getByRole('button', { name: 'Unpin note', exact: true }).click();
-    await other.getByRole('button', { name: 'Pin note', exact: true }).click();
-    await other.getByRole('button', { name: 'Delete message', exact: true }).click();
+    await (await messageAction(other, 'Unpin note')).click();
+    await (await messageAction(other, 'Pin note')).click();
+    await (await messageAction(other, 'Delete message')).click();
     await page.getByRole('button', { name: 'Confirm deletion', exact: true }).click();
     await expect(other).toHaveCount(0);
   } finally { await cleanupPortalPairFixture(ids); }

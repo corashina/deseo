@@ -38,6 +38,15 @@ test('shell and forms fit five widths with long text at 200 percent', async ({ p
               const bounds = element.getBoundingClientRect(); return bounds.width > 0 && (bounds.right > innerWidth + 1 || bounds.left < -1);
             }).map(element => element.tagName + '.' + element.className).slice(0, 8) }));
           expect(overflow.scrollWidth, JSON.stringify({ route, scale, ...overflow })).toBeLessThanOrEqual(width);
+          // Importance 92: page actions must remain distinct from long or enlarged headings.
+          const headerAction = page.locator('.page-header > .button').first();
+          if (await headerAction.isVisible()) {
+            const actionBounds = await headerAction.boundingBox();
+            const headingBounds = await page.locator('.page-header h1').first().boundingBox();
+            expect(actionBounds!.width).toBeGreaterThan(0);
+            expect(actionBounds!.height).toBeGreaterThanOrEqual(48);
+            if (width < 768) expect(actionBounds!.y).toBeGreaterThanOrEqual(headingBounds!.y + headingBounds!.height);
+          }
           if (route === '/today') {
             const sidebar = page.locator('.sidebar');
             if (await sidebar.isVisible()) {
