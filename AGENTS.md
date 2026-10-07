@@ -12,5 +12,8 @@
 - Use the [stop-slop skill](https://github.com/hardikpandya/stop-slop/blob/main/SKILL.md) when writing or editing UI text and documentation
 
 - Read [README.md](README.md) and [the documentation index](docs/README.md) before product work.
-- Follow [the architecture](docs/architecture/ARCHITECTURE.md) and [data contract](docs/architecture/DATA.md) for module and access rules.
+- Follow [the architecture](docs/ARCHITECTURE.md) and [data contract](docs/ARCHITECTURE.md#data-contract) for module and access rules.
 - Follow [STYLE.md](STYLE.md) for frontend design, colors, layout, components, and interaction rules.
+
+- Keep exactly three Markdown files in `docs`: `README.md`, `ARCHITECTURE.md`, and `DEVELOPMENT.md`.
+- Do not create folders inside `docs`. Merge new documentation into these files. Keep visual assets in `design`.
