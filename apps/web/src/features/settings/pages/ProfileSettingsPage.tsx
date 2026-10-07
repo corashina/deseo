@@ -60,6 +60,6 @@ export function ProfileSettingsPage() {
       <Field label="Your name" required maxLength={40} value={input.displayName} onChange={event => change({ displayName: event.target.value })} />
       <Field label="Timezone" required value={input.timezone} onChange={event => change({ timezone: event.target.value })} />
     </fieldset>{message && <Status error={conflict}>{message}</Status>}
-    {conflict && <Button disabled={!online || busy} variant="secondary" onClick={async () => { await revalidate(); if (!mounted.current) return; removeDraft(account!.id, pairId, 'profile-settings'); setDraft(undefined); setConflict(false); setMessage(''); }}>Discard changes and reload</Button>}
-    <Button type="submit" disabled={!online || busy || conflict}>{draft?.uncertain ? 'Retry profile' : 'Save profile'}</Button></form><Link to="/settings">Return to settings</Link></section>;
+    <div className="actions">{conflict && <Button disabled={!online || busy} variant="secondary" onClick={async () => { await revalidate(); if (!mounted.current) return; removeDraft(account!.id, pairId, 'profile-settings'); setDraft(undefined); setConflict(false); setMessage(''); }}>Discard changes and reload</Button>}
+    <Button type="submit" disabled={!online || busy || conflict}>{draft?.uncertain ? 'Retry profile' : 'Save profile'}</Button></div></form><Link to="/settings">Return to settings</Link></section>;
 }

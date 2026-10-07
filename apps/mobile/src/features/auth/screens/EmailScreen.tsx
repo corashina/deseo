@@ -24,11 +24,11 @@ export function EmailScreen() {
       router.push('/(auth)/verify');
     } catch (cause) { setError(toAppError(cause).message); }
   });
-  return <Screen title="Your email" subtitle="We will send you a six-digit code.">
-    <Controller control={control} name="email" render={({ field }) => <Field label="Email" value={field.value}
+  return <Screen title="Sign in with email" subtitle="We will send you a six-digit code.">
+    <Controller control={control} name="email" render={({ field }) => <Field label="Email address" value={field.value}
       onChangeText={field.onChange} onBlur={field.onBlur} keyboardType="email-address" autoComplete="email"
       autoCapitalize="none" autoCorrect={false} returnKeyType="go" onSubmitEditing={() => { void submit(); }} />} />
     {error && <Status message={error} tone="error" />}
-    <Button label="Continue" loading={isSubmitting} onPress={() => { void submit(); }} />
+    <Button label="Send code" loading={isSubmitting} onPress={() => { void submit(); }} />
   </Screen>;
 }

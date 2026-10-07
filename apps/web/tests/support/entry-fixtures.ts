@@ -73,6 +73,6 @@ export async function cleanupEntryFixtureSessions(accountIds: readonly string[])
 export function expireEntryCode(accountId: string): void {
   if (!/^[0-9a-f-]{36}$/.test(accountId)) throw new Error('Invalid fixture ID');
   const docker = join(process.env.LOCALAPPDATA!, 'Programs/DockerDesktop/resources/bin/docker.exe');
-  execFileSync(docker, ['exec', 'supabase_db_deseo-web', 'psql', '-U', 'postgres', '-d', 'postgres', '-v', 'ON_ERROR_STOP=1', '-c',
+  execFileSync(docker, ['exec', 'supabase_db_deseo', 'psql', '-U', 'postgres', '-d', 'postgres', '-v', 'ON_ERROR_STOP=1', '-c',
     `update auth.users set confirmation_sent_at=now()-interval '2 hours', recovery_sent_at=now()-interval '2 hours' where id='${accountId}' and email like 'entry-%@example.test'`], { stdio: 'pipe' });
 }

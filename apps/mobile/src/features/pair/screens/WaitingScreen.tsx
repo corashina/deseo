@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Alert, Share, Text } from 'react-native';
+import { Alert, Share, StyleSheet, Text, View } from 'react-native';
 import { randomUUID } from 'expo-crypto';
 import * as Clipboard from 'expo-clipboard';
 import { router } from 'expo-router';
@@ -56,13 +56,18 @@ export function WaitingScreen() {
   return <Screen title="Invite your partner" subtitle="Your invitation works once and expires after 24 hours." onRefresh={() => { void refresh(); }}>
     {error && <Status message={error} tone="error" />}
     {token && <>
-      <Text selectable style={theme.typography.title}>{token.match(/.{1,4}/g)?.join(' ')}</Text>
+      <Text selectable style={[theme.typography.title, styles.code]}>{token.match(/.{1,4}/g)?.join(' ')}</Text>
       <Text style={theme.typography.secondary}>Expires {new Date(expiresAt ?? pair.invite?.expiresAt ?? '').toLocaleString()}.</Text>
       <Button label="Share invitation" onPress={() => { void Share.share({ message: `Join me in Deseo. Code: ${token}. ${link}` }); }} />
       <Button label="Copy code" variant="secondary" onPress={() => { void Clipboard.setStringAsync(token).catch(() => setError('We could not copy the code.')); }} />
     </>}
     <Button label={token ? 'Create a new code' : 'Create invitation'} variant={token ? 'secondary' : 'primary'} loading={busy} disabled={!online} onPress={() => { void generate(); }} />
     <Button label="Check for your partner" variant="secondary" disabled={!online || busy} onPress={() => { void refresh(); }} />
-    <Button label="Cancel invitation" variant="danger" disabled={!online || busy} onPress={cancel} />
+    <View style={styles.cancel}><Button label="Cancel invitation" variant="danger" disabled={!online || busy} onPress={cancel} /></View>
   </Screen>;
 }
+
+const styles = StyleSheet.create({
+  code: { fontVariant: ['tabular-nums'] },
+  cancel: { borderTopWidth: 1, borderTopColor: theme.colors.line, paddingTop: theme.space[5], marginTop: theme.space[2] },
+});

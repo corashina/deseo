@@ -9,14 +9,14 @@ import { Status } from '../../../components/ui/Status';
 import { Avatar } from '../../../components/ui/Avatar';
 import { Badge } from '../../../components/ui/Badge';
 import { Section } from '../../../components/ui/Section';
-import { theme, ui } from '../../../theme';
+import { theme } from '../../../theme';
 import { requestSensitiveActionCode, verifySensitiveAction, signOut } from '../../auth';
 import { toAppError } from '@deseo/domain/result';
 import { useCore } from '../context';
 import { endPair } from '../commands';
 
 export function PairSettingsScreen() {
-  const { pair, refresh, online } = useCore();
+  const { account, pair, refresh, online } = useCore();
   const [code, setCode] = useState('');
   const [sent, setSent] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -48,17 +48,21 @@ export function PairSettingsScreen() {
     else setError(result.error.message ?? 'We could not send a code. Try again.');
     setBusy(false);
   };
-  return <Screen>
+  return <Screen title="Settings">
+    <Section card title="Profile"><Text style={theme.typography.body}>{account.displayName}</Text><Text style={theme.typography.secondary}>Timezone: {account.timezone}</Text></Section>
+    <Section card title="Your pair">
     {pair.status === 'active' && <View style={styles.members}>
       {pair.members.map(member => <View key={member.userId} style={styles.member}>
         <Avatar name={member.displayName} slot={member.slot} size={56} />
         <Badge owner={member.slot} label={member.displayName} />
       </View>)}
     </View>}
-    <View style={ui.card}>
+    {pair.status === 'active' ? <Text style={theme.typography.secondary}>Pair timezone: {pair.timezone}</Text> : <Text style={theme.typography.body}>{pair.status === 'ended' ? 'Your pair has ended. Shared content is unavailable.' : 'You have no active pair.'}</Text>}
+    </Section>
+    <Section card title="Preferences">
       <Button label="Notification preferences" variant="text" icon="notifications-outline" trailingIcon="chevron-forward"
         onPress={() => router.push('/settings/notifications')} />
-    </View>
+    </Section>
     {error && <Status message={error} tone="error" />}
     {pair.status === 'active' && <Section card title="End this pair">
       <Text style={theme.typography.body}>Either person can end this pair. Shared access stops for both people. Your next pair starts empty.</Text>
@@ -68,14 +72,15 @@ export function PairSettingsScreen() {
         <Button label="End pair" variant="danger" disabled={busy || !online || code.length !== 6} onPress={confirm} />
       </>}
     </Section>}
-    <View style={ui.stack}>
+    <Section card title="Account">
+      <Text style={theme.typography.body}>Signing out clears private content and unsent drafts from this device.</Text>
       <Button label="Sign out on this device" variant="secondary" icon="log-out-outline" onPress={() => { void signOut('local').catch(cause => setError(toAppError(cause).message)); }} />
       <Button label="Sign out on all devices" variant="text" onPress={() => { void signOut('global').catch(cause => setError(toAppError(cause).message)); }} />
-    </View>
+    </Section>
   </Screen>;
 }
 
 const styles = StyleSheet.create({
-  members: { flexDirection: 'row', justifyContent: 'center', gap: theme.space[8], paddingVertical: theme.space[4] },
-  member: { alignItems: 'center', gap: theme.space[2] },
+  members: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.space[5] },
+  member: { flexBasis: 120, flexGrow: 1, flexShrink: 1, alignItems: 'flex-start', gap: theme.space[2] },
 });
