@@ -28,6 +28,12 @@
 .memory-detail .actions { align-items: center; justify-content: space-between; margin-bottom: 0; }
 .memory-detail .actions > a { display: inline-flex; align-items: center; min-height: var(--nav-target); }
 .photo-selection { margin-bottom: 20px; }
+.photo-picker { position: relative; font-size: 16px; }
+.photo-picker input[type='file'] { position: absolute; inset: 0; height: 100%; padding: 0; opacity: 0; cursor: pointer; }
+.photo-picker:focus-within { outline: 3px solid var(--focus); outline-offset: 3px; }
+.photo-picker:has(input:disabled) { opacity: .6; cursor: default; }
+.button.photo-picker:has(input:disabled):hover { background: var(--surface); }
+.photo-picker input:disabled { cursor: default; }
 .photo-selection-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
 .photo-selection-grid > div { min-width: 0; }
 .photo-selection-grid img { display: block; width: 100%; aspect-ratio: 3 / 2; object-fit: cover; border-radius: var(--radius-control); }
@@ -35,6 +41,7 @@
 .photo-selection > [role='status']:empty { display: none; }
 @media (min-width: 1500px) { .memory-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 @media (max-width: 767px) {
+  .memory-form input[type='date'] { padding-inline: 4px; }
   .memory-grid { grid-template-columns: 1fr; gap: 16px; }
   .memory-card-copy, .memory-image-state { padding: 20px; }
   .photo-selection-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }

@@ -1,6 +1,6 @@
 import { test, expect, type Page, type Route } from '@playwright/test';
 import { randomUUID } from 'node:crypto';
-import { mkdirSync } from 'node:fs';
+import { mkdirSync, writeFileSync } from 'node:fs';
 import { createPortalPairFixture, cleanupPortalPairFixture, portalClient } from './support/fixtures';
 import { admin } from './support/entry-fixtures';
 import { loginWithLocalEmailCode } from './support/local-auth';
@@ -487,5 +487,73 @@ test('failed feed photo remains reachable at doubled text and recovers without n
     await expect(image).toBeVisible();
     const dimensions = await image.evaluate((element: HTMLImageElement) => { const box = element.getBoundingClientRect(); return { actual: box.width / box.height, full: element.naturalWidth / element.naturalHeight }; });
     expect(dimensions.actual).toBeCloseTo(dimensions.full, 2);
+  } finally { await cleanupPortalPairFixture(ids); }
+});
+
+// Importance 92: the complete displayed date and photo selection must stay readable with enlarged text.
+test('memory form controls remain readable and use the native photo picker at doubled text', async ({ page, context }, info) => {
+  const ids = await createPortalPairFixture();
+  const folder = '../../.superpowers/sdd/2026-10-07-deseo-frontend-design/task-5-fix-1';
+  mkdirSync(folder, { recursive: true });
+  try {
+    await loginWithLocalEmailCode(page, ids.annaEmail);
+    await page.setViewportSize({ width: 320, height: 1000 });
+    await form(page, 'Readable form');
+    const date = page.getByLabel('Memory date', { exact: true });
+    expect(await date.evaluate(element => getComputedStyle(element).fontSize)).toBe('16px');
+    await page.evaluate(() => {
+      const sizes = [...document.querySelectorAll<HTMLElement>('body *')].map(element => [element, parseFloat(getComputedStyle(element).fontSize)] as const);
+      for (const [element, size] of sizes) { element.dataset.memoryFontBeforeScale = element.style.fontSize; element.style.fontSize = size * 2 + 'px'; }
+    });
+    await page.screenshot({ path: folder + '/form-320-text-2-' + info.project.name + '.png', fullPage: true });
+    const cdp = await context.newCDPSession(page);
+    type NativeNode = { nodeId: number; nodeName: string; attributes?: string[]; children?: NativeNode[]; shadowRoots?: NativeNode[] };
+    function descendants(node: NativeNode): NativeNode[] {
+      return [node, ...[...node.children ?? [], ...node.shadowRoots ?? []].flatMap(descendants)];
+    }
+    const dates: object[] = [];
+    for (let month = 1; month <= 12; month++) {
+      const value = '2026-' + String(month).padStart(2, '0') + '-28';
+      await date.fill(value);
+      await expect(date).toHaveValue(value);
+      const document = await cdp.send('DOM.getDocument', { depth: -1, pierce: true });
+      const nativeDate = descendants(document.root).find(node => node.nodeName === 'INPUT' && node.attributes?.includes('date'))!;
+      const nodes = descendants(nativeDate);
+      const edit = nodes.find(node => node.attributes?.includes('-webkit-datetime-edit'))!;
+      const fields = nodes.find(node => node.attributes?.includes('-webkit-datetime-edit-fields-wrapper'))!;
+      const editBox = (await cdp.send('DOM.getBoxModel', { nodeId: edit.nodeId })).model.content;
+      const fieldsBox = (await cdp.send('DOM.getBoxModel', { nodeId: fields.nodeId })).model.content;
+      dates.push({ value, textLeft: fieldsBox[0], textRight: fieldsBox[2], visibleLeft: editBox[0], visibleRight: editBox[2] });
+      expect(fieldsBox[0], 'Date text must start inside its visible field').toBeGreaterThanOrEqual(editBox[0] - 0.5);
+      expect(fieldsBox[2], 'Complete displayed date must fit beside the native picker for ' + value).toBeLessThanOrEqual(editBox[2] + 0.5);
+    }
+    writeFileSync(folder + '/date-bounds-' + info.project.name + '.json', JSON.stringify(dates, null, 2));
+    await date.fill('2026-10-05');
+    await date.focus(); await expect(date).toBeFocused();
+    const photos = page.getByLabel('Photos', { exact: true });
+    const choosing = page.waitForEvent('filechooser');
+    await photos.click();
+    await (await choosing).setFiles(asset);
+    await expect(page.getByRole('img', { name: 'Selected photo', exact: true })).toBeVisible();
+    await expect(page.getByText('1 photo selected.', { exact: true })).toBeVisible();
+    await page.evaluate(() => {
+      for (const element of document.querySelectorAll<HTMLElement>('[data-memory-font-before-scale]')) {
+        element.style.fontSize = element.dataset.memoryFontBeforeScale!;
+        delete element.dataset.memoryFontBeforeScale;
+      }
+      const sizes = [...document.querySelectorAll<HTMLElement>('body *')].map(element => [element, parseFloat(getComputedStyle(element).fontSize)] as const);
+      for (const [element, size] of sizes) element.style.fontSize = size * 2 + 'px';
+    });
+    await expect(date).toHaveValue('2026-10-05');
+    const statusFits = await page.getByText('1 photo selected.', { exact: true }).evaluate(element => {
+      const range = document.createRange(); range.selectNodeContents(element);
+      const text = range.getBoundingClientRect(); const frame = element.getBoundingClientRect();
+      return text.left >= frame.left && text.right <= frame.right && text.top >= frame.top && text.bottom <= frame.bottom;
+    });
+    expect(statusFits, 'Complete photo selection status must fit its visible text area').toBe(true);
+    await expect(photos).toHaveAttribute('type', 'file');
+    await photos.focus(); await expect(photos).toBeFocused();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(320);
+    await page.screenshot({ path: folder + '/selected-320-text-2-' + info.project.name + '.png', fullPage: true });
   } finally { await cleanupPortalPairFixture(ids); }
 });
