@@ -70,6 +70,9 @@ it('uses the pair date and opens the shared conversation from its latest note', 
   expect(screen.getByText('See you tonight')).toBeOnTheScreen();
   expect(screen.getByText('Bring flowers')).toBeOnTheScreen();
   expect(screen.getByText('Our anniversary')).toBeOnTheScreen();
+  expect(screen.getByText('Tuesday, October 6, 2026')).toBeOnTheScreen();
+  const sections = ['This week', 'Latest memory', 'Your note', 'Due today', 'Next important date'];
+  expect(screen.getAllByRole('header').map(node => node.props.children).filter(title => sections.includes(title))).toEqual(sections);
   expect(listDueTasks).toHaveBeenCalledWith('pair', '2026-10-05');
   await fireEvent.press(screen.getByRole('button', { name: 'Reply' }));
   expect(router.push).toHaveBeenCalledWith('/(tabs)/messages');

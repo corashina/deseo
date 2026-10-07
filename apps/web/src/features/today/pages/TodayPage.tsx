@@ -38,7 +38,6 @@ export function TodayPage() {
       <Status error>We could not load Today.</Status>
       <Button onClick={() => void query.refetch()}>Retry</Button>
     </> : <div className="today-layout">
-      <div className="planning-column">
         <section className="card" data-testid="today-events">
           <div className="section-heading">
             <h2>Upcoming plans</h2>
@@ -51,6 +50,8 @@ export function TodayPage() {
             showDate
             timezone={zone} />) : <p>Nothing planned for the next seven days.</p>}
         </section>
+      {query.data.memory && <section data-testid="today-memory"><h2>Latest memory</h2><MemoryCard memory={query.data.memory} author={pair.members.find(member => member.userId === query.data.memory!.createdBy)!.displayName} /></section>}
+      {query.data.note && <div data-testid="today-note"><NoteCard message={query.data.note} name={pair.members.find(member => member.userId === query.data.note!.authorId)!.displayName} /></div>}
         <section className="card" data-testid="today-tasks">
           <div className="section-heading">
             <h2>Due tasks</h2>
@@ -62,19 +63,17 @@ export function TodayPage() {
             accountId={account!.id}
             assignee={pair.members.find(member => member.userId === task.assigneeId)?.displayName ?? 'Unassigned'} />) : <p>No unfinished tasks due today.</p>}
         </section>
-      </div>
-      <aside className="planning-column">
-      {query.data.memory && <section data-testid="today-memory"><h2>Latest memory</h2><MemoryCard memory={query.data.memory} author={pair.members.find(member => member.userId === query.data.memory!.createdBy)!.displayName} /></section>}
-      {query.data.note && <div data-testid="today-note"><NoteCard message={query.data.note} name={pair.members.find(member => member.userId === query.data.note!.authorId)!.displayName} /></div>}
-      {important && <section className="card important-card">
+      {important && <section className="card important-card" data-testid="today-important-date">
         <h2>Next important date</h2>
         <h3>{important.title}
         </h3>
         <p>{days === 0 ? 'Today' : days === 1 ? 'Tomorrow' : 'In ' + days + ' days'}
         </p>
+        {important.temporal.kind === 'allDay' && <p><time dateTime={important.temporal.startDate}>
+          {DateTime.fromISO(important.temporal.startDate, { zone }).setLocale('en').toFormat('d LLLL yyyy')}
+        </time></p>}
         <Link to={'/events/' + important.id}>View date</Link>
       </section>}
-      </aside>
     </div>}
   </>;
 }

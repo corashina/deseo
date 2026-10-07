@@ -73,7 +73,7 @@ function ActiveCalendar({ account, pair, online, refresh }: { account: Core['acc
     {important.isError && <Status message="We could not load important dates." tone="error" actionLabel="Retry" onAction={() => { void important.refetch(); }} />}
     {nextDate && nextDate.temporal.kind === 'allDay' && countdown !== null && <Pressable accessibilityRole="button" accessibilityLabel={`Open important date: ${nextDate.title}`}
       onPress={() => router.push({ pathname: '/events/[eventId]', params: { eventId: nextDate.id } })} style={({ pressed }) => [ui.card, pressed && styles.pressed]}>
-      <Countdown days={countdown} title={nextDate.title} date={DateTime.fromISO(nextDate.temporal.startDate).toLocaleString(DateTime.DATE_HUGE)} />
+      <Countdown days={countdown} title={nextDate.title} date={DateTime.fromISO(nextDate.temporal.startDate, { zone: pair.timezone }).toLocaleString(DateTime.DATE_HUGE)} />
     </Pressable>}
     <Button label="Saved date ideas" variant="text" icon="bulb-outline" trailingIcon="chevron-forward" onPress={() => router.push('/ideas')} />
     <View style={styles.monthBar}>

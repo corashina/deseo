@@ -19,15 +19,15 @@ function Ideas() {
   const query = useInfiniteQuery({ queryKey: ideaKeys.list(core.account.id, pairId, state),
     queryFn: ({ pageParam }) => listDateIdeas(pairId, state, pageParam ?? undefined), initialPageParam: null as string | null,
     getNextPageParam: page => page.nextCursor });
-  return <Screen title="Saved ideas" refreshing={query.isRefetching} onRefresh={() => { void query.refetch(); }}>
+  return <Screen title="Date ideas" action={<Button label="Add idea" icon="add" compact onPress={() => router.push('/ideas/new')} />} refreshing={query.isRefetching} onRefresh={() => { void query.refetch(); }}>
     {!core.online && <Status tone="warning" message="You are offline. Reconnect to refresh ideas." />}
-    <Button label="Add idea" onPress={() => router.push('/ideas/new')} />
     <View style={ui.row}>{(['saved', 'planned', 'archived'] as const).map(value => <Button key={value} label={value === 'saved' ? 'Saved' : value === 'planned' ? 'Planned' : 'Archived'} variant={value === state ? 'primary' : 'secondary'} onPress={() => setState(value)} />)}</View>
     {query.isPending && <Status tone="loading" message="Loading your ideas…" />}
     {query.isError && <Status tone="error" message="We could not load your ideas." actionLabel="Retry" onAction={() => { void query.refetch(); }} />}
     {!query.isPending && !query.isError && !query.data?.pages[0]?.items.length && <Status message={`No ${state} ideas.`} />}
     {query.data?.pages.flatMap(page => page.items).map(idea => <View key={idea.id} style={ui.card}>
       <Text style={theme.typography.section}>{idea.title}</Text>
+      <Text style={theme.typography.secondary}>{idea.state === 'saved' ? 'Saved' : idea.state === 'planned' ? 'Planned' : 'Archived'}</Text>
       {idea.note ? <Text style={theme.typography.body}>{idea.note}</Text> : null}
       <Button label="Open idea" variant="text" onPress={() => router.push({ pathname: '/ideas/[ideaId]', params: { ideaId: idea.id } })} />
     </View>)}

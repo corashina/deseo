@@ -107,7 +107,7 @@ function Today() {
       {importantDates.isPending ? <Status tone="loading" message="Loading important dates…" /> : importantDates.isError ?
         <Status message="We could not load important dates." tone="error" actionLabel="Retry dates" onAction={() => { void importantDates.refetch(); }} /> :
         important && important.temporal.kind === 'allDay' && countdown !== null ? <>
-          <Countdown days={countdown} title={important.title} date={DateTime.fromISO(important.temporal.startDate).toLocaleString(DateTime.DATE_HUGE)} />
+          <Countdown days={countdown} title={important.title} date={DateTime.fromISO(important.temporal.startDate, { zone: activePair.timezone }).toLocaleString(DateTime.DATE_HUGE)} />
           <Button label="View date" variant="text" trailingIcon="chevron-forward" onPress={() => router.push({ pathname: '/events/[eventId]', params: { eventId: important.id } })} />
         </> : <Text style={theme.typography.body}>Add an important date in Calendar.</Text>}
     </Section>
