@@ -9,6 +9,9 @@ import { queryClient } from '../lib/query-client';
 import { theme } from '../theme';
 import { FeatureLifecycle } from '../components/FeatureLifecycle';
 import { NotificationLifecycle } from '../features/notifications';
+import { startCrashReporting, withCrashReporting } from '../lib/crash-reporting';
+
+startCrashReporting();
 
 function Navigation() {
   const { state } = useAuth();
@@ -48,8 +51,10 @@ function Navigation() {
   </Stack>;
 }
 
-export default function RootLayout() {
+function RootLayout() {
   return <SafeAreaProvider><QueryClientProvider client={queryClient}><AuthProvider><PairProvider reconcileDrafts={reconcileEventDrafts}>
     <FeatureLifecycle /><NotificationLifecycle /><StatusBar style="dark" /><Navigation />
   </PairProvider></AuthProvider></QueryClientProvider></SafeAreaProvider>;
 }
+
+export default withCrashReporting(RootLayout);

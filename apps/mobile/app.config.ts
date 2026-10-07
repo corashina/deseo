@@ -30,6 +30,11 @@ const config: ExpoConfig = {
       granularPermissions: ['photo'],
       isAccessMediaLocationEnabled: false,
     }],
+    ['@sentry/react-native/expo', {
+      organization: process.env.SENTRY_ORG,
+      project: process.env.SENTRY_PROJECT,
+      disableAutoUpload: !process.env.SENTRY_AUTH_TOKEN,
+    }],
     ['expo-splash-screen', { image: './assets/icon.png', imageWidth: 180, backgroundColor: '#FAF7F5' }],
   ],
   experiments: { typedRoutes: true },
