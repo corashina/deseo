@@ -98,9 +98,39 @@
       "result": "Passed"
     },
     "cleanup": {
-      "journals": 40,
+      "journals": 60,
       "uncleaned": 0,
       "ownershipMismatches": 0
+    },
+    "setupFixRound1": {
+      "baseRevision": "e1a2ddd94d7e5cc7bbb0a13617df844bb508e62a",
+      "importance": 95,
+      "baseline": {
+        "exit": 1,
+        "failed": 2
+      },
+      "covering": {
+        "exit": 0,
+        "passed": 16,
+        "skipped": 2,
+        "duration": "1.8m"
+      },
+      "typesExit": 0,
+      "lintExit": 0,
+      "testedFiles": [
+        {
+          "file": "apps/web/tests/screenshot-cleanup.spec.ts",
+          "sha256": "8aec0b686785bb8d4b159c88c208aa98485a2c5bfdbd3244cf47e518ada3dd22"
+        },
+        {
+          "file": "apps/web/tests/screenshot-coverage.spec.ts",
+          "sha256": "1b72b26e59e9845e324781600cacd292e4305e957ed9ec9f6debb4bb317c2406"
+        },
+        {
+          "file": "apps/web/tests/support/screenshot-fixtures.ts",
+          "sha256": "9e97b872370ae1c4af0b9274f80cefc80f5fad6f847c94921ab8ed135b18ff9b"
+        }
+      ]
     }
   },
   "review": {
@@ -112,7 +142,9 @@
     "passes": 1,
     "requiredUiFindings": 0,
     "wholeBranch": "Pending; controller owns this gate",
-    "nativePhysical": "Unverified; device tools absent"
+    "nativePhysical": "Unverified; device tools absent",
+    "task7Scoped": "Needs fixes verdict retained; fix round 1 applied; scoped re-review pending",
+    "deferredMinor": "Native export log repeats NO_COLOR/FORCE_COLOR warnings; raw log preserved"
   },
   "nativeBundles": [
     {

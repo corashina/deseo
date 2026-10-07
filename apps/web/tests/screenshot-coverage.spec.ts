@@ -3,11 +3,10 @@ import { mkdir, readFile, writeFile, stat, appendFile } from 'node:fs/promises';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { randomUUID } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
-import { createScreenshotJournal } from './support/screenshot-journal';
 import { createPortalPairFixture } from './support/fixtures';
 import { routeManifest } from '../src/app/route-manifest';
 import { screenshotScenarios, assertScenarioCoverage, type ScreenshotRecord } from './support/screenshot-scenarios';
-import { createScreenshotFixtures } from './support/screenshot-fixtures';
+import { createScreenshotCaptureFixtures } from './support/screenshot-fixtures';
 import { renderScene, sceneRole, type CaptureRole } from './support/screenshot-render';
 import { loginWithLocalEmailCode } from './support/local-auth';
 
@@ -71,8 +70,7 @@ test('complete screenshot gallery', async ({ browser }, info) => {
   test.setTimeout(1_800_000);
   assertScenarioCoverage(); await mkdir(gallery + 'images', { recursive: true }); await mkdir(scratch, { recursive: true });
   const ledgerFile = scratch + 'fixture-ledger-' + info.project.name + '-' + randomUUID() + '.json';
-  const fixtures = await createScreenshotFixtures(ledgerFile);
-  const normalJournal = await createScreenshotJournal(scratch + 'normal-media-' + info.project.name + '-' + randomUUID() + '.json');
+  const { fixtures, normalJournal } = await createScreenshotCaptureFixtures(ledgerFile, scratch + 'normal-media-' + info.project.name + '-' + randomUUID() + '.json');
   let normal: Awaited<ReturnType<typeof createPortalPairFixture>>;
   const width = info.project.name === 'desktop' ? 1440 : 390;
   const viewport = { width, height: width === 1440 ? 1000 : 844 };

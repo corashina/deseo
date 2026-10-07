@@ -438,7 +438,7 @@ The six product layers have clean independent or scoped review outcomes.
 | 4. Tasks and notifications | Complete; reviewed |
 | 5. Memories and photo forms | Complete; form correction reviewed |
 | 6. Messages and notes | Complete; native grouping/time correction reviewed |
-| 7. Final gallery, checks, and evidence | Verified; native physical and whole-branch gates remain |
+| 7. Final gallery, checks, and evidence | Fix round 1 applied; scoped re-review pending |
 | Native physical acceptance | Unverified; no device tools |
 | Whole-branch review | Pending; controller owns this gate |
 
@@ -573,7 +573,7 @@ Keep draft documentation status distinct from shipped behavior. Update the READM
 <a id="frontend-design-handoff"></a>
 ## Frontend design handoff
 
-Date: 7 October 2026. Status: full capture and source checks passed; whole-branch review remains pending.
+Date: 7 October 2026. Status: checks passed; Task 7 scoped re-review and whole-branch review remain pending.
 
 The owner approved the frontend spec, plan, and sequential subagent execution.
 Tasks 1–6 passed independent or scoped review. The controller owns final whole-branch review.
@@ -644,7 +644,7 @@ I mask email addresses, invitation codes, sign-in codes, and verification codes 
 I replace invitation query tokens with MASKED in coverage URLs.
 Local Auth sessions, keys, traces, and fixture journals remain outside the gallery.
 The cleanup suite retains ownership and checks partial setup, failed deletion, disposal, and recovery.
-All 40 retained journals report cleaned=true; all owned accounts are recorded removed.
+All 60 retained journals report cleaned=true; all owned accounts are recorded removed.
 The named pair remains intact.
 Before and after path consolidation, all 327 historical hashes matched at design/web-portal.
 
@@ -907,3 +907,31 @@ No tests or source mutations by reviewer. Device acceptance remains unverified.
 | apps/mobile/src/features/pair/screens/EndedScreen.tsx | Source reviewed in completed task | Unverified: device tools absent |
 | apps/mobile/src/features/notifications/screens/NotificationPreferencesScreen.tsx | Source reviewed in completed task | Unverified: device tools absent |
 | apps/mobile/src/features/notifications/screens/NotificationListScreen.tsx | Source reviewed in completed task | Unverified: device tools absent |
+
+### Task 7 review and fix round 1
+
+Reviewer: /root/review7_evidence, gpt-6.1-sol/high.
+Spec compliance: Needs fixes. Task quality: Needs fixes.
+Critical: None.
+Important: screenshot-coverage.spec.ts:74-75 creates the second journal after main fixtures exist, before cleanup try at128. An exclusive journal write failure skips cleanup at188. Protect setup and add an importance95 behavior check.
+Minor deferred: native export log has repeated NO_COLOR/FORCE_COLOR warnings. Preserve raw log. Final review will triage.
+Verified:39 routes,119 views,238 records,323 JPEG additions,327 unchanged historical files, three canonical docs. Capture clocks/masks and fixture recovery assertions are sound.
+Saved logs inspected: web244/two capture skips, mobile203,domain7,both exports. No tests repeated.
+Outside-diff named check: journal exclusive-write failure. Truncated gallery-validation tail read separately.
+Cannot verify: device rendering/accessibility remains explicitly unverified. Original-checkout/live-data preservation requires controller evidence.
+Controller preservation resolution: all product edits and explicit commits used the managed worktree. Original source writes were excluded. Runtime checks preserved the populated service. Disposable fixture ownership and cleanup are recorded;40 journals are cleaned. Named photos were read only. Historical327 hashes match. Concurrent original-checkout changes belong to other chats.
+Fix round1/5 dispatched to original Task7 implementer from e1a2ddd94d7e5cc7bbb0a13617df844bb508e62a.
+
+The Important finding remains open until scoped re-review. The fix was tested; reviewer approval is pending.
+The capture writer now cleans main fixtures if secondary journal setup fails.
+If cleanup also fails, it retains both errors and the main ownership journal.
+Importance 95 checks force a real exclusive-write collision after all 11 main accounts exist.
+They confirm account/pair disposal, unchanged secondary ownership, failed cleanup, and recovery from saved journals.
+Baseline: two checks failed. Corrected batch: 16 passed, two generation skips, 1.8 minutes; exit 0.
+Both existing-gallery checks passed. Web types and lint returned 0.
+The prior full web result remains 244 passed with two generation skips on 261ae21.
+No broad test, native export, UI capture, package, product source, or runtime change was needed.
+All 60 ownership journals are cleaned. Historical 327 hashes and current 323 JPEGs remain unchanged.
+The raw native export log remains preserved. Its color-environment warnings are a deferred Minor finding.
+Controller preservation evidence uses managed-worktree boundaries, explicit commits, owned journals, and unchanged historical hashes.
+Native device checks and final whole-branch review remain open.
