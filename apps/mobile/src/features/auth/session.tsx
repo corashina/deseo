@@ -13,23 +13,38 @@ interface AuthContextValue {
   state: AuthState;
   refresh(): Promise<void>;
   retryStorage(): Promise<void>;
+  /** True while a verified account is checked again. Cover its content until the check ends. */
+  verifying: boolean;
+  /** Counts checks that confirmed the same account. The pair gate checks membership again after each one. */
+  verifiedAt: number;
 }
 const AuthContext = createContext<AuthContextValue | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AuthState>({ status: 'loading' });
   const [clientVersion, setClientVersion] = useState(0);
+  const [verifying, setVerifying] = useState(false);
+  const [verifiedAt, setVerifiedAt] = useState(0);
   const generation = useRef(0);
   const mounted = useRef(true);
   const accountId = useRef<string | null>(null);
   const refresh = useCallback(async () => {
     const request = ++generation.current;
     const drafts = flushPrivateDrafts();
-    setState({ status: 'loading' });
+    // A verified account keeps its screens and cache under a cover. Any other result clears them.
+    const kept = accountId.current;
+    if (kept) setVerifying(true);
+    else setState({ status: 'loading' });
     try {
       await drafts;
-      await resetPrivateQueries();
+      if (!kept) await resetPrivateQueries();
       const context = await restoreSession();
       if (!mounted.current || request !== generation.current) return;
+      if (kept && context?.userId !== kept) {
+        accountId.current = null;
+        setState({ status: 'loading' });
+        await resetPrivateQueries();
+        if (!mounted.current || request !== generation.current) return;
+      }
       if (!context) {
         accountId.current = null;
         setState({ status: 'signedOut' });
@@ -42,9 +57,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!mounted.current || request !== generation.current) return;
       accountId.current = context.userId;
       setState({ status: 'authenticated', ...context });
+      if (kept === context.userId) setVerifiedAt(value => value + 1);
     } catch (error) {
       if (!mounted.current || request !== generation.current) return;
       const appError = toAppError(error);
+      if (kept) {
+        accountId.current = null;
+        await resetPrivateQueries();
+        if (!mounted.current || request !== generation.current) return;
+      }
       if (appError.code === 'FORBIDDEN' || appError.code === 'UNAUTHENTICATED') {
         try {
           const storage = await getPrivateStorage();
@@ -61,10 +82,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setState({ status: 'signedOut', error: appError });
         setClientVersion((value) => value + 1);
       } else setState({ status: 'error', error: appError });
+    } finally {
+      if (mounted.current && request === generation.current) setVerifying(false);
     }
   }, []);
   const retryStorage = useCallback(async () => {
     generation.current += 1;
+    setVerifying(false);
     setState({ status: 'loading' });
     await resetPrivateQueries();
     await resetSupabaseClient();
@@ -79,13 +103,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const disconnectQueries = connectQueryLifecycle();
     const removeStorageListener = onPrivateStorageFailure((error) => {
       generation.current += 1;
+      accountId.current = null;
       void resetPrivateQueries();
       void resetSupabaseClient();
+      setVerifying(false);
       setState({ status: 'error', error });
     });
     const removeResetListener = onSessionReset((event) => {
       generation.current += 1;
       accountId.current = null;
+      setVerifying(false);
       setState({ status: 'signedOut' });
       if (event === 'client') setClientVersion((value) => value + 1);
     });
@@ -102,12 +129,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     let unsubscribe: (() => void) | undefined;
     const appState = AppState.addEventListener('change', (next) => {
       if (next !== 'active') {
+        // Cover private content in the app switcher. Resume checks the account again before removing the cover.
         const request = ++generation.current;
-        const drafts = flushPrivateDrafts();
-        setState({ status: 'loading' });
-        void drafts.then(async () => {
-          if (request === generation.current) await resetPrivateQueries();
-        }).catch(error => {
+        if (accountId.current) setVerifying(true);
+        void flushPrivateDrafts().catch(error => {
           if (active && request === generation.current) setState({ status: 'error', error: toAppError(error) });
         });
       }
@@ -124,7 +149,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     void getSupabase().then((client) => {
       if (!active) return;
       const { data } = client.auth.onAuthStateChange((event) => {
-        if (event === 'INITIAL_SESSION') return;
+        // Token refresh keeps the same account and session. Realtime and server checks report access changes.
+        if (event === 'INITIAL_SESSION' || event === 'TOKEN_REFRESHED') return;
         const request = ++generation.current;
         const drafts = flushPrivateDrafts();
         setState({ status: 'loading' });
@@ -142,7 +168,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }).catch((error) => { if (active) setState({ status: 'error', error: toAppError(error) }); });
     return () => { active = false; generation.current += 1; appState.remove(); unsubscribe?.(); };
   }, [clientVersion, refresh]);
-  return <AuthContext.Provider value={{ state, refresh, retryStorage }}>{children}</AuthContext.Provider>;
+  return <AuthContext.Provider value={{ state, refresh, retryStorage, verifying, verifiedAt }}>{children}</AuthContext.Provider>;
 }
 export function useAuth(): AuthContextValue {
   const value = useContext(AuthContext);

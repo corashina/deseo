@@ -1,18 +1,23 @@
-import { createContext, useCallback, useContext, useEffect, useState, type PropsWithChildren } from 'react';
+import { createContext, useCallback, useContext, useEffect, useRef, useState, type PropsWithChildren } from 'react';
 import { AppState } from 'react-native';
 import NetInfo from '@react-native-community/netinfo';
 import { useQuery } from '@tanstack/react-query';
+import { resetPrivateQueries } from '../../lib/query-client';
 import { useAuth, type Account } from '../auth';
 import { AppError } from '@deseo/domain/result';
 import { restorePairContext, pairKeys } from './queries';
 import { subscribePairSignals } from './realtime';
 import type { PairContext } from '@deseo/domain/pair';
 
-type PairGate = { account: Account | null; pair: PairContext | null; checking: boolean; error: Error | null; online: boolean; refresh(): Promise<void> };
+type PairGate = {
+  account: Account | null; pair: PairContext | null; checking: boolean; error: Error | null; online: boolean; refresh(): Promise<void>;
+  /** True until membership is confirmed after the account check that follows a resume or reconnect. */
+  verifying: boolean;
+};
 const Context = createContext<PairGate | null>(null);
 
 export function PairProvider({ children, reconcileDrafts }: PropsWithChildren<{ reconcileDrafts(accountId: string, pairId: string): Promise<void> }>) {
-  const { state, refresh: refreshAuth } = useAuth();
+  const { state, refresh: refreshAuth, verifiedAt } = useAuth();
   const account = state.status === 'authenticated' ? state.account : null;
   const [online, setOnline] = useState(true);
   const result = useQuery({ queryKey: pairKeys.context(account?.id ?? ''), queryFn: async () => {
@@ -31,8 +36,27 @@ export function PairProvider({ children, reconcileDrafts }: PropsWithChildren<{ 
       return connected;
     });
   }), [refresh]);
+  const [checkedAt, setCheckedAt] = useState(verifiedAt);
+  const accountId = account?.id;
+  const { refetch } = result;
+  useEffect(() => {
+    if (checkedAt === verifiedAt) return;
+    if (!accountId) { setCheckedAt(verifiedAt); return; }
+    let current = true;
+    void refetch().finally(() => { if (current) setCheckedAt(verifiedAt); });
+    return () => { current = false; };
+  }, [accountId, checkedAt, verifiedAt, refetch]);
   const pairId = result.data && 'pairId' in result.data ? result.data.pairId : null;
   const livePairId = result.data?.status === 'active' || result.data?.status === 'pending' ? pairId : null;
+  // Clear the old pair's content when the same account leaves that pair. Account changes clear it in AuthProvider.
+  const shown = useRef<{ accountId?: string; pairId: string | null }>({ pairId: null });
+  const loaded = !!result.data;
+  useEffect(() => {
+    if (!accountId || !loaded) return;
+    const previous = shown.current;
+    shown.current = { accountId, pairId: livePairId };
+    if (previous.accountId === accountId && previous.pairId && previous.pairId !== livePairId) void resetPrivateQueries();
+  }, [accountId, loaded, livePairId]);
   useEffect(() => {
     if (!account) return;
     let active = true;
@@ -49,9 +73,10 @@ export function PairProvider({ children, reconcileDrafts }: PropsWithChildren<{ 
     });
     return () => { active = false; remove?.(); listener.remove(); };
   }, [account?.id, livePairId, refresh]);
-  const checking = !!account && (result.isPending || result.isFetching);
+  // A refetch keeps the verified pair on screen. A resume check covers it until the refetch ends.
+  const checking = !!account && result.isPending;
   return <Context.Provider value={{ account, pair: account && !checking && !result.error ? result.data ?? null : null,
-    checking, error: result.error, online, refresh }}>{children}</Context.Provider>;
+    checking, error: result.error, online, refresh, verifying: checkedAt !== verifiedAt }}>{children}</Context.Provider>;
 }
 
 export function usePairGate(): PairGate {
