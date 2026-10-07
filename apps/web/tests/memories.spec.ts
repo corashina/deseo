@@ -419,7 +419,7 @@ test('forbidden media refreshes once and shows recovery', async ({ page }) => {
 // Importance 92: loaded routes must fit narrow, rail, and sidebar layouts.
 test('loaded memory routes fit the shell and produce review captures', async ({ page }, info) => {
   const ids = await createPortalPairFixture();
-  const folder = '../../.superpowers/sdd/2026-10-05-deseo-web-portal-implementation/task-7-captures'; mkdirSync(folder, { recursive: true });
+  const folder = '../../.superpowers/sdd/2026-10-07-deseo-frontend-design/task-5-route-captures'; mkdirSync(folder, { recursive: true });
   try {
     await loginWithLocalEmailCode(page, ids.annaEmail);
     for (const [name, route] of [['feed', '/memories'], ['detail', '/memories/' + ids.memoryId], ['edit', '/memories/' + ids.memoryId + '/edit'], ['form', '/memories/new']]) {
@@ -430,5 +430,62 @@ test('loaded memory routes fit the shell and produce review captures', async ({ 
       for (const width of [320, 768, 1024]) { await page.setViewportSize({ width, height: 1000 }); expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true); }
       await page.setViewportSize(info.project.use.viewport!);
     }
+  } finally { await cleanupPortalPairFixture(ids); }
+});
+
+// Importance 92: enlarged failure text must keep photo recovery visible and reachable.
+test('failed feed photo remains reachable at doubled text and recovers without navigation', async ({ page }, info) => {
+  const ids = await createPortalPairFixture();
+  const folder = '../../.superpowers/sdd/2026-10-07-deseo-frontend-design/task-5-recovery';
+  mkdirSync(folder, { recursive: true });
+  try {
+    await loginWithLocalEmailCode(page, ids.annaEmail);
+    await page.route('**/functions/v1/get-memory-media', route => route.fulfill({ status: 200, json: { ok: false, error: { code: 'RETRYABLE' } } }));
+    await page.setViewportSize({ width: 320, height: 1000 });
+    await page.goto('/today');
+    const card = page.getByTestId('today-memory').locator('.memory-card');
+    const retry = card.getByRole('button', { name: 'Retry photo', exact: true });
+    await expect(retry).toBeVisible();
+    await page.evaluate(() => {
+      const sizes = [...document.querySelectorAll<HTMLElement>('body *')].map(element => [element, parseFloat(getComputedStyle(element).fontSize)] as const);
+      for (const [element, size] of sizes) element.style.fontSize = size * 2 + 'px';
+    });
+    await retry.scrollIntoViewIfNeeded();
+    await page.screenshot({ path: folder + '/failed-320-text-2-' + info.project.name + '.png', fullPage: true });
+    const visible = await card.locator('.memory-image-state').evaluate(state => {
+      return [...state.querySelectorAll('[role=alert], button')].every(element => {
+        const box = element.getBoundingClientRect();
+        let parent = element.parentElement;
+        while (parent) {
+          const style = getComputedStyle(parent);
+          if (['hidden', 'clip', 'auto', 'scroll'].includes(style.overflowY)) {
+            const frame = parent.getBoundingClientRect();
+            if (box.top < frame.top || box.bottom > frame.bottom) return false;
+          }
+          parent = parent.parentElement;
+        }
+        return true;
+      });
+    });
+    expect(visible, 'Photo error and Retry must fit within clipping ancestors').toBe(true);
+    await retry.focus();
+    await expect(retry).toBeFocused();
+    await page.unroute('**/functions/v1/get-memory-media');
+    await page.keyboard.press('Enter');
+    await expect(page).toHaveURL(/\/today$/);
+    await expect(card.locator('img')).toBeVisible();
+    await page.screenshot({ path: folder + '/recovered-320-text-2-' + info.project.name + '.png', fullPage: true });
+    const ratio = await card.locator('.memory-cover').evaluate(element => { const box = element.getBoundingClientRect(); return box.width / box.height; });
+    expect(ratio).toBeCloseTo(1.5, 1);
+    const photo = card.locator('img');
+    await photo.scrollIntoViewIfNeeded();
+    const box = (await photo.boundingBox())!;
+    await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
+    await expect(page).toHaveURL(/\/memories\/[0-9a-f-]+$/);
+    await page.goto('/memories/' + ids.memoryId);
+    const image = page.locator('.memory-detail img').first();
+    await expect(image).toBeVisible();
+    const dimensions = await image.evaluate((element: HTMLImageElement) => { const box = element.getBoundingClientRect(); return { actual: box.width / box.height, full: element.naturalWidth / element.naturalHeight }; });
+    expect(dimensions.actual).toBeCloseTo(dimensions.full, 2);
   } finally { await cleanupPortalPairFixture(ids); }
 });

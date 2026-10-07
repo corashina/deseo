@@ -58,7 +58,7 @@ function Form({ memory, timezone, online, reload }: { memory?: Memory; timezone:
     {!memory && <>
       {draft.photos.map((photo, index) => <View key={photo.id} style={ui.card}>
         {photo.status !== 'missing' && <Image source={{ uri: photoFile(draft.draftId, photo.id, 'thumb').uri }} cachePolicy="memory"
-          style={{ width: '100%', aspectRatio: 1.4 }} contentFit="cover" accessibilityLabel={`Selected photo ${index + 1}`} />}
+          style={{ width: '100%', aspectRatio: 1.5, borderRadius: theme.radius.control }} contentFit="cover" accessibilityLabel={`Selected photo ${index + 1}`} />}
         <Text style={theme.typography.body}>Photo {index + 1}: {photo.status === 'ready' ? 'Ready to upload' : photo.status === 'uploading' ? 'Uploading' : photo.status === 'validated' ? 'Uploaded' : photo.status === 'missing' ? 'Select this photo again' : 'Upload failed'}</Text>
         <Button label={`Remove photo ${index + 1}`} variant="secondary" disabled={access.busy || (draft.submitted && !online)}
           onPress={() => run(() => restartMemoryDraft(photo.id))} />

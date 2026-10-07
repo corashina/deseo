@@ -38,5 +38,5 @@ function Feed({ accountId, pair, online }: { accountId: string; pair: Extract<Re
   </Screen>;
 }
 function MemoryFeedItem({ heading, ...props }: Parameters<typeof MemoryCard>[0] & { heading?: string }) {
-  return <>{heading && <Text accessibilityRole="header" style={[theme.typography.section, { paddingTop: theme.space[2] }]}>{heading}</Text>}<MemoryCard {...props} /></>;
+  return <>{heading && <Text accessibilityRole="header" style={[theme.typography.section, { paddingTop: theme.space[6] }]}>{heading}</Text>}<MemoryCard {...props} /></>;
 }

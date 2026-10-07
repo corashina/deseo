@@ -7,18 +7,20 @@ import { MemoryImage } from './MemoryImage';
 export function MemoryCard({ memory, authorName, onOpen }: { memory: Memory; authorName: string; onOpen: () => void }) {
   const photo = memory.photos[0];
   const date = DateTime.fromISO(memory.memoryDate).toLocaleString(DateTime.DATE_MED);
-  return <Pressable accessibilityRole="button" accessibilityLabel={`Open memory. ${memory.caption || date}. ${authorName}, ${date}`}
-    onPress={onOpen} style={({ pressed }) => [ui.card, styles.card, pressed && styles.pressed]}>
-    {photo && <MemoryImage photoId={photo.id} variant="thumb" width={photo.thumbWidth} height={photo.thumbHeight} />}
+  return <View style={[ui.card, styles.card]}>
+    {photo && <MemoryImage photoId={photo.id} variant="thumb" width={photo.thumbWidth} height={photo.thumbHeight} onOpen={onOpen} />}
+    <Pressable accessibilityRole="button" accessibilityLabel={`Open memory. ${memory.caption || date}. ${authorName}, ${date}`}
+    onPress={onOpen} style={({ pressed }) => [styles.open, pressed && styles.pressed]}>
     <View style={styles.text}>
       {!!memory.caption && <Text style={theme.typography.body}>{memory.caption}</Text>}
       <Text style={theme.typography.secondary}>{authorName} · {date}</Text>
     </View>
-  </Pressable>;
+  </Pressable></View>;
 }
 
 const styles = StyleSheet.create({
-  card: { padding: theme.space[3] },
+  card: { padding: 0, gap: 0, overflow: 'hidden' },
+  open: { minHeight: theme.touchTarget, borderRadius: theme.radius.card },
   pressed: { backgroundColor: theme.colors.sidebar },
-  text: { gap: theme.space[1], paddingHorizontal: theme.space[1], paddingBottom: theme.space[1] },
+  text: { gap: theme.space[2], padding: theme.space[5] },
 });
