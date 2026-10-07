@@ -1,14 +1,13 @@
-// Importance: 95. Today must show confirmed feature records and preserve independent failure states.
+// Importance: 95. Today must show confirmed feature records and keep memory loading independent.
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react-native';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Settings } from 'luxon';
 import { router } from 'expo-router';
 import { TodayScreen } from './TodayScreen';
 import { getToday } from '../queries';
-import { listDueTasks, taskKeys } from '../../tasks';
-import { listPinnedNotes } from '../../messages';
+import { todayKeys } from '../keys';
+import { taskKeys } from '../../tasks';
 import { latestMemory } from '../../memories';
-import { listImportantDates } from '../../calendar';
 import { listNotifications, notificationKeys } from '../../notifications';
 
 jest.mock('expo-router', () => ({ router: { push: jest.fn() } }));
@@ -17,14 +16,13 @@ jest.mock('../queries', () => ({ getToday: jest.fn() }));
 jest.mock('../../notifications', () => ({ listNotifications: jest.fn(), notificationKeys: { list: (...parts: string[]) => ['notifications', ...parts, 'list'] } }));
 jest.mock('../../pair', () => ({ useCore: () => ({ account: mockAccount, pair: mockPair, online: true }) }));
 jest.mock('../../calendar', () => ({
-  listImportantDates: jest.fn(), calendarKeys: { all: (...parts: string[]) => ['calendar', ...parts] },
   nextImportantDate: (rows: unknown[]) => rows[0], importantDateCountdown: () => 1,
   EventRow: () => null,
 }));
 jest.mock('../../tasks', () => {
   const { Text, Pressable } = jest.requireActual('react-native');
-  return { listDueTasks: jest.fn(), getTask: jest.fn().mockImplementation(async () => ({ ...task, completedAt: '2026-10-05T00:00:00Z' })),
-    taskKeys: { due: (...parts: string[]) => ['tasks', ...parts], task: (...parts: string[]) => ['tasks', ...parts, 'task'] },
+  return { getTask: jest.fn().mockImplementation(async () => ({ ...task, completedAt: '2026-10-05T00:00:00Z' })),
+    taskKeys: { task: (...parts: string[]) => ['tasks', ...parts, 'task'] },
     TaskRow: ({ task, onCompleted }: { task: { title: string; completedAt: string | null }; onCompleted: (value: object) => void }) =>
       <Pressable accessibilityRole="button" accessibilityLabel={task.completedAt ? 'Undo' : 'Complete task'}
         onPress={() => onCompleted({ ...task, completedAt: task.completedAt ? null : '2026-10-05T00:00:00Z' })}>
@@ -33,8 +31,7 @@ jest.mock('../../tasks', () => {
 });
 jest.mock('../../messages', () => {
   const { Text, Pressable } = jest.requireActual('react-native');
-  return { listPinnedNotes: jest.fn(), messageKeys: { notes: (...parts: string[]) => ['messages', ...parts, 'notes'] },
-    NoteCard: ({ message, onReply }: { message: { body: string }; onReply: () => void }) =>
+  return { NoteCard: ({ message, onReply }: { message: { body: string }; onReply: () => void }) =>
       <Pressable accessibilityRole="button" accessibilityLabel="Reply" onPress={onReply}><Text>{message.body}</Text></Pressable> };
 });
 jest.mock('../../memories', () => {
@@ -49,14 +46,16 @@ const mockPair = { status: 'active', pairId: 'pair', timezone: 'Europe/Warsaw', 
 ] };
 const task = { id: 'task', pairId: 'pair', title: 'Bring flowers', assigneeId: 'partner', completedAt: null };
 let mockMemoryReady = true;
+const dayKey = todayKeys.day('account', 'pair', '2026-10-05');
+function today(dueTasks: object[]) {
+  return { agenda: [], dueTasks, notes: [{ id: 'note', authorId: 'partner', body: 'See you tonight' }],
+    importantDates: [{ id: 'date', title: 'Our anniversary', temporal: { kind: 'allDay', startDate: '2026-10-06' } }] } as never;
+}
 beforeEach(() => {
   jest.clearAllMocks(); mockMemoryReady = true; Settings.now = () => Date.parse('2026-10-04T23:00:00Z');
   jest.mocked(listNotifications).mockResolvedValue({ items: [], nextCursor: null });
-  jest.mocked(getToday).mockResolvedValue({ pair: mockPair, agenda: [] } as never);
-  jest.mocked(listDueTasks).mockResolvedValue([task] as never);
-  jest.mocked(listPinnedNotes).mockResolvedValue([{ id: 'note', authorId: 'partner', body: 'See you tonight' }] as never);
+  jest.mocked(getToday).mockResolvedValue(today([task]));
   jest.mocked(latestMemory).mockResolvedValue({ id: 'memory', createdBy: 'partner', caption: 'Our day at the sea' } as never);
-  jest.mocked(listImportantDates).mockResolvedValue([{ id: 'date', title: 'Our anniversary', temporal: { kind: 'allDay', startDate: '2026-10-06' } }] as never);
 });
 afterEach(() => { Settings.now = () => Date.now(); });
 async function mount() {
@@ -70,22 +69,21 @@ it('uses the pair date and opens the shared conversation from its latest note', 
   expect(screen.getByText('See you tonight')).toBeOnTheScreen();
   expect(screen.getByText('Bring flowers')).toBeOnTheScreen();
   expect(screen.getByText('Our anniversary')).toBeOnTheScreen();
-  expect(listDueTasks).toHaveBeenCalledWith('pair', '2026-10-05');
+  expect(getToday).toHaveBeenCalledWith('pair', '2026-10-05');
   await fireEvent.press(screen.getByRole('button', { name: 'Reply' }));
   expect(router.push).toHaveBeenCalledWith('/(tabs)/messages');
 });
-it('keeps loaded content when the note query fails', async () => {
-  jest.mocked(listPinnedNotes).mockRejectedValue(new Error('Offline'));
+it('keeps the latest memory when the Today query fails', async () => {
+  jest.mocked(getToday).mockRejectedValue(new Error('Offline'));
   await mount();
   await waitFor(() => expect(screen.getByText('We could not load your note.')).toBeOnTheScreen());
   expect(screen.getByText('Our day at the sea')).toBeOnTheScreen();
-  expect(screen.getByText('Bring flowers')).toBeOnTheScreen();
 });
 it('keeps Undo when a completed task leaves the due query', async () => {
   const client = await mount();
   await waitFor(() => expect(screen.getByText('Bring flowers')).toBeOnTheScreen());
   await fireEvent.press(screen.getByRole('button', { name: 'Complete task' }));
-  await act(() => client.setQueryData(taskKeys.due('account', 'pair', '2026-10-05'), []));
+  await act(() => client.setQueryData(dayKey, today([])));
   expect(screen.getByRole('button', { name: 'Undo' })).toBeOnTheScreen();
   await fireEvent.press(screen.getByRole('button', { name: 'Undo' }));
   expect(screen.queryByRole('button', { name: 'Undo' })).toBeNull();
@@ -98,7 +96,7 @@ it('shows a task again after the partner removes its completed state', async () 
   await waitFor(() => expect(client.isFetching({ queryKey: taskKeys.task('account', 'pair', 'task') })).toBe(0));
   await act(() => {
     client.setQueryData(taskKeys.task('account', 'pair', 'task'), task);
-    client.setQueryData(taskKeys.due('account', 'pair', '2026-10-05'), [task]);
+    client.setQueryData(dayKey, today([task]));
   });
   await waitFor(() => expect(screen.getByRole('button', { name: 'Complete task' })).toBeOnTheScreen());
 });
@@ -110,7 +108,7 @@ it('removes the completed row after durable deletion', async () => {
   await waitFor(() => expect(client.isFetching({ queryKey: taskKeys.task('account', 'pair', 'task') })).toBe(0));
   await act(() => {
     client.setQueryData(taskKeys.task('account', 'pair', 'task'), null);
-    client.setQueryData(taskKeys.due('account', 'pair', '2026-10-05'), []);
+    client.setQueryData(dayKey, today([]));
   });
   await waitFor(() => expect(screen.queryByText('Bring flowers')).toBeNull());
 });

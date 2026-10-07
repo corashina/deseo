@@ -546,6 +546,9 @@ isOneToOne: false
 "get_session_context":
 { Args: Record<PropertyKey, never>; Returns: Json
                            },
+"get_today":
+{ Args: { "p_date": string,"p_pair_id": string }; Returns: Json
+                           },
 "get_unread_count":
 { Args: { "p_pair_id": string }; Returns: Json
                            },

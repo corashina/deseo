@@ -79,7 +79,7 @@ Shared domain modules must not import React Native, Expo, MMKV, browser storage,
 1. Routes import feature pages, screens, and UI controls.
 2. Feature commands and queries import that application's backend client and shared contracts.
 3. Features import another feature's public interface, not its internal files.
-4. Today reads public feature queries. Screens do not call database tables.
+4. Today reads one `get_today` summary and public feature queries. Screens do not call database tables.
 5. UI controls import platform libraries and brand values, not feature data.
 6. Backend functions share code only where multiple functions use it.
 7. Public pages import brand assets, not signed-in application screens.
@@ -98,6 +98,7 @@ Push: durable job → scheduled worker → current access check → Expo → rec
 
 Scope keys to account and pair. Abort old reads and clear private caches before account or pair changes.
 Revalidate server authority after focus and reconnect. Reset queries again if verified authority changes.
+On native resume, cover the mounted screens and keep the cache until the account and pair checks pass.
 Keep each Realtime authority channel owned by a stable verified account ID.
 Ignore only signals represented by the latest fully server-verified snapshot, with exact identity, state, version, and slot checks.
 Revalidate incomplete signals and genuine changes. Never skip account disable or membership departure.
@@ -137,6 +138,7 @@ Do not add service workers, offline content storage, browser push, or installati
 RLS checks current account status and membership. Ignore editable JWT metadata for authorization.
 Restricted helpers check JWT session IDs against Auth sessions. Global sign-out blocks revoked sessions.
 Use ordinary RLS reads and named transactions for multi-record invariants.
+In row policies, compare `pair_id` with `(select private.actor_pair())`. PostgreSQL then checks membership once per statement, not once per row.
 Expose narrow invoker wrappers around hardened private implementations.
 Revoke default execution, grant required roles, set an empty search path, and check callers.
 Keep internal tables outside exposed schemas. Do not accept client-supplied trusted actor IDs.

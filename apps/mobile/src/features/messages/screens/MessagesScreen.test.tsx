@@ -39,8 +39,8 @@ const message = { id: 'one', pairId: 'pair', authorId: 'partner', clientId: 'cli
 beforeEach(() => {
   jest.clearAllMocks();
   AppState.currentState = 'active';
-  jest.mocked(useAuth).mockReturnValue({ state: { status: 'authenticated', userId: account.id, account }, refresh: jest.fn(), retryStorage: jest.fn() });
-  jest.mocked(usePairGate).mockReturnValue({ account, pair, checking: false, error: null, online: true, refresh: jest.fn() });
+  jest.mocked(useAuth).mockReturnValue({ state: { status: 'authenticated', userId: account.id, account }, refresh: jest.fn(), retryStorage: jest.fn(), verifying: false, verifiedAt: 0 });
+  jest.mocked(usePairGate).mockReturnValue({ account, pair, checking: false, error: null, online: true, refresh: jest.fn(), verifying: false });
   jest.mocked(listMessages).mockResolvedValue({ items: [message], nextCursor: null });
   jest.mocked(listPinnedNotes).mockResolvedValue([]);
   jest.mocked(setReadCursor).mockResolvedValue({ ok: true, data: { createdAt: message.createdAt, id: message.id } });
@@ -51,13 +51,13 @@ async function mount() {
   return { client, rendered };
 }
 it('does not query messages during an unverified pair check', async () => {
-  jest.mocked(usePairGate).mockReturnValue({ account, pair: null, checking: true, error: null, online: true, refresh: jest.fn() });
+  jest.mocked(usePairGate).mockReturnValue({ account, pair: null, checking: true, error: null, online: true, refresh: jest.fn(), verifying: false });
   await mount();
   expect(listMessages).not.toHaveBeenCalled();
   expect(screen.queryByLabelText('Message')).toBeNull();
 });
 it('returns signed-out deep links to the account entry route', async () => {
-  jest.mocked(useAuth).mockReturnValue({ state: { status: 'signedOut' }, refresh: jest.fn(), retryStorage: jest.fn() });
+  jest.mocked(useAuth).mockReturnValue({ state: { status: 'signedOut' }, refresh: jest.fn(), retryStorage: jest.fn(), verifying: false, verifiedAt: 0 });
   await mount();
   expect(listMessages).not.toHaveBeenCalled();
   expect(screen.queryByLabelText('Message')).toBeNull();
@@ -74,7 +74,7 @@ it('advances the private cursor only after a durable row is visible', async () =
 });
 // Importance: 95. Offline drafting must keep submission disabled.
 it('keeps the composer available offline and disables Send', async () => {
-  jest.mocked(usePairGate).mockReturnValue({ account, pair, checking: false, error: null, online: false, refresh: jest.fn() });
+  jest.mocked(usePairGate).mockReturnValue({ account, pair, checking: false, error: null, online: false, refresh: jest.fn(), verifying: false });
   await mount();
   expect(screen.getByLabelText('Message')).toHaveProp('editable', true);
   expect(screen.getByRole('button', { name: 'Send' })).toBeDisabled();
