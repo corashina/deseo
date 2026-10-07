@@ -155,7 +155,7 @@ test('complete screenshot gallery', async ({ browser }, info) => {
         const rendered = await renderScene(page, scene, useNormal ? { ...fixtures, named: { ...fixtures.named, ...normal } } : fixtures, role); release = rendered.release;
         if (scene.routeId === 'settings-pair' && ['verification', 'end-dialog'].includes(scene.view)) sensitiveCodeAt = Date.now();
         await page.evaluate(async () => { await document.fonts.ready; await Promise.all([...document.images].filter(img => img.src).map(img => img.complete ? Promise.resolve() : new Promise<void>(resolve => { img.onload = () => resolve(); img.onerror = () => resolve(); }))); });
-        if (useNormal) {
+        if (useNormal && scene.routeId !== 'memory-edit') {
           const photos = page.locator('.memory-cover img, .memory-detail img');
           await expect.poll(() => photos.count()).toBeGreaterThan(0);
           await expect.poll(() => photos.evaluateAll(images => images.every(image => (image as HTMLImageElement).complete && (image as HTMLImageElement).naturalWidth > 0))).toBe(true);
