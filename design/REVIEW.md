@@ -2,7 +2,7 @@
 
 Review date: 4 October 2026.
 
-Scope: The static [design reference](preview.html) and [STYLE.md](../../STYLE.md).
+Scope: The static [design reference](preview.html) and [STYLE.md](../STYLE.md).
 
 ## Design judgment
 

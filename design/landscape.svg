@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="600" viewBox="0 0 1000 600" role="img" aria-label="Illustration of a lake at sunset">
+<defs><linearGradient id="sky" x2="0" y2="1"><stop stop-color="#dba99f"/><stop offset="1" stop-color="#f7dfc4"/></linearGradient><linearGradient id="lake" x2="0" y2="1"><stop stop-color="#9fb7b4"/><stop offset="1" stop-color="#577b83"/></linearGradient></defs>
+<path fill="url(#sky)" d="M0 0h1000v600H0z"/><circle cx="722" cy="160" r="67" fill="#fbe9c8"/>
+<path fill="#879b9f" d="M0 270 160 190 330 310 520 215 705 300 870 230 1000 280v320H0z"/>
+<path fill="#536f7d" d="m0 375 180-110 240 140 170-100 250 95 160-130v330H0z"/>
+<path fill="url(#lake)" d="M0 416q270-40 500 0t500 0v184H0z"/>
+<path fill="none" stroke="#d2d8ca" stroke-width="3" opacity=".6" d="M560 460h250m-390 36h290m-540 45h430m20 30h245"/>
+<path fill="#314f5c" d="m0 500 120 42 135 58H0zm1000-8-85 40-76 68h161z"/>
+</svg>

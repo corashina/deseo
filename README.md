@@ -61,7 +61,8 @@ apps/site/         Planned public information site
 
 Open [the current gallery](design/frontend-2026-10-07/web/index.html) or [the capture index](design/frontend-2026-10-07/web/README.md).
 Keep [the historical gallery](design/web-portal/index.html) as its recorded-source reference.
-The current gallery requires 39 routes, 119 views, and 238 viewport records.
+The current gallery has 39 routes, 119 views, 238 records, and 321 page JPEGs.
+Two extra JPEGs retain named-media failure evidence.
 It uses named local accounts, owned disposable normal-media fixtures, and controlled failure states.
 
 The [older visual reference](design/preview.html) contains sample interactions without persistence.

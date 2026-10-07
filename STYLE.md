@@ -275,7 +275,7 @@ Use `min-width: 0` on grid children. Let long event names and partner names wrap
 
 Keep native bottom navigation visible. Add native content padding for its height and the device safe area.
 
-Use at least 44px touch targets. Give checkbox labels a full-row target.
+Use 48px browser targets and 48dp native targets. Give checkbox labels a full-row target.
 
 At narrow widths, move the header action below the heading before either element becomes crowded.
 
@@ -339,7 +339,7 @@ Show the image, caption, date, and author. Keep captions outside images for reli
 
 Use a 3:2 crop in compact cards. Show the full image in the detail view.
 
-Prepare uploads without location metadata, within the size limits in [DATA.md](docs/ARCHITECTURE.md#data-contract).
+Prepare uploads without location metadata, within the size limits in [the data contract](docs/ARCHITECTURE.md#data-contract).
 
 Preserve the accepted full image. Display card crops without changing that image. Keep the camera original on the person's device.
 
@@ -474,9 +474,10 @@ Use production images with explicit dimensions and responsive sizes. Avoid runti
 5. Add messages, delivery states, and pinned notes.
 6. Compose Today from the working features.
 
-The [implementation plan](docs/DEVELOPMENT.md#superpowers-plans-2026-10-04-deseo-implementation) adds Today incrementally as each feature works.
+Keep Today feature interfaces and data ownership when changing its composition.
 
-Follow that plan for backend, native, public-site, and release work. This list describes visual dependencies only.
+Use [the development guide](docs/DEVELOPMENT.md) for backend, native, public-site, and release work.
+This list describes visual dependencies.
 
 Keep each layer usable before adding the next. Do not expose routes with placeholder product behavior.
 

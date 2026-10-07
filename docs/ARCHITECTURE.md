@@ -161,7 +161,7 @@ The function still rejects unknown and null origins before Auth or action work.
 Direct helper tests prove handler policy; they do not prove external gateway headers.
 Server `PUBLIC_SUPABASE_URL` supplies reachable signed links. Injected `SUPABASE_URL` remains internal.
 
-See [DATA.md](ARCHITECTURE.md#data-contract) for access, lifecycle, retention, and race rules.
+See [the data contract](ARCHITECTURE.md#data-contract) for access, lifecycle, retention, and race rules.
 
 <a id="architecture-9-platform-acceptance"></a>
 ### 9. Platform acceptance
@@ -180,7 +180,8 @@ The portal uses current supported backend commands without adding incomplete acc
 <a id="architecture-10-references"></a>
 ### 10. References
 
-See [the architecture review](ARCHITECTURE.md#architecture-review), [ADR 0001](ARCHITECTURE.md#adr-0001-mobile-stack-and-module-structure), and [research sources](README.md#sources).
+See [research sources](README.md#sources) for the selected stack.
+
 
 <a id="data-contract"></a>
 ## Data contract
@@ -529,123 +530,3 @@ Simultaneous invitation joins, one user joining two pairs, stale tokens, cross-p
 Also test uploads after disconnect, old media links, disabled accounts with valid JWTs, duplicate workers, and exports racing with deletion.
 
 See [TESTING.md](DEVELOPMENT.md#verification) for importance ratings and required evidence.
-
-<a id="adr-0001-mobile-stack-and-module-structure"></a>
-## adr 0001 mobile stack and module structure
-Date: 4 October 2026. Status: Proposed, except the owner-confirmed Expo and TypeScript choice.
-
-<a id="adr-0001-mobile-stack-and-module-structure-context"></a>
-### Context
-
-Deseo needs native Android and iOS screens, shared private data, photos, invitations, and reminders.
-
-The workspace contains a style guide and static reference. It has no product stack to preserve.
-
-<a id="adr-0001-mobile-stack-and-module-structure-decision"></a>
-### Decision
-
-Use Expo Router and TypeScript for the native app. Use Astro for a small static public site.
-
-Use Supabase Auth, PostgreSQL, private Storage, Realtime, Cron, and Edge Functions.
-
-Use one npm workspace. Keep mobile and site code in separate applications.
-
-Group native code by feature. Keep each feature's screen, query, command, schema, and tests close together.
-
-Share brand tokens and source icon assets. Do not share native UI with the website.
-
-Use database constraints, current membership policies, and named transactions to protect pair data.
-
-<a id="adr-0001-mobile-stack-and-module-structure-consequences"></a>
-### Consequences
-
-The team maintains two builds but one product backend. The public site cannot accidentally depend on native sessions.
-
-Supabase reduces initial operations. Database policies and privileged functions require explicit security tests.
-
-MMKV and push require development builds. Expo Go is not sufficient release evidence.
-
-Offline support covers drafts only. A separate sync engine would need a later product decision.
-
-<a id="adr-0001-mobile-stack-and-module-structure-rejected-alternatives"></a>
-### Rejected alternatives
-
-A custom backend adds account, storage, queue, and deployment work without a current product benefit.
-
-A shared UI package would need wrappers around unrelated native and browser controls.
-
-Microservices, generic repositories, and a global message bus would add interfaces before real variation exists.
-
-<a id="adr-0001-mobile-stack-and-module-structure-revisit-when"></a>
-### Revisit when
-
-Revisit backend limits when measured workloads exceed the current worker or database design.
-
-Revisit offline writes when observed connectivity failures prevent pairs from completing core tasks.
-
-Revisit public-site structure if the owner requests a full browser application.
-
-<a id="architecture-review"></a>
-## architecture REVIEW
-Reviewed: 4 October 2026. Scope: the design documents and planned product structure.
-
-<a id="architecture-review-method"></a>
-### Method
-
-Applied Matt Pocock's [Improve Codebase Architecture](https://github.com/mattpocock/skills/blob/main/skills/engineering/improve-codebase-architecture/SKILL.md) skill.
-
-Also read its [Codebase Design](https://github.com/mattpocock/skills/blob/main/skills/engineering/codebase-design/SKILL.md) vocabulary.
-
-The skill normally reviews existing implementation. This project has no runtime code, dependencies, tests, or Git history.
-
-I adapted the review to the proposed modules before scaffolding. A read-only scout checked the existing files and risks.
-
-No existing-code refactoring or runtime validation is claimed.
-
-<a id="architecture-review-applied-decisions"></a>
-### Applied decisions
-
-| Finding | Without the decision | Selected design | Strength |
-|---|---|---|---|
-| Pair membership affects every feature | Each screen interprets pair state and access | Pair commands and database policies enforce one membership model | Strong |
-| Notes and messages have the same lifecycle | Two write paths, permissions, and retry rules | A note is a pinned message | Strong |
-| Today displays other features' records | Duplicate tables become inconsistent | Today composes existing feature queries | Strong |
-| Reminders cross calendar, tasks, devices, and timezones | Screen timers lose work when the app closes | Durable jobs with current authorization checks | Strong |
-| Shared edits and retries can conflict | Every form invents its own persistence behavior | Named commands use versions and idempotent identifiers | Strong |
-| Public pages and native interaction differ | Shared UI wrappers hide platform behavior | Separate mobile and site folders; share visual data only | Strong |
-
-These decisions keep related rules together and give callers a small interface.
-
-<a id="architecture-review-interfaces-that-earn-their-place"></a>
-### Interfaces that earn their place
-
-- Pair commands hide token handling, locking, capacity, and membership transitions.
-- Calendar commands hide visibility rules, time conversion, version checks, and reminder changes.
-- Memory finalization hides validation, quota, publication, and orphan cleanup.
-- Message commands hide duplicate prevention and note replacement.
-
-Removing these interfaces would spread their rules across screens and workers.
-
-Do not add generic repositories, a global event bus, interchangeable backend adapters, or a second form framework.
-
-Those abstractions have no second implementation or current consumer need.
-
-<a id="architecture-review-system-alternatives"></a>
-### System alternatives
-
-| Option | Assessment |
-|---|---|
-| Expo + static site + Supabase | Recommended. Native experience with managed account, data, storage, and delivery infrastructure |
-| Universal Expo app for native and all website pages | Fewer build tools, but public document markup and native account flows become coupled |
-| Expo + custom Node backend + separate database/storage | More operational work before the pair flow works; no current requirement justifies it |
-
-Keep the static site narrow. Do not add server rendering, a CMS, or native UI sharing to it.
-
-<a id="architecture-review-first-implementation-priority"></a>
-### First implementation priority
-
-Prove pairing and pair isolation before broad screen work.
-
-The first useful product is two verified people sharing one event. Security and data correctness belong in that slice.
-
-See [ADR 0001](ARCHITECTURE.md#adr-0001-mobile-stack-and-module-structure) and [the implementation plan](DEVELOPMENT.md#superpowers-plans-2026-10-04-deseo-implementation).
