@@ -44,13 +44,13 @@ select ok(not private.memory_upload_allowed('30000000-0000-4000-8000-00000000000
 select set_config('request.jwt.claims','{"role":"service_role"}',true);
 set local role service_role;
 select is(public.verify_memory_reservation('40000000-0000-4000-8000-000000000201','10000000-0000-4000-8000-000000000001','20000000-0000-4000-8000-000000000001')->'error'->>'code','FORBIDDEN','Expired reservation cannot validate');
-create temporary table lease as select job from jsonb_array_elements(pg_temp.claim_fixture_memory(50)->'data') job
+create temporary table lease as select job from jsonb_array_elements(pg_temp.claim_fixture_memory(2)->'data') job
 where job->>'memoryId'='40000000-0000-4000-8000-000000000201';
 select is((select job->>'memoryId' from lease),'40000000-0000-4000-8000-000000000201','Expiry sweep queues abandoned upload');
 reset role;
 update private.memory_cleanup_jobs set lease_until=now()-interval '1 minute' where state='leased' and pair_id='30000000-0000-4000-8000-000000000001';
 set local role service_role;
-create temporary table renewed as select job from jsonb_array_elements(pg_temp.claim_fixture_memory(50)->'data') job
+create temporary table renewed as select job from jsonb_array_elements(pg_temp.claim_fixture_memory(2)->'data') job
 where job->>'memoryId'='40000000-0000-4000-8000-000000000201';
 select isnt((select job->>'leaseToken' from renewed),(select job->>'leaseToken' from lease),'Expired lease gets a new token');
 select is(public.complete_memory_cleanup((select(job->>'id')::uuid from lease),(select(job->>'leaseToken')::uuid from lease))->'error'->>'code','CONFLICT','Old worker cannot acknowledge new lease');

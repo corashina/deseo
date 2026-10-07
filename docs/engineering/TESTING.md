@@ -10,7 +10,7 @@ Browser verification runs TypeScript, scoped lint, production build, and the com
 Use real local Auth, pair transactions, private media, and durable writes.
 Controlled transport failures cover unknown outcomes, replay, conflicts, focus, remount, and authority changes.
 
-Run SQL suites on the populated local web stack and a clean isolated replay.
+Run SQL suites on the combined `deseo` development database. Preserve its data.
 Scope test reads, updates, and assertions to fixture IDs. Keep real cross-pair and disabled-session denial checks.
 SQL transactions roll back. Cleanup worker assertions select their fixture from bounded claims.
 Preserve populated data and unknown rows. Fixture cleanup requires ownership records and checked deletion results.
@@ -18,6 +18,7 @@ Preserve populated data and unknown rows. Fixture cleanup requires ownership rec
 Run pairing, planning, messages, memory, and notification race harnesses in a separate test window.
 Do not overlap global worker claims with browser fixture setup.
 Notification races require an empty notification table and never call Expo.
+Memory races require empty memory and cleanup tables. Do not reset development data to run them.
 
 Check modified Edge functions with their committed Deno config and frozen dependency locks.
 The sensitive function uses `supabase/functions/verify-sensitive-action/deno.json`.

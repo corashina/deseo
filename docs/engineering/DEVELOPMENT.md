@@ -19,13 +19,11 @@ Keep exact pins. Add packages only when a feature needs them.
 
 ## 2. Local browser backend
 
-Run Docker Desktop. Use the guarded dedicated `deseo-web` project under `.superpowers/web-backend`.
+Run Docker Desktop. Use one `deseo` project from the repository root.
 Its API uses 55721, database 55722, mail 55724, and inspector 55728.
-The separate `deseo-integration` project uses 55620–55629.
 
 ```powershell
-npm run prepare:web:backend
-npm run start:web:backend
+npm run start:backend
 ```
 
 Set CLI telemetry controls before direct commands:
@@ -35,26 +33,10 @@ $env:DO_NOT_TRACK = '1'
 $env:SUPABASE_TELEMETRY_DISABLED = 'true'
 ```
 
-Save this helper as `.superpowers/web-backend/save-status.cjs`:
+The start command saves status in `.superpowers/backend/status.local.json`. Keep this ignored file private.
 
-```javascript
-const { spawnSync } = require('node:child_process');
-const { writeFileSync } = require('node:fs');
-const { join } = require('node:path');
-const workdir = process.argv[2];
-const run = spawnSync(process.execPath,
-  ['node_modules/supabase/dist/supabase.js', '--workdir', workdir, 'status', '-o', 'json'],
-  { encoding: 'utf8', windowsHide: true });
-writeFileSync(join(workdir, 'status.stderr.local.log'), run.stderr ?? '');
-if (run.error || run.status !== 0) throw new Error('Read the private status error log.');
-writeFileSync(join(workdir, 'status.local.json'), run.stdout, 'utf8');
-```
+Refresh the saved status with `npm run status:backend`.
 
-```powershell
-node .superpowers/web-backend/save-status.cjs .superpowers/web-backend
-```
-
-The helper writes UTF-8 without a BOM. Keep the ignored files private; do not print keys.
 Create `apps/web/.env.local` from `.env.example` and use the local publishable key.
 
 | Browser variable | Use |
@@ -72,14 +54,14 @@ Start one Edge process in a separate terminal. Stop it before changing modes.
 Development:
 
 ```powershell
-npm run start:web:functions -- -Mode Development
+npm run start:functions -- -Mode Development
 npm run dev:web
 ```
 
 Tests:
 
 ```powershell
-npm run start:web:functions -- -Mode Test
+npm run start:functions -- -Mode Test
 npm run verify:web
 ```
 
@@ -116,90 +98,24 @@ Open [the gallery](../design/web-portal/index.html) for route, state, viewport, 
 Use disposable fixtures for failures, end-pair actions, and destructive tests.
 Remove only IDs recorded by ownership journals. Preserve unknown rows and user edits.
 
-## 5. Backend checks and clean replay
+## 5. Backend checks
 
-Check the populated web database without resetting it:
-
-```powershell
-npm run test:web:db
-```
-
-SQL suites use fixed fixture IDs inside transactions and roll back their changes.
-Do not run race workers alongside browser fixtures. Global worker claims need their own test window.
-Race harnesses accept only supported loopback projects; notification races also require an empty notification table.
-
-Use a new project for a clean replay. Copy config, migrations, tests, and templates into its `supabase` directory.
-Before starting, inspect Docker containers, volumes, project labels, workdir, and ports.
-Do not reuse a populated project or volume.
-
-The final replay used project `deseo-web-replay` with database 55822 and shadow database 55820.
-It copied the current config, changed the project ID and ports, and disabled the absent seed file.
-It used supported Postgres-only commands:
+Run SQL checks against the combined development database:
 
 ```powershell
-npx supabase --workdir <fresh-replay-directory> db start
-npx supabase --workdir <fresh-replay-directory> db reset --local
-npx supabase --workdir <fresh-replay-directory> test db --local
+npm run test:db
 ```
 
-Keep replay logs before removing only its verified container and volume.
-The final replay did not reset `deseo-web` or `deseo-integration`.
+The SQL suites use fixture IDs and roll back their transactions. Preserve development records and unknown rows.
+Run race tests separately from browser tests. Set test keys from the ignored backend status file.
+All race harnesses use API 55721. Notification races require an empty notification table.
+Memory races require empty memory and cleanup tables because their workers claim jobs across the database.
+Do not reset the development database to satisfy these requirements.
 
-The memory race harness removes claimed objects. Use the isolated replay project when populated stacks contain unknown cleanup jobs.
-The final memory race target used replay API 55821.
-The CLI short-circuits `start` while its Postgres-only container runs.
-Stop only that verified replay project with data preservation, then start its required services:
-
-```powershell
-npx supabase --workdir <fresh-replay-directory> stop --project-id deseo-web-replay
-npx supabase --workdir <fresh-replay-directory> start -x realtime,imgproxy,postgres-meta,studio,edge-runtime,logflare,vector,supavisor,mailpit
-node .superpowers/web-backend/save-status.cjs <fresh-replay-directory>
-```
-
-Verify the new services' project labels, workdir, and API address before testing.
-The exclusions keep Edge runtime off. The original Edge process remains separate.
-Core and notification races can use API 55721 during their dedicated test window.
-Load each target's keys inside the Node test process and pass them only through its child environment.
-
-Save this helper as `.superpowers/web-backend/run-races.cjs`:
-
-```javascript
-const fs = require('node:fs');
-const { spawnSync } = require('node:child_process');
-const assert = require('node:assert/strict');
-const suites = {
-  core: ['pairing-races', 'planning-races', 'messages-races'],
-  memories: ['memories-races'],
-  notifications: ['notification-races'],
-};
-const suite = process.argv[2];
-const status = JSON.parse(fs.readFileSync(process.argv[3], 'utf8'));
-assert(suites[suite]);
-assert.equal(status.API_URL, suite === 'memories'
-  ? 'http://127.0.0.1:55821' : 'http://127.0.0.1:55721');
-assert(status.PUBLISHABLE_KEY && status.SERVICE_ROLE_KEY);
-const run = spawnSync(process.execPath, ['--experimental-strip-types', '--test',
-  ...suites[suite].map(name => 'supabase/tests/' + name + '.test.ts')], {
-  stdio: 'inherit',
-  env: { ...process.env,
-    SUPABASE_TEST_URL: status.API_URL,
-    SUPABASE_TEST_PUBLISHABLE_KEY: status.PUBLISHABLE_KEY,
-    SUPABASE_TEST_SERVICE_ROLE_KEY: status.SERVICE_ROLE_KEY,
-  },
-});
-if (run.error) throw run.error;
-process.exit(run.status ?? 1);
-```
-
-Run it from the repository root after verifying each stack's identity:
-
-```powershell
-node .superpowers/web-backend/run-races.cjs core .superpowers/web-backend/status.local.json
-node .superpowers/web-backend/run-races.cjs notifications .superpowers/web-backend/status.local.json
-node .superpowers/web-backend/run-races.cjs memories <fresh-replay-directory>/status.local.json
-```
-
-These calls match the root race scripts. Their keys stay inside the Node process and its child.
+On 2026-10-07, the `deseo` backend combined the web and integration development data.
+The private backups and transfer checks are in `.superpowers/consolidation`.
+Docker retains the original database and storage volumes as backups.
+Use `npm run start:backend` for the single current project.
 
 Run Edge checks from the root:
 

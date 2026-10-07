@@ -3,17 +3,24 @@
 // This harness tests SQL and Storage. Edge image-validation tests run separately.
 import assert from 'node:assert/strict';
 import { createHash, randomBytes, randomUUID } from 'node:crypto';
+import { execFileSync } from 'node:child_process';
 
 type Account = { id: string; token: string; sessionId: string };
 type Result<T> = { ok: true; data: T } | { ok: false; error: { code: string } };
 type Photo = { id: string; fullBytes: number; thumbBytes: number; width: number; height: number; thumbWidth: number; thumbHeight: number };
 type Memory = { id: string; version: number; photos: Array<Photo & { fullPath: string; thumbPath: string }> };
 type Job = { id: string; memoryId: string; bucket: string; paths: string[]; leaseToken: string };
-const base = process.env.SUPABASE_TEST_URL ?? 'http://127.0.0.1:55621';
+const base = process.env.SUPABASE_TEST_URL ?? 'http://127.0.0.1:55721';
 const publicKey = process.env.SUPABASE_TEST_PUBLISHABLE_KEY;
 const secretKey = process.env.SUPABASE_TEST_SERVICE_ROLE_KEY;
 assert.ok(['localhost', '127.0.0.1', '[::1]'].includes(new URL(base).hostname), 'Use a local disposable stack');
 assert.ok(publicKey && secretKey, 'Set local test keys outside the repository');
+// Importance: 100. Global cleanup claims must not delete development photos.
+assert.equal(new URL(base).port, '55721', 'Use the deseo backend on port 55721');
+const existingMemories = execFileSync('docker', ['exec', 'supabase_db_deseo', 'psql', '-U', 'postgres', '-d', 'postgres',
+  '-At', '-v', 'ON_ERROR_STOP=1', '-c', 'select (select count(*) from public.memories) + (select count(*) from private.memory_cleanup_jobs)'],
+  { encoding: 'utf8', windowsHide: true }).trim();
+assert.equal(existingMemories, '0', 'Memory races require empty memory and cleanup tables. Preserve development data.');
 const users: Account[] = [];
 const pairs = new Set<string>();
 const objectPaths = new Set<string>();
@@ -133,9 +140,12 @@ try {
   assert.ok(deletes.every((result) => result.ok));
   const stillFull = await reserve(owner, draft(pairId, [photo(5 * mib, 3 * mib), photo(5 * mib, 3 * mib)]));
   assert.ok(!stillFull.ok && stillFull.error.code === 'QUOTA_EXCEEDED', 'Deletion does not release bytes before Storage cleanup');
-  const claims = await Promise.all([serviceRpc<Job[]>('claim_memory_cleanup', { p_limit: 50 }), serviceRpc<Job[]>('claim_memory_cleanup', { p_limit: 50 })]);
-  assert.ok(claims[0].ok && claims[1].ok);
-  const jobs = [...claims[0].data, ...claims[1].data];
+  const jobs: Job[] = [];
+  for (let batch = 0; batch < 22 && jobs.length < 22; batch++) {
+    const claims = await Promise.all([serviceRpc<Job[]>('claim_memory_cleanup', { p_limit: 2 }), serviceRpc<Job[]>('claim_memory_cleanup', { p_limit: 2 })]);
+    assert.ok(claims[0].ok && claims[1].ok);
+    jobs.push(...claims[0].data, ...claims[1].data);
+  }
   assert.equal(jobs.length, 22, 'Workers claim each queued memory once');
   assert.equal(new Set(jobs.map((job) => job.id)).size, jobs.length, 'Concurrent workers have no duplicate leases');
   for (const job of jobs) {
@@ -173,7 +183,7 @@ try {
   const currentDeleteCommand = randomUUID();
   assert.ok((await rpc(owner, 'delete_memory', { p_memory_id: current.data.id, p_expected_version: 1, p_command_id: currentDeleteCommand })).ok);
   const [crossPairClaims, ...retries] = await Promise.all([
-    serviceRpc<Job[]>('claim_memory_cleanup', { p_limit: 50 }),
+    serviceRpc<Job[]>('claim_memory_cleanup', { p_limit: 2 }),
     ...Array.from({ length: 4 }, () => rpc(owner, 'delete_memory', { p_memory_id: memory.id, p_expected_version: 1, p_command_id: randomUUID() })),
     rpc(owner, 'delete_memory', { p_memory_id: current.data.id, p_expected_version: 1, p_command_id: currentDeleteCommand }),
   ]);
