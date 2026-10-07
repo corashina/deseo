@@ -65,6 +65,8 @@ node .superpowers/web-backend/save-status.cjs .superpowers/web-backend
 ```
 
 The helper writes UTF-8 without a BOM. Keep the ignored files private; do not print keys.
+Expiry fixtures use API_URL and DB_URL from that same status file.
+They require unique running Docker owners with matching project and workdir labels before SQL.
 Create `apps/web/.env.local` from `.env.example` and use the local publishable key.
 
 | Browser variable | Use |
@@ -946,3 +948,56 @@ No new Critical or Important breakage. No tests repeated by the reviewer.
 The native export color warnings remain a deferred Minor for whole-branch review.
 Device acceptance remains unverified.
 Task 7 is complete. The final whole-branch review remains pending.
+
+### Final whole-branch review and fixture identity correction
+
+Reviewer: /root/final_review, gpt-6-astra/high.
+Reviewed range: aaa066d483b547252a3b9a33927d0e296363c2f7..a2fba9b23c2a37ba7f643554c547ac1fb923c524.
+Original assessment: With fixes. Critical: None.
+Strengths: Today source/keyboard order, separate photo recovery, scoped styles, unchanged domain/dependencies, accurate evidence boundaries, and secondary-journal cleanup.
+
+Important: the expiry helper's fixed supabase_db_deseo target conflicts with the documented deseo-web setup.
+The helper now resolves API_URL and DB_URL through selectively inspected running Docker labels and published ports.
+It requires one owner per endpoint, matching project/workdir labels, and matching gateway/database roles.
+It runs SQL against the verified immutable database container ID.
+The UUID and disposable-email guards remain. An unmatched guarded update fails.
+This Important finding remains open until the controller's scoped re-review.
+
+Correction of the earlier Task 2 ruling: the fixed name proved only the current run's database target.
+It did not bind expiry to the fixture client's configured API.
+The ten earlier rulings remain unchanged as historical decisions.
+Controller correction: derive the SQL target from the same status endpoints used by fixtures and reject ambiguous or mismatched identity.
+Reason: documented setup and the existing shared stack must both select their own database.
+Cost if wrong: valid checks could be blocked, or expiry could target another local fixture database.
+Controlled rejection checks and real expired-code cases cover that risk.
+
+Fix wave base: a2fba9b23c2a37ba7f643554c547ac1fb923c524.
+All new identity behavior checks have importance 100.
+
+| Command | Result | Exit |
+|---|---|---:|
+| Docker identity preflight | Existing daemon and endpoint ports were absent; raw failure preserved | 1 |
+| npm run test:web -- fixture-identity.spec.ts, before fix | Four expected regression failures | 1 |
+| npm run test:web -- fixture-identity.spec.ts entry.spec.ts --grep "fixture database\|expired email code does not restore a session" | 20 passed; 9.0 seconds | 0 |
+| npm run typecheck --workspace @deseo/web | Passed | 0 |
+| npm run lint --workspace @deseo/web | Passed | 0 |
+
+The controller restored Docker Desktop; its saved deseo core containers resumed.
+The controller verified the existing project's API, database, mail, and Auth health before live checks.
+The implementer started no backend service and reset no data.
+Backend setup, schema, product source, and named data remain unchanged.
+The documented deseo-web identity used controlled Docker inputs. No second stack was launched.
+Both existing real expired-code assertions passed on the verified shared deseo stack.
+No broad suite, native export, or gallery rerun was needed.
+Raw logs remain under .superpowers/sdd/2026-10-07-deseo-frontend-design as final-fix-*.log.
+
+Minor triage: native NO_COLOR/FORCE_COLOR warnings are environmental and nonblocking.
+The raw export log remains preserved at .superpowers/frontend-design/evidence/2026-10-07/task-7-native-export.log.
+The controller verified its matching SHA256. No export was rerun for this fix.
+Use one color setting during the next required export. Keep the other color variable unset.
+
+Declined: physical keyboard, font, safe-area, final-item, VoiceOver, and TalkBack acceptance still lack device evidence.
+Named photo repair remains outside this frontend scope.
+Controller resolution: device checks remain unverified. Disposable normal-photo coverage and separate named failures retain their provenance.
+These limits do not establish device or named-data acceptance.
+One scoped final re-review follows this fix wave. New concerns remain subject to that review.
