@@ -11,9 +11,9 @@ import { IconButton } from '../../../components/ui/IconButton';
 import { RowGroup } from '../../../components/ui/RowGroup';
 import { Section } from '../../../components/ui/Section';
 import { Status } from '../../../components/ui/Status';
-import { EventRow, calendarKeys, importantDateCountdown, listImportantDates, nextImportantDate } from '../../calendar';
-import { getTask, listDueTasks, taskKeys, TaskRow, type Task } from '../../tasks';
-import { listPinnedNotes, messageKeys, NoteCard } from '../../messages';
+import { EventRow, importantDateCountdown, nextImportantDate } from '../../calendar';
+import { getTask, taskKeys, TaskRow, type Task } from '../../tasks';
+import { NoteCard } from '../../messages';
 import { latestMemory, memoryKeys, MemoryAccessBoundary, MemoryCard } from '../../memories';
 import { listNotifications, notificationKeys } from '../../notifications';
 import { useCore } from '../../pair';
@@ -40,19 +40,14 @@ function Today() {
   const [recentTaskId, setRecentTaskId] = useState<string | null>(null);
   const query = useQuery({ queryKey: todayKeys.day(account.id, pairId, date),
     queryFn: () => getToday(pairId, date) });
-  const tasks = useQuery({ queryKey: taskKeys.due(account.id, pairId, date), queryFn: () => listDueTasks(pairId, date) });
   const recentTask = useQuery({ queryKey: taskKeys.task(account.id, pairId, recentTaskId ?? ''),
     queryFn: () => getTask(pairId, recentTaskId!), enabled: recentTaskId !== null });
-  const notes = useQuery({ queryKey: messageKeys.notes(account.id, pairId), queryFn: () => listPinnedNotes(pairId) });
   const notifications = useInfiniteQuery({ queryKey: notificationKeys.list(account.id, pairId), initialPageParam: null as string | null,
     queryFn: ({ pageParam }) => listNotifications(pageParam), getNextPageParam: page => page.nextCursor ?? undefined });
   const newNotifications = !notifications.isError && notifications.data?.pages.some(page => page.items.some(item => item.readAt === null));
-  const until = DateTime.fromISO(date, { zone: activePair.timezone }).plus({ days: 366 }).toISODate()!;
-  const importantDates = useQuery({ queryKey: [...calendarKeys.all(account.id, pairId), 'importantDates', date, until],
-    queryFn: () => listImportantDates(pairId, date, until) });
-  const important = importantDates.data ? nextImportantDate(importantDates.data, activePair.timezone) : undefined;
+  const important = query.data ? nextImportantDate(query.data.importantDates, activePair.timezone) : undefined;
   const countdown = important?.temporal.kind === 'allDay' ? importantDateCountdown(important.temporal.startDate, activePair.timezone) : null;
-  const note = notes.data?.[0];
+  const note = query.data?.notes[0];
   const completedTask = !recentTask.isError && recentTask.data?.completedAt ? recentTask.data : null;
   const author = (id: string | null) => activePair.members.find(member => member.userId === id)?.displayName ?? 'Unassigned';
   const names = { a: activePair.members.find(member => member.slot === 'a')!.displayName, b: activePair.members.find(member => member.slot === 'b')!.displayName };
@@ -63,7 +58,7 @@ function Today() {
   const taskRow = (task: Task) => <TaskRow key={task.id} task={task} accountId={account.id} online={online}
     assignee={author(task.assigneeId)} onCompleted={complete}
     onOpen={() => router.push({ pathname: '/tasks/[taskId]', params: { taskId: task.id } })} />;
-  const refresh = () => { void query.refetch(); void tasks.refetch(); void notes.refetch(); void importantDates.refetch(); void notifications.refetch();
+  const refresh = () => { void query.refetch(); void notifications.refetch();
     void client.invalidateQueries({ queryKey: memoryKeys.latest(account.id, pairId) });
     if (recentTaskId) void recentTask.refetch(); };
   const agenda = query.data?.agenda ?? [];
@@ -74,7 +69,7 @@ function Today() {
         onPress={() => router.push('/notifications')} />
     </>}
     action={<Button label="Add event" icon="add" compact onPress={() => router.push('/events/new')} />}
-    refreshing={[query, tasks, notes, importantDates, notifications].some(result => result.isRefetching)} onRefresh={refresh}>
+    refreshing={query.isRefetching || notifications.isRefetching} onRefresh={refresh}>
     {notifications.isError && <Status message="We could not load notifications." tone="error" actionLabel="Retry notifications"
       onAction={() => { void notifications.refetch(); }} />}
     <Section card title="This week" link={{ label: 'View calendar', onPress: () => router.push('/(tabs)/calendar') }}>
@@ -89,23 +84,23 @@ function Today() {
       <MemoryAccessBoundary><LatestMemory accountId={account.id} pairId={pairId} author={author} /></MemoryAccessBoundary>
     </Section>
     <Section title="Your note" link={{ label: 'Messages', onPress: () => router.push('/(tabs)/messages') }}>
-      {notes.isPending ? <Status tone="loading" message="Loading your note…" /> : notes.isError ?
-        <Status message="We could not load your note." tone="error" actionLabel="Retry note" onAction={() => { void notes.refetch(); }} /> :
+      {query.isPending ? <Status tone="loading" message="Loading your note…" /> : query.isError ?
+        <Status message="We could not load your note." tone="error" /> :
         note ? <NoteCard message={note} authorName={author(note.authorId)} onReply={() => router.push('/(tabs)/messages')}
           onOpen={() => router.push('/(tabs)/messages')} /> : <Text style={theme.typography.body}>Pin a message to keep it here.</Text>}
     </Section>
     <Section title="Due today" link={{ label: 'All tasks', onPress: () => router.push('/(tabs)/tasks') }}>
-      {tasks.isPending ? <Status tone="loading" message="Loading your tasks…" /> : tasks.isError ?
-        <Status message="We could not load your tasks." tone="error" actionLabel="Retry tasks" onAction={() => { void tasks.refetch(); }} /> :
-        tasks.data.length || completedTask ? <RowGroup>{tasks.data.filter(task => task.id !== completedTask?.id).map(taskRow)}</RowGroup>
+      {query.isPending ? <Status tone="loading" message="Loading your tasks…" /> : query.isError ?
+        <Status message="We could not load your tasks." tone="error" /> :
+        query.data.dueTasks.length || completedTask ? <RowGroup>{query.data.dueTasks.filter(task => task.id !== completedTask?.id).map(taskRow)}</RowGroup>
           : <Text style={theme.typography.body}>No tasks due today.</Text>}
       {completedTask && <View style={ui.stack}>
         <Text style={theme.typography.secondary}>Task completed</Text><RowGroup>{taskRow(completedTask)}</RowGroup>
       </View>}
     </Section>
     <Section card title="Next important date">
-      {importantDates.isPending ? <Status tone="loading" message="Loading important dates…" /> : importantDates.isError ?
-        <Status message="We could not load important dates." tone="error" actionLabel="Retry dates" onAction={() => { void importantDates.refetch(); }} /> :
+      {query.isPending ? <Status tone="loading" message="Loading important dates…" /> : query.isError ?
+        <Status message="We could not load important dates." tone="error" /> :
         important && important.temporal.kind === 'allDay' && countdown !== null ? <>
           <Countdown days={countdown} title={important.title} date={DateTime.fromISO(important.temporal.startDate).toLocaleString(DateTime.DATE_HUGE)} />
           <Button label="View date" variant="text" trailingIcon="chevron-forward" onPress={() => router.push({ pathname: '/events/[eventId]', params: { eventId: important.id } })} />

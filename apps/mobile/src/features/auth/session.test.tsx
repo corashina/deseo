@@ -15,8 +15,8 @@ import { registerDraftFlush } from '../../lib/draft';
 import { resetPrivateQueries } from '../../lib/query-client';
 
 function Status() {
-  const { state } = useAuth();
-  return <Text>{state.status === 'authenticated' ? state.userId : state.status}</Text>;
+  const { state, verifying } = useAuth();
+  return <Text>{(state.status === 'authenticated' ? state.userId : state.status) + (verifying ? ' covered' : '')}</Text>;
 }
 beforeEach(() => {
   jest.clearAllMocks();
@@ -42,8 +42,8 @@ test('network failure hides the restored account', async () => {
   await screen.findByText('error');
 });
 
-// Importance: 98. A background transition must save the last keystroke before invalidating its draft scope.
-test('backgrounding flushes drafts before clearing private query access', async () => {
+// Importance: 98. A background transition must save the last keystroke and cover private content.
+test('backgrounding flushes drafts and covers content without clearing the cache', async () => {
   const handlers: ((status: AppStateStatus) => void)[] = [];
   const listener = jest.spyOn(AppState, 'addEventListener').mockImplementation((_event, callback) => {
     handlers.push(callback); return { remove: jest.fn() };
@@ -56,10 +56,30 @@ test('backgrounding flushes drafts before clearing private query access', async 
   const remove = registerDraftFlush(() => new Promise<void>(resolve => { finish = () => { saved = true; resolve(); }; }));
   (resetPrivateQueries as jest.Mock).mockClear();
   await act(async () => { handlers.forEach(callback => callback('background')); });
-  expect(resetPrivateQueries).not.toHaveBeenCalled();
-  expect(screen.getByText('loading')).toBeTruthy();
+  expect(screen.getByText('account-a covered')).toBeTruthy();
   await act(async () => { finish(); });
   expect(saved).toBe(true);
-  expect(resetPrivateQueries).toHaveBeenCalledTimes(1);
+  expect(resetPrivateQueries).not.toHaveBeenCalled();
   remove(); listener.mockRestore();
+});
+// Importance: 100. Resume keeps cached content only for the same verified account.
+test('resume keeps the cache for the same account and clears it for another', async () => {
+  const handlers: ((status: AppStateStatus) => void)[] = [];
+  const listener = jest.spyOn(AppState, 'addEventListener').mockImplementation((_event, callback) => {
+    handlers.push(callback); return { remove: jest.fn() };
+  });
+  (restoreSession as jest.Mock).mockResolvedValue({ userId: 'account-a', account: null });
+  await render(<AuthProvider><Status /></AuthProvider>);
+  await screen.findByText('account-a');
+  (resetPrivateQueries as jest.Mock).mockClear();
+  await act(async () => { handlers.forEach(callback => callback('background')); });
+  await act(async () => { handlers.forEach(callback => callback('active')); });
+  await screen.findByText('account-a');
+  expect(resetPrivateQueries).not.toHaveBeenCalled();
+  (restoreSession as jest.Mock).mockResolvedValue({ userId: 'account-b', account: null });
+  await act(async () => { handlers.forEach(callback => callback('background')); });
+  await act(async () => { handlers.forEach(callback => callback('active')); });
+  await screen.findByText('account-b');
+  expect(resetPrivateQueries).toHaveBeenCalledTimes(1);
+  listener.mockRestore();
 });

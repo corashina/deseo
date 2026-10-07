@@ -7,8 +7,9 @@ export async function subscribePairSignals(accountId: string, pairId: string | n
   let subscribed = false;
   const channel = client.channel(`core:${accountId}`)
     .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'profiles', filter: `user_id=eq.${accountId}` }, revalidate);
+  // Event rows feed Calendar, Today, and event reminders only. Other pair queries keep their data.
   if (pairId) channel.on('postgres_changes', { event: '*', schema: 'public', table: 'events', filter: `pair_id=eq.${pairId}` }, () => {
-    void queryClient.invalidateQueries({ predicate: query => query.queryKey.includes(pairId) });
+    for (const feature of ['calendar', 'today', 'notifications']) void queryClient.invalidateQueries({ queryKey: [feature, accountId, pairId] });
   });
   channel.subscribe(status => {
     if (status === 'SUBSCRIBED') {
