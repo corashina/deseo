@@ -130,6 +130,24 @@ npm exec --yes --package deno@2.9.6 -- deno check --frozen --config supabase/fun
 The sensitive function has its own committed dependency map. Use its config for standalone checks.
 Discover CLI options through the installed help before changing commands.
 
+After you change a migration, regenerate the shared database types from a running local stack:
+
+```powershell
+npm run gen:types
+```
+
+The command writes `packages/domain/src/database.types.ts`. Mobile and web create their clients from it.
+CI fails when the committed file differs from the schema.
+
+### Continuous integration
+
+`.github/workflows/ci.yml` runs on pushes to `master` and `main` and on every pull request.
+
+- The apps job runs `verify:mobile`, the domain tests, and the web typecheck, lint, and build.
+- The backend job moves Supabase to the integration ports and starts it. It runs the SQL suites, the type check, the three race harnesses, and the Deno function checks.
+
+Playwright portal tests need the PowerShell web stack. Run them locally with `npm run test:web`.
+
 ## 6. Expo mobile
 
 Copy `apps/mobile/.env.example` to its `.env.local` before connecting a native build.
@@ -150,6 +168,23 @@ npm exec --workspace @deseo/mobile -- expo export --platform android --platform 
 MMKV needs a development build. Expo Go cannot run its native storage.
 Android requires installed Android tooling. iOS local builds require macOS and Xcode.
 JavaScript exports verify bundling; physical device, push, native binary, and store checks remain separate.
+
+The app follows the device appearance. Read colors from `useTheme()` and build styles with `makeStyles()` from `src/theme`.
+
+### Phone preview build
+
+A preview build installs on both phones without a store. Android gets an APK; iOS needs a registered device.
+
+1. Sign in once: `npm exec --yes --package eas-cli@24.11.0 -- eas login`.
+2. In `apps/mobile`, link the project: `npm exec --yes --package eas-cli@24.11.0 -- eas init`. Save the project ID as `EXPO_PUBLIC_EAS_PROJECT_ID`.
+3. Add the `EXPO_PUBLIC_*` values to the EAS `preview` environment. Use a backend both phones can reach.
+4. Run `npm run build:mobile:preview` and open the install links on both phones.
+
+### Crash reporting
+
+The app sends crashes to Sentry only when `EXPO_PUBLIC_SENTRY_DSN` is set.
+It sends no default personal data and drops console, request, and navigation breadcrumbs.
+To upload source maps from EAS, set `SENTRY_ORG`, `SENTRY_PROJECT`, and the secret `SENTRY_AUTH_TOKEN` in that EAS environment.
 
 ## 7. Implementation rules
 

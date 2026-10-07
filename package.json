@@ -13,6 +13,7 @@
   },
   "scripts": {
     "dev:mobile": "npm run start --workspace @deseo/mobile",
+    "build:mobile:preview": "cd apps/mobile && npm exec --yes --package eas-cli@24.11.0 -- eas build --profile preview --platform all",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "lint": "eslint apps/mobile/src apps/web packages/domain/src",
     "test:mobile": "npm run test --workspace @deseo/mobile --",
