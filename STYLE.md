@@ -20,34 +20,34 @@ Use at least 48dp touch targets. Respect safe areas, Dynamic Type, VoiceOver, Ta
 
 Use Expo Router stacks and bottom tabs on native devices. Use React Router links and a sidebar in the portal.
 
-Follow the approved [portal design](docs/superpowers/specs/2026-10-05-deseo-web-portal-design.md) for browser dimensions and routes.
+Follow the approved [portal design](docs/README.md#browser-portal-design) for browser dimensions and routes.
 
-Follow [the screen guide](docs/product/SCREENS.md) for native routes and complete flows.
+Follow [the screen guide](docs/README.md#screens) for native routes and complete flows.
 
 ## 1. Visual reference
 
-Open [the design reference](docs/design/preview.html) in a browser. Choose a navigation item to inspect its sample screen.
+Open [the design reference](design/preview.html) in a browser. Choose a navigation item to inspect its sample screen.
 
 The reference includes Today, Calendar, Memories, Messages, and Tasks. Sample actions do not save or send data.
 
-![Desktop design reference](docs/design/desktop.jpg)
+![Desktop design reference](design/desktop.jpg)
 
-![Mobile design reference](docs/design/mobile.jpg)
+![Mobile design reference](design/mobile.jpg)
 
 The landscape is an original placeholder illustration. Use the couple's own photos in the product.
 
 ### App icon selection
 
-Review [the ten numbered icon concepts](docs/design/icons/comparison.html). See [the saved prompts](docs/design/icons/README.md) for generation details.
+Review [the ten numbered icon concepts](design/icons/comparison.html). See [the saved prompts](design/icons/README.md) for generation details.
 
-![Ten pastel app icon concepts](docs/design/icons/comparison.jpg)
+![Ten pastel app icon concepts](design/icons/comparison.jpg)
 
 Selected icon: **05 — Two voices, round two**. Two pastel speech bubbles frame an ivory heart.
 
-Use [the selected icon](docs/design/icons-round-2/icon-05-two-voices.png) as the app identity reference.
+Use [the selected icon](design/icons-round-2/icon-05-two-voices.png) as the app identity reference.
 Keep the blush and lavender colors, rounded shapes, and central heart.
 
-![Selected Deseo icon: Two voices](docs/design/icons-round-2/icon-05-two-voices.png)
+![Selected Deseo icon: Two voices](design/icons-round-2/icon-05-two-voices.png)
 
 ## 2. Reference analysis and design decision
 
@@ -339,7 +339,7 @@ Show the image, caption, date, and author. Keep captions outside images for reli
 
 Use a 3:2 crop in compact cards. Show the full image in the detail view.
 
-Prepare uploads without location metadata, within the size limits in [DATA.md](docs/architecture/DATA.md).
+Prepare uploads without location metadata, within the size limits in [DATA.md](docs/ARCHITECTURE.md#data-contract).
 
 Preserve the accepted full image. Display card crops without changing that image. Keep the camera original on the person's device.
 
@@ -445,7 +445,7 @@ Keep static data, formatters, and icon definitions outside repeated render work 
 
 ## 10. Frontend structure
 
-Follow the module rules in [ARCHITECTURE.md](docs/architecture/ARCHITECTURE.md).
+Follow the module rules in [ARCHITECTURE.md](docs/ARCHITECTURE.md#architecture).
 
 Use `apps/mobile` for Expo screens and native capabilities. Use `apps/web` for React DOM screens and browser capabilities.
 
@@ -474,7 +474,7 @@ Use production images with explicit dimensions and responsive sizes. Avoid runti
 5. Add messages, delivery states, and pinned notes.
 6. Compose Today from the working features.
 
-The [implementation plan](docs/superpowers/plans/2026-10-04-deseo-implementation.md) adds Today incrementally as each feature works.
+The [implementation plan](docs/DEVELOPMENT.md#superpowers-plans-2026-10-04-deseo-implementation) adds Today incrementally as each feature works.
 
 Follow that plan for backend, native, public-site, and release work. This list describes visual dependencies only.
 
@@ -482,7 +482,7 @@ Keep each layer usable before adding the next. Do not expose routes with placeho
 
 ## 12. Verification and release checks
 
-Use [the review record](docs/design/REVIEW.md) for the checks performed on this reference.
+Use [the review record](design/REVIEW.md#) for the checks performed on this reference.
 
 ### Measured palette contrast
 
@@ -549,3 +549,10 @@ Use **event**, **memory**, **message**, **note**, **task**, and **reminder** wit
 Write button labels as actions: Add event, Save changes, Send message, Upload photo, Retry.
 
 Describe the actual state. Avoid guilt, inflated praise, vague promises, and relationship scoring.
+
+## Frontend verification reference
+
+Use [the current gallery](design/frontend-2026-10-07/web/index.html) for this frontend update.
+Use [the frontend handoff](docs/DEVELOPMENT.md#frontend-design-handoff) for checked source, browser, and native export evidence.
+Physical keyboard, large-font, safe-area, VoiceOver, and TalkBack acceptance remain unverified.
+Keep [the historical gallery](design/web-portal/index.html) for its recorded source.

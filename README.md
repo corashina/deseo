@@ -16,7 +16,7 @@ The public information site remains a separate delivery task.
 - **Settings:** Profile, pair, preferences, fresh verification, and sign-out controls.
 
 Each account can join one active pair. Each pair has two people.
-Deseo uses pastel colors and the [Two voices icon](docs/design/icons-round-2/icon-05-two-voices.png).
+Deseo uses pastel colors and the [Two voices icon](design/icons-round-2/icon-05-two-voices.png).
 
 ## Start
 
@@ -30,20 +30,20 @@ npm run start:web:backend
 ```
 
 Set the browser environment and start one Edge process before `npm run dev:web`.
-Follow [Development](docs/engineering/DEVELOPMENT.md) for exact commands, local keys, and origin modes.
+Follow [Development](docs/DEVELOPMENT.md#development-workflow) for exact commands, local keys, and origin modes.
 
 ## Read first
 
 | Document | Purpose |
 |---|---|
-| [Portal design](docs/superpowers/specs/2026-10-05-deseo-web-portal-design.md) | Approved browser scope |
-| [Screen guide](docs/product/SCREENS.md) | Routes, forms, states, and native flows |
+| [Portal design](docs/README.md#browser-portal-design) | Approved browser scope |
+| [Screen guide](docs/README.md#screens) | Routes, forms, states, and native flows |
 | [Style guide](STYLE.md) | Colors, dimensions, and platform navigation |
-| [Architecture](docs/architecture/ARCHITECTURE.md) | Modules, shared contracts, and platform capabilities |
-| [Data contract](docs/architecture/DATA.md) | Access, transactions, and lifecycle rules |
-| [Development](docs/engineering/DEVELOPMENT.md) | Setup and verification commands |
-| [Testing](docs/engineering/TESTING.md) | Importance ratings and acceptance limits |
-| [Portal handoff](docs/handoffs/web-portal.md) | Measured results, commits, and remaining checks |
+| [Architecture](docs/ARCHITECTURE.md#architecture) | Modules, shared contracts, and platform capabilities |
+| [Data contract](docs/ARCHITECTURE.md#data-contract) | Access, transactions, and lifecycle rules |
+| [Development](docs/DEVELOPMENT.md#development-workflow) | Setup and verification commands |
+| [Testing](docs/DEVELOPMENT.md#verification) | Importance ratings and acceptance limits |
+| [Portal handoff](docs/DEVELOPMENT.md#portal-handoff) | Measured results, commits, and remaining checks |
 | [Documentation index](docs/README.md) | Design, implementation, research, and handoffs |
 
 ## Workspace
@@ -59,11 +59,12 @@ apps/site/         Planned public information site
 
 ## Screenshots
 
-Open [the portal gallery](docs/design/web-portal/index.html) or [the capture index](docs/design/web-portal/README.md).
-The gallery contains 324 JPEGs for 39 routes, 119 views, and 238 viewport records.
-It uses real local Anna and Marek accounts and disposable fixtures for other states.
+Open [the current gallery](design/frontend-2026-10-07/web/index.html) or [the capture index](design/frontend-2026-10-07/web/README.md).
+Keep [the historical gallery](design/web-portal/index.html) as its recorded-source reference.
+The current gallery requires 39 routes, 119 views, and 238 viewport records.
+It uses named local accounts, owned disposable normal-media fixtures, and controlled failure states.
 
-The [older visual reference](docs/design/preview.html) contains sample interactions without persistence.
+The [older visual reference](design/preview.html) contains sample interactions without persistence.
 
 ## Delivery limits
 

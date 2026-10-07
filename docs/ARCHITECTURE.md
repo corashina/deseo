@@ -1,5 +1,189 @@
-# Data and access contract
+# Architecture
 
+Read [module rules](#architecture), [the data contract](#data-contract), and [development](DEVELOPMENT.md) before product work.
+These sections retain the existing shared domain and access rules.
+
+<a id="architecture"></a>
+## Architecture
+Status: React web and Expo mobile share domain contracts and the existing Supabase backend.
+Read [the approved portal design](README.md#browser-portal-design) and [measured handoff](DEVELOPMENT.md#portal-handoff).
+
+<a id="architecture-1-applications"></a>
+### 1. Applications
+
+Expo owns Android and iOS screens, native storage, photo selection, and push registration.
+React DOM owns browser screens, URLs, file inputs, and browser session lifecycle.
+The planned Astro site owns public information and installation handoff.
+PostgreSQL owns durable content, permissions, pairing, versions, and transactions.
+
+```mermaid
+flowchart LR
+  Native[Expo Android / iOS] --> Domain[Shared domain contracts]
+  Web[React browser portal] --> Domain
+  Native --> Auth[Supabase Auth]
+  Web --> Auth
+  Native --> DB[(PostgreSQL and RLS)]
+  Web --> DB
+  Native --> Storage[Private Storage]
+  Web --> Storage
+  Native --> RT[Authorized Realtime signals]
+  Web --> RT
+  Native --> Edge[Supabase Edge functions]
+  Web --> Edge
+  Cron[Scheduled workers] --> Edge
+  Edge --> DB
+  Edge --> Storage
+  Edge --> Push[Expo Push / APNs / FCM]
+```
+
+<a id="architecture-2-stack"></a>
+### 2. Stack
+
+| Area | Choice |
+|---|---|
+| Native | Expo, React Native, TypeScript, Expo Router |
+| Browser | React DOM, TypeScript, Vite, React Router |
+| Queries | TanStack Query; one client per application |
+| Forms | React Hook Form and Zod resolver |
+| Dates | Luxon and shared date rules |
+| Backend | Supabase Auth, PostgreSQL, RLS, Storage, Realtime, Edge functions |
+| Brand | `brand/tokens.json` and Two voices icon |
+
+Keep exact package pins and one root lockfile. Use Node 24.18.0 and npm 11.16.0.
+
+<a id="architecture-3-module-structure"></a>
+### 3. Module structure
+
+```text
+apps/mobile/src/
+  app/                      Expo route files and providers
+  features/                 Native screens, queries, commands, capabilities
+  components/ui/            Native controls
+  theme/                    Native brand mapping
+  lib/                      Native client, encrypted storage, lifecycle
+apps/web/src/
+  app/                      Browser router, providers, gate, shell, manifest
+  features/                 Browser pages, queries, commands, controls
+  components/ui/            Browser controls
+  styles/                   Browser tokens and feature styles
+  lib/                      Browser client, media, drafts, lifecycle
+apps/web/tests/             Real-browser acceptance and gallery capture
+packages/domain/src/       Shared schemas, types, payloads, date rules, results
+supabase/
+  migrations/              Authoritative schema and transactions
+  functions/               Narrow server operations and workers
+  tests/                   SQL, access, and race checks
+  dev/                     Guarded local stack and synthetic pair fixtures
+brand/                     Shared tokens and icon
+design/web-portal/     Gallery, records, and JPEG evidence
+```
+
+Keep native UI and browser UI separate. Extract only contracts both applications use.
+Remove old contract copies and compatibility exports when moving shared code.
+Shared domain modules must not import React Native, Expo, MMKV, browser storage, or application routes.
+
+<a id="architecture-4-dependency-rules"></a>
+### 4. Dependency rules
+
+1. Routes import feature pages, screens, and UI controls.
+2. Feature commands and queries import that application's backend client and shared contracts.
+3. Features import another feature's public interface, not its internal files.
+4. Today reads public feature queries. Screens do not call database tables.
+5. UI controls import platform libraries and brand values, not feature data.
+6. Backend functions share code only where multiple functions use it.
+7. Public pages import brand assets, not signed-in application screens.
+
+The pair module owns membership. Messages owns notes. Calendar owns events, important dates, and date ideas.
+Each application owns its client and lifecycle. Avoid a second global copy of query data.
+Use the installed Supabase query builder without a generic repository layer.
+
+<a id="architecture-5-reads-writes-and-refresh"></a>
+### 5. Reads, writes, and refresh
+
+Read: page or screen → feature query → authenticated request → RLS → typed result → Query cache.
+Write: form → feature command → transaction → confirmed result → targeted invalidation.
+Refresh: authorized Realtime signal → invalidation → authenticated read.
+Photo: selection → preparation → reservation → private upload → server validation → publication.
+Push: durable job → scheduled worker → current access check → Expo → receipt processing.
+
+Scope keys to account and pair. Abort old reads and clear private caches before account or pair changes.
+Revalidate server authority after focus and reconnect. Reset queries again if verified authority changes.
+Keep each Realtime authority channel owned by a stable verified account ID.
+Ignore only signals represented by the latest fully server-verified snapshot, with exact identity, state, version, and slot checks.
+Revalidate incomplete signals and genuine changes. Never skip account disable or membership departure.
+Reject removed prior-user callbacks before they can interrupt a new account's requests.
+Keep stable command IDs and immutable input while an outcome remains unknown.
+Offer explicit retry or reconciliation. Confirm success only after a durable server result.
+
+<a id="architecture-6-platform-storage"></a>
+### 6. Platform storage
+
+Native uses SecureStore for its encryption key and encrypted MMKV for Auth sessions and scoped drafts.
+Handle storage failure by explaining the failure and requiring sign-in. Do not add plaintext fallback storage.
+Native photos use private temporary files. Purge them on discard, scope change, and sign-out.
+
+Browser Auth uses Supabase's supported browser session storage.
+Shared rows, private images, and drafts stay in memory. Browser drafts do not survive reload.
+Use no-store media requests and scoped blobs. Release object URLs after use and on authority loss.
+Warn before navigation or reload discards changed input. Explicit or forced sign-out clears private state immediately.
+A failed global Auth sign-out remains visible after local session removal.
+
+Keep fetched shared content in memory on both platforms. Revalidate account status and membership before displaying it.
+
+<a id="architecture-7-browser-navigation-and-loading"></a>
+### 7. Browser navigation and loading
+
+Use ordinary links, reloadable record URLs, browser Back, document titles, and visible active navigation.
+Use a 256px sidebar from 1024px, a 72px rail from 768px, and a drawer below 768px.
+Keep navigation and account controls outside route loading boundaries.
+Load route pages with React lazy and Suspense. The route boundary reports loading and handles load failures.
+
+Keep shared form rules in `controls.css` and shared text wrapping in `base.css`.
+Each page loads its feature styles. Do not depend on a previously visited feature's stylesheet.
+
+Keep one router blocker with memory-scoped dirty registrations. Retain unresolved input when the user cancels leaving.
+Do not add service workers, offline content storage, browser push, or installation prompts.
+
+<a id="architecture-8-server-authorization"></a>
+### 8. Server authorization
+
+RLS checks current account status and membership. Ignore editable JWT metadata for authorization.
+Restricted helpers check JWT session IDs against Auth sessions. Global sign-out blocks revoked sessions.
+Use ordinary RLS reads and named transactions for multi-record invariants.
+Expose narrow invoker wrappers around hardened private implementations.
+Revoke default execution, grant required roles, set an empty search path, and check callers.
+Keep internal tables outside exposed schemas. Do not accept client-supplied trusted actor IDs.
+Keep server keys inside verified server jobs and test processes.
+
+Server `WEB_APP_ORIGIN` permits one browser origin. Native requests can omit Origin.
+The local Supabase gateway uses wildcard CORS headers and intercepts OPTIONS.
+The function still rejects unknown and null origins before Auth or action work.
+Direct helper tests prove handler policy; they do not prove external gateway headers.
+Server `PUBLIC_SUPABASE_URL` supplies reachable signed links. Injected `SUPABASE_URL` remains internal.
+
+See [DATA.md](ARCHITECTURE.md#data-contract) for access, lifecycle, retention, and race rules.
+
+<a id="architecture-9-platform-acceptance"></a>
+### 9. Platform acceptance
+
+Use separate local and hosted projects. Local fixtures reject non-loopback addresses.
+Keep the named Anna and Marek pair usable. Remove only fixtures with proven ownership.
+Replay migrations in a new isolated project; preserve populated web and integration stacks.
+
+Expo Go cannot verify MMKV. Physical devices must verify native storage, permissions, photos, notifications, and lifecycle changes.
+JavaScript exports do not compile native binaries. Windows cannot run an iOS simulator.
+Use macOS with Xcode or authorized EAS builds for iOS native work.
+
+Account export, deletion, avatar backend work, and public pages remain separate delivery work.
+The portal uses current supported backend commands without adding incomplete account controls.
+
+<a id="architecture-10-references"></a>
+### 10. References
+
+See [the architecture review](ARCHITECTURE.md#architecture-review), [ADR 0001](ARCHITECTURE.md#adr-0001-mobile-stack-and-module-structure), and [research sources](README.md#sources).
+
+<a id="data-contract"></a>
+## Data contract
 Status: Shared access contract for Expo mobile and React web. The portal handoff records executed backend checks.
 
 Both applications call the same authenticated reads, transactions, and Edge functions.
@@ -9,7 +193,8 @@ Shared schemas and payloads live in `packages/domain`; each application owns its
 Export, account deletion, avatar storage, and public deletion pages remain separate delivery work.
 Their lifecycle rules below remain requirements; this portal does not claim those endpoints exist.
 
-## 1. Shared conventions
+<a id="data-contract-1-shared-conventions"></a>
+### 1. Shared conventions
 
 Use UUID record IDs. Use UTC `timestamptz` values for instants and `date` values for calendar dates.
 
@@ -21,7 +206,8 @@ Include current account status in access checks. Include active membership and p
 
 Generate database types from the actual schema. Keep database checks authoritative when client validation duplicates them.
 
-## 2. Records
+<a id="data-contract-2-records"></a>
+### 2. Records
 
 | Record | Required fields and constraints |
 |---|---|
@@ -53,7 +239,8 @@ Store avatars privately. Only their owner and current partner can retrieve them.
 
 No separate table exists for Today, notes, countdowns, or a relationship score.
 
-## 3. Temporal fields
+<a id="data-contract-3-temporal-fields"></a>
+### 3. Temporal fields
 
 Timed event: `starts_at`, `ends_at`, `timezone`; require `ends_at > starts_at`.
 
@@ -76,7 +263,8 @@ All-day offsets count back from 09:00 in the event timezone. Yearly dates follow
 
 Task due dates are dates in the pair timezone. A task reminder stores an explicit chosen instant.
 
-## 4. Access matrix
+<a id="data-contract-4-access-matrix"></a>
+### 4. Access matrix
 
 | Record | Read | Create | Change / delete |
 |---|---|---|---|
@@ -104,9 +292,11 @@ RLS covers direct reads, reads through views, subscriptions, and storage objects
 
 Use `security_invoker` views if a view is required. Do not expose unrestricted views or storage buckets.
 
-## 5. Pair transactions
+<a id="data-contract-5-pair-transactions"></a>
+### 5. Pair transactions
 
-### Create and regenerate
+<a id="data-contract-create-and-regenerate"></a>
+#### Create and regenerate
 
 `create_pair(timezone, command_id)` creates a pending pair and membership atomically.
 
@@ -118,7 +308,8 @@ The same token works in a link and manual entry. Treat it as a secret, not an ac
 
 Apply verified-account and network-level rate limits to validation and acceptance. Start with five failed attempts per 15 minutes per account.
 
-### Join
+<a id="data-contract-join"></a>
+#### Join
 
 `accept_invite(token, command_id)` derives the actor from verified authentication.
 
@@ -140,7 +331,8 @@ Idempotent replay by the same actor returns the original pair. A different actor
 
 Cancel an empty pending pair before joining another. A pending pair cannot contain published shared content.
 
-## 6. Content commands and conflicts
+<a id="data-contract-6-content-commands-and-conflicts"></a>
+### 6. Content commands and conflicts
 
 Create commands accept `command_id`. Durable content IDs also use client UUIDs where appropriate.
 
@@ -166,7 +358,8 @@ Delete other lists only when empty. Move tasks to General through an explicit us
 
 Creating or editing a source record updates pending reminder work within the same transaction or an authoritative database trigger.
 
-## 7. Messages and realtime
+<a id="data-contract-7-messages-and-realtime"></a>
+### 7. Messages and realtime
 
 Use `(created_at,id)` keyset pagination. Timestamps come from the server; UUIDs break ties.
 
@@ -182,7 +375,8 @@ Pair closure emits only a revocation signal. Revalidate access and remove conten
 
 Do not send message bodies through an unrestricted broadcast channel.
 
-## 8. Photos
+<a id="data-contract-8-photos"></a>
+### 8. Photos
 
 Limit each memory to five photos. Limit a prepared photo to 5 MiB and 2,560 pixels on its longest side.
 
@@ -215,7 +409,8 @@ An already issued link may work until expiry. Explain this technical limit in th
 
 Delete memory metadata visibility first. Retry storage removal until completion. Keep failed cleanup visible to operations.
 
-## 9. Reminders and push
+<a id="data-contract-9-reminders-and-push"></a>
+### 9. Reminders and push
 
 Create one notification for each recipient and source occurrence. Create a delivery job for each active opted-in device.
 
@@ -254,9 +449,11 @@ Quiet hours use the recipient's timezone. Defer messages until quiet hours end; 
 
 Persist notifications for 30 days. Do not maintain a second calendar inside the notification system.
 
-## 10. Export, disconnect, and deletion
+<a id="data-contract-10-export-disconnect-and-deletion"></a>
+### 10. Export, disconnect, and deletion
 
-### Fresh verification
+<a id="data-contract-fresh-verification"></a>
+#### Fresh verification
 
 A server function verifies a fresh email code against the authenticated account's actual email.
 
@@ -268,7 +465,8 @@ Check the JWT session ID against the current Auth session for protected reads an
 
 A deletion-page user completes the same sign-in and action verification. No proof grants access to another account.
 
-### Export while paired
+<a id="data-contract-export-while-paired"></a>
+#### Export while paired
 
 Fresh email verification permits export of records the requester can currently read, including shared content and their private events.
 
@@ -280,7 +478,8 @@ Store export parts privately for 24 hours. Authorize each download and issue at 
 
 Recheck access during each export step and download. Cancel shared export parts if the pair ends before download.
 
-### End pair
+<a id="data-contract-end-pair"></a>
+#### End pair
 
 Require fresh verification within ten minutes and explicit confirmation.
 
@@ -292,7 +491,8 @@ Allow a new pair immediately after termination. Never copy the former pair's rec
 
 Purge ended-pair records and media after 30 days. Completed external downloads cannot be recalled.
 
-### Delete account
+<a id="data-contract-delete-account"></a>
+#### Delete account
 
 Use the same verified command from the native app and the public deletion page.
 
@@ -308,7 +508,8 @@ Keep content-free job status under an opaque receipt for seven days so the delet
 
 Backups follow the selected hosting retention. Verify and disclose that retention before launch; do not promise immediate backup erasure.
 
-## 11. Indexes and limits
+<a id="data-contract-11-indexes-and-limits"></a>
+### 11. Indexes and limits
 
 - Unique active `pair_members(user_id)` and unique `(pair_id, slot)`.
 - Index content foreign keys and common `(pair_id, created_at, id)` feed access.
@@ -320,10 +521,131 @@ Backups follow the selected hosting retention. Verify and disclose that retentio
 
 Inspect query plans with realistic synthetic pair data. Avoid indexing every field without a query that needs it.
 
-## 12. Required adversarial cases
+<a id="data-contract-12-required-adversarial-cases"></a>
+### 12. Required adversarial cases
 
 Simultaneous invitation joins, one user joining two pairs, stale tokens, cross-pair IDs, private-event probes, duplicate sends, and stale edits.
 
 Also test uploads after disconnect, old media links, disabled accounts with valid JWTs, duplicate workers, and exports racing with deletion.
 
-See [TESTING.md](../engineering/TESTING.md) for importance ratings and required evidence.
+See [TESTING.md](DEVELOPMENT.md#verification) for importance ratings and required evidence.
+
+<a id="adr-0001-mobile-stack-and-module-structure"></a>
+## adr 0001 mobile stack and module structure
+Date: 4 October 2026. Status: Proposed, except the owner-confirmed Expo and TypeScript choice.
+
+<a id="adr-0001-mobile-stack-and-module-structure-context"></a>
+### Context
+
+Deseo needs native Android and iOS screens, shared private data, photos, invitations, and reminders.
+
+The workspace contains a style guide and static reference. It has no product stack to preserve.
+
+<a id="adr-0001-mobile-stack-and-module-structure-decision"></a>
+### Decision
+
+Use Expo Router and TypeScript for the native app. Use Astro for a small static public site.
+
+Use Supabase Auth, PostgreSQL, private Storage, Realtime, Cron, and Edge Functions.
+
+Use one npm workspace. Keep mobile and site code in separate applications.
+
+Group native code by feature. Keep each feature's screen, query, command, schema, and tests close together.
+
+Share brand tokens and source icon assets. Do not share native UI with the website.
+
+Use database constraints, current membership policies, and named transactions to protect pair data.
+
+<a id="adr-0001-mobile-stack-and-module-structure-consequences"></a>
+### Consequences
+
+The team maintains two builds but one product backend. The public site cannot accidentally depend on native sessions.
+
+Supabase reduces initial operations. Database policies and privileged functions require explicit security tests.
+
+MMKV and push require development builds. Expo Go is not sufficient release evidence.
+
+Offline support covers drafts only. A separate sync engine would need a later product decision.
+
+<a id="adr-0001-mobile-stack-and-module-structure-rejected-alternatives"></a>
+### Rejected alternatives
+
+A custom backend adds account, storage, queue, and deployment work without a current product benefit.
+
+A shared UI package would need wrappers around unrelated native and browser controls.
+
+Microservices, generic repositories, and a global message bus would add interfaces before real variation exists.
+
+<a id="adr-0001-mobile-stack-and-module-structure-revisit-when"></a>
+### Revisit when
+
+Revisit backend limits when measured workloads exceed the current worker or database design.
+
+Revisit offline writes when observed connectivity failures prevent pairs from completing core tasks.
+
+Revisit public-site structure if the owner requests a full browser application.
+
+<a id="architecture-review"></a>
+## architecture REVIEW
+Reviewed: 4 October 2026. Scope: the design documents and planned product structure.
+
+<a id="architecture-review-method"></a>
+### Method
+
+Applied Matt Pocock's [Improve Codebase Architecture](https://github.com/mattpocock/skills/blob/main/skills/engineering/improve-codebase-architecture/SKILL.md) skill.
+
+Also read its [Codebase Design](https://github.com/mattpocock/skills/blob/main/skills/engineering/codebase-design/SKILL.md) vocabulary.
+
+The skill normally reviews existing implementation. This project has no runtime code, dependencies, tests, or Git history.
+
+I adapted the review to the proposed modules before scaffolding. A read-only scout checked the existing files and risks.
+
+No existing-code refactoring or runtime validation is claimed.
+
+<a id="architecture-review-applied-decisions"></a>
+### Applied decisions
+
+| Finding | Without the decision | Selected design | Strength |
+|---|---|---|---|
+| Pair membership affects every feature | Each screen interprets pair state and access | Pair commands and database policies enforce one membership model | Strong |
+| Notes and messages have the same lifecycle | Two write paths, permissions, and retry rules | A note is a pinned message | Strong |
+| Today displays other features' records | Duplicate tables become inconsistent | Today composes existing feature queries | Strong |
+| Reminders cross calendar, tasks, devices, and timezones | Screen timers lose work when the app closes | Durable jobs with current authorization checks | Strong |
+| Shared edits and retries can conflict | Every form invents its own persistence behavior | Named commands use versions and idempotent identifiers | Strong |
+| Public pages and native interaction differ | Shared UI wrappers hide platform behavior | Separate mobile and site folders; share visual data only | Strong |
+
+These decisions keep related rules together and give callers a small interface.
+
+<a id="architecture-review-interfaces-that-earn-their-place"></a>
+### Interfaces that earn their place
+
+- Pair commands hide token handling, locking, capacity, and membership transitions.
+- Calendar commands hide visibility rules, time conversion, version checks, and reminder changes.
+- Memory finalization hides validation, quota, publication, and orphan cleanup.
+- Message commands hide duplicate prevention and note replacement.
+
+Removing these interfaces would spread their rules across screens and workers.
+
+Do not add generic repositories, a global event bus, interchangeable backend adapters, or a second form framework.
+
+Those abstractions have no second implementation or current consumer need.
+
+<a id="architecture-review-system-alternatives"></a>
+### System alternatives
+
+| Option | Assessment |
+|---|---|
+| Expo + static site + Supabase | Recommended. Native experience with managed account, data, storage, and delivery infrastructure |
+| Universal Expo app for native and all website pages | Fewer build tools, but public document markup and native account flows become coupled |
+| Expo + custom Node backend + separate database/storage | More operational work before the pair flow works; no current requirement justifies it |
+
+Keep the static site narrow. Do not add server rendering, a CMS, or native UI sharing to it.
+
+<a id="architecture-review-first-implementation-priority"></a>
+### First implementation priority
+
+Prove pairing and pair isolation before broad screen work.
+
+The first useful product is two verified people sharing one event. Security and data correctness belong in that slice.
+
+See [ADR 0001](ARCHITECTURE.md#adr-0001-mobile-stack-and-module-structure) and [the implementation plan](DEVELOPMENT.md#superpowers-plans-2026-10-04-deseo-implementation).
