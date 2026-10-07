@@ -141,10 +141,10 @@
     ],
     "passes": 1,
     "requiredUiFindings": 0,
-    "wholeBranch": "Pending; controller owns this gate",
+    "wholeBranch": "Approved after one final fix wave; all findings addressed; no new blocking breakage",
     "nativePhysical": "Unverified; device tools absent",
     "task7Scoped": "Approved after fix round 1; all findings addressed; no new breakage",
-    "deferredMinor": "Native export log repeats NO_COLOR/FORCE_COLOR warnings; raw log preserved"
+    "deferredMinor": "Native export color warnings are environmental and nonblocking; raw log archived"
   },
   "nativeBundles": [
     {

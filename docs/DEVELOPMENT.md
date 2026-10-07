@@ -423,7 +423,7 @@ Other browser engines and operating-system screen readers remain unverified.
 Account export, deletion, avatar backend work, pair-timezone writes, and public pages remain separate delivery work.
 Confirm audience limits, launch languages, pricing, legal operator, policies, domain, and support contact before release.
 Named fixture photos fail decoding despite HTTP 200 responses; do not change their bytes during frontend work.
-The controller's final whole-branch review remains pending.
+The final whole-branch review passed after the fixture identity fix.
 
 <a id="frontend-implementation-plan"></a>
 ## Frontend implementation plan status
@@ -442,7 +442,7 @@ The six product layers have clean independent or scoped review outcomes.
 | 6. Messages and notes | Complete; native grouping/time correction reviewed |
 | 7. Final gallery, checks, and evidence | Complete; fix round 1 review clean |
 | Native physical acceptance | Unverified; no device tools |
-| Whole-branch review | Pending; controller owns this gate |
+| Whole-branch review | Approved after the final fix wave |
 
 Current artifacts: root design/frontend-2026-10-07/web and the frontend handoff section below.
 Current documentation paths replace the plan's former docs folders.
@@ -575,10 +575,10 @@ Keep draft documentation status distinct from shipped behavior. Update the READM
 <a id="frontend-design-handoff"></a>
 ## Frontend design handoff
 
-Date: 7 October 2026. Status: all seven task reviews passed; whole-branch review remains pending.
+Date: 7 October 2026. Status: all seven task reviews and the final whole-branch review passed.
 
 The owner approved the frontend spec, plan, and sequential subagent execution.
-Tasks 1–7 passed independent or scoped review. The controller owns final whole-branch review.
+Tasks 1–7 passed independent or scoped review. The final whole-branch review passed after one fix wave.
 Implementation base: aaa066d483b547252a3b9a33927d0e296363c2f7.
 Product revision: af1f109be95ba5f7b7ec3e63d3b8344ea12f7bab.
 Capture writer commits: 5b21b1a and e4fd34c. Canonical paths: 701f078.
@@ -936,7 +936,7 @@ No broad test, native export, UI capture, package, product source, or runtime ch
 All 60 ownership journals are cleaned. Historical 327 hashes and current 323 JPEGs remain unchanged.
 The raw native export log remains preserved. Its color-environment warnings are a deferred Minor finding.
 Controller preservation evidence uses managed-worktree boundaries, explicit commits, owned journals, and unchanged historical hashes.
-Native device checks and final whole-branch review remain open.
+Native device checks remain unverified. Final whole-branch review passed.
 
 ### Task 7 scoped review
 
@@ -945,9 +945,9 @@ Secondary journal cleanup: ADDRESSED. The helper cleans main fixtures and retain
 Importance 95 behavior checks cover real EEXIST, 11 accounts, secondary ownership, cleanup failure, and saved-journal recovery.
 Baseline: two failures. Fixed batch: 16 passed, two generation skips. Types and lint passed.
 No new Critical or Important breakage. No tests repeated by the reviewer.
-The native export color warnings remain a deferred Minor for whole-branch review.
+The native export color warnings are an environmental, nonblocking Minor.
 Device acceptance remains unverified.
-Task 7 is complete. The final whole-branch review remains pending.
+Task 7 is complete. The final whole-branch review passed.
 
 ### Final whole-branch review and fixture identity correction
 
@@ -961,12 +961,12 @@ The helper now resolves API_URL and DB_URL through selectively inspected running
 It requires one owner per endpoint, matching project/workdir labels, and matching gateway/database roles.
 It runs SQL against the verified immutable database container ID.
 The UUID and disposable-email guards remain. An unmatched guarded update fails.
-This Important finding remains open until the controller's scoped re-review.
+Scoped review addressed this Important finding. No new blocking breakage was found.
 
 Correction of the earlier Task 2 ruling: the fixed name proved only the current run's database target.
 It did not bind expiry to the fixture client's configured API.
 The ten earlier rulings remain unchanged as historical decisions.
-Controller correction: derive the SQL target from the same status endpoints used by fixtures and reject ambiguous or mismatched identity.
+Ruling: derive the SQL target from the same status endpoints used by fixtures and reject ambiguous or mismatched identity.
 Reason: documented setup and the existing shared stack must both select their own database.
 Cost if wrong: valid checks could be blocked, or expiry could target another local fixture database.
 Controlled rejection checks and real expired-code cases cover that risk.
@@ -989,7 +989,7 @@ Backend setup, schema, product source, and named data remain unchanged.
 The documented deseo-web identity used controlled Docker inputs. No second stack was launched.
 Both existing real expired-code assertions passed on the verified shared deseo stack.
 No broad suite, native export, or gallery rerun was needed.
-Raw logs remain under .superpowers/sdd/2026-10-07-deseo-frontend-design as final-fix-*.log.
+Raw logs remain in the ignored .superpowers/frontend-design/evidence/2026-10-07 directory.
 
 Minor triage: native NO_COLOR/FORCE_COLOR warnings are environmental and nonblocking.
 The raw export log remains preserved at .superpowers/frontend-design/evidence/2026-10-07/task-7-native-export.log.
@@ -1000,4 +1000,16 @@ Declined: physical keyboard, font, safe-area, final-item, VoiceOver, and TalkBac
 Named photo repair remains outside this frontend scope.
 Controller resolution: device checks remain unverified. Disposable normal-photo coverage and separate named failures retain their provenance.
 These limits do not establish device or named-data acceptance.
-One scoped final re-review follows this fix wave. New concerns remain subject to that review.
+One scoped final re-review passed. No new Critical or Important breakage was found.
+
+### Final scoped review and delivery
+
+Reviewer: /root/final_rereview, gpt-6.1-sol/medium.
+Database target mismatch: ADDRESSED. The helper verifies endpoint owners before SQL and uses an immutable container ID.
+UUID/email guards remain. Unmatched updates fail.
+Saved checks: 20 passed, including two real expired-code cases. Types and lint passed.
+No new Critical or Important breakage. No out-of-scope observations. No tests repeated by the reviewer.
+The whole-branch review is clear after one fix wave.
+Native color warnings remain nonblocking. Physical native acceptance remains unverified.
+Named photo repair remains excluded. Disposable normal-photo and named-failure evidence retain their recorded provenance.
+The detached managed worktree is preserved. Integration awaits the owner's choice.
