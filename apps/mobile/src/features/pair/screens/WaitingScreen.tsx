@@ -8,11 +8,12 @@ import { Button } from '../../../components/ui/Button';
 import { Status } from '../../../components/ui/Status';
 import { getPrivateStorage } from '../../../lib/private-storage';
 import { toAppError } from '@deseo/domain/result';
-import { theme } from '../../../theme';
+import { useTheme } from '../../../theme';
 import { useCore } from '../context';
 import { cancelPendingPair, createInvite } from '../commands';
 
 export function WaitingScreen() {
+  const theme = useTheme();
   const { account, pair, refresh, online } = useCore();
   const commandId = useRef(randomUUID());
   const cancelId = useRef(randomUUID());

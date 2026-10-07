@@ -8,12 +8,13 @@ import { Status } from '../../../components/ui/Status';
 import { useCore } from '../../pair';
 import { captureQueryScope } from '../../../lib/query-client';
 import { AppError, toAppError } from '@deseo/domain/result';
-import { theme, ui } from '../../../theme';
+import { useTheme } from '../../../theme';
 import { listNotifications, notificationKeys } from '../queries';
 import { markNotificationRead, resolveNotification } from '../commands';
 import { notificationRoute } from '../navigation';
 const states = { queued: 'Queued', submitted: 'Submitted to Expo', provider_accepted: 'Accepted by push provider', failed: 'Push failed', expired: 'Push expired', canceled: 'Push canceled' };
 export function NotificationListScreen({ notificationId }: { notificationId?: string }) {
+  const theme = useTheme();
   const { account, pair, online } = useCore(); const router = useRouter(); const pairId = pair.status === 'active' ? pair.pairId : '';
   const [error, setError] = useState<string | null>(null); const [opening, setOpening] = useState<string | null>(null);
   const pending = useRef(false); const opened = useRef<string | null>(null);
@@ -41,7 +42,7 @@ export function NotificationListScreen({ notificationId }: { notificationId?: st
     {!online && <Status message="Reconnect to open a notification." />}
     {error && <Status message={error} tone="error" actionLabel={notificationId ? 'Retry' : undefined} onAction={notificationId ? () => { void open(notificationId); } : undefined} />}
     {query.isPending ? <Status tone="loading" message="Loading notifications…" /> : query.isError ? <Status message="We could not load notifications." actionLabel="Retry" onAction={() => { void query.refetch(); }} />
-      : query.data.pages.flatMap(page => page.items).length ? query.data.pages.flatMap(page => page.items).map(item => <View key={item.id} style={ui.card}>
+      : query.data.pages.flatMap(page => page.items).length ? query.data.pages.flatMap(page => page.items).map(item => <View key={item.id} style={theme.ui.card}>
         <Text style={theme.typography.body}>{item.kind === 'message' ? 'Message alert' : item.kind === 'event' ? 'Event reminder' : 'Task reminder'}{item.readAt ? '' : ' · Unread'}</Text>
         <Text style={theme.typography.secondary}>{states[item.state]}</Text>
         <Button label="Open" loading={opening === item.id} disabled={!online || !!opening} onPress={() => { void open(item.id); }} />

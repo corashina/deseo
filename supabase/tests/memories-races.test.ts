@@ -202,6 +202,14 @@ try {
   }
   console.log('Passed local quota, private Storage, duplicate commands, cleanup leases, and closure races.');
 } finally {
+  // A claim can run before a racing delete queues its job. Drain those jobs so pair deletion can remove the photos.
+  for (let claimed = await serviceRpc<Job[]>('claim_memory_cleanup', { p_limit: 2 }); claimed.ok && claimed.data.length > 0;
+    claimed = await serviceRpc<Job[]>('claim_memory_cleanup', { p_limit: 2 })) {
+    for (const job of claimed.data) {
+      await removePaths(job.paths);
+      await serviceRpc('complete_memory_cleanup', { p_job_id: job.id, p_lease_token: job.leaseToken });
+    }
+  }
   await removePaths([...objectPaths]);
   for (const pairId of pairs) await request(`/rest/v1/pairs?id=eq.${pairId}`, 'DELETE', secretKey!, undefined, true);
   for (const actor of users) await request(`/auth/v1/admin/users/${actor.id}`, 'DELETE', secretKey!, undefined, true);

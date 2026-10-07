@@ -17,7 +17,7 @@ import { NoteCard } from '../../messages';
 import { latestMemory, memoryKeys, MemoryAccessBoundary, MemoryCard } from '../../memories';
 import { listNotifications, notificationKeys } from '../../notifications';
 import { useCore } from '../../pair';
-import { theme, ui } from '../../../theme';
+import { useTheme } from '../../../theme';
 import { getToday } from '../queries';
 import { todayKeys } from '../keys';
 
@@ -27,6 +27,7 @@ export function TodayScreen() {
   return <Today key={`${core.account.id}:${core.pair.pairId}`} />;
 }
 function Today() {
+  const theme = useTheme();
   const { account, pair, online } = useCore();
   const activePair = pair as Extract<typeof pair, { status: 'active' }>;
   const pairId = activePair.pairId;
@@ -94,7 +95,7 @@ function Today() {
         <Status message="We could not load your tasks." tone="error" /> :
         query.data.dueTasks.length || completedTask ? <RowGroup>{query.data.dueTasks.filter(task => task.id !== completedTask?.id).map(taskRow)}</RowGroup>
           : <Text style={theme.typography.body}>No tasks due today.</Text>}
-      {completedTask && <View style={ui.stack}>
+      {completedTask && <View style={theme.ui.stack}>
         <Text style={theme.typography.secondary}>Task completed</Text><RowGroup>{taskRow(completedTask)}</RowGroup>
       </View>}
     </Section>
@@ -110,6 +111,7 @@ function Today() {
 }
 
 function LatestMemory({ accountId, pairId, author }: { accountId: string; pairId: string; author(id: string): string }) {
+  const theme = useTheme();
   const memory = useQuery({ queryKey: memoryKeys.latest(accountId, pairId), queryFn: () => latestMemory(pairId) });
   if (memory.isPending) return <Status tone="loading" message="Loading your memory…" />;
   if (memory.isError) return <Status message="We could not load your memory." tone="error" actionLabel="Retry memory" onAction={() => { void memory.refetch(); }} />;

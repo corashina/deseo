@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Alert, AppState, FlatList, Keyboard, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, View,
+import { Alert, AppState, FlatList, Keyboard, KeyboardAvoidingView, Platform, ScrollView, Text, TextInput, View,
   type ViewToken } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Redirect, useIsFocused } from 'expo-router';
@@ -10,7 +10,7 @@ import { usePairGate, type PairContext } from '../../pair';
 import { useAuth, type Account } from '../../auth';
 import { Button } from '../../../components/ui/Button';
 import { Status } from '../../../components/ui/Status';
-import { theme } from '../../../theme';
+import { makeStyles, useTheme } from '../../../theme';
 import { AppError } from '@deseo/domain/result';
 import { captureQueryScope } from '../../../lib/query-client';
 import { deleteMessage, setReadCursor } from '../commands';
@@ -32,6 +32,7 @@ const preservePosition = { minIndexForVisible: 0 };
 const rowKey = (row: Row) => row.kind === 'message' ? row.message.id : `pending:${row.message.clientId}`;
 
 export function MessagesScreen() {
+  const styles = useStyles();
   const { state } = useAuth();
   const gate = usePairGate();
   if (state.status === 'signedOut' || state.status === 'error' || (state.status === 'authenticated' && !state.account)) {
@@ -49,6 +50,8 @@ export function MessagesScreen() {
 function Conversation({ account, pair, online }: {
   account: Account; pair: Extract<PairContext, { status: 'active' }>; online: boolean;
 }) {
+  const theme = useTheme();
+  const styles = useStyles();
   const focused = useIsFocused();
   const headerHeight = useHeaderHeight();
   const [active, setActive] = useState(AppState.currentState === 'active');
@@ -253,8 +256,8 @@ function Conversation({ account, pair, online }: {
   </SafeAreaView>;
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles(theme => ({
   fill: { flex: 1, backgroundColor: theme.colors.canvas }, heading: { paddingHorizontal: 16, paddingVertical: 8 },
   notice: { ...theme.typography.secondary, paddingHorizontal: 16, paddingVertical: 8 },
   notes: { maxHeight: 180, flexGrow: 0 }, notesContent: { paddingHorizontal: 16, gap: 8, paddingBottom: 8 },
-});
+}));

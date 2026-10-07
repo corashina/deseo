@@ -2,7 +2,7 @@
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[]
 
 export type Database = {
-
+  
   "public": {
           Tables: {
             "date_ideas": {
@@ -279,7 +279,7 @@ isOneToOne: false
                     "created_at"?: string,"ended_at"?: string | null,"id"?: string,"purge_after"?: string | null,"state"?: string,"timezone"?: string
                   }
                   Relationships: [
-
+                    
                   ]
                 },"profiles": {
                   Row: {
@@ -292,7 +292,7 @@ isOneToOne: false
                     "account_status"?: string,"avatar_path"?: string | null,"created_at"?: string,"display_name"?: string,"locale"?: string,"timezone"?: string,"updated_at"?: string,"user_id"?: string,"version"?: number
                   }
                   Relationships: [
-
+                    
                   ]
                 },"reminders": {
                   Row: {
@@ -546,6 +546,9 @@ isOneToOne: false
 "get_session_context":
 { Args: Record<PropertyKey, never>; Returns: Json
                            },
+"get_today":
+{ Args: { "p_date": string,"p_pair_id": string }; Returns: Json
+                           },
 "get_unread_count":
 { Args: { "p_pair_id": string }; Returns: Json
                            },
@@ -793,7 +796,7 @@ export type CompositeTypes<
 export const Constants = {
   "public": {
           Enums: {
-
+            
           }
         }
 } as const

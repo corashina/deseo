@@ -1,10 +1,10 @@
 import { z } from 'zod';
 import { errorResult, resultSchema, type Result } from '@deseo/domain/result';
 import { preferencesSchema, reminderInputSchema, reminderSchema, destinationSchema, type NotificationPreferences, type ReminderInput } from '@deseo/domain/notifications';
-import { getSupabase } from '../../lib/supabase';
+import { getSupabase, type RpcName } from '../../lib/supabase';
 import { captureQueryScope } from '../../lib/query-client';
 import { assertOnline } from '../../lib/network';
-async function command<T extends z.ZodTypeAny>(name: string, args: Record<string, unknown>, schema: T): Promise<Result<z.infer<T>>> {
+async function command<T extends z.ZodTypeAny>(name: RpcName, args: Record<string, unknown>, schema: T): Promise<Result<z.infer<T>>> {
   try {
     assertOnline();
     const scope = captureQueryScope();

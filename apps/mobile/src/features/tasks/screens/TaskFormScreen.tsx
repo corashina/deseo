@@ -8,7 +8,7 @@ import { Field } from '../../../components/ui/Field';
 import { Screen } from '../../../components/ui/Screen';
 import { Status } from '../../../components/ui/Status';
 import { useDraft } from '../../../lib/draft';
-import { theme, ui } from '../../../theme';
+import { useTheme } from '../../../theme';
 import { useCore } from '../../pair';
 import { TaskAccess } from '../TaskAccess';
 import { createTask, updateTask } from '../commands';
@@ -35,6 +35,7 @@ function LoadForm({ core, pairId, ...props }: Props & { core: Core; pairId: stri
 }
 function valuesFor(task: Task): TaskValues { return { title: task.title, listId: task.listId, assigneeId: task.assigneeId, dueDate: task.dueDate ?? '' }; }
 function TaskForm({ core, pairId, lists, task, reload, listId, quick }: Props & { core: Core; pairId: string; lists: TaskList[]; task?: Task; reload(): Promise<{ data?: Task | null }> }) {
+  const theme = useTheme();
   const router = useRouter();
   const members = core.pair.status === 'active' ? core.pair.members : [];
   const [rules] = useState(() => taskFormSchema(members.map(member => member.userId)));
@@ -62,8 +63,8 @@ function TaskForm({ core, pairId, lists, task, reload, listId, quick }: Props & 
     {draft.canRestore && <Status message="Review the saved task before you save." actionLabel="Restore my draft" onAction={() => { void draft.restore(); }} />}
     <Controller control={form.control} name="title" render={({ field }) => <Field label="Title" value={field.value} onChangeText={field.onChange} error={fieldError('title')} editable={!locked} maxLength={200} multiline />} />
     {!quick && <>
-      <Text style={theme.typography.section}>List</Text><View style={ui.row}>{lists.map(list => <Button key={list.id} label={list.name} disabled={locked} variant={values.listId === list.id ? 'primary' : 'secondary'} onPress={() => form.setValue('listId', list.id)} />)}</View>
-      <Text style={theme.typography.section}>Assigned to</Text><View style={ui.row}>
+      <Text style={theme.typography.section}>List</Text><View style={theme.ui.row}>{lists.map(list => <Button key={list.id} label={list.name} disabled={locked} variant={values.listId === list.id ? 'primary' : 'secondary'} onPress={() => form.setValue('listId', list.id)} />)}</View>
+      <Text style={theme.typography.section}>Assigned to</Text><View style={theme.ui.row}>
         <Button label="Unassigned" disabled={locked} variant={values.assigneeId === null ? 'primary' : 'secondary'} onPress={() => form.setValue('assigneeId', null)} />
         {members.map(member => <Button key={member.userId} label={`${member.userId === core.account.id ? 'Me' : 'Partner'} · ${member.displayName}`} disabled={locked} variant={values.assigneeId === member.userId ? 'primary' : 'secondary'} onPress={() => form.setValue('assigneeId', member.userId)} />)}
       </View>

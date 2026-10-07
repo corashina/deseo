@@ -8,7 +8,7 @@ import { Status } from '../../../components/ui/Status';
 import { useCore } from '../../pair';
 import { captureQueryScope } from '../../../lib/query-client';
 import { AppError, toAppError } from '@deseo/domain/result';
-import { theme } from '../../../theme';
+import { useTheme } from '../../../theme';
 import { getNotificationPreferences, notificationKeys } from '../queries';
 import { saveNotificationPreferences } from '../commands';
 import { syncNotificationDevice } from '../device';
@@ -22,6 +22,7 @@ export function NotificationPreferencesScreen() {
   return <PreferencesForm key={`${account.id}:${query.data.version}`} saved={query.data} online={online} reload={() => { void query.refetch(); }} />;
 }
 function PreferencesForm({ saved, online, reload }: { saved: NotificationPreferences; online: boolean; reload: () => void }) {
+  const theme = useTheme();
   const [alerts, setAlerts] = useState(saved.messageAlerts); const [quiet, setQuiet] = useState(saved.quietStart !== null);
   const [start, setStart] = useState(saved.quietStart ?? '22:00'); const [end, setEnd] = useState(saved.quietEnd ?? '08:00');
   const [timezone, setTimezone] = useState(saved.timezone); const [defaultMinutes, setDefaultMinutes] = useState(saved.defaultEventReminderMinutes);

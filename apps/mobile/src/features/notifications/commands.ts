@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { getSupabase } from '../../lib/supabase';
+import { getSupabase, type RpcName } from '../../lib/supabase';
 import { captureQueryScope, queryClient } from '../../lib/query-client';
 import { errorResult, resultSchema, type Result } from '@deseo/domain/result';
 import { preferencesSchema, reminderInputSchema, reminderSchema, destinationSchema } from '@deseo/domain/notifications';
@@ -7,7 +7,7 @@ import { deviceSchema } from './schema';
 import type { NotificationPreferences, ReminderInput } from '@deseo/domain/notifications';
 import type { DeviceInput } from './types';
 const uuid = z.string().uuid();
-export async function notificationCommand<T extends z.ZodTypeAny>(name: string, parameters: Record<string, unknown>, schema: T): Promise<Result<z.infer<T>>> {
+export async function notificationCommand<T extends z.ZodTypeAny>(name: RpcName, parameters: Record<string, unknown>, schema: T): Promise<Result<z.infer<T>>> {
   try {
     const scope = captureQueryScope(); const client = await getSupabase(); scope.assertCurrent();
     const { data, error } = await client.rpc(name, parameters).abortSignal(scope.signal); scope.assertCurrent();

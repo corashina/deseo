@@ -38,7 +38,7 @@ export async function saveProfile(input: ProfileInput, expectedVersion?: number)
     if (expectedVersion !== undefined) z.number().int().positive().parse(expectedVersion);
     const { data, error } = await getSupabase().rpc('save_profile', {
       p_display_name: profile.displayName, p_timezone: profile.timezone, p_locale: profile.locale,
-      p_expected_version: expectedVersion ?? null,
+      p_expected_version: expectedVersion,
     }).abortSignal(scope.signal);
     scope.assertCurrent();
     if (error) throw error;
@@ -51,7 +51,10 @@ export async function signOut(scope: 'local' | 'global' = 'local') {
   if (scope === 'global') {
     assertOnline();
     const queryScope = captureQueryScope();
-    const { data, error } = await client.rpc('revoke_device', { p_installation_id: null, p_all: true }).abortSignal(queryScope.signal);
+    const { data, error } = await client.rpc('revoke_device', {
+      // The type generator marks SQL arguments non-null, but revoke_device takes null to revoke every device.
+      p_installation_id: null as unknown as string, p_all: true,
+    }).abortSignal(queryScope.signal);
     queryScope.assertCurrent();
     if (error) throw error;
     const result = resultSchema(z.object({ revoked: z.literal(true) })).parse(data);

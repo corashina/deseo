@@ -1,7 +1,7 @@
 import type { PropsWithChildren, ReactNode } from 'react';
-import { FlatList, KeyboardAvoidingView, Platform, RefreshControl, ScrollView, StyleSheet, Text, View, type FlatListProps } from 'react-native';
+import { FlatList, KeyboardAvoidingView, Platform, RefreshControl, ScrollView, Text, View, type FlatListProps } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { theme } from '../../theme';
+import { makeStyles, useTheme } from '../../theme';
 
 type Props = PropsWithChildren<{
   title?: string; subtitle?: string; refreshing?: boolean; onRefresh?: () => void;
@@ -12,6 +12,7 @@ type Props = PropsWithChildren<{
 }>;
 
 export function Screen({ title, subtitle, action, toolbar, children, refreshing = false, onRefresh }: Props) {
+  const styles = useStyles();
   return <SafeAreaView style={styles.safe} edges={['top', 'left', 'right', 'bottom']}>
     <KeyboardAvoidingView style={styles.safe} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.scroll}
@@ -32,6 +33,7 @@ type ListProps<T> = Omit<Props, 'children'> & Pick<FlatListProps<T>, 'data' | 'r
 
 /** A Screen that renders only the rows near the viewport. Use it for feeds that grow without a limit. */
 export function ListScreen<T>({ title, subtitle, action, toolbar, header, refreshing = false, onRefresh, ...list }: ListProps<T>) {
+  const styles = useStyles();
   return <SafeAreaView style={styles.safe} edges={['top', 'left', 'right', 'bottom']}>
     <FlatList {...list} keyboardShouldPersistTaps="handled" contentContainerStyle={[styles.scroll, styles.listContent]}
       ItemSeparatorComponent={Gap} ListHeaderComponentStyle={styles.listHeader}
@@ -44,10 +46,13 @@ export function ListScreen<T>({ title, subtitle, action, toolbar, header, refres
 }
 
 function Gap() {
+  const styles = useStyles();
   return <View style={styles.gap} />;
 }
 
 function ScreenHeader({ title, subtitle, action, toolbar }: Omit<Props, 'children' | 'refreshing' | 'onRefresh'>) {
+  const theme = useTheme();
+  const styles = useStyles();
   return <>
     {toolbar && <View style={styles.toolbar}>{toolbar}</View>}
     {(title || subtitle || action) && <View style={styles.header}>
@@ -60,7 +65,7 @@ function ScreenHeader({ title, subtitle, action, toolbar }: Omit<Props, 'childre
   </>;
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles(theme => ({
   safe: { flex: 1, backgroundColor: theme.colors.canvas },
   scroll: { flexGrow: 1, paddingHorizontal: theme.space[4], paddingTop: theme.space[2], paddingBottom: theme.space[8] },
   content: { width: '100%', maxWidth: 680, alignSelf: 'center', gap: theme.space[4] },
@@ -71,4 +76,4 @@ const styles = StyleSheet.create({
   subtitle: { color: theme.colors.muted },
   listContent: { width: '100%', maxWidth: 680 + 2 * theme.space[4], alignSelf: 'center' },
   listHeader: { marginBottom: theme.space[4] }, gap: { height: theme.space[4] },
-});
+}));

@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 import { DateTime } from 'luxon';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
@@ -7,7 +7,7 @@ import { useCore } from '../../pair';
 import { ListScreen, Screen } from '../../../components/ui/Screen';
 import { Button } from '../../../components/ui/Button';
 import { Status } from '../../../components/ui/Status';
-import { theme } from '../../../theme';
+import { makeStyles } from '../../../theme';
 import { listMemories, memoryKeys } from '../queries';
 import { MemoryCard } from '../components/MemoryCard';
 import type { Memory } from '@deseo/domain/memories';
@@ -51,8 +51,9 @@ function Feed({ accountId, pair, online }: { accountId: string; pair: Extract<Re
       onPress={() => { void query.fetchNextPage(); }} /> : null} />;
 }
 function MemoryFeedItem({ heading, ...props }: Parameters<typeof MemoryCard>[0] & { heading?: string }) {
+  const styles = useStyles();
   return <View style={styles.item}>{heading && <Text accessibilityRole="header" style={styles.heading}>{heading}</Text>}<MemoryCard {...props} /></View>;
 }
-const styles = StyleSheet.create({
+const useStyles = makeStyles(theme => ({
   item: { gap: theme.space[4] }, heading: { ...theme.typography.section, paddingTop: theme.space[2] },
-});
+}));
