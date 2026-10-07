@@ -1,5 +1,5 @@
 import type { PropsWithChildren, ReactNode } from 'react';
-import { KeyboardAvoidingView, Platform, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { FlatList, KeyboardAvoidingView, Platform, RefreshControl, ScrollView, StyleSheet, Text, View, type FlatListProps } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { theme } from '../../theme';
 
@@ -17,19 +17,47 @@ export function Screen({ title, subtitle, action, toolbar, children, refreshing 
       <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.scroll}
         refreshControl={onRefresh ? <RefreshControl refreshing={refreshing} onRefresh={onRefresh} /> : undefined}>
         <View style={styles.content}>
-          {toolbar && <View style={styles.toolbar}>{toolbar}</View>}
-          {(title || subtitle || action) && <View style={styles.header}>
-            <View style={styles.heading}>
-              {title && <Text accessibilityRole="header" style={theme.typography.title}>{title}</Text>}
-              {subtitle && <Text style={[theme.typography.body, styles.subtitle]}>{subtitle}</Text>}
-            </View>
-            {action}
-          </View>}
+          <ScreenHeader title={title} subtitle={subtitle} action={action} toolbar={toolbar} />
           {children}
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
   </SafeAreaView>;
+}
+
+type ListProps<T> = Omit<Props, 'children'> & Pick<FlatListProps<T>, 'data' | 'renderItem' | 'keyExtractor' | 'ListFooterComponent'> & {
+  /** Content between the title and the first row, such as status messages. */
+  header?: ReactNode;
+};
+
+/** A Screen that renders only the rows near the viewport. Use it for feeds that grow without a limit. */
+export function ListScreen<T>({ title, subtitle, action, toolbar, header, refreshing = false, onRefresh, ...list }: ListProps<T>) {
+  return <SafeAreaView style={styles.safe} edges={['top', 'left', 'right', 'bottom']}>
+    <FlatList {...list} keyboardShouldPersistTaps="handled" contentContainerStyle={[styles.scroll, styles.listContent]}
+      ItemSeparatorComponent={Gap} ListHeaderComponentStyle={styles.listHeader}
+      ListHeaderComponent={<View style={styles.content}>
+        <ScreenHeader title={title} subtitle={subtitle} action={action} toolbar={toolbar} />
+        {header}
+      </View>}
+      refreshControl={onRefresh ? <RefreshControl refreshing={refreshing} onRefresh={onRefresh} /> : undefined} />
+  </SafeAreaView>;
+}
+
+function Gap() {
+  return <View style={styles.gap} />;
+}
+
+function ScreenHeader({ title, subtitle, action, toolbar }: Omit<Props, 'children' | 'refreshing' | 'onRefresh'>) {
+  return <>
+    {toolbar && <View style={styles.toolbar}>{toolbar}</View>}
+    {(title || subtitle || action) && <View style={styles.header}>
+      <View style={styles.heading}>
+        {title && <Text accessibilityRole="header" style={theme.typography.title}>{title}</Text>}
+        {subtitle && <Text style={[theme.typography.body, styles.subtitle]}>{subtitle}</Text>}
+      </View>
+      {action}
+    </View>}
+  </>;
 }
 
 const styles = StyleSheet.create({
@@ -41,4 +69,6 @@ const styles = StyleSheet.create({
     columnGap: theme.space[4], rowGap: theme.space[3], paddingTop: theme.space[2], paddingBottom: theme.space[2] },
   heading: { flexGrow: 1, flexShrink: 1, flexBasis: 200, gap: theme.space[1] },
   subtitle: { color: theme.colors.muted },
+  listContent: { width: '100%', maxWidth: 680 + 2 * theme.space[4], alignSelf: 'center' },
+  listHeader: { marginBottom: theme.space[4] }, gap: { height: theme.space[4] },
 });
