@@ -7,7 +7,7 @@ import { admin } from './support/entry-fixtures';
 import { createScreenshotFixtures } from './support/screenshot-fixtures';
 import { cleanupScreenshotLedger, type ScreenshotLedger } from './support/screenshot-journal';
 
-const scratch = fileURLToPath(new URL('../../../.superpowers/sdd/2026-10-05-deseo-web-portal-implementation/task-10-capture/', import.meta.url));
+const scratch = fileURLToPath(new URL('../../../.superpowers/frontend-design/capture/', import.meta.url));
 const readLedger = async (file: string): Promise<ScreenshotLedger> => JSON.parse(await readFile(file, 'utf8'));
 const accountIds = (ledger: ScreenshotLedger) => [...(ledger.portal?.accountIds ?? []), ...Object.values(ledger.entries).flatMap(item => item.accountIds), ...(ledger.freshId ? [ledger.freshId] : []), ...ledger.verificationIds];
 test.use({ trace: 'off' });
