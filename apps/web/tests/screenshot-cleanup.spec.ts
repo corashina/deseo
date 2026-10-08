@@ -3,11 +3,11 @@ import { AuthApiError } from '@supabase/supabase-js';
 import { mkdir, readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { randomUUID } from 'node:crypto';
-import { admin } from './support/entry-fixtures';
-import { createScreenshotFixtures } from './support/screenshot-fixtures';
-import { cleanupScreenshotLedger, type ScreenshotLedger } from './support/screenshot-journal';
+import { admin, createEntryFixture } from './support/entry-fixtures';
+import { createScreenshotFixtures, createScreenshotCaptureFixtures } from './support/screenshot-fixtures';
+import { createScreenshotJournal, cleanupScreenshotLedger, type ScreenshotLedger } from './support/screenshot-journal';
 
-const scratch = fileURLToPath(new URL('../../../.superpowers/sdd/2026-10-05-deseo-web-portal-implementation/task-10-capture/', import.meta.url));
+const scratch = fileURLToPath(new URL('../../../.superpowers/frontend-design/capture/', import.meta.url));
 const readLedger = async (file: string): Promise<ScreenshotLedger> => JSON.parse(await readFile(file, 'utf8'));
 const accountIds = (ledger: ScreenshotLedger) => [...(ledger.portal?.accountIds ?? []), ...Object.values(ledger.entries).flatMap(item => item.accountIds), ...(ledger.freshId ? [ledger.freshId] : []), ...ledger.verificationIds];
 test.use({ trace: 'off' });
@@ -91,5 +91,55 @@ test('setup failure preserves partial ownership when cleanup fails', async () =>
     expect(done.cleaned).toBe(true);
     expect(done.portal?.accountIds).toHaveLength(1);
     expect((await admin.auth.admin.getUserById(done.portal!.accountIds[0])).error?.code).toBe('user_not_found');
+  }
+});
+
+// Importance 95: a secondary journal write failure must dispose main fixtures and retain recovery ownership.
+for (const cleanup of ['complete', 'fails'] as const) test('secondary journal setup failure ' + cleanup + ' retains ownership and recovers', async () => {
+  await mkdir(scratch, { recursive: true });
+  const file = scratch + 'secondary-setup-' + randomUUID() + '.json';
+  const secondaryFile = scratch + 'secondary-existing-' + randomUUID() + '.json';
+  const secondary = await createScreenshotJournal(secondaryFile);
+  const remove = admin.auth.admin.deleteUser;
+  try {
+    await createEntryFixture('unpaired', fixture => secondary.entry('retained', fixture));
+    const retained = await readLedger(secondaryFile);
+    if (cleanup === 'fails') admin.auth.admin.deleteUser = async (id, ...args) => id === (await readLedger(file)).freshId
+      ? { data: { user: null }, error: new AuthApiError('Controlled secondary setup cleanup failure', 503, 'unexpected_failure') }
+      : remove.call(admin.auth.admin, id, ...args);
+    const failure = await createScreenshotCaptureFixtures(file, secondaryFile).then(() => null, error => error);
+    if (cleanup === 'fails') {
+      expect(failure).toBeInstanceOf(AggregateError);
+      expect(failure.errors[0].code).toBe('EEXIST');
+      expect(failure.errors[1].message).toBe('Controlled secondary setup cleanup failure');
+    } else expect(failure.code).toBe('EEXIST');
+    const failed = await readLedger(file);
+    expect(accountIds(failed)).toHaveLength(11);
+    expect(failed.portalContentStarted).toBe(true);
+    expect(failed.cleaned).toBe(cleanup === 'complete');
+    if (cleanup === 'fails') {
+      expect(failed.removedAccountIds).not.toContain(failed.freshId);
+      expect((await admin.auth.admin.getUserById(failed.freshId!)).data.user?.id).toBe(failed.freshId);
+    } else {
+      expect(failed.removedAccountIds.sort()).toEqual(accountIds(failed).sort());
+      for (const id of accountIds(failed)) expect((await admin.auth.admin.getUserById(id)).error?.code).toBe('user_not_found');
+    }
+    expect(await readLedger(secondaryFile)).toEqual(retained);
+    expect((await admin.auth.admin.getUserById(accountIds(retained)[0])).data.user).not.toBeNull();
+    admin.auth.admin.deleteUser = remove;
+    await cleanupScreenshotLedger(file);
+    const done = await readLedger(file);
+    expect(done.cleaned).toBe(true);
+    expect(accountIds(done)).toEqual(accountIds(failed));
+    expect(done.removedAccountIds.sort()).toEqual(accountIds(failed).sort());
+    for (const id of accountIds(done)) expect((await admin.auth.admin.getUserById(id)).error?.code).toBe('user_not_found');
+    for (const group of [done.portal!, ...Object.values(done.entries)]) if (group.pairId) {
+      expect((await admin.from('pairs').select('id').eq('id', group.pairId)).data).toEqual([]);
+    }
+    expect((await admin.from('pairs').select('state').eq('id', done.namedPairId!).single()).data?.state).toBe('active');
+  } finally {
+    admin.auth.admin.deleteUser = remove;
+    try { await cleanupScreenshotLedger(file); }
+    finally { await cleanupScreenshotLedger(secondaryFile); }
   }
 });

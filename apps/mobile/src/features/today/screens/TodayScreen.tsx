@@ -86,8 +86,8 @@ function Today() {
     </Section>
     <Section title="Your note" link={{ label: 'Messages', onPress: () => router.push('/(tabs)/messages') }}>
       {query.isPending ? <Status tone="loading" message="Loading your note…" /> : query.isError ?
-        <Status message="We could not load your note." tone="error" /> :
-        note ? <NoteCard message={note} authorName={author(note.authorId)} onReply={() => router.push('/(tabs)/messages')}
+        <Status message="We could not load your note." tone="error" actionLabel="Retry note" onAction={() => { void query.refetch(); }} /> :
+        note ? <NoteCard message={note} authorName={author(note.authorId)} timezone={account.timezone} locale={account.locale} onReply={() => router.push('/(tabs)/messages')}
           onOpen={() => router.push('/(tabs)/messages')} /> : <Text style={theme.typography.body}>Pin a message to keep it here.</Text>}
     </Section>
     <Section title="Due today" link={{ label: 'All tasks', onPress: () => router.push('/(tabs)/tasks') }}>
@@ -103,7 +103,7 @@ function Today() {
       {query.isPending ? <Status tone="loading" message="Loading important dates…" /> : query.isError ?
         <Status message="We could not load important dates." tone="error" /> :
         important && important.temporal.kind === 'allDay' && countdown !== null ? <>
-          <Countdown days={countdown} title={important.title} date={DateTime.fromISO(important.temporal.startDate).toLocaleString(DateTime.DATE_HUGE)} />
+          <Countdown days={countdown} title={important.title} date={DateTime.fromISO(important.temporal.startDate, { zone: activePair.timezone }).toLocaleString(DateTime.DATE_HUGE)} />
           <Button label="View date" variant="text" trailingIcon="chevron-forward" onPress={() => router.push({ pathname: '/events/[eventId]', params: { eventId: important.id } })} />
         </> : <Text style={theme.typography.body}>Add an important date in Calendar.</Text>}
     </Section>

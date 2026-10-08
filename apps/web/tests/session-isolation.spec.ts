@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { admin, localUrl, publicKey, createEntryFixture, cleanupEntryFixture } from './support/entry-fixtures';
-import { loginWithLocalEmailCode } from './support/local-auth';
+import { loginWithLocalEmailCode, observeOwnSessionChanges } from './support/local-auth';
 import { createClient } from '@supabase/supabase-js';
 import { fixtureRpc } from './support/entry-fixtures';
 
@@ -54,6 +54,7 @@ test('disabled account cannot restore a cached session', async ({ page }) => {
 test('same-account pair change clears mounted invitation state', async ({ page, context }) => {
   const fixture = await createEntryFixture('pending');
   const oldPair = fixture.pairId;
+  const signals = await observeOwnSessionChanges(page, fixture.accountIds[0]);
   try {
     await loginWithLocalEmailCode(page, fixture.email);
     await page.goto('/pair/invite');
@@ -64,16 +65,29 @@ test('same-account pair change clears mounted invitation state', async ({ page, 
     await page.evaluate(() => window.dispatchEvent(new Event('focus')));
     await refreshed;
     await expect(page.locator('.invite-code')).toHaveText(oldToken);
+    await expect.poll(signals.joined).toBe(true);
+    const profile = await admin.from('profiles').select('version').eq('user_id', fixture.accountIds[0]).single();
+    if (profile.error) throw profile.error;
+    // Importance 100: finish the old membership's privacy recovery before creating another invitation.
+    const version = profile.data.version + 1;
+    const recovered = signals.prepareRecovery(version, () => fixture.pairId!, () =>
+      signals.changes.some(change => change.table === 'profiles' && change.record.version === version)
+      && signals.changes.some(change => change.table === 'pair_members' && change.record.pair_id === oldPair && typeof change.record.left_at === 'string')
+      && signals.changes.some(change => change.table === 'pair_members' && change.record.pair_id === fixture.pairId && change.record.left_at === null));
     await context.setOffline(true);
     const link = await admin.auth.admin.generateLink({ type: 'magiclink', email: fixture.email });
     if (link.error) throw link.error;
     const actor = createClient(localUrl, publicKey, { auth: { persistSession: false, autoRefreshToken: false } });
     const login = await actor.auth.verifyOtp({ type: 'magiclink', token_hash: link.data.properties.hashed_token });
     if (login.error) throw login.error;
+    await expect.poll(signals.joined).toBe(true);
     await fixtureRpc(actor, 'cancel_pending_pair', { p_pair_id: oldPair, p_command_id: crypto.randomUUID() });
+    await expect.poll(signals.joined).toBe(true);
     fixture.pairId = (await fixtureRpc(actor, 'create_pair', { p_timezone: 'Europe/Warsaw', p_command_id: crypto.randomUUID() })).pairId;
     await context.setOffline(false);
+    await recovered();
     await expect(page.getByRole('button', { name: 'Create invitation code', exact: true })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Create invitation code', exact: true })).toBeEnabled();
     await expect(page.locator('.invite-code')).toHaveCount(0);
     await expect(page.getByRole('button', { name: 'Copy invitation link' })).toHaveCount(0);
     await page.getByRole('button', { name: 'Create invitation code', exact: true }).click();

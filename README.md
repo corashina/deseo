@@ -53,9 +53,13 @@ apps/site/         Planned public information site
 
 ## Screenshots
 
-Open [the portal gallery](design/web-portal/index.html).
-The gallery contains 324 JPEGs for 39 routes, 119 views, and 238 viewport records.
-It uses real local Anna and Marek accounts and disposable fixtures for other states.
+Open [the reviewed frontend gallery](design/frontend-2026-10-07/web/index.html) or [the capture index](design/frontend-2026-10-07/web/README.md).
+Keep [the historical gallery](design/web-portal/index.html) as its recorded-source reference.
+The frontend gallery has 39 routes, 119 views, 238 records, and 321 page JPEGs.
+Two extra JPEGs retain named-media failure evidence.
+It uses named local accounts, owned disposable normal-media fixtures, and controlled failure states.
+The gallery records source `701f078`. The merged interface retains newer form and date controls.
+See [the merge note](docs/DEVELOPMENT.md#frontend-merge-record) for evidence limits.
 
 The [older visual reference](design/preview.html) contains sample interactions without persistence.
 

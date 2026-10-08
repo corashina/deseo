@@ -57,7 +57,7 @@ export function InvitePage() {
   return <section className="card form-page">
     <PageHeader title="Invite your partner" description="Only your partner should use this code. New codes replace earlier invitations." />
     {token && !attempt && !pending && <>
-      <p className="invite-code">{token}</p>
+      <p className="invite-code" aria-label="Your invitation code">{token}</p>
       <p className="muted">Expires {new Date(expires).toLocaleString()}</p>
       <Button onClick={() => void copy()}>Copy invitation link</Button>
     </>}

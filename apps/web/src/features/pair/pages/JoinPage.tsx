@@ -51,13 +51,13 @@ export function JoinPage() {
     return () => { generation.current++; };
   }, [initialToken, review]);
   const preview = reviewed?.details;
-  return <section className="card form-page"><PageHeader title={preview ? 'Join ' + preview.inviterName : 'Join your partner'} description={preview ? 'You will share one pair in ' + preview.timezone + '.' : 'Enter the invitation code from your partner.'} />
+  return <section className="card form-page"><PageHeader title={preview ? 'Join ' + preview.inviterName : 'Join your partner'} description={preview ? 'Share plans, messages, and memories. Private events stay private.' : 'Enter the invitation code from your partner.'} />
     <form onSubmit={event => { event.preventDefault(); if (!isOnline() || pending || accepting || uncertain) return; void review(token); }}>
     <Field label="Invitation code" value={token} disabled={accepting || uncertain} onChange={event => {
       generation.current++; setPending(false); setToken(event.target.value); writeDraft(accountId, pairId, 'join-pair', { token: event.target.value }); setReviewed(null); setError(''); entryIntent.invite = null;
     }} autoComplete="off" />
     {!preview && <Button type="submit" disabled={pending || accepting || !online}>Review invitation</Button>}</form>
-    {reviewed && <><p className="muted">Expires {new Date(reviewed.details.expiresAt).toLocaleString()}</p><Button disabled={accepting || !online} onClick={async () => {
+    {reviewed && <><p className="muted">Pair timezone: {reviewed.details.timezone}</p><p className="muted">Expires {new Date(reviewed.details.expiresAt).toLocaleString()}</p><Button disabled={accepting || !online} onClick={async () => {
       if (!isOnline() || accepting) return;
       const scope = beginScope();
       const next = attempt.current ?? reviewed;

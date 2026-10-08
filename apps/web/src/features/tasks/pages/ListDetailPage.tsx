@@ -93,14 +93,15 @@ export function ListDetailPage() {
     <PageHeader
       title={list.name}
       description={list.isGeneral ? 'General cannot be renamed or removed.' : 'Move tasks to General before removing this list.'} />
-    <section className="card">{tasks.data.length ? tasks.data.map(task => <TaskRow
+    <section className="card task-detail">{tasks.data.length ? tasks.data.map(task => <TaskRow
       key={task.id}
       task={task}
       accountId={account!.id}
       timezone={pair.timezone}
       assignee={pair.members.find(member => member.userId === task.assigneeId)?.displayName ?? 'Unassigned'} />) : <p>No tasks in this list.</p>}
-      {!list.isGeneral && <>
-        <form onSubmit={event => { event.preventDefault(); void run('rename'); }}>
+      {!list.isGeneral && <div className="task-list-actions">
+        <h2>List settings</h2>
+        <form className="list-name-form" onSubmit={event => { event.preventDefault(); void run('rename'); }}>
           <label className="field">
             <span>New list name</span>
             <input
@@ -125,7 +126,7 @@ export function ListDetailPage() {
             disabled={!online || saving || frozen || Boolean(tasks.data.length)}
             onClick={() => setConfirm('remove')}>Remove list</Button>
         </div>
-      </>}
+      </div>}
       {error && <Status error>{error}
       </Status>}
       {frozen && attempt.current && <Button disabled={!online || saving} onClick={() => void run(attempt.current!.kind)}>Retry list change</Button>}

@@ -29,6 +29,8 @@ test('Today limits plans and tasks and shows the important date', async ({ page 
     await expect(page.getByTestId('today-tasks').getByRole('checkbox', { checked: true })).toHaveCount(0);
     await expect(page.getByTestId('today-tasks').getByText(/Due today · 5 Oct/).first()).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Our anniversary', exact: true })).toBeVisible();
+    await expect(page.getByTestId('today-important-date').locator('time')).toHaveText('18 October 2026');
+    await expect(page.getByTestId('today-important-date').locator('time')).toHaveAttribute('datetime', '2026-10-18');
     const days = DateTime.fromISO('2026-10-18').diff(DateTime.fromISO('2026-10-05'), 'days').days;
     await expect(page.getByText('In ' + days + ' days', { exact: true })).toBeVisible();
     await expect(page.getByText('Recent memory', { exact: true })).toHaveCount(0);
@@ -96,4 +98,32 @@ test('planning pages render at each portal width and provide product captures', 
     await cleanupPortalPairFixture(ids);
   }
 
+});
+
+// Importance 90: Today reading, visual, and keyboard order must agree on phones.
+test('Today follows the personal content order in the document and keyboard', async ({ page }) => {
+  const ids = await createPortalPairFixture();
+  try {
+    await page.clock.install({ time: new Date('2026-10-05T08:00:00Z') });
+    await loginWithLocalEmailCode(page, ids.annaEmail);
+    await page.goto('/today');
+    const order = ['today-events', 'today-memory', 'today-note', 'today-tasks', 'today-important-date'];
+    for (const id of order) await expect(page.getByTestId(id)).toBeVisible();
+    const sections = page.locator('.today-layout [data-testid^="today-"]').filter({ has: page.locator('a') });
+    expect(await sections.evaluateAll(nodes => nodes.map(node => node.getAttribute('data-testid')))).toEqual(order);
+    if (page.viewportSize()!.width === 390) {
+      const tops = await Promise.all(order.map(id => page.getByTestId(id).evaluate(node => node.getBoundingClientRect().top)));
+      expect(tops).toEqual([...tops].sort((a, b) => a - b));
+      expect(new Set(tops).size).toBe(order.length);
+    }
+    await page.getByRole('link', { name: 'Add event', exact: true }).focus();
+    const visited: string[] = [];
+    for (let index = 0; index < 30; index++) {
+      await page.keyboard.press('Tab');
+      const section = await page.evaluate(() => document.activeElement?.closest('[data-testid^="today-"]')?.getAttribute('data-testid'));
+      if (section && visited[visited.length - 1] !== section) visited.push(section);
+      if (section === 'today-important-date') break;
+    }
+    expect(visited).toEqual(order);
+  } finally { await cleanupPortalPairFixture(ids); }
 });

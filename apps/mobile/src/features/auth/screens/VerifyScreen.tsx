@@ -50,11 +50,11 @@ export function VerifyScreen() {
   };
   const remaining = Math.max(0, Math.ceil((retryAt - now) / 1000));
   return <Screen title="Check your email" subtitle={email ? `Enter the code sent to ${email}. It expires after ten minutes.` : undefined}>
-    <Field label="Verification code" value={code} onChangeText={setCode} keyboardType="number-pad" autoComplete="one-time-code"
+    <Field label="Sign-in code" value={code} onChangeText={setCode} keyboardType="number-pad" autoComplete="one-time-code"
       textContentType="oneTimeCode" maxLength={6} returnKeyType="done" onSubmitEditing={() => { void submit(); }} />
     {error && <Status message={error} tone="error" />}
-    <Button label="Verify email" loading={busy} disabled={code.length !== 6 || !email} onPress={() => { void submit(); }} />
+    <Button label="Sign in" loading={busy} disabled={code.length !== 6 || !email} onPress={() => { void submit(); }} />
     <Button label={remaining ? `Resend in ${remaining}s` : 'Resend code'} variant="secondary" disabled={remaining > 0 || busy || !email} onPress={() => { void resend(); }} />
-    <Button label="Change email" variant="text" onPress={() => router.replace('/(auth)/email')} />
+    <Button label="Use another email" variant="text" onPress={() => router.replace('/(auth)/email')} />
   </Screen>;
 }

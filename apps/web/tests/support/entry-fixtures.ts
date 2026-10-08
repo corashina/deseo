@@ -3,6 +3,7 @@ import { randomUUID } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { join } from 'node:path';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+import { resolveFixtureDatabase, type FixtureContainer } from './fixture-backend';
 
 // Credentials remain in the test process and the ignored local status file.
 const config = JSON.parse(readFileSync(new URL('../../../../.superpowers/backend/status.local.json', import.meta.url), 'utf8'));
@@ -73,6 +74,16 @@ export async function cleanupEntryFixtureSessions(accountIds: readonly string[])
 export function expireEntryCode(accountId: string): void {
   if (!/^[0-9a-f-]{36}$/.test(accountId)) throw new Error('Invalid fixture ID');
   const docker = join(process.env.LOCALAPPDATA!, 'Programs/DockerDesktop/resources/bin/docker.exe');
-  execFileSync(docker, ['exec', 'supabase_db_deseo', 'psql', '-U', 'postgres', '-d', 'postgres', '-v', 'ON_ERROR_STOP=1', '-c',
-    `update auth.users set confirmation_sent_at=now()-interval '2 hours', recovery_sent_at=now()-interval '2 hours' where id='${accountId}' and email like 'entry-%@example.test'`], { stdio: 'pipe' });
+  const ids = execFileSync(docker, ['ps', '--filter', 'label=com.supabase.cli.project', '--format', '{{.ID}}'],
+    { encoding: 'utf8', stdio: 'pipe' }).trim().split(/\r?\n/).filter(Boolean);
+  if (!ids.length) throw new Error('Running fixture backend identity is missing.');
+  // Inspect labels and published ports only. Never read Docker environment credentials.
+  const format = '{"id":{{json .Id}},"name":{{json .Name}},"running":{{json .State.Running}},"project":{{json (index .Config.Labels "com.supabase.cli.project")}},"workdir":{{json (index .Config.Labels "com.supabase.cli.workdir")}},"ports":{{json .NetworkSettings.Ports}}}';
+  const containers = execFileSync(docker, ['inspect', ...ids, '--format', format],
+    { encoding: 'utf8', stdio: 'pipe' }).trim().split(/\r?\n/).map(line => JSON.parse(line) as FixtureContainer);
+  const databaseId = resolveFixtureDatabase(localUrl, config.DB_URL, containers);
+  const updated = execFileSync(docker, ['exec', databaseId, 'psql', '-U', 'postgres', '-d', 'postgres', '-Atq', '-v', 'ON_ERROR_STOP=1', '-c',
+    `update auth.users set confirmation_sent_at=now()-interval '2 hours', recovery_sent_at=now()-interval '2 hours' where id='${accountId}' and email like 'entry-%@example.test' returning id`],
+    { encoding: 'utf8', stdio: 'pipe' });
+  if (updated.trim() !== accountId.toLowerCase()) throw new Error('Expiry target did not match one disposable fixture.');
 }

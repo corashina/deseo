@@ -142,7 +142,7 @@ function MemoryEditor({ memory }: { memory?: Memory }) {
     finally { if (mounted.current && !scope.signal.aborted) { busy.current = false; setSaving(false); } }
   }
   return <><PageHeader title={memory ? 'Edit memory' : 'Add memory'} description={memory ? 'Change the date or caption.' : 'Keep a moment with photos, a date, and a caption.'} />
-    <section className="card form-page"><form onSubmit={form.handleSubmit(save)}><fieldset disabled={saving || frozen || preparing}>
+    <section className="card form-page memory-form"><form onSubmit={form.handleSubmit(save)}><fieldset disabled={saving || frozen || preparing}>
       <label className="field"><span>Memory date</span><input type="date" required {...form.register('memoryDate')} /></label>
       <label className="field"><span>Caption</span><textarea rows={4} maxLength={1000} {...form.register('caption')} /></label>
     </fieldset>{!memory && <PhotoSelection photos={photos} disabled={saving || frozen} preparing={preparing} onSelect={files => void select(files)} onRemove={photoId => { const next = photos.filter(photo => photo.id !== photoId); setPhotos(next); keep(form.getValues(), next); }} progress={progress} />}

@@ -12,6 +12,7 @@ import { Field } from '../../../components/ui/Field';
 import { Status } from '../../../components/ui/Status';
 import { getNotificationPreferences, notificationKeys } from '../queries';
 import { saveNotificationPreferences } from '../commands';
+import '../../../styles/notifications.css';
 type Draft = { input: NotificationPreferences; attempt: NotificationPreferences | null };
 export function PreferencesPage() {
   const { account, pair } = useSession();
@@ -64,20 +65,22 @@ export function PreferencesPage() {
     } catch { if (mounted.current && !scope.signal.aborted) setMessage('Preferences save is unconfirmed. Retry the same changes.'); }
     finally { if (mounted.current && !scope.signal.aborted) { pending.current = false; setBusy(false); } }
   }
-  return <section className="card form-page"><PageHeader title="Notification preferences" description="Choose your alerts and quiet hours." />
+  return <><PageHeader title="Notification preferences" description="Choose your alerts and quiet hours." /><section className="card form-page">
     {query.isPending && !input ? <Status>Loading preferences…</Status> : query.isError && !input ? <><Status error>We could not load preferences.</Status><Button onClick={() => void query.refetch()}>Retry</Button></> : input && <form onSubmit={event => { event.preventDefault(); void save(); }}>
       <fieldset className="field-group" disabled={busy || Boolean(draft?.attempt)}>
+      <h2>Alerts</h2>
       <label className="field field-check"><span><input type="checkbox" checked={input.messageAlerts} onChange={event => change({ messageAlerts: event.target.checked })} /> Message alerts</span></label>
       <label className="field"><span>Default event reminder</span><select value={input.defaultEventReminderMinutes ?? 'none'} onChange={event => change({ defaultEventReminderMinutes: event.target.value === 'none' ? null : Number(event.target.value) })}>
         <option value="none">None</option><option value="15">15 minutes before</option><option value="60">One hour before</option><option value="1440">One day before</option>
       </select></label><p className="muted">This default applies to new events. Open an event to change its reminder.</p>
+      <div className="preferences-group"><h2>Quiet hours</h2>
       <label className="field field-check"><span><input type="checkbox" checked={input.quietStart !== null} onChange={event => change({ quietStart: event.target.checked ? '22:00' : null, quietEnd: event.target.checked ? '07:00' : null })} /> Quiet hours</span></label>
-      {input.quietStart !== null && <><Field label="Quiet hours start" type="time" required value={input.quietStart} onChange={event => change({ quietStart: event.target.value })} /><Field label="Quiet hours end" type="time" required value={input.quietEnd ?? ''} onChange={event => change({ quietEnd: event.target.value })} /></>}
+      {input.quietStart !== null && <div className="preferences-times"><Field label="Quiet hours start" type="time" required value={input.quietStart} onChange={event => change({ quietStart: event.target.value })} /><Field label="Quiet hours end" type="time" required value={input.quietEnd ?? ''} onChange={event => change({ quietEnd: event.target.value })} /></div>}
       <Field label="Notification timezone" required value={input.timezone} onChange={event => change({ timezone: event.target.value })} />
-      </fieldset><p>Quiet hours defer native push alerts. Event alerts expire when the event starts.</p>
-      <h2>Native push</h2><p>Manage device permission in the Deseo Android or iOS app.</p><p className="muted">This browser receives no push alerts.</p>
+      <p className="muted">Quiet hours defer native push alerts. Event alerts expire when the event starts.</p></div></fieldset>
+      <div className="preferences-group"><h2>Device permission</h2><p>Manage device permission in the Deseo Android or iOS app.</p><p className="muted">This browser receives no push alerts.</p></div>
       {message && <Status error={conflict}>{message}</Status>}
       {conflict && <Button disabled={!online || busy} variant="secondary" onClick={async () => { const fresh = await query.refetch(); if (!mounted.current || fresh.isError) return; removeDraft(account!.id, pairId, 'preferences'); setDraft(undefined); setConflict(false); setMessage(''); }}>Discard changes and reload</Button>}
       <Button type="submit" disabled={!online || busy || conflict}>{draft?.attempt ? 'Retry preferences' : 'Save preferences'}</Button>
-    </form>}<Link to="/settings">Return to settings</Link></section>;
+    </form>}<Link to="/settings">Return to settings</Link></section></>;
 }

@@ -471,3 +471,494 @@ Review failures, queue age, storage usage, and support reports daily during the 
 Fix blocked core actions before adding features. Record a new scope decision for calendar sync, subscriptions, or offline writes.
 
 Keep draft documentation status distinct from shipped behavior. Update the README only after the release evidence exists.
+
+## Frontend design handoff
+
+Historical feature record. The checks below apply to their listed revisions and the original feature checkout.
+Use [Setup](#setup) for the current backend commands and `.superpowers/backend/status.local.json`.
+Use [the merge record](#frontend-merge-record) for changes to the combined interface.
+
+The 8 October merge preserves all eleven controller rulings and the recorded review verdicts below.
+
+Date: 7 October 2026. Status: all seven task reviews and the final whole-branch review passed.
+
+The owner approved the frontend spec, plan, and sequential subagent execution.
+Tasks 1–7 passed independent or scoped review. The final whole-branch review passed after one fix wave.
+Implementation base: aaa066d483b547252a3b9a33927d0e296363c2f7.
+Product revision: af1f109be95ba5f7b7ec3e63d3b8344ea12f7bab.
+Capture writer commits: 5b21b1a and e4fd34c. Canonical paths: 701f078.
+Captured source: 701f078ed9384918d18287b687de92fb192a0d06.
+
+I used C:/Users/Corashina/.codex/worktrees/deseo-frontend-design/deseo for this task.
+I preserved the original checkout, named local data, shared Test runtime, and product source.
+I added no package, render harness, query cache, backend configuration, or named-media repair.
+
+### Final checks
+
+Environment: Windows, Europe/Warsaw, Node 24.18.0, npm 11.16.0, root lockfile.
+The existing API serves 127.0.0.1:55721 in Test mode for origin 127.0.0.1:4174.
+Another Deseo chat owns that service. Playwright owns each temporary preview.
+This run used the existing `deseo` service, rather than starting the documented `deseo-web` launcher.
+I changed no backend configuration or service process.
+Browser batches run in sequence. I check listeners before each batch.
+
+| Command | Result | Exit |
+|---|---|---:|
+| npm run verify:mobile | Native types/lint; 45 suites, 203 tests passed | 0 |
+| npm run test:domain | 2 suites, 7 tests passed | 0 |
+| npm exec --workspace @deseo/mobile -- expo export --platform android --platform ios --output-dir dist | Android/iOS Hermes JavaScript exports passed | 0 |
+| npm run test:web -- screenshot-coverage.spec.ts screenshot-cleanup.spec.ts, DESEO_CAPTURE=1 | 13 passed; one intentional skip; 9.5 minutes | 0 |
+| npm run verify:web | Types/lint/build passed; 242 tests passed, two failed, two generation skips; 29.7 minutes | 1 |
+| Unchanged deleted-send test replay, both projects | 2 passed; 12.1 seconds | 0 |
+| Unchanged same-account pair-change replay, both projects | 2 passed; 7.8 seconds | 0 |
+| Corrected recovery cases, both projects | 4 passed; 21.5 seconds; types/lint passed | 0 |
+| Fresh npm run verify:web on 261ae21 | Types/lint/build passed; 244 passed, two generation skips; 29.5m | 0 |
+| Built web asset review | 62 text assets; four private values absent; no native module imports | 0 |
+| git diff --check | Passed for writer and canonical path changes | 0 |
+
+Mobile/domain source from af1f109 was present when checks and exports ran. Those trees remain unchanged through Task 7.
+Task 7 changes capture tests, fixture verification, documentation, and gallery paths. Product source remains unchanged.
+The bundle contains Supabase runtime and key-prefix comparisons. Those strings are vendor checks, not native imports or credentials.
+Ignored scratch retains failed/passing logs, ownership journals, and private local sessions.
+These files stay outside Git.
+
+### Mechanical detector
+
+I ran the installed Impeccable detector once after Tasks 1–6 finished.
+Command: impeccable.cmd detect --json followed by 37 changed web source paths from aaa066d to af1f109.
+Actual output: [] . Exit: 0. No findings.
+I kept the approved fonts, palette, corners, control sizes, and motion rules.
+This result does not establish browser rendering or device acceptance.
+
+### Gallery, fixtures, and privacy
+
+Use [the current gallery](../design/frontend-2026-10-07/web/index.html), [capture index](../design/frontend-2026-10-07/web/README.md), and [verification record](../design/frontend-2026-10-07/web/verification.json).
+Keep [the historical gallery](../design/web-portal/index.html) as its recorded-source evidence.
+The manifest remains 39 routes and 119 views. Full coverage requires 238 viewport records.
+Capture sizes: desktop 1440 × 1000; phone 390 × 844. Long pages include full-page images.
+The fresh set has 238 records, 236 distinct viewport images, and 85 full-page images: 321 page JPEGs.
+Two extra JPEGs show named-media failures.
+Real capture interval: 2026-10-07T14:34:54.196Z–2026-10-07T14:43:32.613Z.
+The desktop capture assertion skips while the narrow set is incomplete. The narrow assertion validates both completed sets.
+Final verify:web passed both viewport gallery assertions.
+The root route shares the Welcome image after redirect.
+The writer checks JPEG bytes, browser decoding, exact viewport dimensions, and full-page dimensions.
+The display clock stays at 5 October 2026, 10:00 Europe/Warsaw.
+coverage.json records real UTC capture time and tested source revision separately.
+Backend and Auth clocks keep real time.
+
+I mask email addresses, invitation codes, sign-in codes, and verification codes in images.
+I replace invitation query tokens with MASKED in coverage URLs.
+Local Auth sessions, keys, traces, and fixture journals remain outside the gallery.
+The cleanup suite retains ownership and checks partial setup, failed deletion, disposal, and recovery.
+All 60 retained journals report cleaned=true; all owned accounts are recorded removed.
+The named pair remains intact.
+Before and after path consolidation, all 327 historical hashes matched at design/web-portal.
+
+### Named media limit and capture correction
+
+The read-only preflight ran at 2026-10-07T14:15:10.599Z on af1f109.
+Today showed one photo error; Memories two; the named memory detail one.
+Media and Storage returned HTTP 200, but no photo decoded.
+I reported this evidence before full capture. I did not assign a cause or repair stored bytes.
+I save separate [desktop](../design/frontend-2026-10-07/web/named-media-failure-1440.jpg) and [phone](../design/frontend-2026-10-07/web/named-media-failure-390.jpg) failure images.
+
+The controller approved owned disposable pairs for normal Today and memory photo views.
+Their records carry exact fixture labels. Normal photo views check decoding, bounds, and absent photo errors.
+Other normal planning, task, message, and account views retain named fixtures.
+Error, conflict, pending, and unavailable states use disposable fixtures or controlled request failures.
+These captures provide local fixture evidence.
+
+The first full capture failed my new image-count assertion on the existing caption/date-only memory edit page.
+Result: 10 passed, three failed, one skipped; exit 1.
+Both projects failed at memory-edit/default; the incomplete-gallery check then failed.
+I scoped decoding to photo-bearing views. Typecheck, lint, and diff checks passed before e4fd34c.
+I retained failed logs and all cleanup journals. Product behavior stayed unchanged.
+
+### Full web recovery-test results
+
+The full run failed desktop deleted-send recovery and phone same-account pair-change invitation generation.
+The unchanged focused replay passed each case on both projects. These replays do not replace a passing full run.
+Both failures overlapped privacy-triggered session revalidation.
+The first retained a pending send after reconciliation lost its query scope.
+The second cleared the old token, adopted the new pair, then retained an unconfirmed new invitation command.
+Trace evidence proves overlapping requests and protected pending state. Exact realtime event delivery is inferred from source.
+The original feature implementer committed the narrow fixture observer in 261ae21.
+It forwards realtime frames unchanged and observes joined channels, expected own signals, and fresh session/new-pair responses.
+All pending-state, no-resend, deleted-result, old/new-token, and isolation assertions remain.
+The final four covering checks and browser types/lint passed. Product privacy guards remain unchanged.
+The fresh full run passed all 244 checks. Two generation tests skipped because capture mode was disabled.
+Both gallery assertions passed. The prior full-run failure remains in ignored evidence.
+
+### Layer evidence
+
+| Layer | Commit | Scoped test summary | Review |
+|---|---|---|---|
+| Foundation | 8519e94 | Browser 12; native Field 2; types/lint | Clean |
+| Entry/settings | 49d2095 | Browser 70; native auth/pair 17; types/lint | Clean |
+| Today/calendar | 467d545 | Browser 46; native 15 plus calendar 29; types/lint | Clean |
+| Tasks/notifications | 44ee848 | Browser 56 plus copy 12; native 39; types/lint | Clean |
+| Memories | e6eed64, 503a536 | Browser 46; form fix 14; native 7; types/lint | Scoped fix clean |
+| Messages/notes | 8f3be6d, af1f109 | Browser 36; native 15; fix 21; types/lint | Scoped fix clean |
+
+Task 1's header assertion passed at baseline. The implementer kept that honest result.
+Task 2 baseline had 60 passes and two failures against an obsolete container name.
+The scoped disposable expiry helper then passed both cases against the verified existing deseo container.
+Task 3's Today order assertion failed before restructuring and passed afterward.
+Task 4's full-row completion assertion failed before its change and passed afterward.
+Task 5's photo recovery and browser-widget readability failures passed after scoped corrections.
+Task 6's account-timezone pin assertions failed before the fix and passed afterward.
+Task 2's CSS zoom probe does not prove doubled-computed-text acceptance.
+
+### Browser review
+
+I reviewed all 119 views at both widths in one batched pass through 15 contact sheets.
+The review checked hierarchy, reading order, controls, wrapping, masks, dialogs, photo recovery, and sender labels.
+No new required UI issue was found. No product source changed during Task 7.
+The controller also checked Today planning on phone and the desktop conversation.
+
+| Route | Reviewed views, each at 1440px and 390px | Result |
+|---|---|---|
+| entry-root | resolved-entry | No required issue |
+| entry-welcome | default, invited, global-signout-failure | No required issue |
+| entry-email | default, error | No required issue |
+| entry-verify | default, invalid-code | No required issue |
+| entry-profile | new-account | No required issue |
+| pair-start | default | No required issue |
+| pair-invite | default, generated-code, delivery-unconfirmed, already-delivered | No required issue |
+| pair-join | default, review, unavailable | No required issue |
+| pair-waiting | default, cancel-dialog | No required issue |
+| pair-welcome | default | No required issue |
+| pair-ended | default | No required issue |
+| invite-entry | valid, invalid | No required issue |
+| calendar | month, agenda, compare, empty, error | No required issue |
+| event-new | default, validation, plan-date | No required issue |
+| event-detail | shared, private, delete-dialog, unavailable, request-error, pending-deletion | No required issue |
+| event-edit | default, conflict, share-dialog | No required issue |
+| today | planning, empty, error | No required issue |
+| memories | month-feed, empty, error | No required issue |
+| memory-new | default, selected, upload-error | No required issue |
+| memory-detail | author, partner, delete-dialog, unavailable, media-error, request-error, pending-deletion | No required issue |
+| memory-edit | default, conflict | No required issue |
+| messages | conversation, notes, empty, error, pending-send, delete-dialog, pending-action | No required issue |
+| tasks | general, groceries, completed, completion-error | No required issue |
+| task-new | default, validation | No required issue |
+| task-detail | default, delete-dialog, unavailable, request-error, pending-deletion | No required issue |
+| task-edit | default, conflict | No required issue |
+| task-lists | default, create | No required issue |
+| task-list-detail | general, nonempty, empty, move-dialog, remove-dialog | No required issue |
+| ideas | saved, planned, archived, empty | No required issue |
+| idea-new | default, validation | No required issue |
+| idea-detail | saved, planned, archived, archive-dialog, unavailable, request-error | No required issue |
+| idea-edit | default, conflict | No required issue |
+| notifications | list, empty, unavailable, error | No required issue |
+| settings | default, unpaired, ended | No required issue |
+| settings-profile | default, conflict | No required issue |
+| settings-pair | default, verification, end-dialog, ended | No required issue |
+| settings-notifications | default, quiet-hours, conflict | No required issue |
+| settings-account | default, unpaired, ended | No required issue |
+| unknown-route | not-found | No required issue |
+
+The existing importance-92 suite checks 320, 390, 768, 1024, and 1440px with long and doubled computed text.
+Importance-93 checks cover keyboard access, dialog focus trap, Escape, and focus return.
+Importance-95 navigation checks cover draft retention.
+Browser confirmation prompts sit outside page images. Navigation tests check dismissal and acceptance.
+
+<a id="native-frontend-evidence"></a>
+### Native frontend evidence
+
+Native verification passed: 45 suites, 203 tests, types, and lint. Both JavaScript exports passed.
+Android bundle: entry-60c8670ebc76930b5c32fe1e2b5f71cb.hbc, 5.2 MB.
+iOS bundle: entry-5c5b1464c595fb2b254763798f712cdf.hbc, 5 MB.
+Both exports and metadata.json remain ignored in apps/mobile/dist.
+No device, native SDK, simulator, or native render harness was available here.
+I installed no harness and captured no native device screenshot.
+Physical keyboard, large-font, safe-area, final-item clearance, VoiceOver, and TalkBack checks remain unverified.
+Camera/photo permissions, push, native binaries, store delivery, and deployment remain separate acceptance work.
+Source checks and JavaScript exports cannot close those gates.
+
+The controller requested compact live guides after the first consolidation.
+I removed obsolete prompts, templates, and completed raw plans. Git history retains those records.
+Current contracts, setup, checks, requirements, approved scope, rulings, reviews, and remaining work stay in these guides.
+
+### Controller rulings
+
+Ruling: Use the approved committed source in the managed checkout, leaving unrelated live backend edits in the original checkout. Use ignored local environment files to test the existing fixture readers. Reason: isolate design work without committing another task's changes. Cost if wrong: baseline checks may require environment adjustment.
+Ruling: If a new behavior assertion already passes at baseline, keep its honest baseline result. Reason: a required check can confirm existing behavior. Cost if wrong: a latent case could need a more specific assertion during review.
+
+Task 2 baseline concern: the expired-email-code fixture references supabase_db_deseo-web while the running verified project is deseo. Ruling: update only the disposable fixture expiry helper to verified supabase_db_deseo, after confirming the failure cause and container identity. Reason: required browser verification must use the existing local backend without changing its configuration or copying another task's dirty files. Cost if wrong: expiry checks could fail or address the wrong local stack; container identity and disposable fixture scope must be checked. Preserve baseline failure evidence and include this helper change in review.
+
+Task 4 baseline: 44 browser and 11 native passed. New full-row title completion test rated 95 failed before the change and passed after it. Native focused feature suites passed 27. Initial 27-view desktop/phone capture batch passed. Ruling: add a local read-only Retry for failed native permission reads using the existing read function and Status action props, with an importance-95 recovery test. Reason: the approved error-state design requires an available recovery action. Keep app-focus recovery and public props; do not request permissions, register devices, write backend data, or add a listener. Cost if wrong: an extra permission read or recovery-state race, covered by the component test and scoped review.
+
+Task 5 review /root/review5_memories: spec and quality need fixes for clipped date/file status at 320px doubled text. Required photo recovery itself approved. Ruling: fix readable native browser form controls now rather than defer them. Reason: the approved enlarged-text requirement overrides the generic two-round polish ceiling and the earlier deferral. Preserve native picker semantics, values, focus, prepared bytes, and public props; no new packages. Cost if wrong: extra scoped review time or altered widget presentation; verify only affected form/crop/recovery behavior and exact narrow screenshots. Task 5 fix round 1/5 starts from e6eed64e104d210d65944584163fcbda80c63735.
+
+Task 6 review needs fixes for inverted-list native group gap placement and inconsistent account/device pin-time formatting. Ruling: native NoteCard may receive required explicit account timezone/locale props, with all callers updated, if needed to keep display components data-explicit. Reason: consistent user time settings override literal signature preservation in the plan; do not add optional compatibility defaults or read hidden account state inside the card. Cost if wrong: an extra internal UI prop contract; covering caller/type/time-setting tests must verify it. Task 6 fix round 1/5 starts from 8f3be6d72cd4ff81cbd09e0f3dcc1e16efc02bfe.
+
+Task 7 named-media preflight: fresh check at 2026-10-07T14:15:10Z found Today 1 photo error, Memories 2, named detail 1. Media and Storage HTTP 200, no decoded photos. Safe record .superpowers/frontend-design/capture/named-media-preflight.json. Ruling: retain named failed-media evidence separately and use verified owned disposable pairs for normal Today and memory feed/detail/edit/author/partner/delete captures, with exact fixture labels. Keep named content elsewhere and change no named data, bytes, or infrastructure. Reason: normal coverage must show real decoded private images without falsifying state or repairing unrelated stored data. Cost if wrong: gallery's normal photo views differ from named demo content; explicit provenance and separate failed-media evidence preserve that limit.
+
+Task 7 documentation ruling: current AGENTS requires exactly README.md, ARCHITECTURE.md, and DEVELOPMENT.md inside docs, with no subfolders. Ruling: consolidate this worktree's current docs and evidence into those three; move visual assets to root design. The current rule replaces the plan's artifact paths. Preserve approved full spec/plan in ignored scratch for final review. Keep original checkout untouched. Reason: honor the current contributor rule while preserving approved scope and historical bytes. Cost if wrong: documentation rework, no product behavior change. Original canonical docs serve as layout references only where source contracts match; their newer start:backend command/status path does not match this worktree. New gallery: design/frontend-2026-10-07/web. Native checks, handoff, rulings, and review evidence belong in canonical docs sections.
+
+Task 7 deleted-send recovery: Ruling: preserve the existing privacy-triggered session revalidation and query abort; stabilize the deleted-send test by waiting for verified session recovery after fixture deletion before Retry. Reason: deletion's profile signal legitimately interrupts the read; the test currently races that required privacy mechanism. Cost if wrong: the test could hide a recovery defect, so preserve the pending-state, no-resend, deleted-result assertions and use observed responses/state, never sleeps.
+Original Messages implementer owns the test correction after the full suite and unchanged focused replay. No product source change authorized.
+
+Task 7 pair-change recovery: Ruling: apply the deleted-send recovery ruling to same-account pair-change. Await its own membership/profile signals and verified new-pair recovery before generating. Retain old/new-token and isolation assertions. Reason: pair cancellation privacy signals can interrupt the new invitation request. Cost if wrong: hiding early-attempt recovery defects; existing unknown-outcome tests and unchanged assertions must remain. No product/privacy guard change.
+
+### Preserved review verdicts
+
+#### task-1-review
+
+Reviewer: /root/review1_foundation, gpt-6.1-sol/high.
+Spec compliance: Approved for verified changes. No Critical, Important, or Minor findings.
+Task quality: Approved.
+Focused stylesheet risk check confirmed direct messages.css imports in TodayPage and MessagesPage.
+Cannot verify: native visual/device behavior; unchanged controls rely on test evidence.
+Controller resolution: device checks remain explicit final limitations; no device acceptance claim. Browser and native Field log summaries confirm the reported control/focus checks. The diff preserves component interfaces and behavior.
+No tests rerun by the reviewer.
+
+#### task-2-review
+
+Reviewer: /root/review2_entry_settings, gpt-6.1-sol/high.
+Spec compliance: Approved for source changes. Task quality: Approved.
+Critical, Important, Minor findings: None.
+Verified named risks: native account gate, removed selector callers, native section/screen composition, fixture ID/email restrictions.
+Final evidence logs: 70 browser tests and 17 native tests passed without warning output. No tests rerun.
+Cannot verify: unchanged screen composition and native devices; final-source captures remain with Task 7.
+Controller resolution: reports cover compliant unchanged screens and 72 browser views; controller inspected six representative captures. Final Welcome 16px body is verified in source and final browser checks, with fresh image evidence retained for Task 7. Native device acceptance remains unverified, not claimed complete.
+
+#### task-3-review
+
+Reviewer: /root/review3_planning, gpt-6.1-sol/high.
+Spec compliance: Approved for changed source. Task quality: Approved.
+Critical, Important, Minor findings: None.
+Verified: Today source/keyboard order and absolute date, desktop columns, form callback/validation preservation, native idea action placement, phone owner headings and shared row placement.
+Logs checked: 46 browser tests, 15 required native tests, 29 additional native tests; final typecheck/lint clean. Reviewer repeated no tests.
+Cannot verify: unchanged screens/EventRow and physical-device accessibility. Controller resolution: report coverage plus browser/native feature tests cover unchanged behavior; native visual/device acceptance remains unverified. Controller inspected normal-photo desktop Today and phone comparison captures.
+Cross-task gate: Task 5 must fix the existing failed-photo Retry clipping at 320px doubled text. Named media failure remains separate from the passing disposable-media path and must remain explicit in final evidence.
+
+#### task-4-review
+
+Reviewer: /root/review4_tasks_notifications, gpt-6.1-sol/high.
+Spec compliance: Approved. Task quality: Approved. No Critical, Important, or Minor findings.
+Verified: full-row completion and separate Details, account-zone notification dates, item-local source errors, preserved completion/reminder/quiet-hour behavior.
+Concrete permission-risk check: existing reader only calls getPermissionsAsync; Retry retains public props and one AppState listener. Existing Status supports the action.
+Tests inspected: 56 browser, 12 affected notification-copy, 39 native checks passed without warnings. No tests repeated.
+Cannot verify: unchanged native screens/draft internals and physical-device rendering/accessibility. Controller resolution: reviewed file coverage and existing feature suites cover unchanged behavior; native device acceptance remains unverified. Final-source header captures remain with Task 7.
+
+#### task-5-review
+
+Reviewer: /root/review5_memories, gpt-6.1-sol/high.
+Spec compliance: Needs fixes. Task quality: Needs fixes.
+Required Today recovery is implemented: valid sibling controls, expandable error content, 3:2 crop, detail proportions, meaningful browser/native regression.
+Important finding: MemoryFormPage.tsx:146 and PhotoSelection.tsx:10 display clipped date/file status at 320px doubled computed text. Stored/accessibility values do not satisfy visual date readability. Fix before acceptance.
+No other Critical, Important, or Minor findings. Native device and unchanged-data internals remain explicit evidence limits.
+Reviewer inspected final doubled-text capture and widget-evidence.json. Test evidence: browser 46, confirmation 6, native 7, clean types/lint. No tests rerun.
+
+#### task-5-fix-1-review
+
+Reviewer: /root/rereview5_forms, gpt-6.1-sol/medium.
+Clipped date/file controls at 320px doubled text: ADDRESSED.
+Date input area expanded with scoped phone insets. File input remains native with wrapping prepared-photo status.
+Preserved 16px baseline, labels, focus, disabled state, file callbacks, prepared bytes, crop/recovery behavior.
+Covering logs: 14 browser checks passed; clean web typecheck/lint. Test covers all twelve dates, actual file selection, full values, focus, status bounds, and overflow.
+New Critical/Important/Minor breakage: None. Out-of-scope observations: None. No tests rerun.
+Controller inspected the final selected-320-text-2-narrow capture; complete date and selected count visible.
+
+#### task-6-review
+
+Reviewer: /root/review6_messages, gpt-6.1-sol/high.
+Spec compliance: Needs fixes. Task quality: Needs fixes.
+Important 1: MessagesScreen.tsx:78,257 computes group start against older neighbor in newest-first data, but applies bottom padding. This creates a gap inside same-sender chronology. Use top padding or newer-neighbor comparison.
+Important 2: NoteCard.tsx:17 formats new pin times using device timezone/locale while conversation uses account preferences. Align both.
+Strengths: browser sender classes/alignment, growing bounded conversation, unchanged props/data identities, direct route checks. Browser 36/native 15 and types/lint passed. No suites rerun.
+Physical native acceptance remains unverified.
+
+#### task-6-fix-1-review
+
+Reviewer: /root/rereview6_native, gpt-6.1-sol/medium.
+Native group spacing: ADDRESSED. Top padding matches older-neighbor boundary in counter-inverted RN cells.
+Account pin timestamps: ADDRESSED. Required explicit timezone/locale passed by MessagesScreen and TodayScreen; no compatibility defaults.
+New Critical/Important/Minor breakage: None. Out-of-scope observations: None.
+Logs: two timestamp tests failed before fix, then four covering suites/21 tests passed. Native typecheck clean. Empty lint log plus implementer reported success; Task 7 recorded fresh full native lint exit 0.
+No tests or source mutations by reviewer. Device acceptance remains unverified.
+
+### Native source coverage
+
+| Native screen | Source review | Device review |
+|---|---|---|
+| apps/mobile/src/features/today/screens/TodayScreen.tsx | Source reviewed in completed task | Unverified: device tools absent |
+| apps/mobile/src/features/messages/screens/MessagesScreen.tsx | Source reviewed in completed task | Unverified: device tools absent |
+| apps/mobile/src/features/auth/screens/WelcomeScreen.tsx | Source reviewed in completed task | Unverified: device tools absent |
+| apps/mobile/src/features/auth/screens/VerifyScreen.tsx | Source reviewed in completed task | Unverified: device tools absent |
+| apps/mobile/src/features/auth/screens/ProfileScreen.tsx | Source reviewed in completed task | Unverified: device tools absent |
+| apps/mobile/src/features/auth/screens/EmailScreen.tsx | Source reviewed in completed task | Unverified: device tools absent |
+| apps/mobile/src/features/calendar/screens/IdeaListScreen.tsx | Source reviewed in completed task | Unverified: device tools absent |
+| apps/mobile/src/features/calendar/screens/IdeaFormScreen.tsx | Source reviewed in completed task | Unverified: device tools absent |
+| apps/mobile/src/features/calendar/screens/IdeaDetailScreen.tsx | Source reviewed in completed task | Unverified: device tools absent |
+| apps/mobile/src/features/calendar/screens/EventFormScreen.tsx | Source reviewed in completed task | Unverified: device tools absent |
+| apps/mobile/src/features/calendar/screens/EventDetailScreen.tsx | Source reviewed in completed task | Unverified: device tools absent |
+| apps/mobile/src/features/calendar/screens/CalendarScreen.tsx | Source reviewed in completed task | Unverified: device tools absent |
+| apps/mobile/src/features/memories/screens/MemoryFormScreen.tsx | Source reviewed in completed task | Unverified: device tools absent |
+| apps/mobile/src/features/memories/screens/MemoryDetailScreen.tsx | Source reviewed in completed task | Unverified: device tools absent |
+| apps/mobile/src/features/memories/screens/MemoriesScreen.tsx | Source reviewed in completed task | Unverified: device tools absent |
+| apps/mobile/src/features/tasks/screens/TasksScreen.tsx | Source reviewed in completed task | Unverified: device tools absent |
+| apps/mobile/src/features/tasks/screens/TaskFormScreen.tsx | Source reviewed in completed task | Unverified: device tools absent |
+| apps/mobile/src/features/tasks/screens/TaskDetailScreen.tsx | Source reviewed in completed task | Unverified: device tools absent |
+| apps/mobile/src/features/tasks/screens/ListDetailScreen.tsx | Source reviewed in completed task | Unverified: device tools absent |
+| apps/mobile/src/features/pair/screens/WelcomeScreen.tsx | Source reviewed in completed task | Unverified: device tools absent |
+| apps/mobile/src/features/pair/screens/WaitingScreen.tsx | Source reviewed in completed task | Unverified: device tools absent |
+| apps/mobile/src/features/pair/screens/StartScreen.tsx | Source reviewed in completed task | Unverified: device tools absent |
+| apps/mobile/src/features/pair/screens/SettingsScreen.tsx | Source reviewed in completed task | Unverified: device tools absent |
+| apps/mobile/src/features/pair/screens/JoinScreen.tsx | Source reviewed in completed task | Unverified: device tools absent |
+| apps/mobile/src/features/pair/screens/InviteScreen.tsx | Source reviewed in completed task | Unverified: device tools absent |
+| apps/mobile/src/features/pair/screens/EntryScreen.tsx | Source reviewed in completed task | Unverified: device tools absent |
+| apps/mobile/src/features/pair/screens/EndedScreen.tsx | Source reviewed in completed task | Unverified: device tools absent |
+| apps/mobile/src/features/notifications/screens/NotificationPreferencesScreen.tsx | Source reviewed in completed task | Unverified: device tools absent |
+| apps/mobile/src/features/notifications/screens/NotificationListScreen.tsx | Source reviewed in completed task | Unverified: device tools absent |
+
+### Task 7 review and fix round 1
+
+Reviewer: /root/review7_evidence, gpt-6.1-sol/high.
+Spec compliance: Needs fixes. Task quality: Needs fixes.
+Critical: None.
+Important: screenshot-coverage.spec.ts:74-75 creates the second journal after main fixtures exist, before cleanup try at128. An exclusive journal write failure skips cleanup at188. Protect setup and add an importance95 behavior check.
+Minor deferred: native export log has repeated NO_COLOR/FORCE_COLOR warnings. Preserve raw log. Final review will triage.
+Verified:39 routes,119 views,238 records,323 JPEG additions,327 unchanged historical files, three canonical docs. Capture clocks/masks and fixture recovery assertions are sound.
+Saved logs inspected: web244/two capture skips, mobile203,domain7,both exports. No tests repeated.
+Outside-diff named check: journal exclusive-write failure. Truncated gallery-validation tail read separately.
+Cannot verify: device rendering/accessibility remains explicitly unverified. Original-checkout/live-data preservation requires controller evidence.
+Controller preservation resolution: all product edits and explicit commits used the managed worktree. Original source writes were excluded. Runtime checks preserved the populated service. Disposable fixture ownership and cleanup are recorded;40 journals are cleaned. Named photos were read only. Historical327 hashes match. Concurrent original-checkout changes belong to other chats.
+Fix round1/5 dispatched to original Task7 implementer from e1a2ddd94d7e5cc7bbb0a13617df844bb508e62a.
+
+Scoped review addressed the Important finding. No new breakage was found.
+The capture writer now cleans main fixtures if secondary journal setup fails.
+If cleanup also fails, it retains both errors and the main ownership journal.
+Importance 95 checks force a real exclusive-write collision after all 11 main accounts exist.
+They confirm account/pair disposal, unchanged secondary ownership, failed cleanup, and recovery from saved journals.
+Baseline: two checks failed. Corrected batch: 16 passed, two generation skips, 1.8 minutes; exit 0.
+Both existing-gallery checks passed. Web types and lint returned 0.
+The prior full web result remains 244 passed with two generation skips on 261ae21.
+No broad test, native export, UI capture, package, product source, or runtime change was needed.
+All 60 ownership journals are cleaned. Historical 327 hashes and current 323 JPEGs remain unchanged.
+The raw native export log remains preserved. Its color-environment warnings are a deferred Minor finding.
+Controller preservation evidence uses managed-worktree boundaries, explicit commits, owned journals, and unchanged historical hashes.
+Native device checks remain unverified. Final whole-branch review passed.
+
+### Task 7 scoped review
+
+Reviewer: /root/rereview7_cleanup, gpt-6.1-sol/medium.
+Secondary journal cleanup: ADDRESSED. The helper cleans main fixtures and retains both errors if cleanup fails.
+Importance 95 behavior checks cover real EEXIST, 11 accounts, secondary ownership, cleanup failure, and saved-journal recovery.
+Baseline: two failures. Fixed batch: 16 passed, two generation skips. Types and lint passed.
+No new Critical or Important breakage. No tests repeated by the reviewer.
+The native export color warnings are an environmental, nonblocking Minor.
+Device acceptance remains unverified.
+Task 7 is complete. The final whole-branch review passed.
+
+### Final whole-branch review and fixture identity correction
+
+Reviewer: /root/final_review, gpt-6-astra/high.
+Reviewed range: aaa066d483b547252a3b9a33927d0e296363c2f7..a2fba9b23c2a37ba7f643554c547ac1fb923c524.
+Original assessment: With fixes. Critical: None.
+Strengths: Today source/keyboard order, separate photo recovery, scoped styles, unchanged domain/dependencies, accurate evidence boundaries, and secondary-journal cleanup.
+
+Important: the expiry helper's fixed supabase_db_deseo target conflicts with the documented deseo-web setup.
+The helper now resolves API_URL and DB_URL through selectively inspected running Docker labels and published ports.
+It requires one owner per endpoint, matching project/workdir labels, and matching gateway/database roles.
+It runs SQL against the verified immutable database container ID.
+The UUID and disposable-email guards remain. An unmatched guarded update fails.
+Scoped review addressed this Important finding. No new blocking breakage was found.
+
+Correction of the earlier Task 2 ruling: the fixed name proved only the current run's database target.
+It did not bind expiry to the fixture client's configured API.
+The ten earlier rulings remain unchanged as historical decisions.
+Ruling: derive the SQL target from the same status endpoints used by fixtures and reject ambiguous or mismatched identity.
+Reason: documented setup and the existing shared stack must both select their own database.
+Cost if wrong: valid checks could be blocked, or expiry could target another local fixture database.
+Controlled rejection checks and real expired-code cases cover that risk.
+
+Fix wave base: a2fba9b23c2a37ba7f643554c547ac1fb923c524.
+All new identity behavior checks have importance 100.
+
+| Command | Result | Exit |
+|---|---|---:|
+| Docker identity preflight | Existing daemon and endpoint ports were absent; raw failure preserved | 1 |
+| npm run test:web -- fixture-identity.spec.ts, before fix | Four expected regression failures | 1 |
+| npm run test:web -- fixture-identity.spec.ts entry.spec.ts --grep "fixture database\|expired email code does not restore a session" | 20 passed; 9.0 seconds | 0 |
+| npm run typecheck --workspace @deseo/web | Passed | 0 |
+| npm run lint --workspace @deseo/web | Passed | 0 |
+
+The controller restored Docker Desktop; its saved deseo core containers resumed.
+The controller verified the existing project's API, database, mail, and Auth health before live checks.
+The implementer started no backend service and reset no data.
+Backend setup, schema, product source, and named data remain unchanged.
+The documented deseo-web identity used controlled Docker inputs. No second stack was launched.
+Both existing real expired-code assertions passed on the verified shared deseo stack.
+No broad suite, native export, or gallery rerun was needed.
+Raw logs remain in the ignored .superpowers/frontend-design/evidence/2026-10-07 directory.
+
+Minor triage: native NO_COLOR/FORCE_COLOR warnings are environmental and nonblocking.
+The raw export log remains preserved at .superpowers/frontend-design/evidence/2026-10-07/task-7-native-export.log.
+The controller verified its matching SHA256. No export was rerun for this fix.
+Use one color setting during the next required export. Keep the other color variable unset.
+
+Declined: physical keyboard, font, safe-area, final-item, VoiceOver, and TalkBack acceptance still lack device evidence.
+Named photo repair remains outside this frontend scope.
+Controller resolution: device checks remain unverified. Disposable normal-photo coverage and separate named failures retain their provenance.
+These limits do not establish device or named-data acceptance.
+One scoped final re-review passed. No new Critical or Important breakage was found.
+
+### Final scoped review and delivery
+
+Reviewer: /root/final_rereview, gpt-6.1-sol/medium.
+Database target mismatch: ADDRESSED. The helper verifies endpoint owners before SQL and uses an immutable container ID.
+UUID/email guards remain. Unmatched updates fail.
+Saved checks: 20 passed, including two real expired-code cases. Types and lint passed.
+No new Critical or Important breakage. No out-of-scope observations. No tests repeated by the reviewer.
+The whole-branch review is clear after one fix wave.
+Native color warnings remain nonblocking. Physical native acceptance remains unverified.
+Named photo repair remains excluded. Disposable normal-photo and named-failure evidence retain their recorded provenance.
+The detached managed worktree is preserved. Integration awaits the owner's choice.
+
+## Frontend merge record
+
+Date: 8 October 2026. The owner authorized merging the reviewed frontend branch into master.
+Master before merge: `3428eae8cd6fcb7e6245ac4e6b364a15a16cc394`.
+Reviewed feature: `e96ab62dcbc2a3929ce62a95ddc7346a829fc5ad`.
+
+The merge keeps the current backend, domain contracts, access rules, Today summary query, and native theme hooks.
+It retains field errors, timezone controls, task date labels, memory virtualization, and message action menus from master.
+It adds the reviewed control styles, Today reading order, task targets, memory Retry controls, grouping, and note timestamps.
+The guarded expiry helper reads the current backend status and resolves one API/database identity before SQL.
+It uses the immutable database container ID and rejects unmatched fixture updates.
+
+The gallery retains captured source `701f078`. Its records prove only that recorded interface.
+The merged forms, date labels, and message actions can differ from those images.
+The merge does not regenerate the gallery or repair named photos.
+
+Both application typechecks and root lint passed after installation from the unchanged master lockfile.
+Full merged browser, mobile, backend, and export results require separate checks.
+Physical Android and iOS acceptance remains unverified.
+The historical feature handoff above keeps its original revisions, eleven controller rulings, and review verdicts.
+
+## Frontend merge verification — 8 October 2026
+
+Merged reviewed frontend source e96ab62 into master from baseline3428eae.
+All 39 conflicts were resolved. Current backend, access guards, theme hooks, and newer product behavior were retained.
+Source review found no Critical, Important, or Minor issue.
+
+| Check | Result |
+|---|---|
+| Browser verification | 272 passed; two capture-generation skips; exit 0 |
+| Native verification | 46 suites; 205 tests passed; exit 0 |
+| Domain contracts | 7 passed; exit 0 |
+| Local database | 14 files; 517 assertions passed; exit 0 |
+| Android and iOS JavaScript exports | Both passed; exit 0 |
+| Types, lint, and staged diff | Passed |
+
+The existing local master migrations for read policies and Today were applied. Stored content was preserved.
+Browser startup failures were traced to cache visibility. The successful run used a project-local headless browser cache.
+Raw merge logs remain in the ignored .superpowers/merge-frontend-2026-10-08 directory.
+Earlier feature raw logs remain in .superpowers/frontend-design/evidence/2026-10-07.
+The frontend gallery describes its recorded source. It does not claim to capture the merged interface.
+Physical native acceptance remains unverified. Named photo repair remains excluded.
+The merge is local. No remote push was requested.

@@ -6,6 +6,7 @@ import { Button } from '../../../components/ui/Button';
 import { Status } from '../../../components/ui/Status';
 import { useNetworkStatus } from '../../../lib/network';
 import { captureQueryScope } from '../../../lib/query-client';
+import '../../../styles/settings.css';
 export function AccountSettingsPage() {
   const [error, setError] = useState(''); const [busy, setBusy] = useState(false); const online = useNetworkStatus();
   const mounted = useRef(false);
@@ -25,8 +26,8 @@ export function AccountSettingsPage() {
     setBusy(true); setError('');
     try { await signOut(scope); } catch { if (mounted.current && !queryScope.signal.aborted) { setError('Sign-out failed. Try again.'); pending.current = false; setBusy(false); } }
   }
-  return <section className="card form-page"><PageHeader title="Account" description="Choose where to end your session." />
-    <p>Signing out clears private content and unsent drafts from this browser.</p>
+  return <section className="card form-page settings-detail"><PageHeader title="Account" description="Choose where to end your session." />
+    <section className="settings-section"><h2>Sign out</h2><p>Signing out clears private content and unsent drafts from this browser.</p>
     {error && <Status error>{error}</Status>}<div className="actions"><Button disabled={!online || busy} onClick={() => void leave('local')}>Sign out on this browser</Button>
-    <Button variant="secondary" disabled={!online || busy} onClick={() => void leave('global')}>Sign out on all devices</Button></div><Link to="/settings">Return to settings</Link></section>;
+    <Button variant="secondary" disabled={!online || busy} onClick={() => void leave('global')}>Sign out on all devices</Button></div></section><Link to="/settings">Return to settings</Link></section>;
 }

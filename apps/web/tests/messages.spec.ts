@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import { randomUUID } from 'node:crypto';
 import { confirmNavigation } from './support/navigation';
 import { createPortalPairFixture, cleanupPortalPairFixture, portalClient } from './support/fixtures';
-import { loginWithLocalEmailCode } from './support/local-auth';
+import { loginWithLocalEmailCode, observeOwnSessionChanges } from './support/local-auth';
 import { messageAction } from './support/message-actions';
 
 // Importance 95: message management must stay reachable by keyboard and preserve focus after cancellation.
@@ -47,7 +47,27 @@ test('Anna sends, Marek reads, and both notes appear', async ({ page, browser },
     const marek = await portalClient(ids.marekEmail);
     await expect.poll(async () => (await marek.rpc('get_unread_count', { p_pair_id: ids.pairId })).data.data.count).toBeGreaterThan(0);
     await partner.goto('/messages');
-    const received = partner.getByTestId('message-row').filter({ hasText: 'Dinner at seven?' }).locator('p');
+    // Importance 95: author identity stays fixed while ownership changes alignment.
+    const sentRow = page.getByTestId('message-row').filter({ hasText: 'Dinner at seven?' });
+    const receivedRow = partner.getByTestId('message-row').filter({ hasText: 'Dinner at seven?' });
+    await expect(sentRow.locator('strong')).toHaveText('Anna');
+    await expect(receivedRow.locator('strong')).toHaveText('Anna');
+    const ownStyle = await sentRow.evaluate(element => ({
+      background: getComputedStyle(element).backgroundColor,
+      edge: element.getBoundingClientRect().right,
+      trailing: element.parentElement!.getBoundingClientRect().right - parseFloat(getComputedStyle(element.parentElement!).paddingRight),
+    }));
+    const otherStyle = await receivedRow.evaluate(element => ({
+      background: getComputedStyle(element).backgroundColor,
+      edge: element.getBoundingClientRect().left,
+      leading: element.parentElement!.getBoundingClientRect().left + parseFloat(getComputedStyle(element.parentElement!).paddingLeft),
+    }));
+    expect(otherStyle.background).toBe(ownStyle.background);
+    expect(Math.abs(ownStyle.edge - ownStyle.trailing)).toBeLessThanOrEqual(1);
+    expect(Math.abs(otherStyle.edge - otherStyle.leading)).toBeLessThanOrEqual(1);
+    await expect(sentRow).toHaveClass(/own-message/);
+    await expect(receivedRow).not.toHaveClass(/own-message/);
+    const received = receivedRow.locator('p');
     await expect(received).toHaveText(body);
     const lines = await received.evaluate(element => {
       const text = element.firstChild!;
@@ -63,6 +83,14 @@ test('Anna sends, Marek reads, and both notes appear', async ({ page, browser },
     await partner.getByLabel('Message', { exact: true }).fill('Yes, see you there.');
     await partner.getByRole('button', { name: 'Send message', exact: true }).click();
     await expect(page.getByText('Yes, see you there.', { exact: true })).toBeVisible();
+    const partnerOwn = partner.getByTestId('message-row').filter({ hasText: 'Yes, see you there.' });
+    const partnerOther = page.getByTestId('message-row').filter({ hasText: 'Yes, see you there.' });
+    await expect(partnerOwn.locator('strong')).toHaveText('Marek');
+    await expect(partnerOther.locator('strong')).toHaveText('Marek');
+    expect(await partnerOwn.evaluate(element => getComputedStyle(element).backgroundColor))
+      .toBe(await partnerOther.evaluate(element => getComputedStyle(element).backgroundColor));
+    await expect(partnerOwn).toHaveClass(/own-message/);
+    await expect(partnerOther).not.toHaveClass(/own-message/);
     await page.screenshot({ path: testInfo.outputPath('messages-' + testInfo.project.name + '.png'), fullPage: true });
     await expect(page.getByText(/typing|read by|online now/i)).toHaveCount(0);
   } finally { await partnerContext.close(); await cleanupPortalPairFixture(ids); }
@@ -138,9 +166,11 @@ test('lost accepted response survives focus and reconciles one durable message',
 // Importance 98: a deleted durable outcome must not recreate an uncertain message.
 test('recovery accepts a deleted durable send without sending it again', async ({ page }) => {
   const ids = await createPortalPairFixture();
+  const signals = await observeOwnSessionChanges(page, ids.annaId);
   try {
     await loginWithLocalEmailCode(page, ids.annaEmail);
     await page.goto('/messages');
+    await expect.poll(signals.joined).toBe(true);
     const bodies: Array<{ p_client_id: string; p_body: string }> = [];
     await page.route('**/rest/v1/rpc/send_message', async route => {
       bodies.push(route.request().postDataJSON());
@@ -152,7 +182,16 @@ test('recovery accepts a deleted durable send without sending it again', async (
     await expect(page.getByRole('button', { name: 'Retry message', exact: true })).toBeEnabled();
     const client = await portalClient(ids.annaEmail);
     const accepted = await client.from('messages').select('id').eq('pair_id', ids.pairId).eq('client_id', bodies[0].p_client_id).single();
+    const profile = await client.from('profiles').select('version').eq('user_id', ids.annaId).single();
+    if (profile.error) throw profile.error;
+    // Importance 98: wait for deletion's privacy signal before deliberate recovery.
+    const version = profile.data.version + 1;
+    const recovered = signals.prepareRecovery(version, () => ids.pairId,
+      () => signals.changes.some(change => change.table === 'profiles' && change.record.version === version));
+    await expect.poll(signals.joined).toBe(true);
     expect((await client.rpc('delete_message', { p_message_id: accepted.data!.id, p_command_id: randomUUID() })).data.ok).toBe(true);
+    await recovered();
+    await expect(page.getByRole('button', { name: 'Retry message', exact: true })).toBeEnabled();
     await page.getByLabel('Message', { exact: true }).fill('Keep the next draft');
     await page.getByRole('button', { name: 'Retry message', exact: true }).click();
     await expect(page.getByTestId('pending-send')).toHaveCount(0);

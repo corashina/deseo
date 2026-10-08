@@ -320,7 +320,7 @@ Use `min-width: 0` on grid children. Let long event names and partner names wrap
 
 Keep native bottom navigation visible. Add native content padding for its height and the device safe area.
 
-Use at least 44px touch targets. Give checkbox labels a full-row target.
+Use 48px browser targets and 48dp native targets. Give checkbox labels a full-row target.
 
 At narrow widths, move the header action below the heading before either element becomes crowded.
 
@@ -607,3 +607,10 @@ Use **event**, **memory**, **message**, **note**, **task**, and **reminder** wit
 Write button labels as actions: Add event, Save changes, Send message, Upload photo, Retry.
 
 Describe the actual state. Avoid guilt, inflated praise, vague promises, and relationship scoring.
+
+## Frontend verification reference
+
+Use [the current gallery](design/frontend-2026-10-07/web/index.html) for this frontend update.
+Use [the frontend handoff](docs/DEVELOPMENT.md#frontend-design-handoff) for checked source, browser, and native export evidence.
+Physical keyboard, large-font, safe-area, VoiceOver, and TalkBack acceptance remain unverified.
+Keep [the historical gallery](design/web-portal/index.html) for its recorded source.
