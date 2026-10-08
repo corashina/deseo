@@ -29,7 +29,8 @@
     "afterHeadingVerification": true,
     "overflow": 0,
     "pageErrors": [],
-    "afterCapturedAt": "2026-10-08T10:15:34.194Z"
+    "afterCapturedAt": "2026-10-08T10:15:34.194Z",
+    "sourceRevision": "a3caba651d8eaf09536518522407dc70d5199aee"
   },
   "checks": {
     "webTypes": "passed",
@@ -71,7 +72,8 @@
   },
   "limits": [
     "Native device rendering and device accessibility remain unverified.",
-    "Both canonical screenshot sets retain the observed demo photo error. Stored photo repair is outside this change."
+    "Both canonical screenshot sets retain the observed demo photo error. Stored photo repair is outside this change.",
+    "The saved galleries show their recorded reviews. They do not claim to capture the final combined interface."
   ],
   "sourceHashes": {
     "README.md": "3262eec35a1761c741e8f7612b8a0c9b62074caf8bfdc15cb11c47e5daebe724",
@@ -120,5 +122,38 @@
       "passed": 272,
       "skipped": 2
     }
+  },
+  "combinedMerge": {
+    "masterBase": "0531c27fa7beef81cff80131afcd2f2904f60050",
+    "designRevision": "a3caba651d8eaf09536518522407dc70d5199aee",
+    "resolvedPaths": 20,
+    "browser": {
+      "passed": 272,
+      "skipped": 2
+    },
+    "native": {
+      "suites": 46,
+      "passed": 205
+    },
+    "domain": {
+      "passed": 7
+    },
+    "focusedBrowser": {
+      "passed": 18
+    },
+    "realtimeReadiness": {
+      "passed": 12,
+      "repeats": 3
+    },
+    "photoPublication": {
+      "passed": 6,
+      "repeats": 3
+    },
+    "exports": {
+      "android": "passed",
+      "ios": "passed"
+    },
+    "sourceFileCount": 378,
+    "sourceFingerprint": "cb683adbdb5d6c053bdc86688e3beb177fa999bf391da234ae8e0286906010ac"
   }
 }

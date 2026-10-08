@@ -78,6 +78,6 @@ const useStyles = makeStyles(theme => ({
   checkbox: { flex: 1, minHeight: theme.touchTarget, flexDirection: 'row', alignItems: 'center', gap: theme.space[3], borderRadius: theme.radius.control },
   pressed: { opacity: 0.6 },
   text: { flex: 1, gap: theme.space[1] },
-  done: { textDecorationLine: 'line-through' },
+  done: { textDecorationLine: 'line-through', color: theme.colors.muted },
   undo: { paddingLeft: 38 },
 }));

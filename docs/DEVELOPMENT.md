@@ -963,6 +963,61 @@ The frontend gallery describes its recorded source. It does not claim to capture
 Physical native acceptance remains unverified. Named photo repair remains excluded.
 The merge is local. No remote push was requested.
 
+## UI/UX Pro Max frontend review
+
+Worktree: `codex/ui-ux-pro-max`. Baseline: `880bcb7`.
+The baseline preserves the staged project from the original checkout.
+
+I used [UI/UX Pro Max](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill) at revision `1a2c459`.
+The product-wide searches returned marketing patterns. React and React Native searches provided the applicable control guidance.
+STYLE.md remains the visual authority for the pastel colors, system fonts, shapes, and platform navigation.
+
+I increased secondary and button text sizes. I mapped shared geometry and added control feedback.
+You can see both partners in the browser header. You open the phone account menu through its named control.
+I kept 48dp native targets. I used the shared palette for event borders, captions, notes, and tab selection.
+I used a div for browser status messages to keep multi-paragraph HTML valid.
+
+Open [the comparison](../design/ui-ux-pro-max-2026-10-08/index.html) for 238 matched before/after pairs.
+Both sets cover 39 routes and 119 views at 1440×1000 and 390×844.
+Each set has 323 JPEGs, including full-page images and named-media failure evidence.
+The capture checks and an independent image read verified matching coverage and physical image dimensions.
+Normal photo views use owned disposable fixtures. Failure views use controlled requests and owned accounts.
+Emails, invitation codes, and verification values remain masked.
+Fixture timestamps and unread counts can change between captures.
+
+The after records identify the baseline and SHA256 of the exact frontend diff.
+Read [verification.json](../design/ui-ux-pro-max-2026-10-08/verification.json) for source and skill revisions.
+
+| Check | Result |
+|---|---|
+| Browser TypeScript, lint, production build | Passed |
+| Complete browser acceptance | 272 passed; 2 capture-generation checks skipped |
+| Native TypeScript, lint, Jest | 46 suites, 205 tests passed |
+| Shared domain | 7 tests passed |
+| Android and iOS JavaScript exports | Passed |
+| Before and after gallery checks | Passed; 238 matched pairs |
+| Comparison controls and image links | Passed; importance 90 |
+
+No new acceptance tests were added. The updated shell identity check rates 95 and verifies header partners and account colors.
+The realtime profile check rates 100 and reads the verified name from its new header location.
+The layout suite checks five widths and 200% text sizes.
+
+The browser checks use an isolated preview on 4184 and a local relay on 4185.
+The relay forwards requests to the existing backend and its selected 4174 Edge origin.
+It changes transport headers, without inventing backend responses. Gateway-origin checks call the backend directly.
+The original preview and Edge process retain their configuration.
+
+A native test timed out during the first run. Its eight-test suite and the full native rerun passed.
+Initial browser runs hit a fixture working-directory error and a shared results-folder error.
+One concurrent capture failed with ERR_NO_BUFFER_SPACE. Separate capture runs completed without source changes.
+Failed logs remain in the ignored `.superpowers/ui-ux-*` files. The final browser run uses a separate results folder.
+The final run passed with the corrected tests loaded before collection. Read `.superpowers/ui-ux-web-complete.log`.
+A browser alignment check found a reserved scrollbar gutter. Removing it restored the message edge.
+The design detector's one warning identifies the settings chevron's two-pixel stroke, rather than a card accent.
+
+Phone captures show the browser portal. Native device screenshots, safe areas, keyboard behavior, and screen readers remain unverified.
+Android emulator tools were unavailable in PATH. JavaScript exports do not establish physical-device acceptance.
+
 ## Design Taste update
 
 Date: 8 October 2026. Work stays on `codex/design-taste` in a separate managed worktree.
@@ -1017,3 +1072,34 @@ The final fresh full run passed. No backend, fixture, domain, or product logic c
 Raw attempts remain in the ignored `.superpowers/design-taste` directory.
 The refreshed comparison retains the observed demo photo error and Retry control.
 Physical native acceptance remains unverified.
+
+### Combined frontend review merge
+
+Date: 8 October 2026. Master advanced to `0531c27` while the Design Taste verification ran.
+I resolved the 20 overlapping paths in the isolated design worktree.
+The result keeps Design Taste headings, navigation groups, icon components, and welcome layout.
+It also keeps the newer readable control sizes, paired header identity, valid status markup, and shared geometry.
+Both review records and their galleries remain in the project. Each gallery shows its recorded source.
+
+| Combined check | Result |
+|---|---|
+| Complete browser verification | 272 passed; two capture-generation skips |
+| Native types, lint, and tests | 46 suites; 205 passed |
+| Domain contracts | 7 passed |
+| Focused identity, layout, and realtime checks | 18 passed |
+| Repeated realtime subscription checks | 12 passed |
+| Repeated one- and five-photo publication checks | 6 passed |
+| Android and iOS JavaScript exports | Passed |
+
+The focused checks cover both partner colors, the current account, five widths, doubled text, focus, and profile signals.
+The two existing realtime tests now wait for PostgreSQL subscription confirmation before changes.
+Their importance rating remains 100. The repeated check covers both browser widths.
+A 60-second budget covers cold fixture setup, sign-in, subscription, and reconciliation.
+The first repeated run exhausted the former 30-second budget; its evidence remains in ignored files.
+The existing importance-98 photo test now allows 15 seconds for sequential photo publication.
+The failed five-second check still showed photo five uploading. It returned no application error.
+That partial run and its failure evidence remain in ignored files.
+Docker was unavailable after an interruption. I restored the existing stack without resetting data.
+The stale runtime socket folder remains under a backup name.
+Backend and domain source remain unchanged. Physical native acceptance remains unverified.
+Combined logs remain in the ignored `.superpowers/design-taste/combined-*` files.

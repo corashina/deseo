@@ -17,7 +17,7 @@
 .memory-cover img { position: absolute; width: 100%; height: 100%; object-fit: cover; display: block; }
 .memory-card-copy { padding: 24px; }
 .memory-card-copy h3 { margin: 0 0 12px; letter-spacing: -.015em; font-size: 20px; line-height: 1.3; white-space: pre-wrap; overflow-wrap: anywhere; }
-.memory-card-copy p, .memory-card-copy span { font-size: 13px; color: var(--muted); }
+.memory-card-copy p, .memory-card-copy span { font-size: 14px; color: var(--muted); }
 .memory-card-copy p { margin-bottom: 8px; }
 .memory-image-state { min-width: 0; min-height: 180px; padding: 24px; display: grid; align-content: center; gap: 12px; }
 .memory-cover .memory-image-state { grid-area: 1 / 1; }

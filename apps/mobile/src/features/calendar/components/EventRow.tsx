@@ -40,7 +40,7 @@ export function EventRow({ event, viewerTimezone, ownerNames, onPress }: EventRo
     </View>
     {event.location ? <View style={styles.meta}><Ionicons name="location-outline" size={14} color={theme.colors.muted} /><Text style={theme.typography.secondary}>{event.location}</Text></View> : null}
   </>;
-  const tint = [styles.body, { backgroundColor: tone.soft, borderLeftColor: tone.accent }];
+  const tint = [styles.body, { backgroundColor: tone.soft, borderColor: tone.accent }];
   return <View style={styles.row}>
     <Text style={[theme.typography.secondary, styles.time]}>{time}</Text>
     {onPress
@@ -52,9 +52,9 @@ export function EventRow({ event, viewerTimezone, ownerNames, onPress }: EventRo
 
 const useStyles = makeStyles(theme => ({
   row: { alignItems: 'flex-start', flexDirection: 'row', gap: theme.space[3] },
-  time: { width: 56, paddingTop: theme.space[3], fontWeight: '600', fontVariant: ['tabular-nums'] },
+  time: { width: 64, paddingTop: theme.space[3], fontWeight: '600', fontVariant: ['tabular-nums'] },
   body: { flex: 1, gap: theme.space[1], minHeight: theme.touchTarget, paddingVertical: theme.space[3], paddingHorizontal: theme.space[4],
-    borderRadius: theme.radius.control, borderLeftWidth: 3 },
+    borderRadius: theme.radius.control, borderWidth: 1 },
   pressed: { opacity: 0.75 },
   metadata: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', columnGap: theme.space[3], rowGap: theme.space[1] },
   meta: { flexDirection: 'row', alignItems: 'center', gap: theme.space[1] },

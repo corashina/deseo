@@ -53,6 +53,8 @@ apps/site/         Planned public information site
 
 ## Screenshots
 
+Open [the UI/UX Pro Max comparison](design/ui-ux-pro-max-2026-10-08/index.html) for its recorded review.
+
 The [Design Taste comparison](design/design-taste-2026-10-08/index.html) shows matching before and after browser screens.
 
 Open [the reviewed frontend gallery](design/frontend-2026-10-07/web/index.html) or [the capture index](design/frontend-2026-10-07/web/README.md).

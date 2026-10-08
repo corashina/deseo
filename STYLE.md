@@ -285,12 +285,12 @@ Use the system sans-serif stack from the CSS foundation. Use real text for label
 | Browser page title | 36px | 30px | 700 / 1.2 |
 | Browser welcome title | 48px | 36px | 700 / 1.2 |
 | Native page title | 28dp | 28dp | 700 / 34dp |
-| Section title | 20px | 19px | 650 / 1.3 |
+| Section title | 20px | 20px | 650 / 1.3 |
 | Body and input | 16px | 16px | 400 / 1.5 |
-| Button | 14px | 14px | 600 / 1.4 |
-| Secondary text | 13px | 13px | 400 / 1.5 |
+| Button | 15px | 15px | 600 / 1.4 |
+| Secondary text | 14px | 14px | 400 / 1.5 |
 | Badge | 12px | 12px | 600 / 1.4 |
-| Browser navigation label | 14px | 14px | 500 / 1.4 |
+| Browser navigation label | 15px | 15px | 550 / 1.4 |
 | Native navigation label | 12dp | 12dp | 600 / 17dp |
 
 Use uppercase text for short decorative labels only. Keep instructions and controls in sentence case.

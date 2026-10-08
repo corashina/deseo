@@ -9,7 +9,7 @@
 .notification-heading { display:flex; align-items:center; flex-wrap:wrap; gap:8px 16px; }
 .notification-heading h2, .notification-content p { margin:0; }
 .notification-content time { font-variant-numeric:tabular-nums; }
-.notification-unread { padding:4px 8px; border-radius:8px; background:var(--shared-soft); color:var(--shared); font-size:12px; font-weight:600; }
+.notification-unread { border:1px solid var(--shared); padding:4px 8px; border-radius:8px; background:var(--shared-soft); color:var(--shared); font-size:12px; font-weight:600; }
 .notification-row > .status { margin:16px 0 0; }
 .notification-list > .button { margin-top:24px; }
 .preferences-group { border-top:1px solid var(--line); margin-top:24px; padding-top:24px; }
