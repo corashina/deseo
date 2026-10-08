@@ -24,5 +24,5 @@ const useStyles = makeStyles(theme => ({
   card: { padding: 0, gap: 0, overflow: 'hidden' },
   open: { minHeight: theme.touchTarget, borderRadius: theme.radius.card },
   pressed: { backgroundColor: theme.colors.sidebar },
-  text: { gap: theme.space[2], padding: theme.space[5] },
+  text: { gap: theme.space[2], padding: theme.space[6] },
 }));

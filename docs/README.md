@@ -690,3 +690,9 @@ The owner must approve this written spec before implementation planning. The pla
 - [Stop-slop skill](https://github.com/hardikpandya/stop-slop/blob/main/SKILL.md)
 - [Screen guide](README.md#screens)
 - [Browser scope](README.md#browser-portal)
+
+## Design Taste comparison
+
+Open [the comparison](../design/design-taste-2026-10-08/index.html) to review eight browser screens at desktop and phone widths.
+Each set uses the same local demo account and display time. Full-page images include content below the viewport.
+Both sets retain the observed photo error and Retry. Before and after captures use the same preview origin.

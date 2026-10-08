@@ -6,18 +6,24 @@ async function holdOwnChange(page: Page, table: 'profiles' | 'pair_members', use
   let release = () => {};
   let delivered = false;
   let joined = false;
+  let subscribed = false;
   let currentSocket = 0;
   await page.routeWebSocket('**/realtime/v1/websocket*', socket => {
     const generation = ++currentSocket;
     joined = false;
+    subscribed = false;
     const server = socket.connectToServer();
     server.onMessage(message => {
       let values;
       try { values = JSON.parse(String(message)); } catch { socket.send(message); return; }
       if (!Array.isArray(values)) { socket.send(message); return; }
       const [, , topic, event, payload] = values;
-      if (generation === currentSocket && event === 'phx_reply' && payload?.status === 'ok'
-        && String(topic).includes('portal-membership:')) joined = true;
+      if (generation === currentSocket && topic === `realtime:portal-membership:${userId}`) {
+        if (event === 'phx_reply' && payload?.status === 'ok') joined = true;
+        if (event === 'system' && payload?.extension === 'postgres_changes' && payload?.status === 'ok') {
+          subscribed = true;
+        }
+      }
       const change = payload?.data;
       if (generation === currentSocket && !delivered && event === 'postgres_changes' && change?.table === table && change.record?.user_id === userId) {
         delivered = true;
@@ -25,11 +31,12 @@ async function holdOwnChange(page: Page, table: 'profiles' | 'pair_members', use
       } else socket.send(message);
     });
   });
-  return { release: () => release(), held: () => delivered, joined: () => joined };
+  return { release: () => release(), held: () => delivered, joined: () => joined && subscribed };
 }
 
 // Importance 100: a real delayed profile signal must not abort a recovery after verified adoption.
 test('represented profile signal does not abort lost-response reconciliation', async ({ page }) => {
+  test.setTimeout(60_000);
   const fixture = await createEntryFixture('unpaired');
   const change = await holdOwnChange(page, 'profiles', fixture.accountIds[0]);
   let finishSave = () => {};
@@ -42,7 +49,7 @@ test('represented profile signal does not abort lost-response reconciliation', a
     if (await navigation.isVisible()) await navigation.click();
     await page.getByRole('link', { name: 'Settings', exact: true }).click();
     await page.getByRole('link').filter({ has: page.getByRole('heading', { name: 'Profile', exact: true }) }).click();
-    await expect.poll(change.joined).toBe(true);
+    await expect.poll(change.joined, { timeout: 15_000 }).toBe(true);
     await page.route('**/rest/v1/rpc/save_profile', async route => {
       await route.fetch();
       await heldSave;
@@ -71,13 +78,14 @@ test('represented profile signal does not abort lost-response reconciliation', a
 
 // Importance 100: a real delayed membership insert must not discard an invitation's one-shot delivery.
 test('represented membership signal does not abort ordinary invitation delivery', async ({ page }) => {
+  test.setTimeout(60_000);
   const fixture = await createEntryFixture('unpaired');
   const change = await holdOwnChange(page, 'pair_members', fixture.accountIds[0]);
   let finish = () => {};
   const held = new Promise<void>(resolve => { finish = resolve; });
   try {
     await loginWithLocalEmailCode(page, fixture.email);
-    await expect.poll(change.joined).toBe(true);
+    await expect.poll(change.joined, { timeout: 15_000 }).toBe(true);
     const created = page.waitForResponse('**/rest/v1/rpc/create_pair');
     await page.getByRole('button', { name: 'Create pair', exact: true }).click();
     const result = await (await created).json();

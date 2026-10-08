@@ -282,13 +282,16 @@ Use the system sans-serif stack from the CSS foundation. Use real text for label
 
 | Role | Desktop | Mobile | Weight / line height |
 |---|---|---|---|
-| Page title | 32px | 28px | 700 / 1.2 |
+| Browser page title | 36px | 30px | 700 / 1.2 |
+| Browser welcome title | 48px | 36px | 700 / 1.2 |
+| Native page title | 28dp | 28dp | 700 / 34dp |
 | Section title | 20px | 20px | 650 / 1.3 |
 | Body and input | 16px | 16px | 400 / 1.5 |
 | Button | 15px | 15px | 600 / 1.4 |
 | Secondary text | 14px | 14px | 400 / 1.5 |
 | Badge | 12px | 12px | 600 / 1.4 |
-| Navigation label | 15px | 12px | 550 / 1.4 |
+| Browser navigation label | 15px | 15px | 550 / 1.4 |
+| Native navigation label | 12dp | 12dp | 600 / 17dp |
 
 Use uppercase text for short decorative labels only. Keep instructions and controls in sentence case.
 
@@ -320,7 +323,11 @@ Use `min-width: 0` on grid children. Let long event names and partner names wrap
 
 Keep native bottom navigation visible. Add native content padding for its height and the device safe area.
 
-Use 48px browser targets and 48dp native targets. Give checkbox labels a full-row target.
+Use 48px browser targets and 48dp native targets.
+
+Group primary navigation above Notifications and Settings. Use surface fills for hover and pastel fills for the current destination.
+
+Use 16px message padding on narrow screens. Keep names and times in their stable owner color. Give checkbox labels a full-row target.
 
 At narrow widths, move the header action below the heading before either element becomes crowded.
 
@@ -334,7 +341,7 @@ Do not shrink desktop calendar cells into unreadable mobile columns.
 
 Use five primary destinations: **Today, Calendar, Memories, Messages, Tasks**.
 
-Use labeled navigation icons in the product. Reuse the selected icon library; do not mix icon families.
+Use labeled navigation icons in the product. Use Phosphor regular icons in the browser and Ionicons on native devices.
 
 The reference uses dots as navigation markers. Replace those markers with icons during app implementation.
 
@@ -459,7 +466,7 @@ Use established accessible dialog and menu primitives from the chosen stack. Ins
 
 Trap focus in modal dialogs. Restore focus to the trigger after closing. Support Escape where cancellation is safe.
 
-Use consistent 20px outline icons, with a two-pixel stroke. Give icon-only buttons an accessible name.
+Use consistent 20px outline icons. Use the library's regular weight. Give icon-only buttons an accessible name.
 
 ## 9. Screen states and interaction
 

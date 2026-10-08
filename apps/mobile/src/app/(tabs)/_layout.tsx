@@ -26,5 +26,5 @@ export default function TabsLayout() {
 
 const useStyles = makeStyles(theme => ({
   bar: { backgroundColor: theme.colors.surface, borderTopColor: theme.colors.line },
-  item: { minHeight: theme.touchTarget },
+  item: { minHeight: theme.touchTarget, marginHorizontal: theme.space[1], borderRadius: theme.radius.control },
 }));

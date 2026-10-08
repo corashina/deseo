@@ -30,7 +30,7 @@ test('memories show private images and publish one to five prepared photos', asy
       if (count === 5) await page.getByLabel('Memory date').fill('2026-10-06');
       await select(page, count);
       await page.getByRole('button', { name: 'Publish memory', exact: true }).click();
-      await expect(page.getByRole('heading', { name: 'Browser memory ' + count, exact: true })).toBeVisible();
+      await expect(page.getByRole('heading', { name: 'Browser memory ' + count, exact: true })).toBeVisible({ timeout: 15_000 });
       await expect(page.locator('.memory-detail img')).toHaveCount(count);
       const client = await portalClient(ids.marekEmail);
       const memory = await client.rpc('get_memory', { p_memory_id: page.url().split('/').at(-1) });

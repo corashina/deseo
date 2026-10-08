@@ -1017,3 +1017,89 @@ The design detector's one warning identifies the settings chevron's two-pixel st
 
 Phone captures show the browser portal. Native device screenshots, safe areas, keyboard behavior, and screen readers remain unverified.
 Android emulator tools were unavailable in PATH. JavaScript exports do not establish physical-device acceptance.
+
+## Design Taste update
+
+Date: 8 October 2026. Work stays on `codex/design-taste` in a separate managed worktree.
+
+The owner approved preserving Deseo's pastel brand, icon, system fonts, routes, and working actions.
+Browser changes cover page headings, navigation groups, account identity, controls, forms, calendar, messages, tasks, memories, and settings.
+Native changes cover the shared theme, screen spacing, sections, fields, tabs, event rows, task rows, memory cards, and messages.
+Browser navigation uses pinned Phosphor icons through individual imports. Native screens retain Ionicons.
+
+Design Taste settings: variance 4, motion 3, density 5. Feedback uses the existing 140ms duration.
+The online skill excludes native and dense product screens. STYLE.md controls those surfaces.
+Native device screenshots and physical-device acceptance remain unverified. Browser captures do not prove native rendering.
+
+Open [the before and after comparison](../design/design-taste-2026-10-08/index.html).
+The capture records identify the demo account, display time, viewport, and capture time.
+Both sets retain the observed photo error and Retry. Stored photos remain unchanged.
+
+### Design Taste checks
+
+| Check | Result |
+|---|---|
+| Browser types, lint, and build | Passed |
+| Native types, lint, and tests | 46 suites, 205 tests passed |
+| Android and iOS JavaScript exports | Passed |
+| Browser UI | 24 passed; two account-avatar failures corrected; four focused checks then passed |
+| Layout | Five widths and doubled text passed |
+| Design detector | No findings |
+| Captures | 32 individual images and three comparison images; no page overflow |
+
+The complete browser run stopped to release the shared test port for the master merge.
+Focused UI checks used port 4175. The pair-termination check requires the reserved Test Edge origin and was excluded.
+Initial after captures used port 4175. The merge refresh captured them on port 4174 with a verified demo session.
+Both sets show Calendar Agenda. Each after capture checks its expected heading before saving.
+Read [the verification record](../design/design-taste-2026-10-08/verification.json) for the exact checks and limits.
+
+### Design Taste merge verification
+
+Date: 8 October 2026. The design branch starts from master commit `083ea55`.
+
+| Check | Result |
+|---|---|
+| Fresh full browser verification | 272 passed, two capture-generation skips |
+| Native verification | 46 suites, 205 tests passed |
+| Domain contracts | 7 passed |
+| Android and iOS JavaScript exports | Passed on unchanged native source |
+| Compiled browser assets | 62 files scanned; no server values or native imports |
+| Before and after captures | 32 individual images, three comparisons; both origins use port 4174 |
+
+The first complete browser run passed 271 checks. Photo fixture setup failed before the remaining calendar check ran.
+The Edge runtime log records a restart during that failure. Both unchanged calendar replays passed.
+The final fresh full run passed. No backend, fixture, domain, or product logic change was required.
+Raw attempts remain in the ignored `.superpowers/design-taste` directory.
+The refreshed comparison retains the observed demo photo error and Retry control.
+Physical native acceptance remains unverified.
+
+### Combined frontend review merge
+
+Date: 8 October 2026. Master advanced to `0531c27` while the Design Taste verification ran.
+I resolved the 20 overlapping paths in the isolated design worktree.
+The result keeps Design Taste headings, navigation groups, icon components, and welcome layout.
+It also keeps the newer readable control sizes, paired header identity, valid status markup, and shared geometry.
+Both review records and their galleries remain in the project. Each gallery shows its recorded source.
+
+| Combined check | Result |
+|---|---|
+| Complete browser verification | 272 passed; two capture-generation skips |
+| Native types, lint, and tests | 46 suites; 205 passed |
+| Domain contracts | 7 passed |
+| Focused identity, layout, and realtime checks | 18 passed |
+| Repeated realtime subscription checks | 12 passed |
+| Repeated one- and five-photo publication checks | 6 passed |
+| Android and iOS JavaScript exports | Passed |
+
+The focused checks cover both partner colors, the current account, five widths, doubled text, focus, and profile signals.
+The two existing realtime tests now wait for PostgreSQL subscription confirmation before changes.
+Their importance rating remains 100. The repeated check covers both browser widths.
+A 60-second budget covers cold fixture setup, sign-in, subscription, and reconciliation.
+The first repeated run exhausted the former 30-second budget; its evidence remains in ignored files.
+The existing importance-98 photo test now allows 15 seconds for sequential photo publication.
+The failed five-second check still showed photo five uploading. It returned no application error.
+That partial run and its failure evidence remain in ignored files.
+Docker was unavailable after an interruption. I restored the existing stack without resetting data.
+The stale runtime socket folder remains under a backup name.
+Backend and domain source remain unchanged. Physical native acceptance remains unverified.
+Combined logs remain in the ignored `.superpowers/design-taste/combined-*` files.
