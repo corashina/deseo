@@ -32,7 +32,7 @@ export const MessageRow = memo(function MessageRow({ message, member, own, timez
     <View style={[styles.bubble, member.slot === 'a' ? styles.a : styles.b]}>
       <Text style={[theme.typography.secondary, member.slot === 'a' ? styles.nameA : styles.nameB]}>{member.displayName}</Text>
       <MessageText body={message.body} />
-      <Text style={theme.typography.secondary}>{timestamp}{own ? ' · Sent' : ''}{message.pinnedAt ? ' · Note' : ''}</Text>
+      <Text style={[theme.typography.secondary, styles.timestamp]}>{timestamp}{own ? ' · Sent' : ''}{message.pinnedAt ? ' · Note' : ''}</Text>
       {own && <Button label="Message actions" variant="text" disabled={disabled} onPress={() => {
         Alert.alert('Message actions', undefined, [
           { text: message.pinnedAt ? 'Unpin' : 'Pin as note', onPress: () => onPin(message) },
@@ -65,9 +65,10 @@ export function PendingMessageRow({ message, member, online, onRetry, onDiscard 
 
 const useStyles = makeStyles(theme => ({
   row: { alignItems: 'flex-start', paddingHorizontal: theme.space[4], paddingVertical: theme.space[1] }, own: { alignItems: 'flex-end' },
-  bubble: { maxWidth: '80%', paddingHorizontal: theme.space[4], paddingVertical: theme.space[3], gap: theme.space[1], borderRadius: theme.radius.card },
+  bubble: { maxWidth: '80%', padding: theme.space[5], gap: theme.space[2], borderRadius: theme.radius.card },
   a: { backgroundColor: theme.colors.roseSoft }, b: { backgroundColor: theme.colors.tealSoft },
-  nameA: { color: theme.colors.rose }, nameB: { color: theme.colors.teal },
+  nameA: { color: theme.colors.rose, fontWeight: '600' }, nameB: { color: theme.colors.teal, fontWeight: '600' },
+  timestamp: { fontVariant: ['tabular-nums'] },
   link: { color: theme.colors.link, textDecorationLine: 'underline' },
   error: { ...theme.typography.secondary, color: theme.colors.danger },
 }));

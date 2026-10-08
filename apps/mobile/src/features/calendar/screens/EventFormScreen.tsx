@@ -109,32 +109,41 @@ function EventForm({ account, pair, online, event, idea, reload, reloadIdea }: A
     {draft.canRestore && <Status message="Review the saved event. You can restore your draft before saving."
       actionLabel="Restore my draft" onAction={() => { void draft.restore(); }} />}
     {textField('title', 'Title')}
-    <Controller control={form.control} name="allDay" render={({ field }) => <View style={theme.ui.row}><Text style={theme.typography.body}>All day</Text>
-      <Switch accessibilityLabel="All day" value={field.value} disabled={locked} onValueChange={(value) => { field.onChange(value); if (!value) { form.setValue('repeat', 'none'); form.setValue('importantDate', false); } }} /></View>} />
-    {values.allDay && !idea && <>
-      <Controller control={form.control} name="importantDate" render={({ field }) => <View style={theme.ui.row}><Text style={theme.typography.body}>Important date</Text><Switch accessibilityLabel="Important date" value={field.value === true} disabled={locked} onValueChange={value => { field.onChange(value); if (value) form.setValue('timezone', pair.timezone); else form.setValue('repeat', 'none'); }} /></View>} />
-      {values.importantDate && <View style={theme.ui.row}><Text style={theme.typography.body}>Repeat yearly</Text><Switch accessibilityLabel="Repeat yearly" value={values.repeat === 'yearly'} disabled={locked} onValueChange={value => { form.setValue('repeat', value ? 'yearly' : 'none'); if (value) form.setValue('endDate', form.getValues('startDate')); }} /></View>}
-      {values.repeat === 'yearly' && <Status message="February 29 uses February 28 in non-leap years. Changes apply to the series." />}
-    </>}
-    {textField('startDate', 'Start date', 'Use YYYY-MM-DD.')}
-    {!values.allDay && <>{textField('startTime', 'Start time', 'Use HH:mm, such as 18:30.')}{offsets('start')}</>}
-    {textField('endDate', values.allDay ? 'Last included date' : 'End date', 'Use YYYY-MM-DD.')}
-    {!values.allDay && <>{textField('endTime', 'End time', 'Use HH:mm, such as 19:30.')}{offsets('end')}</>}
-    {textField('timezone', 'Timezone', 'Use an IANA name, such as Europe/Warsaw.')}
-    <Text style={theme.typography.section}>Visibility</Text>
-    <View style={theme.ui.row}>{(['shared', 'private'] as const).map((visibility) => <Button key={visibility} label={visibility === 'shared' ? 'Shared' : 'Private'}
-      disabled={locked || !isAuthor || !!idea} variant={values.visibility === visibility ? 'primary' : 'secondary'} onPress={() => {
-        form.setValue('visibility', visibility, { shouldDirty: true });
-        if (visibility === 'private') form.setValue('owner', slot, { shouldDirty: true });
-      }} />)}</View>
-    <Text style={theme.typography.secondary}>{values.visibility === 'private' ? 'Only you can see this event.' : 'Both partners can see this event.'}</Text>
-    <Text style={theme.typography.section}>People</Text>
-    <View style={theme.ui.row}>{pair.members.map((member) => <Button key={member.slot} label={member.displayName} disabled={locked || (values.visibility === 'private' && member.slot !== slot)}
-      variant={values.owner === member.slot ? 'primary' : 'secondary'} onPress={() => form.setValue('owner', member.slot, { shouldDirty: true })} />)}
-      <Button label="Together" disabled={locked || values.visibility === 'private'} variant={values.owner === 'together' ? 'primary' : 'secondary'} onPress={() => form.setValue('owner', 'together', { shouldDirty: true })} />
+    <View style={theme.ui.stack}>
+      <Text accessibilityRole="header" style={theme.typography.section}>Time</Text>
+      <Controller control={form.control} name="allDay" render={({ field }) => <View style={theme.ui.row}><Text style={theme.typography.body}>All day</Text>
+        <Switch accessibilityLabel="All day" value={field.value} disabled={locked} onValueChange={(value) => { field.onChange(value); if (!value) { form.setValue('repeat', 'none'); form.setValue('importantDate', false); } }} /></View>} />
+      {values.allDay && !idea && <>
+        <Controller control={form.control} name="importantDate" render={({ field }) => <View style={theme.ui.row}><Text style={theme.typography.body}>Important date</Text><Switch accessibilityLabel="Important date" value={field.value === true} disabled={locked} onValueChange={value => { field.onChange(value); if (value) form.setValue('timezone', pair.timezone); else form.setValue('repeat', 'none'); }} /></View>} />
+        {values.importantDate && <View style={theme.ui.row}><Text style={theme.typography.body}>Repeat yearly</Text><Switch accessibilityLabel="Repeat yearly" value={values.repeat === 'yearly'} disabled={locked} onValueChange={value => { form.setValue('repeat', value ? 'yearly' : 'none'); if (value) form.setValue('endDate', form.getValues('startDate')); }} /></View>}
+        {values.repeat === 'yearly' && <Status message="February 29 uses February 28 in non-leap years. Changes apply to the series." />}
+      </>}
+      {textField('startDate', 'Start date', 'Use YYYY-MM-DD.')}
+      {!values.allDay && <>{textField('startTime', 'Start time', 'Use HH:mm, such as 18:30.')}{offsets('start')}</>}
+      {textField('endDate', values.allDay ? 'Last included date' : 'End date', 'Use YYYY-MM-DD.')}
+      {!values.allDay && <>{textField('endTime', 'End time', 'Use HH:mm, such as 19:30.')}{offsets('end')}</>}
+      {textField('timezone', 'Timezone', 'Use an IANA name, such as Europe/Warsaw.')}
     </View>
-    {textField('location', 'Location (optional)')}
-    {textField('description', 'Description (optional)')}
+    <View style={theme.ui.stack}>
+      <Text accessibilityRole="header" style={theme.typography.section}>Sharing</Text>
+      <Text style={theme.typography.headline}>Visibility</Text>
+      <View style={theme.ui.row}>{(['shared', 'private'] as const).map((visibility) => <Button key={visibility} label={visibility === 'shared' ? 'Shared' : 'Private'}
+        disabled={locked || !isAuthor || !!idea} variant={values.visibility === visibility ? 'primary' : 'secondary'} onPress={() => {
+          form.setValue('visibility', visibility, { shouldDirty: true });
+          if (visibility === 'private') form.setValue('owner', slot, { shouldDirty: true });
+        }} />)}</View>
+      <Text style={theme.typography.secondary}>{values.visibility === 'private' ? 'Only you can see this event.' : 'Both partners can see this event.'}</Text>
+      <Text style={theme.typography.headline}>People</Text>
+      <View style={theme.ui.row}>{pair.members.map((member) => <Button key={member.slot} label={member.displayName} disabled={locked || (values.visibility === 'private' && member.slot !== slot)}
+        variant={values.owner === member.slot ? 'primary' : 'secondary'} onPress={() => form.setValue('owner', member.slot, { shouldDirty: true })} />)}
+        <Button label="Together" disabled={locked || values.visibility === 'private'} variant={values.owner === 'together' ? 'primary' : 'secondary'} onPress={() => form.setValue('owner', 'together', { shouldDirty: true })} />
+      </View>
+    </View>
+    <View style={theme.ui.stack}>
+      <Text accessibilityRole="header" style={theme.typography.section}>Details</Text>
+      {textField('location', 'Location (optional)')}
+      {textField('description', 'Description (optional)')}
+    </View>
     <Button label={frozen ? 'Retry save' : event ? 'Save changes' : 'Save event'} loading={saving} disabled={saving || !ready || !online || error?.code === 'CONFLICT' || (idea !== undefined && error?.code === 'FORBIDDEN')}
       onPress={() => { void (frozen ? draft.retry() : draft.save(confirmShare)); }} />
     <Button label="Cancel" variant="secondary" disabled={saving || !ready} onPress={() => { void draft.leave().then(left => { if (left) router.back(); }); }} />

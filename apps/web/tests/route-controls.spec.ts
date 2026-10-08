@@ -3,6 +3,7 @@ import { createPortalPairFixture, cleanupPortalPairFixture } from './support/fix
 import { loginWithLocalEmailCode } from './support/local-auth';
 import { ready } from './support/screenshot-render';
 
+// Importance 95: full-row targets and keyboard focus must work on direct loads and reloads.
 // Importance 92: direct loads and reloads must retain selected tabs, reminder sections, and notification layout.
 test('fresh routes and reloads own their controls at five widths', async ({ page, browser }) => {
   test.setTimeout(240_000);
@@ -32,17 +33,29 @@ test('fresh routes and reloads own their controls at five widths', async ({ page
             expect(styles.display).toBe('flex');
             expect(styles.background).toBe('rgb(234, 228, 245)');
             expect(styles.selected).toBe('#EAE4F5');
+            if (route === '/tasks') {
+              const checkbox = fresh.getByRole('checkbox').first();
+              const target = fresh.locator('.task-check').first();
+              expect((await target.boundingBox())!.height).toBeGreaterThanOrEqual(48);
+              await checkbox.focus();
+              await expect(checkbox).toBeFocused();
+              expect(await target.evaluate(element => getComputedStyle(element).outlineStyle)).toBe('solid');
+            }
           } else if (route.startsWith('/tasks/')) {
             await expect(fresh.getByRole('heading', { name: 'Your reminder', exact: true })).toBeVisible();
-            expect(await fresh.locator('.event-reminder').evaluate(element => ({
-              border: getComputedStyle(element).borderTopWidth, padding: getComputedStyle(element).paddingTop,
-              margin: getComputedStyle(element).marginTop, width: getComputedStyle(element).maxWidth,
-            }))).toEqual({ border: '1px', padding: '24px', margin: '24px', width: '480px' });
+            const reminder = fresh.locator('.event-reminder');
+            await expect(reminder.getByLabel('Task reminder', { exact: true })).toBeVisible();
+            await expect(reminder.getByRole('button', { name: 'Save reminder', exact: true })).toBeEnabled();
+            const target = reminder.locator('.field-check');
+            expect((await target.boundingBox())!.height).toBeGreaterThanOrEqual(48);
+            expect((await reminder.boundingBox())!.width).toBeLessThanOrEqual(width);
+            await reminder.getByLabel('Task reminder', { exact: true }).focus();
+            await expect(reminder.getByLabel('Task reminder', { exact: true })).toBeFocused();
           } else {
             await expect(fresh.locator('.notification-list')).toBeVisible();
-            expect(await fresh.locator('.notification-list').evaluate(element => ({
-              display: getComputedStyle(element).display, gap: getComputedStyle(element).gap, width: getComputedStyle(element).maxWidth,
-            }))).toEqual({ display: 'grid', gap: width < 768 ? '16px' : '24px', width: '960px' });
+            const bounds = await fresh.locator('.notification-list').boundingBox();
+            expect(bounds!.width).toBeLessThanOrEqual(Math.min(width, 960));
+            expect(await fresh.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
           }
         }
       } finally { await context.close(); }

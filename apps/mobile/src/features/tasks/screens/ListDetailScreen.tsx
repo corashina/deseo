@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
+import { Section } from '../../../components/ui/Section';
 import { Screen } from '../../../components/ui/Screen';
 import { Status } from '../../../components/ui/Status';
 import { Button } from '../../../components/ui/Button';
@@ -23,7 +24,7 @@ function Detail({ listId, pairId }: { listId: string; pairId: string }) {
   return <Screen title={list?.name ?? 'List'}>
     {!core.online && <Status tone="warning" message="You are offline. You can keep a list name draft." />}
     {!list && <Status message="This list is unavailable." />}
-    <ListManager accountId={core.account.id} pairId={pairId} listId={listId} list={list} online={core.online} onSaved={() => router.replace('/(tabs)/tasks')} />
+    <Section card title="List settings"><ListManager accountId={core.account.id} pairId={pairId} listId={listId} list={list} online={core.online} onSaved={() => router.replace('/(tabs)/tasks')} /></Section>
     <Button label="See tasks" variant="secondary" onPress={() => router.replace('/(tabs)/tasks')} />
   </Screen>;
 }

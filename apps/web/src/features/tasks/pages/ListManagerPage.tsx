@@ -68,13 +68,13 @@ export function ListManagerPage() {
         <Status error>We could not load lists.</Status>
         <Button onClick={() => void query.refetch()}>Retry</Button>
       </> : <ul className="list-links">{query.data.map(list => <li key={list.id}>
-        <Link to={'/tasks/lists/' + list.id}>{list.name}
+        <Link to={'/tasks/lists/' + list.id}><span>{list.name}</span>
+          {list.isGeneral && <span className="muted">Default list</span>}
         </Link>
-        {list.isGeneral && <span>Default list</span>}
       </li>)}
       </ul>}
       <h2>Add list</h2>
-      <form onSubmit={event => { event.preventDefault(); void add(); }}>
+      <form className="list-name-form" onSubmit={event => { event.preventDefault(); void add(); }}>
         <label className="field">
           <span>List name</span>
           <input

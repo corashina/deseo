@@ -6,7 +6,7 @@ import { loginWithLocalEmailCode } from './support/local-auth';
 import { ready } from './support/screenshot-render';
 
 // Importance 92: long names, titles, and enlarged text must keep navigation and forms within the viewport.
-test('shell and forms fit five widths with long text at 200 percent', async ({ page }) => {
+test('shell and forms fit five widths with long text at 200 percent', async ({ page }, testInfo) => {
   test.setTimeout(240_000);
   const ids = await createPortalPairFixture();
   try {
@@ -22,7 +22,7 @@ test('shell and forms fit five widths with long text at 200 percent', async ({ p
     await loginWithLocalEmailCode(page, ids.annaEmail);
     await page.clock.setFixedTime(new Date('2026-10-05T10:00:00+02:00'));
     const routes = ['/today', '/calendar?date=2026-10-05', '/calendar?date=2026-10-05&view=compare', '/events/' + ids.sharedEventId,
-      '/events/new', '/events/' + ids.sharedEventId + '/edit', '/tasks', '/tasks/' + ids.taskId, '/tasks/new', '/ideas', '/ideas/new', '/notifications', '/messages', '/memories/new', '/settings/profile', '/settings/notifications'];
+      '/events/new', '/events/' + ids.sharedEventId + '/edit', '/tasks', '/tasks/' + ids.taskId, '/tasks/new', '/ideas', '/ideas/new', '/notifications', '/messages', '/messages?view=notes', '/memories/new', '/settings/profile', '/settings/notifications'];
     for (const width of [320, 390, 768, 1024, 1440]) {
       await page.setViewportSize({ width, height: 1000 });
       for (const route of routes) {
@@ -46,6 +46,25 @@ test('shell and forms fit five widths with long text at 200 percent', async ({ p
             expect(actionBounds!.width).toBeGreaterThan(0);
             expect(actionBounds!.height).toBeGreaterThanOrEqual(48);
             if (width < 768) expect(actionBounds!.y).toBeGreaterThanOrEqual(headingBounds!.y + headingBounds!.height);
+          }
+          if (width === 320 && route === '/today') {
+            const header = page.locator('.page-header');
+            const heading = header.getByRole('heading', { level: 1 });
+            const action = header.getByRole('link', { name: 'Add event', exact: true });
+            await expect(action).toBeVisible();
+            await expect(action).toHaveText('Add event');
+            const headingBounds = await heading.boundingBox();
+            const actionBounds = await action.boundingBox();
+            expect(headingBounds).not.toBeNull();
+            expect(actionBounds).not.toBeNull();
+            expect(actionBounds!.width).toBeGreaterThan(0);
+            expect(actionBounds!.height).toBeGreaterThan(0);
+            const separated = actionBounds!.x >= headingBounds!.x + headingBounds!.width
+              || headingBounds!.x >= actionBounds!.x + actionBounds!.width
+              || actionBounds!.y >= headingBounds!.y + headingBounds!.height
+              || headingBounds!.y >= actionBounds!.y + actionBounds!.height;
+            expect(separated, 'Heading and action at 320px, text scale ' + scale).toBe(true);
+            await page.screenshot({ path: testInfo.outputPath(`today-320-text-${scale}.png`), fullPage: true });
           }
           if (route === '/today') {
             const sidebar = page.locator('.sidebar');

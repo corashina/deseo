@@ -70,7 +70,7 @@ export function TaskDetailPage() {
     <PageHeader
       title={task.title}
       action={<Link className="button secondary" to={'/tasks/' + task.id + '/edit'}>Edit task</Link>} />
-    <section className="card">
+    <section className="card task-detail">
       <p>List: {lists.data?.find(list => list.id === task.listId)?.name ?? 'Loading…'}
       </p>
       <TaskRow

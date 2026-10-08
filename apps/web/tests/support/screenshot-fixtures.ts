@@ -62,3 +62,15 @@ export async function createScreenshotFixtures(ledgerFile: string) {
     throw error;
   }
 }
+
+export async function createScreenshotCaptureFixtures(ledgerFile: string, normalLedgerFile: string) {
+  const fixtures = await createScreenshotFixtures(ledgerFile);
+  try {
+    const normalJournal = await createScreenshotJournal(normalLedgerFile);
+    return { fixtures, normalJournal };
+  } catch (error) {
+    try { await fixtures.cleanup(); }
+    catch (cleanupError) { throw new AggregateError([error, cleanupError], 'Secondary journal setup and screenshot cleanup failed. Ownership remains in the main journal.'); }
+    throw error;
+  }
+}

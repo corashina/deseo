@@ -178,6 +178,12 @@ Do not add generic repositories, backend adapters, microservices, a global event
 Add an interface when multiple callers need it. Keep public pages static unless product requirements change.
 Review backend limits against measured workloads. Revisit offline writes or calendar sync only after a new scope decision.
 
+Keep Today sections in reading and keyboard order: plans, memory, note, tasks, then important date.
+Use grid areas for desktop placement. Keep task completion labels separate from detail links.
+Keep memory navigation and photo Retry as sibling controls.
+Pass account timezone and locale to native note cards. Use the current theme hooks for colors and styles.
+Read notification permission again for Retry. Do not request permission or register devices during this read.
+
 ## Data contract
 
 Both applications call the same authenticated reads, transactions, and Edge functions.

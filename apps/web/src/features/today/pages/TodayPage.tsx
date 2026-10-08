@@ -38,7 +38,7 @@ export function TodayPage() {
       <Status error>We could not load Today.</Status>
       <Button onClick={() => void query.refetch()}>Retry</Button>
     </> : <div className="today-layout">
-        <section className="card today-events" data-testid="today-events">
+        <section className="card" data-testid="today-events">
           <div className="section-heading">
             <h2>Upcoming plans</h2>
             <Link to="/calendar">View calendar</Link>
@@ -50,15 +50,10 @@ export function TodayPage() {
             showDate
             timezone={zone} />) : <p>Nothing planned for the next seven days.</p>}
         </section>
-        <div className="today-personal">
-        {query.data.memory && <section className="today-memory" data-testid="today-memory"><h2>Latest memory</h2><MemoryCard memory={query.data.memory} author={pair.members.find(member => member.userId === query.data.memory!.createdBy)!.displayName} /></section>}
-        {query.data.note && <section className="today-note" data-testid="today-note"><NoteCard message={query.data.note} name={pair.members.find(member => member.userId === query.data.note!.authorId)!.displayName} /></section>}
-        {!query.data.memory && !query.data.note && <section className="card today-intro">
-          <h2>Keep a moment together</h2><p>Add a photo, or pin a message to keep a note here.</p>
-          <div className="today-intro-actions"><Link to="/memories/new">Add memory</Link><Link to="/messages">Send a message</Link></div>
-        </section>}
-        </div>
-        <section className="card today-tasks" data-testid="today-tasks">
+      {query.data.memory && <section data-testid="today-memory"><h2>Latest memory</h2><MemoryCard memory={query.data.memory} author={pair.members.find(member => member.userId === query.data.memory!.createdBy)!.displayName} /></section>}
+      {query.data.note && <div data-testid="today-note"><NoteCard message={query.data.note} name={pair.members.find(member => member.userId === query.data.note!.authorId)!.displayName} /></div>}
+      {!query.data.memory && !query.data.note && <section className="card today-intro" data-testid="today-intro"><h2>Keep a moment together</h2><p>Add a photo, or pin a message to keep a note here.</p><div className="today-intro-actions"><Link to="/memories/new">Add memory</Link><Link to="/messages">Send a message</Link></div></section>}
+        <section className="card" data-testid="today-tasks">
           <div className="section-heading">
             <h2>Due tasks</h2>
             <Link to="/tasks">View tasks</Link>
@@ -70,13 +65,15 @@ export function TodayPage() {
              timezone={zone}
             assignee={pair.members.find(member => member.userId === task.assigneeId)?.displayName ?? 'Unassigned'} />) : <p>No unfinished tasks due today.</p>}
         </section>
-      {important && <section className="card important-card today-important">
+      {important && <section className="card important-card" data-testid="today-important-date">
         <h2>Next important date</h2>
         <h3>{important.title}
         </h3>
-         <p>{days === 0 ? 'Today' : days === 1 ? 'Tomorrow' : 'In ' + days + ' days'}
-         </p>
-         <p className="muted">{important.temporal.kind === 'allDay' && DateTime.fromISO(important.temporal.startDate).setLocale('en').toFormat('d LLLL yyyy')}</p>
+        <p>{days === 0 ? 'Today' : days === 1 ? 'Tomorrow' : 'In ' + days + ' days'}
+        </p>
+        {important.temporal.kind === 'allDay' && <p><time dateTime={important.temporal.startDate}>
+          {DateTime.fromISO(important.temporal.startDate, { zone }).setLocale('en').toFormat('d LLLL yyyy')}
+        </time></p>}
         <Link to={'/events/' + important.id}>View date</Link>
       </section>}
     </div>}

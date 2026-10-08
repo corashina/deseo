@@ -1,18 +1,19 @@
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { useTheme } from '../../theme';
+import { makeStyles, useTheme } from '../../theme';
 import { useQuery } from '@tanstack/react-query';
 import { getUnreadCount, messageKeys } from '../../features/messages';
 import { usePairGate } from '../../features/pair';
 export default function TabsLayout() {
   const theme = useTheme();
+  const styles = useStyles();
   const { account, pair } = usePairGate();
   const accountId = account?.id ?? '';
   const pairId = pair?.status === 'active' ? pair.pairId : '';
   const unread = useQuery({ queryKey: messageKeys.unread(accountId, pairId), queryFn: () => getUnreadCount(pairId),
     enabled: !!accountId && !!pairId });
   return <Tabs screenOptions={{ headerShown: false, tabBarActiveTintColor: theme.colors.link,
-    tabBarInactiveTintColor: theme.colors.muted, tabBarStyle: { backgroundColor: theme.colors.surface } }}>
+    tabBarInactiveTintColor: theme.colors.muted, tabBarStyle: styles.bar, tabBarItemStyle: styles.item, tabBarLabelStyle: theme.typography.navigation }}>
     <Tabs.Screen name="today" options={{ title: 'Today', tabBarIcon: ({ color, size }) => <Ionicons name="heart-outline" color={color} size={size} /> }} />
     <Tabs.Screen name="calendar" options={{ title: 'Calendar', tabBarIcon: ({ color, size }) => <Ionicons name="calendar-outline" color={color} size={size} /> }} />
     <Tabs.Screen name="memories" options={{ title: 'Memories', tabBarIcon: ({ color, size }) => <Ionicons name="images-outline" color={color} size={size} /> }} />
@@ -22,3 +23,8 @@ export default function TabsLayout() {
     <Tabs.Screen name="tasks" options={{ title: 'Tasks', tabBarIcon: ({ color, size }) => <Ionicons name="checkbox-outline" color={color} size={size} /> }} />
   </Tabs>;
 }
+
+const useStyles = makeStyles(theme => ({
+  bar: { backgroundColor: theme.colors.surface, borderTopColor: theme.colors.line },
+  item: { minHeight: theme.touchTarget },
+}));

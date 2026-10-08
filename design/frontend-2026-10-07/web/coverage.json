@@ -1,0 +1,3927 @@
+{
+  "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+  "generatedAt": "2026-10-07T14:43:32.614Z",
+  "captureStartedAt": "2026-10-07T14:34:54.196Z",
+  "captureFinishedAt": "2026-10-07T14:43:32.613Z",
+  "provenance": "Local fixtures. Normal Today and memory photo views use an owned disposable pair. Named photos fail decoding despite HTTP 200; see the frontend handoff.",
+  "namedMediaFailureEvidence": [
+    "named-media-failure-1440.jpg",
+    "named-media-failure-390.jpg"
+  ],
+  "maskedFields": [
+    "email addresses",
+    "invitation codes",
+    "sign-in codes",
+    "verification codes",
+    "invite URL tokens"
+  ],
+  "displayDate": "2026-10-05",
+  "displayTime": "10:00",
+  "timezone": "Europe/Warsaw",
+  "locale": "en",
+  "routes": 39,
+  "requiredViews": 119,
+  "requiredViewportPairs": 238,
+  "nativePromptEvidence": "apps/web/tests/navigation.spec.ts: detail reload, Back, sidebar, reload, and sign-out protect drafts",
+  "records": [
+    {
+      "routeId": "entry-root",
+      "view": "resolved-entry",
+      "fixture": "disposable / signedOut",
+      "state": "resolved-entry",
+      "url": "/",
+      "capturedAt": "2026-10-07T14:34:54.196Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/entry-welcome-default-1440.jpg",
+      "renderedUrl": "/welcome",
+      "heading": "Plan your days together.",
+      "redirectTo": "/welcome"
+    },
+    {
+      "routeId": "entry-root",
+      "view": "resolved-entry",
+      "fixture": "disposable / signedOut",
+      "state": "resolved-entry",
+      "url": "/",
+      "capturedAt": "2026-10-07T14:39:30.792Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/entry-welcome-default-390.jpg",
+      "renderedUrl": "/welcome",
+      "heading": "Plan your days together.",
+      "redirectTo": "/welcome"
+    },
+    {
+      "routeId": "entry-welcome",
+      "view": "default",
+      "fixture": "disposable / signedOut",
+      "state": "default",
+      "url": "/welcome",
+      "capturedAt": "2026-10-07T14:34:54.848Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/entry-welcome-default-1440.jpg",
+      "renderedUrl": "/welcome",
+      "heading": "Plan your days together."
+    },
+    {
+      "routeId": "entry-welcome",
+      "view": "default",
+      "fixture": "disposable / signedOut",
+      "state": "default",
+      "url": "/welcome",
+      "capturedAt": "2026-10-07T14:39:31.309Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/entry-welcome-default-390.jpg",
+      "renderedUrl": "/welcome",
+      "heading": "Plan your days together."
+    },
+    {
+      "routeId": "entry-welcome",
+      "view": "invited",
+      "fixture": "disposable / signedOut",
+      "state": "invited",
+      "url": "/invite?token=MASKED",
+      "capturedAt": "2026-10-07T14:34:55.208Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/entry-welcome-invited-1440.jpg",
+      "renderedUrl": "/welcome",
+      "heading": "Plan your days together."
+    },
+    {
+      "routeId": "entry-welcome",
+      "view": "invited",
+      "fixture": "disposable / signedOut",
+      "state": "invited",
+      "url": "/invite?token=MASKED",
+      "capturedAt": "2026-10-07T14:39:31.559Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/entry-welcome-invited-390.jpg",
+      "renderedUrl": "/welcome",
+      "heading": "Plan your days together."
+    },
+    {
+      "routeId": "entry-welcome",
+      "view": "global-signout-failure",
+      "fixture": "disposable / logout",
+      "state": "global-signout-failure",
+      "url": "/settings/account",
+      "capturedAt": "2026-10-07T14:34:57.381Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/entry-welcome-global-signout-failure-1440.jpg",
+      "renderedUrl": "/welcome",
+      "heading": "Plan your days together."
+    },
+    {
+      "routeId": "entry-welcome",
+      "view": "global-signout-failure",
+      "fixture": "disposable / logout",
+      "state": "global-signout-failure",
+      "url": "/settings/account",
+      "capturedAt": "2026-10-07T14:39:33.559Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/entry-welcome-global-signout-failure-390.jpg",
+      "renderedUrl": "/welcome",
+      "heading": "Plan your days together."
+    },
+    {
+      "routeId": "entry-email",
+      "view": "default",
+      "fixture": "disposable / signedOut",
+      "state": "default",
+      "url": "/sign-in",
+      "capturedAt": "2026-10-07T14:34:57.985Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/entry-email-default-1440.jpg",
+      "renderedUrl": "/sign-in",
+      "heading": "Sign in with email"
+    },
+    {
+      "routeId": "entry-email",
+      "view": "default",
+      "fixture": "disposable / signedOut",
+      "state": "default",
+      "url": "/sign-in",
+      "capturedAt": "2026-10-07T14:39:34.093Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/entry-email-default-390.jpg",
+      "renderedUrl": "/sign-in",
+      "heading": "Sign in with email"
+    },
+    {
+      "routeId": "entry-email",
+      "view": "error",
+      "fixture": "disposable / signedOut",
+      "state": "error",
+      "url": "/sign-in",
+      "capturedAt": "2026-10-07T14:34:58.636Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/entry-email-error-1440.jpg",
+      "renderedUrl": "/sign-in",
+      "heading": "Sign in with email"
+    },
+    {
+      "routeId": "entry-email",
+      "view": "error",
+      "fixture": "disposable / signedOut",
+      "state": "error",
+      "url": "/sign-in",
+      "capturedAt": "2026-10-07T14:39:34.692Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/entry-email-error-390.jpg",
+      "renderedUrl": "/sign-in",
+      "heading": "Sign in with email"
+    },
+    {
+      "routeId": "entry-verify",
+      "view": "default",
+      "fixture": "disposable / signedOut",
+      "state": "default",
+      "url": "/verify",
+      "capturedAt": "2026-10-07T14:34:59.448Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/entry-verify-default-1440.jpg",
+      "renderedUrl": "/verify",
+      "heading": "Check your email"
+    },
+    {
+      "routeId": "entry-verify",
+      "view": "default",
+      "fixture": "disposable / signedOut",
+      "state": "default",
+      "url": "/verify",
+      "capturedAt": "2026-10-07T14:39:35.476Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/entry-verify-default-390.jpg",
+      "renderedUrl": "/verify",
+      "heading": "Check your email"
+    },
+    {
+      "routeId": "entry-verify",
+      "view": "invalid-code",
+      "fixture": "disposable / signedOut",
+      "state": "invalid-code",
+      "url": "/verify",
+      "capturedAt": "2026-10-07T14:35:00.282Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/entry-verify-invalid-code-1440.jpg",
+      "renderedUrl": "/verify",
+      "heading": "Check your email"
+    },
+    {
+      "routeId": "entry-verify",
+      "view": "invalid-code",
+      "fixture": "disposable / signedOut",
+      "state": "invalid-code",
+      "url": "/verify",
+      "capturedAt": "2026-10-07T14:39:36.301Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/entry-verify-invalid-code-390.jpg",
+      "renderedUrl": "/verify",
+      "heading": "Check your email"
+    },
+    {
+      "routeId": "entry-profile",
+      "view": "new-account",
+      "fixture": "disposable / fresh",
+      "state": "new-account",
+      "url": "/profile/setup",
+      "capturedAt": "2026-10-07T14:35:01.649Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/entry-profile-new-account-1440.jpg",
+      "renderedUrl": "/profile/setup",
+      "heading": "Set up your profile"
+    },
+    {
+      "routeId": "entry-profile",
+      "view": "new-account",
+      "fixture": "disposable / fresh",
+      "state": "new-account",
+      "url": "/profile/setup",
+      "capturedAt": "2026-10-07T14:39:37.674Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/entry-profile-new-account-390.jpg",
+      "renderedUrl": "/profile/setup",
+      "heading": "Set up your profile"
+    },
+    {
+      "routeId": "pair-start",
+      "view": "default",
+      "fixture": "disposable / unpaired",
+      "state": "default",
+      "url": "/pair/start",
+      "capturedAt": "2026-10-07T14:35:03.065Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/pair-start-default-1440.jpg",
+      "renderedUrl": "/pair/start",
+      "heading": "Make space for two"
+    },
+    {
+      "routeId": "pair-start",
+      "view": "default",
+      "fixture": "disposable / unpaired",
+      "state": "default",
+      "url": "/pair/start",
+      "capturedAt": "2026-10-07T14:39:39.525Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/pair-start-default-390.jpg",
+      "renderedUrl": "/pair/start",
+      "heading": "Make space for two"
+    },
+    {
+      "routeId": "pair-invite",
+      "view": "default",
+      "fixture": "disposable / pending",
+      "state": "default",
+      "url": "/pair/invite",
+      "capturedAt": "2026-10-07T14:35:04.923Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/pair-invite-default-1440.jpg",
+      "renderedUrl": "/pair/invite",
+      "heading": "Invite your partner"
+    },
+    {
+      "routeId": "pair-invite",
+      "view": "default",
+      "fixture": "disposable / pending",
+      "state": "default",
+      "url": "/pair/invite",
+      "capturedAt": "2026-10-07T14:39:41.374Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/pair-invite-default-390.jpg",
+      "renderedUrl": "/pair/invite",
+      "heading": "Invite your partner"
+    },
+    {
+      "routeId": "pair-invite",
+      "view": "generated-code",
+      "fixture": "disposable / pending",
+      "state": "generated-code",
+      "url": "/pair/invite",
+      "capturedAt": "2026-10-07T14:35:05.667Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/pair-invite-generated-code-1440.jpg",
+      "renderedUrl": "/pair/invite",
+      "heading": "Invite your partner"
+    },
+    {
+      "routeId": "pair-invite",
+      "view": "generated-code",
+      "fixture": "disposable / pending",
+      "state": "generated-code",
+      "url": "/pair/invite",
+      "capturedAt": "2026-10-07T14:39:42.541Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/pair-invite-generated-code-390.jpg",
+      "renderedUrl": "/pair/invite",
+      "heading": "Invite your partner"
+    },
+    {
+      "routeId": "pair-invite",
+      "view": "delivery-unconfirmed",
+      "fixture": "disposable / pending",
+      "state": "delivery-unconfirmed",
+      "url": "/pair/invite",
+      "capturedAt": "2026-10-07T14:35:06.798Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/pair-invite-delivery-unconfirmed-1440.jpg",
+      "renderedUrl": "/pair/invite",
+      "heading": "Invite your partner"
+    },
+    {
+      "routeId": "pair-invite",
+      "view": "delivery-unconfirmed",
+      "fixture": "disposable / pending",
+      "state": "delivery-unconfirmed",
+      "url": "/pair/invite",
+      "capturedAt": "2026-10-07T14:39:43.658Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/pair-invite-delivery-unconfirmed-390.jpg",
+      "renderedUrl": "/pair/invite",
+      "heading": "Invite your partner"
+    },
+    {
+      "routeId": "pair-invite",
+      "view": "already-delivered",
+      "fixture": "disposable / pending",
+      "state": "already-delivered",
+      "url": "/pair/invite",
+      "capturedAt": "2026-10-07T14:35:08.013Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/pair-invite-already-delivered-1440.jpg",
+      "renderedUrl": "/pair/invite",
+      "heading": "Invite your partner"
+    },
+    {
+      "routeId": "pair-invite",
+      "view": "already-delivered",
+      "fixture": "disposable / pending",
+      "state": "already-delivered",
+      "url": "/pair/invite",
+      "capturedAt": "2026-10-07T14:39:44.894Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/pair-invite-already-delivered-390.jpg",
+      "renderedUrl": "/pair/invite",
+      "heading": "Invite your partner"
+    },
+    {
+      "routeId": "pair-join",
+      "view": "default",
+      "fixture": "disposable / unpaired",
+      "state": "default",
+      "url": "/pair/join",
+      "capturedAt": "2026-10-07T14:35:09.115Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/pair-join-default-1440.jpg",
+      "renderedUrl": "/pair/join",
+      "heading": "Join your partner"
+    },
+    {
+      "routeId": "pair-join",
+      "view": "default",
+      "fixture": "disposable / unpaired",
+      "state": "default",
+      "url": "/pair/join",
+      "capturedAt": "2026-10-07T14:39:45.975Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/pair-join-default-390.jpg",
+      "renderedUrl": "/pair/join",
+      "heading": "Join your partner"
+    },
+    {
+      "routeId": "pair-join",
+      "view": "review",
+      "fixture": "disposable / unpaired",
+      "state": "review",
+      "url": "/pair/join",
+      "capturedAt": "2026-10-07T14:35:09.800Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/pair-join-review-1440.jpg",
+      "renderedUrl": "/pair/join",
+      "heading": "Join Anna"
+    },
+    {
+      "routeId": "pair-join",
+      "view": "review",
+      "fixture": "disposable / unpaired",
+      "state": "review",
+      "url": "/pair/join",
+      "capturedAt": "2026-10-07T14:39:47.143Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/pair-join-review-390.jpg",
+      "renderedUrl": "/pair/join",
+      "heading": "Join Anna"
+    },
+    {
+      "routeId": "pair-join",
+      "view": "unavailable",
+      "fixture": "disposable / unpaired",
+      "state": "unavailable",
+      "url": "/pair/join",
+      "capturedAt": "2026-10-07T14:35:10.983Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/pair-join-unavailable-1440.jpg",
+      "renderedUrl": "/pair/join",
+      "heading": "Join your partner"
+    },
+    {
+      "routeId": "pair-join",
+      "view": "unavailable",
+      "fixture": "disposable / unpaired",
+      "state": "unavailable",
+      "url": "/pair/join",
+      "capturedAt": "2026-10-07T14:39:48.340Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/pair-join-unavailable-390.jpg",
+      "renderedUrl": "/pair/join",
+      "heading": "Join your partner"
+    },
+    {
+      "routeId": "pair-waiting",
+      "view": "default",
+      "fixture": "disposable / pending",
+      "state": "default",
+      "url": "/pair/waiting",
+      "capturedAt": "2026-10-07T14:35:12.072Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/pair-waiting-default-1440.jpg",
+      "renderedUrl": "/pair/waiting",
+      "heading": "Waiting for your partner"
+    },
+    {
+      "routeId": "pair-waiting",
+      "view": "default",
+      "fixture": "disposable / pending",
+      "state": "default",
+      "url": "/pair/waiting",
+      "capturedAt": "2026-10-07T14:39:49.423Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/pair-waiting-default-390.jpg",
+      "renderedUrl": "/pair/waiting",
+      "heading": "Waiting for your partner"
+    },
+    {
+      "routeId": "pair-waiting",
+      "view": "cancel-dialog",
+      "fixture": "disposable / pending",
+      "state": "cancel-dialog",
+      "url": "/pair/waiting",
+      "capturedAt": "2026-10-07T14:35:13.198Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/pair-waiting-cancel-dialog-1440.jpg",
+      "renderedUrl": "/pair/waiting",
+      "heading": "Waiting for your partner"
+    },
+    {
+      "routeId": "pair-waiting",
+      "view": "cancel-dialog",
+      "fixture": "disposable / pending",
+      "state": "cancel-dialog",
+      "url": "/pair/waiting",
+      "capturedAt": "2026-10-07T14:39:50.559Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/pair-waiting-cancel-dialog-390.jpg",
+      "renderedUrl": "/pair/waiting",
+      "heading": "Waiting for your partner"
+    },
+    {
+      "routeId": "pair-welcome",
+      "view": "default",
+      "fixture": "Anna + Marek / Anna",
+      "state": "default",
+      "url": "/pair/welcome",
+      "capturedAt": "2026-10-07T14:35:14.313Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/pair-welcome-default-1440.jpg",
+      "renderedUrl": "/pair/welcome",
+      "heading": "Anna + Marek"
+    },
+    {
+      "routeId": "pair-welcome",
+      "view": "default",
+      "fixture": "Anna + Marek / Anna",
+      "state": "default",
+      "url": "/pair/welcome",
+      "capturedAt": "2026-10-07T14:39:51.660Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/pair-welcome-default-390.jpg",
+      "renderedUrl": "/pair/welcome",
+      "heading": "Anna + Marek"
+    },
+    {
+      "routeId": "pair-ended",
+      "view": "default",
+      "fixture": "disposable / ended",
+      "state": "default",
+      "url": "/pair/ended",
+      "capturedAt": "2026-10-07T14:35:16.152Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/pair-ended-default-1440.jpg",
+      "renderedUrl": "/pair/ended",
+      "heading": "Your pair has ended"
+    },
+    {
+      "routeId": "pair-ended",
+      "view": "default",
+      "fixture": "disposable / ended",
+      "state": "default",
+      "url": "/pair/ended",
+      "capturedAt": "2026-10-07T14:39:53.044Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/pair-ended-default-390.jpg",
+      "renderedUrl": "/pair/ended",
+      "heading": "Your pair has ended"
+    },
+    {
+      "routeId": "invite-entry",
+      "view": "valid",
+      "fixture": "disposable / signedOut",
+      "state": "valid",
+      "url": "/invite?token=MASKED",
+      "capturedAt": "2026-10-07T14:35:16.384Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/invite-entry-valid-1440.jpg",
+      "renderedUrl": "/welcome",
+      "heading": "Plan your days together.",
+      "redirectTo": "/welcome"
+    },
+    {
+      "routeId": "invite-entry",
+      "view": "valid",
+      "fixture": "disposable / signedOut",
+      "state": "valid",
+      "url": "/invite?token=MASKED",
+      "capturedAt": "2026-10-07T14:39:53.310Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/invite-entry-valid-390.jpg",
+      "renderedUrl": "/welcome",
+      "heading": "Plan your days together.",
+      "redirectTo": "/welcome"
+    },
+    {
+      "routeId": "invite-entry",
+      "view": "invalid",
+      "fixture": "disposable / signedOut",
+      "state": "invalid",
+      "url": "/invite?token=MASKED",
+      "capturedAt": "2026-10-07T14:35:16.615Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/invite-entry-invalid-1440.jpg",
+      "renderedUrl": "/welcome",
+      "heading": "Plan your days together.",
+      "redirectTo": "/welcome"
+    },
+    {
+      "routeId": "invite-entry",
+      "view": "invalid",
+      "fixture": "disposable / signedOut",
+      "state": "invalid",
+      "url": "/invite?token=MASKED",
+      "capturedAt": "2026-10-07T14:39:53.608Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/invite-entry-invalid-390.jpg",
+      "renderedUrl": "/welcome",
+      "heading": "Plan your days together.",
+      "redirectTo": "/welcome"
+    },
+    {
+      "routeId": "calendar",
+      "view": "month",
+      "fixture": "Anna + Marek / Anna",
+      "state": "month",
+      "url": "/calendar?date=2026-10-05&view=month",
+      "capturedAt": "2026-10-07T14:35:17.335Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/calendar-month-1440.jpg",
+      "fullPageFile": "images/calendar-month-1440-full.jpg",
+      "renderedUrl": "/calendar?date=2026-10-05&view=month",
+      "heading": "Calendar"
+    },
+    {
+      "routeId": "calendar",
+      "view": "month",
+      "fixture": "Anna + Marek / Anna",
+      "state": "month",
+      "url": "/calendar?date=2026-10-05&view=month",
+      "capturedAt": "2026-10-07T14:39:54.326Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/calendar-month-390.jpg",
+      "fullPageFile": "images/calendar-month-390-full.jpg",
+      "renderedUrl": "/calendar?date=2026-10-05&view=month",
+      "heading": "Calendar"
+    },
+    {
+      "routeId": "calendar",
+      "view": "agenda",
+      "fixture": "Anna + Marek / Anna",
+      "state": "agenda",
+      "url": "/calendar?date=2026-10-05&view=agenda",
+      "capturedAt": "2026-10-07T14:35:18.032Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/calendar-agenda-1440.jpg",
+      "fullPageFile": "images/calendar-agenda-1440-full.jpg",
+      "renderedUrl": "/calendar?date=2026-10-05&view=agenda",
+      "heading": "Calendar"
+    },
+    {
+      "routeId": "calendar",
+      "view": "agenda",
+      "fixture": "Anna + Marek / Anna",
+      "state": "agenda",
+      "url": "/calendar?date=2026-10-05&view=agenda",
+      "capturedAt": "2026-10-07T14:39:55.483Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/calendar-agenda-390.jpg",
+      "fullPageFile": "images/calendar-agenda-390-full.jpg",
+      "renderedUrl": "/calendar?date=2026-10-05&view=agenda",
+      "heading": "Calendar"
+    },
+    {
+      "routeId": "calendar",
+      "view": "compare",
+      "fixture": "Anna + Marek / Anna",
+      "state": "compare",
+      "url": "/calendar?date=2026-10-05&view=compare",
+      "capturedAt": "2026-10-07T14:35:18.743Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/calendar-compare-1440.jpg",
+      "fullPageFile": "images/calendar-compare-1440-full.jpg",
+      "renderedUrl": "/calendar?date=2026-10-05&view=compare",
+      "heading": "Calendar"
+    },
+    {
+      "routeId": "calendar",
+      "view": "compare",
+      "fixture": "Anna + Marek / Anna",
+      "state": "compare",
+      "url": "/calendar?date=2026-10-05&view=compare",
+      "capturedAt": "2026-10-07T14:39:56.666Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/calendar-compare-390.jpg",
+      "fullPageFile": "images/calendar-compare-390-full.jpg",
+      "renderedUrl": "/calendar?date=2026-10-05&view=compare",
+      "heading": "Calendar"
+    },
+    {
+      "routeId": "calendar",
+      "view": "empty",
+      "fixture": "disposable / empty",
+      "state": "empty",
+      "url": "/calendar?date=2026-10-05&view=month",
+      "capturedAt": "2026-10-07T14:35:20.190Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/calendar-empty-1440.jpg",
+      "fullPageFile": "images/calendar-empty-1440-full.jpg",
+      "renderedUrl": "/calendar?date=2026-10-05&view=month",
+      "heading": "Calendar"
+    },
+    {
+      "routeId": "calendar",
+      "view": "empty",
+      "fixture": "disposable / empty",
+      "state": "empty",
+      "url": "/calendar?date=2026-10-05&view=month",
+      "capturedAt": "2026-10-07T14:39:58.610Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/calendar-empty-390.jpg",
+      "fullPageFile": "images/calendar-empty-390-full.jpg",
+      "renderedUrl": "/calendar?date=2026-10-05&view=month",
+      "heading": "Calendar"
+    },
+    {
+      "routeId": "calendar",
+      "view": "error",
+      "fixture": "disposable / exceptional",
+      "state": "error",
+      "url": "/calendar?date=2026-10-05&view=month",
+      "capturedAt": "2026-10-07T14:35:22.932Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/calendar-error-1440.jpg",
+      "renderedUrl": "/calendar?date=2026-10-05&view=month",
+      "heading": "Calendar"
+    },
+    {
+      "routeId": "calendar",
+      "view": "error",
+      "fixture": "disposable / exceptional",
+      "state": "error",
+      "url": "/calendar?date=2026-10-05&view=month",
+      "capturedAt": "2026-10-07T14:40:01.324Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/calendar-error-390.jpg",
+      "renderedUrl": "/calendar?date=2026-10-05&view=month",
+      "heading": "Calendar"
+    },
+    {
+      "routeId": "event-new",
+      "view": "default",
+      "fixture": "Anna + Marek / Anna",
+      "state": "default",
+      "url": "/events/new",
+      "capturedAt": "2026-10-07T14:35:24.093Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/event-new-default-1440.jpg",
+      "fullPageFile": "images/event-new-default-1440-full.jpg",
+      "renderedUrl": "/events/new",
+      "heading": "Add event"
+    },
+    {
+      "routeId": "event-new",
+      "view": "default",
+      "fixture": "Anna + Marek / Anna",
+      "state": "default",
+      "url": "/events/new",
+      "capturedAt": "2026-10-07T14:40:02.513Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/event-new-default-390.jpg",
+      "fullPageFile": "images/event-new-default-390-full.jpg",
+      "renderedUrl": "/events/new",
+      "heading": "Add event"
+    },
+    {
+      "routeId": "event-new",
+      "view": "validation",
+      "fixture": "Anna + Marek / Anna",
+      "state": "validation",
+      "url": "/events/new",
+      "capturedAt": "2026-10-07T14:35:24.840Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/event-new-validation-1440.jpg",
+      "fullPageFile": "images/event-new-validation-1440-full.jpg",
+      "renderedUrl": "/events/new",
+      "heading": "Add event"
+    },
+    {
+      "routeId": "event-new",
+      "view": "validation",
+      "fixture": "Anna + Marek / Anna",
+      "state": "validation",
+      "url": "/events/new",
+      "capturedAt": "2026-10-07T14:40:03.713Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/event-new-validation-390.jpg",
+      "fullPageFile": "images/event-new-validation-390-full.jpg",
+      "renderedUrl": "/events/new",
+      "heading": "Add event"
+    },
+    {
+      "routeId": "event-new",
+      "view": "plan-date",
+      "fixture": "Anna + Marek / Anna",
+      "state": "plan-date",
+      "url": "/events/new?idea=d3500000-0000-4000-8000-000000000014",
+      "capturedAt": "2026-10-07T14:35:25.991Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/event-new-plan-date-1440.jpg",
+      "fullPageFile": "images/event-new-plan-date-1440-full.jpg",
+      "renderedUrl": "/events/new?idea=d3500000-0000-4000-8000-000000000014",
+      "heading": "Plan date"
+    },
+    {
+      "routeId": "event-new",
+      "view": "plan-date",
+      "fixture": "Anna + Marek / Anna",
+      "state": "plan-date",
+      "url": "/events/new?idea=d3500000-0000-4000-8000-000000000014",
+      "capturedAt": "2026-10-07T14:40:04.845Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/event-new-plan-date-390.jpg",
+      "fullPageFile": "images/event-new-plan-date-390-full.jpg",
+      "renderedUrl": "/events/new?idea=d3500000-0000-4000-8000-000000000014",
+      "heading": "Plan date"
+    },
+    {
+      "routeId": "event-detail",
+      "view": "shared",
+      "fixture": "Anna + Marek / Anna",
+      "state": "shared",
+      "url": "/events/d3500000-0000-4000-8000-00000000000a",
+      "capturedAt": "2026-10-07T14:35:27.084Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/event-detail-shared-1440.jpg",
+      "renderedUrl": "/events/d3500000-0000-4000-8000-00000000000a",
+      "heading": "Dinner together"
+    },
+    {
+      "routeId": "event-detail",
+      "view": "shared",
+      "fixture": "Anna + Marek / Anna",
+      "state": "shared",
+      "url": "/events/d3500000-0000-4000-8000-00000000000a",
+      "capturedAt": "2026-10-07T14:40:06.009Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/event-detail-shared-390.jpg",
+      "fullPageFile": "images/event-detail-shared-390-full.jpg",
+      "renderedUrl": "/events/d3500000-0000-4000-8000-00000000000a",
+      "heading": "Dinner together"
+    },
+    {
+      "routeId": "event-detail",
+      "view": "private",
+      "fixture": "Anna + Marek / Anna",
+      "state": "private",
+      "url": "/events/d3500000-0000-4000-8000-00000000000b",
+      "capturedAt": "2026-10-07T14:35:28.169Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/event-detail-private-1440.jpg",
+      "renderedUrl": "/events/d3500000-0000-4000-8000-00000000000b",
+      "heading": "Anna’s private appointment"
+    },
+    {
+      "routeId": "event-detail",
+      "view": "private",
+      "fixture": "Anna + Marek / Anna",
+      "state": "private",
+      "url": "/events/d3500000-0000-4000-8000-00000000000b",
+      "capturedAt": "2026-10-07T14:40:07.158Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/event-detail-private-390.jpg",
+      "fullPageFile": "images/event-detail-private-390-full.jpg",
+      "renderedUrl": "/events/d3500000-0000-4000-8000-00000000000b",
+      "heading": "Anna’s private appointment"
+    },
+    {
+      "routeId": "event-detail",
+      "view": "delete-dialog",
+      "fixture": "Anna + Marek / Anna",
+      "state": "delete-dialog",
+      "url": "/events/d3500000-0000-4000-8000-00000000000a",
+      "capturedAt": "2026-10-07T14:35:29.299Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/event-detail-delete-dialog-1440.jpg",
+      "renderedUrl": "/events/d3500000-0000-4000-8000-00000000000a",
+      "heading": "Dinner together"
+    },
+    {
+      "routeId": "event-detail",
+      "view": "delete-dialog",
+      "fixture": "Anna + Marek / Anna",
+      "state": "delete-dialog",
+      "url": "/events/d3500000-0000-4000-8000-00000000000a",
+      "capturedAt": "2026-10-07T14:40:08.309Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/event-detail-delete-dialog-390.jpg",
+      "fullPageFile": "images/event-detail-delete-dialog-390-full.jpg",
+      "renderedUrl": "/events/d3500000-0000-4000-8000-00000000000a",
+      "heading": "Dinner together"
+    },
+    {
+      "routeId": "event-detail",
+      "view": "unavailable",
+      "fixture": "disposable / exceptional",
+      "state": "unavailable",
+      "url": "/events/00000000-0000-4000-8000-000000000099",
+      "capturedAt": "2026-10-07T14:35:30.399Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/event-detail-unavailable-1440.jpg",
+      "renderedUrl": "/events/00000000-0000-4000-8000-000000000099",
+      "heading": "Event unavailable"
+    },
+    {
+      "routeId": "event-detail",
+      "view": "unavailable",
+      "fixture": "disposable / exceptional",
+      "state": "unavailable",
+      "url": "/events/00000000-0000-4000-8000-000000000099",
+      "capturedAt": "2026-10-07T14:40:08.958Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/event-detail-unavailable-390.jpg",
+      "renderedUrl": "/events/00000000-0000-4000-8000-000000000099",
+      "heading": "Event unavailable"
+    },
+    {
+      "routeId": "event-detail",
+      "view": "request-error",
+      "fixture": "disposable / exceptional",
+      "state": "request-error",
+      "url": "/events/d1ec97dd-d3f8-425f-9f6d-44a949cc8f76",
+      "capturedAt": "2026-10-07T14:35:46.382Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/event-detail-request-error-1440.jpg",
+      "renderedUrl": "/events/d1ec97dd-d3f8-425f-9f6d-44a949cc8f76",
+      "heading": "We could not load this event"
+    },
+    {
+      "routeId": "event-detail",
+      "view": "request-error",
+      "fixture": "disposable / exceptional",
+      "state": "request-error",
+      "url": "/events/554d4e30-37fb-428e-901a-39428d450822",
+      "capturedAt": "2026-10-07T14:40:24.947Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/event-detail-request-error-390.jpg",
+      "renderedUrl": "/events/554d4e30-37fb-428e-901a-39428d450822",
+      "heading": "We could not load this event"
+    },
+    {
+      "routeId": "event-detail",
+      "view": "pending-deletion",
+      "fixture": "disposable / exceptional",
+      "state": "pending-deletion",
+      "url": "/events/d1ec97dd-d3f8-425f-9f6d-44a949cc8f76",
+      "capturedAt": "2026-10-07T14:38:43.256Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/event-detail-pending-deletion-1440.jpg",
+      "renderedUrl": "/events/d1ec97dd-d3f8-425f-9f6d-44a949cc8f76",
+      "heading": "Event unavailable"
+    },
+    {
+      "routeId": "event-detail",
+      "view": "pending-deletion",
+      "fixture": "disposable / exceptional",
+      "state": "pending-deletion",
+      "url": "/events/554d4e30-37fb-428e-901a-39428d450822",
+      "capturedAt": "2026-10-07T14:43:30.181Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/event-detail-pending-deletion-390.jpg",
+      "renderedUrl": "/events/554d4e30-37fb-428e-901a-39428d450822",
+      "heading": "Event unavailable"
+    },
+    {
+      "routeId": "event-edit",
+      "view": "default",
+      "fixture": "Anna + Marek / Anna",
+      "state": "default",
+      "url": "/events/d3500000-0000-4000-8000-00000000000a/edit",
+      "capturedAt": "2026-10-07T14:35:47.540Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/event-edit-default-1440.jpg",
+      "fullPageFile": "images/event-edit-default-1440-full.jpg",
+      "renderedUrl": "/events/d3500000-0000-4000-8000-00000000000a/edit",
+      "heading": "Edit event"
+    },
+    {
+      "routeId": "event-edit",
+      "view": "default",
+      "fixture": "Anna + Marek / Anna",
+      "state": "default",
+      "url": "/events/d3500000-0000-4000-8000-00000000000a/edit",
+      "capturedAt": "2026-10-07T14:40:26.111Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/event-edit-default-390.jpg",
+      "fullPageFile": "images/event-edit-default-390-full.jpg",
+      "renderedUrl": "/events/d3500000-0000-4000-8000-00000000000a/edit",
+      "heading": "Edit event"
+    },
+    {
+      "routeId": "event-edit",
+      "view": "conflict",
+      "fixture": "disposable / exceptional",
+      "state": "conflict",
+      "url": "/events/d1ec97dd-d3f8-425f-9f6d-44a949cc8f76/edit",
+      "capturedAt": "2026-10-07T14:35:48.791Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/event-edit-conflict-1440.jpg",
+      "fullPageFile": "images/event-edit-conflict-1440-full.jpg",
+      "renderedUrl": "/events/d1ec97dd-d3f8-425f-9f6d-44a949cc8f76/edit",
+      "heading": "Edit event"
+    },
+    {
+      "routeId": "event-edit",
+      "view": "conflict",
+      "fixture": "disposable / exceptional",
+      "state": "conflict",
+      "url": "/events/554d4e30-37fb-428e-901a-39428d450822/edit",
+      "capturedAt": "2026-10-07T14:40:27.346Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/event-edit-conflict-390.jpg",
+      "fullPageFile": "images/event-edit-conflict-390-full.jpg",
+      "renderedUrl": "/events/554d4e30-37fb-428e-901a-39428d450822/edit",
+      "heading": "Edit event"
+    },
+    {
+      "routeId": "event-edit",
+      "view": "share-dialog",
+      "fixture": "Anna + Marek / Anna",
+      "state": "share-dialog",
+      "url": "/events/d3500000-0000-4000-8000-00000000000b/edit",
+      "capturedAt": "2026-10-07T14:35:50.021Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/event-edit-share-dialog-1440.jpg",
+      "fullPageFile": "images/event-edit-share-dialog-1440-full.jpg",
+      "renderedUrl": "/events/d3500000-0000-4000-8000-00000000000b/edit",
+      "heading": "Edit event"
+    },
+    {
+      "routeId": "event-edit",
+      "view": "share-dialog",
+      "fixture": "Anna + Marek / Anna",
+      "state": "share-dialog",
+      "url": "/events/d3500000-0000-4000-8000-00000000000b/edit",
+      "capturedAt": "2026-10-07T14:40:28.562Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/event-edit-share-dialog-390.jpg",
+      "fullPageFile": "images/event-edit-share-dialog-390-full.jpg",
+      "renderedUrl": "/events/d3500000-0000-4000-8000-00000000000b/edit",
+      "heading": "Edit event"
+    },
+    {
+      "routeId": "today",
+      "view": "planning",
+      "fixture": "owned disposable normal-media / anna",
+      "state": "planning",
+      "url": "/today",
+      "capturedAt": "2026-10-07T14:35:51.683Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/today-planning-1440.jpg",
+      "fullPageFile": "images/today-planning-1440-full.jpg",
+      "renderedUrl": "/today",
+      "heading": "Today"
+    },
+    {
+      "routeId": "today",
+      "view": "planning",
+      "fixture": "owned disposable normal-media / anna",
+      "state": "planning",
+      "url": "/today",
+      "capturedAt": "2026-10-07T14:40:30.526Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/today-planning-390.jpg",
+      "fullPageFile": "images/today-planning-390-full.jpg",
+      "renderedUrl": "/today",
+      "heading": "Today"
+    },
+    {
+      "routeId": "today",
+      "view": "empty",
+      "fixture": "disposable / empty",
+      "state": "empty",
+      "url": "/today",
+      "capturedAt": "2026-10-07T14:35:52.768Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/today-empty-1440.jpg",
+      "renderedUrl": "/today",
+      "heading": "Today"
+    },
+    {
+      "routeId": "today",
+      "view": "empty",
+      "fixture": "disposable / empty",
+      "state": "empty",
+      "url": "/today",
+      "capturedAt": "2026-10-07T14:40:31.172Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/today-empty-390.jpg",
+      "renderedUrl": "/today",
+      "heading": "Today"
+    },
+    {
+      "routeId": "today",
+      "view": "error",
+      "fixture": "disposable / exceptional",
+      "state": "error",
+      "url": "/today",
+      "capturedAt": "2026-10-07T14:35:54.752Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/today-error-1440.jpg",
+      "renderedUrl": "/today",
+      "heading": "Today"
+    },
+    {
+      "routeId": "today",
+      "view": "error",
+      "fixture": "disposable / exceptional",
+      "state": "error",
+      "url": "/today",
+      "capturedAt": "2026-10-07T14:40:33.073Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/today-error-390.jpg",
+      "renderedUrl": "/today",
+      "heading": "Today"
+    },
+    {
+      "routeId": "memories",
+      "view": "month-feed",
+      "fixture": "owned disposable normal-media / anna",
+      "state": "month-feed",
+      "url": "/memories",
+      "capturedAt": "2026-10-07T14:35:55.529Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/memories-month-feed-1440.jpg",
+      "renderedUrl": "/memories",
+      "heading": "Memories"
+    },
+    {
+      "routeId": "memories",
+      "view": "month-feed",
+      "fixture": "owned disposable normal-media / anna",
+      "state": "month-feed",
+      "url": "/memories",
+      "capturedAt": "2026-10-07T14:40:34.243Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/memories-month-feed-390.jpg",
+      "fullPageFile": "images/memories-month-feed-390-full.jpg",
+      "renderedUrl": "/memories",
+      "heading": "Memories"
+    },
+    {
+      "routeId": "memories",
+      "view": "empty",
+      "fixture": "disposable / empty",
+      "state": "empty",
+      "url": "/memories",
+      "capturedAt": "2026-10-07T14:35:56.161Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/memories-empty-1440.jpg",
+      "renderedUrl": "/memories",
+      "heading": "Memories"
+    },
+    {
+      "routeId": "memories",
+      "view": "empty",
+      "fixture": "disposable / empty",
+      "state": "empty",
+      "url": "/memories",
+      "capturedAt": "2026-10-07T14:40:35.367Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/memories-empty-390.jpg",
+      "renderedUrl": "/memories",
+      "heading": "Memories"
+    },
+    {
+      "routeId": "memories",
+      "view": "error",
+      "fixture": "disposable / exceptional",
+      "state": "error",
+      "url": "/memories",
+      "capturedAt": "2026-10-07T14:35:58.095Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/memories-error-1440.jpg",
+      "renderedUrl": "/memories",
+      "heading": "Memories"
+    },
+    {
+      "routeId": "memories",
+      "view": "error",
+      "fixture": "disposable / exceptional",
+      "state": "error",
+      "url": "/memories",
+      "capturedAt": "2026-10-07T14:40:37.313Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/memories-error-390.jpg",
+      "renderedUrl": "/memories",
+      "heading": "Memories"
+    },
+    {
+      "routeId": "memory-new",
+      "view": "default",
+      "fixture": "Anna + Marek / Anna",
+      "state": "default",
+      "url": "/memories/new",
+      "capturedAt": "2026-10-07T14:35:59.241Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/memory-new-default-1440.jpg",
+      "fullPageFile": "images/memory-new-default-1440-full.jpg",
+      "renderedUrl": "/memories/new",
+      "heading": "Add memory"
+    },
+    {
+      "routeId": "memory-new",
+      "view": "default",
+      "fixture": "Anna + Marek / Anna",
+      "state": "default",
+      "url": "/memories/new",
+      "capturedAt": "2026-10-07T14:40:38.457Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/memory-new-default-390.jpg",
+      "fullPageFile": "images/memory-new-default-390-full.jpg",
+      "renderedUrl": "/memories/new",
+      "heading": "Add memory"
+    },
+    {
+      "routeId": "memory-new",
+      "view": "selected",
+      "fixture": "Anna + Marek / Anna",
+      "state": "selected",
+      "url": "/memories/new",
+      "capturedAt": "2026-10-07T14:35:59.981Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/memory-new-selected-1440.jpg",
+      "fullPageFile": "images/memory-new-selected-1440-full.jpg",
+      "renderedUrl": "/memories/new",
+      "heading": "Add memory"
+    },
+    {
+      "routeId": "memory-new",
+      "view": "selected",
+      "fixture": "Anna + Marek / Anna",
+      "state": "selected",
+      "url": "/memories/new",
+      "capturedAt": "2026-10-07T14:40:39.624Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/memory-new-selected-390.jpg",
+      "fullPageFile": "images/memory-new-selected-390-full.jpg",
+      "renderedUrl": "/memories/new",
+      "heading": "Add memory"
+    },
+    {
+      "routeId": "memory-new",
+      "view": "upload-error",
+      "fixture": "disposable / exceptional",
+      "state": "upload-error",
+      "url": "/memories/new",
+      "capturedAt": "2026-10-07T14:36:00.982Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/memory-new-upload-error-1440.jpg",
+      "fullPageFile": "images/memory-new-upload-error-1440-full.jpg",
+      "renderedUrl": "/memories/new",
+      "heading": "Add memory"
+    },
+    {
+      "routeId": "memory-new",
+      "view": "upload-error",
+      "fixture": "disposable / exceptional",
+      "state": "upload-error",
+      "url": "/memories/new",
+      "capturedAt": "2026-10-07T14:40:41.040Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/memory-new-upload-error-390.jpg",
+      "fullPageFile": "images/memory-new-upload-error-390-full.jpg",
+      "renderedUrl": "/memories/new",
+      "heading": "Add memory"
+    },
+    {
+      "routeId": "memory-detail",
+      "view": "author",
+      "fixture": "owned disposable normal-media / anna",
+      "state": "author",
+      "url": "/memories/b8402137-d374-4d90-9235-7e768f2bdbb1",
+      "capturedAt": "2026-10-07T14:36:02.094Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/memory-detail-author-1440.jpg",
+      "renderedUrl": "/memories/b8402137-d374-4d90-9235-7e768f2bdbb1",
+      "heading": "Our quiet walk through the park."
+    },
+    {
+      "routeId": "memory-detail",
+      "view": "author",
+      "fixture": "owned disposable normal-media / anna",
+      "state": "author",
+      "url": "/memories/84d7ae3b-4687-437f-9bc8-824c99f08ef7",
+      "capturedAt": "2026-10-07T14:40:42.129Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/memory-detail-author-390.jpg",
+      "renderedUrl": "/memories/84d7ae3b-4687-437f-9bc8-824c99f08ef7",
+      "heading": "Our quiet walk through the park."
+    },
+    {
+      "routeId": "memory-detail",
+      "view": "partner",
+      "fixture": "owned disposable normal-media / marek",
+      "state": "partner",
+      "url": "/memories/b8402137-d374-4d90-9235-7e768f2bdbb1",
+      "capturedAt": "2026-10-07T14:36:03.997Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/memory-detail-partner-1440.jpg",
+      "renderedUrl": "/memories/b8402137-d374-4d90-9235-7e768f2bdbb1",
+      "heading": "Our quiet walk through the park."
+    },
+    {
+      "routeId": "memory-detail",
+      "view": "partner",
+      "fixture": "owned disposable normal-media / marek",
+      "state": "partner",
+      "url": "/memories/84d7ae3b-4687-437f-9bc8-824c99f08ef7",
+      "capturedAt": "2026-10-07T14:40:44.094Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/memory-detail-partner-390.jpg",
+      "renderedUrl": "/memories/84d7ae3b-4687-437f-9bc8-824c99f08ef7",
+      "heading": "Our quiet walk through the park."
+    },
+    {
+      "routeId": "memory-detail",
+      "view": "delete-dialog",
+      "fixture": "owned disposable normal-media / anna",
+      "state": "delete-dialog",
+      "url": "/memories/b8402137-d374-4d90-9235-7e768f2bdbb1",
+      "capturedAt": "2026-10-07T14:36:05.182Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/memory-detail-delete-dialog-1440.jpg",
+      "renderedUrl": "/memories/b8402137-d374-4d90-9235-7e768f2bdbb1",
+      "heading": "Our quiet walk through the park."
+    },
+    {
+      "routeId": "memory-detail",
+      "view": "delete-dialog",
+      "fixture": "owned disposable normal-media / anna",
+      "state": "delete-dialog",
+      "url": "/memories/84d7ae3b-4687-437f-9bc8-824c99f08ef7",
+      "capturedAt": "2026-10-07T14:40:45.424Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/memory-detail-delete-dialog-390.jpg",
+      "renderedUrl": "/memories/84d7ae3b-4687-437f-9bc8-824c99f08ef7",
+      "heading": "Our quiet walk through the park."
+    },
+    {
+      "routeId": "memory-detail",
+      "view": "unavailable",
+      "fixture": "disposable / exceptional",
+      "state": "unavailable",
+      "url": "/memories/00000000-0000-4000-8000-000000000099",
+      "capturedAt": "2026-10-07T14:36:06.276Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/memory-detail-unavailable-1440.jpg",
+      "renderedUrl": "/memories/00000000-0000-4000-8000-000000000099",
+      "heading": "Memory unavailable"
+    },
+    {
+      "routeId": "memory-detail",
+      "view": "unavailable",
+      "fixture": "disposable / exceptional",
+      "state": "unavailable",
+      "url": "/memories/00000000-0000-4000-8000-000000000099",
+      "capturedAt": "2026-10-07T14:40:46.521Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/memory-detail-unavailable-390.jpg",
+      "renderedUrl": "/memories/00000000-0000-4000-8000-000000000099",
+      "heading": "Memory unavailable"
+    },
+    {
+      "routeId": "memory-detail",
+      "view": "media-error",
+      "fixture": "disposable / exceptional",
+      "state": "media-error",
+      "url": "/memories/0f4f0dfb-5073-4a1b-8a74-521b759a31e2",
+      "capturedAt": "2026-10-07T14:36:07.377Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/memory-detail-media-error-1440.jpg",
+      "renderedUrl": "/memories/0f4f0dfb-5073-4a1b-8a74-521b759a31e2",
+      "heading": "Our quiet walk through the park."
+    },
+    {
+      "routeId": "memory-detail",
+      "view": "media-error",
+      "fixture": "disposable / exceptional",
+      "state": "media-error",
+      "url": "/memories/f14790c8-5268-497f-84bb-e33e22952cf9",
+      "capturedAt": "2026-10-07T14:40:47.614Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/memory-detail-media-error-390.jpg",
+      "renderedUrl": "/memories/f14790c8-5268-497f-84bb-e33e22952cf9",
+      "heading": "Our quiet walk through the park."
+    },
+    {
+      "routeId": "memory-detail",
+      "view": "request-error",
+      "fixture": "disposable / exceptional",
+      "state": "request-error",
+      "url": "/memories/0f4f0dfb-5073-4a1b-8a74-521b759a31e2",
+      "capturedAt": "2026-10-07T14:36:08.463Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/memory-detail-request-error-1440.jpg",
+      "renderedUrl": "/memories/0f4f0dfb-5073-4a1b-8a74-521b759a31e2",
+      "heading": "We could not load this memory"
+    },
+    {
+      "routeId": "memory-detail",
+      "view": "request-error",
+      "fixture": "disposable / exceptional",
+      "state": "request-error",
+      "url": "/memories/f14790c8-5268-497f-84bb-e33e22952cf9",
+      "capturedAt": "2026-10-07T14:40:48.688Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/memory-detail-request-error-390.jpg",
+      "renderedUrl": "/memories/f14790c8-5268-497f-84bb-e33e22952cf9",
+      "heading": "We could not load this memory"
+    },
+    {
+      "routeId": "memory-detail",
+      "view": "pending-deletion",
+      "fixture": "disposable / exceptional",
+      "state": "pending-deletion",
+      "url": "/memories/0f4f0dfb-5073-4a1b-8a74-521b759a31e2",
+      "capturedAt": "2026-10-07T14:38:44.684Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/memory-detail-pending-deletion-1440.jpg",
+      "renderedUrl": "/memories/0f4f0dfb-5073-4a1b-8a74-521b759a31e2",
+      "heading": "Memory unavailable"
+    },
+    {
+      "routeId": "memory-detail",
+      "view": "pending-deletion",
+      "fixture": "disposable / exceptional",
+      "state": "pending-deletion",
+      "url": "/memories/f14790c8-5268-497f-84bb-e33e22952cf9",
+      "capturedAt": "2026-10-07T14:43:31.431Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/memory-detail-pending-deletion-390.jpg",
+      "renderedUrl": "/memories/f14790c8-5268-497f-84bb-e33e22952cf9",
+      "heading": "Memory unavailable"
+    },
+    {
+      "routeId": "memory-edit",
+      "view": "default",
+      "fixture": "owned disposable normal-media / anna",
+      "state": "default",
+      "url": "/memories/b8402137-d374-4d90-9235-7e768f2bdbb1/edit",
+      "capturedAt": "2026-10-07T14:36:09.608Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/memory-edit-default-1440.jpg",
+      "fullPageFile": "images/memory-edit-default-1440-full.jpg",
+      "renderedUrl": "/memories/b8402137-d374-4d90-9235-7e768f2bdbb1/edit",
+      "heading": "Edit memory"
+    },
+    {
+      "routeId": "memory-edit",
+      "view": "default",
+      "fixture": "owned disposable normal-media / anna",
+      "state": "default",
+      "url": "/memories/84d7ae3b-4687-437f-9bc8-824c99f08ef7/edit",
+      "capturedAt": "2026-10-07T14:40:49.787Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/memory-edit-default-390.jpg",
+      "fullPageFile": "images/memory-edit-default-390-full.jpg",
+      "renderedUrl": "/memories/84d7ae3b-4687-437f-9bc8-824c99f08ef7/edit",
+      "heading": "Edit memory"
+    },
+    {
+      "routeId": "memory-edit",
+      "view": "conflict",
+      "fixture": "disposable / exceptional",
+      "state": "conflict",
+      "url": "/memories/0f4f0dfb-5073-4a1b-8a74-521b759a31e2/edit",
+      "capturedAt": "2026-10-07T14:36:10.324Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/memory-edit-conflict-1440.jpg",
+      "fullPageFile": "images/memory-edit-conflict-1440-full.jpg",
+      "renderedUrl": "/memories/0f4f0dfb-5073-4a1b-8a74-521b759a31e2/edit",
+      "heading": "Edit memory"
+    },
+    {
+      "routeId": "memory-edit",
+      "view": "conflict",
+      "fixture": "disposable / exceptional",
+      "state": "conflict",
+      "url": "/memories/f14790c8-5268-497f-84bb-e33e22952cf9/edit",
+      "capturedAt": "2026-10-07T14:40:50.987Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/memory-edit-conflict-390.jpg",
+      "fullPageFile": "images/memory-edit-conflict-390-full.jpg",
+      "renderedUrl": "/memories/f14790c8-5268-497f-84bb-e33e22952cf9/edit",
+      "heading": "Edit memory"
+    },
+    {
+      "routeId": "messages",
+      "view": "conversation",
+      "fixture": "Anna + Marek / Anna",
+      "state": "conversation",
+      "url": "/messages",
+      "capturedAt": "2026-10-07T14:36:11.411Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/messages-conversation-1440.jpg",
+      "renderedUrl": "/messages",
+      "heading": "Messages"
+    },
+    {
+      "routeId": "messages",
+      "view": "conversation",
+      "fixture": "Anna + Marek / Anna",
+      "state": "conversation",
+      "url": "/messages",
+      "capturedAt": "2026-10-07T14:40:52.104Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/messages-conversation-390.jpg",
+      "fullPageFile": "images/messages-conversation-390-full.jpg",
+      "renderedUrl": "/messages",
+      "heading": "Messages"
+    },
+    {
+      "routeId": "messages",
+      "view": "notes",
+      "fixture": "Anna + Marek / Anna",
+      "state": "notes",
+      "url": "/messages?view=notes",
+      "capturedAt": "2026-10-07T14:36:12.028Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/messages-notes-1440.jpg",
+      "renderedUrl": "/messages?view=notes",
+      "heading": "Messages"
+    },
+    {
+      "routeId": "messages",
+      "view": "notes",
+      "fixture": "Anna + Marek / Anna",
+      "state": "notes",
+      "url": "/messages?view=notes",
+      "capturedAt": "2026-10-07T14:40:53.183Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/messages-notes-390.jpg",
+      "renderedUrl": "/messages?view=notes",
+      "heading": "Messages"
+    },
+    {
+      "routeId": "messages",
+      "view": "empty",
+      "fixture": "disposable / empty",
+      "state": "empty",
+      "url": "/messages",
+      "capturedAt": "2026-10-07T14:36:13.114Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/messages-empty-1440.jpg",
+      "renderedUrl": "/messages",
+      "heading": "Messages"
+    },
+    {
+      "routeId": "messages",
+      "view": "empty",
+      "fixture": "disposable / empty",
+      "state": "empty",
+      "url": "/messages",
+      "capturedAt": "2026-10-07T14:40:54.321Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/messages-empty-390.jpg",
+      "fullPageFile": "images/messages-empty-390-full.jpg",
+      "renderedUrl": "/messages",
+      "heading": "Messages"
+    },
+    {
+      "routeId": "messages",
+      "view": "error",
+      "fixture": "disposable / exceptional",
+      "state": "error",
+      "url": "/messages",
+      "capturedAt": "2026-10-07T14:36:15.113Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/messages-error-1440.jpg",
+      "renderedUrl": "/messages",
+      "heading": "Messages"
+    },
+    {
+      "routeId": "messages",
+      "view": "error",
+      "fixture": "disposable / exceptional",
+      "state": "error",
+      "url": "/messages",
+      "capturedAt": "2026-10-07T14:40:56.288Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/messages-error-390.jpg",
+      "fullPageFile": "images/messages-error-390-full.jpg",
+      "renderedUrl": "/messages",
+      "heading": "Messages"
+    },
+    {
+      "routeId": "messages",
+      "view": "pending-send",
+      "fixture": "disposable / exceptional",
+      "state": "pending-send",
+      "url": "/messages",
+      "capturedAt": "2026-10-07T14:36:15.879Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/messages-pending-send-1440.jpg",
+      "fullPageFile": "images/messages-pending-send-1440-full.jpg",
+      "renderedUrl": "/messages",
+      "heading": "Messages"
+    },
+    {
+      "routeId": "messages",
+      "view": "pending-send",
+      "fixture": "disposable / exceptional",
+      "state": "pending-send",
+      "url": "/messages",
+      "capturedAt": "2026-10-07T14:40:57.006Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/messages-pending-send-390.jpg",
+      "fullPageFile": "images/messages-pending-send-390-full.jpg",
+      "renderedUrl": "/messages",
+      "heading": "Messages"
+    },
+    {
+      "routeId": "messages",
+      "view": "delete-dialog",
+      "fixture": "Anna + Marek / Anna",
+      "state": "delete-dialog",
+      "url": "/messages",
+      "capturedAt": "2026-10-07T14:36:16.513Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/messages-delete-dialog-1440.jpg",
+      "renderedUrl": "/messages",
+      "heading": "Messages"
+    },
+    {
+      "routeId": "messages",
+      "view": "delete-dialog",
+      "fixture": "Anna + Marek / Anna",
+      "state": "delete-dialog",
+      "url": "/messages",
+      "capturedAt": "2026-10-07T14:40:58.154Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/messages-delete-dialog-390.jpg",
+      "fullPageFile": "images/messages-delete-dialog-390-full.jpg",
+      "renderedUrl": "/messages",
+      "heading": "Messages"
+    },
+    {
+      "routeId": "messages",
+      "view": "pending-action",
+      "fixture": "disposable / exceptional",
+      "state": "pending-action",
+      "url": "/messages",
+      "capturedAt": "2026-10-07T14:36:17.246Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/messages-pending-action-1440.jpg",
+      "fullPageFile": "images/messages-pending-action-1440-full.jpg",
+      "renderedUrl": "/messages",
+      "heading": "Messages"
+    },
+    {
+      "routeId": "messages",
+      "view": "pending-action",
+      "fixture": "disposable / exceptional",
+      "state": "pending-action",
+      "url": "/messages",
+      "capturedAt": "2026-10-07T14:40:59.357Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/messages-pending-action-390.jpg",
+      "fullPageFile": "images/messages-pending-action-390-full.jpg",
+      "renderedUrl": "/messages",
+      "heading": "Messages"
+    },
+    {
+      "routeId": "tasks",
+      "view": "general",
+      "fixture": "Anna + Marek / Anna",
+      "state": "general",
+      "url": "/tasks",
+      "capturedAt": "2026-10-07T14:36:18.331Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/tasks-general-1440.jpg",
+      "renderedUrl": "/tasks",
+      "heading": "Tasks"
+    },
+    {
+      "routeId": "tasks",
+      "view": "general",
+      "fixture": "Anna + Marek / Anna",
+      "state": "general",
+      "url": "/tasks",
+      "capturedAt": "2026-10-07T14:41:00.455Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/tasks-general-390.jpg",
+      "renderedUrl": "/tasks",
+      "heading": "Tasks"
+    },
+    {
+      "routeId": "tasks",
+      "view": "groceries",
+      "fixture": "Anna + Marek / Anna",
+      "state": "groceries",
+      "url": "/tasks?list=d3500000-0000-4000-8000-00000000044f",
+      "capturedAt": "2026-10-07T14:36:19.428Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/tasks-groceries-1440.jpg",
+      "renderedUrl": "/tasks?list=d3500000-0000-4000-8000-00000000044f",
+      "heading": "Tasks"
+    },
+    {
+      "routeId": "tasks",
+      "view": "groceries",
+      "fixture": "Anna + Marek / Anna",
+      "state": "groceries",
+      "url": "/tasks?list=d3500000-0000-4000-8000-00000000044f",
+      "capturedAt": "2026-10-07T14:41:01.557Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/tasks-groceries-390.jpg",
+      "renderedUrl": "/tasks?list=d3500000-0000-4000-8000-00000000044f",
+      "heading": "Tasks"
+    },
+    {
+      "routeId": "tasks",
+      "view": "completed",
+      "fixture": "Anna + Marek / Anna",
+      "state": "completed",
+      "url": "/tasks?list=d3500000-0000-4000-8000-00000000044f",
+      "capturedAt": "2026-10-07T14:36:20.510Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/tasks-completed-1440.jpg",
+      "renderedUrl": "/tasks?list=d3500000-0000-4000-8000-00000000044f",
+      "heading": "Tasks"
+    },
+    {
+      "routeId": "tasks",
+      "view": "completed",
+      "fixture": "Anna + Marek / Anna",
+      "state": "completed",
+      "url": "/tasks?list=d3500000-0000-4000-8000-00000000044f",
+      "capturedAt": "2026-10-07T14:41:02.171Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/tasks-completed-390.jpg",
+      "renderedUrl": "/tasks?list=d3500000-0000-4000-8000-00000000044f",
+      "heading": "Tasks"
+    },
+    {
+      "routeId": "tasks",
+      "view": "completion-error",
+      "fixture": "disposable / exceptional",
+      "state": "completion-error",
+      "url": "/tasks",
+      "capturedAt": "2026-10-07T14:36:21.211Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/tasks-completion-error-1440.jpg",
+      "renderedUrl": "/tasks",
+      "heading": "Tasks"
+    },
+    {
+      "routeId": "tasks",
+      "view": "completion-error",
+      "fixture": "disposable / exceptional",
+      "state": "completion-error",
+      "url": "/tasks",
+      "capturedAt": "2026-10-07T14:41:02.971Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/tasks-completion-error-390.jpg",
+      "fullPageFile": "images/tasks-completion-error-390-full.jpg",
+      "renderedUrl": "/tasks",
+      "heading": "Tasks"
+    },
+    {
+      "routeId": "task-new",
+      "view": "default",
+      "fixture": "Anna + Marek / Anna",
+      "state": "default",
+      "url": "/tasks/new",
+      "capturedAt": "2026-10-07T14:36:22.343Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/task-new-default-1440.jpg",
+      "fullPageFile": "images/task-new-default-1440-full.jpg",
+      "renderedUrl": "/tasks/new",
+      "heading": "Add task"
+    },
+    {
+      "routeId": "task-new",
+      "view": "default",
+      "fixture": "Anna + Marek / Anna",
+      "state": "default",
+      "url": "/tasks/new",
+      "capturedAt": "2026-10-07T14:41:04.104Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/task-new-default-390.jpg",
+      "fullPageFile": "images/task-new-default-390-full.jpg",
+      "renderedUrl": "/tasks/new",
+      "heading": "Add task"
+    },
+    {
+      "routeId": "task-new",
+      "view": "validation",
+      "fixture": "Anna + Marek / Anna",
+      "state": "validation",
+      "url": "/tasks/new",
+      "capturedAt": "2026-10-07T14:36:23.507Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/task-new-validation-1440.jpg",
+      "fullPageFile": "images/task-new-validation-1440-full.jpg",
+      "renderedUrl": "/tasks/new",
+      "heading": "Add task"
+    },
+    {
+      "routeId": "task-new",
+      "view": "validation",
+      "fixture": "Anna + Marek / Anna",
+      "state": "validation",
+      "url": "/tasks/new",
+      "capturedAt": "2026-10-07T14:41:05.287Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/task-new-validation-390.jpg",
+      "fullPageFile": "images/task-new-validation-390-full.jpg",
+      "renderedUrl": "/tasks/new",
+      "heading": "Add task"
+    },
+    {
+      "routeId": "task-detail",
+      "view": "default",
+      "fixture": "Anna + Marek / Anna",
+      "state": "default",
+      "url": "/tasks/d3500000-0000-4000-8000-00000000001e",
+      "capturedAt": "2026-10-07T14:36:24.610Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/task-detail-default-1440.jpg",
+      "renderedUrl": "/tasks/d3500000-0000-4000-8000-00000000001e",
+      "heading": "Book the pottery workshop"
+    },
+    {
+      "routeId": "task-detail",
+      "view": "default",
+      "fixture": "Anna + Marek / Anna",
+      "state": "default",
+      "url": "/tasks/d3500000-0000-4000-8000-00000000001e",
+      "capturedAt": "2026-10-07T14:41:06.358Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/task-detail-default-390.jpg",
+      "renderedUrl": "/tasks/d3500000-0000-4000-8000-00000000001e",
+      "heading": "Book the pottery workshop"
+    },
+    {
+      "routeId": "task-detail",
+      "view": "delete-dialog",
+      "fixture": "Anna + Marek / Anna",
+      "state": "delete-dialog",
+      "url": "/tasks/d3500000-0000-4000-8000-00000000001e",
+      "capturedAt": "2026-10-07T14:36:25.728Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/task-detail-delete-dialog-1440.jpg",
+      "renderedUrl": "/tasks/d3500000-0000-4000-8000-00000000001e",
+      "heading": "Book the pottery workshop"
+    },
+    {
+      "routeId": "task-detail",
+      "view": "delete-dialog",
+      "fixture": "Anna + Marek / Anna",
+      "state": "delete-dialog",
+      "url": "/tasks/d3500000-0000-4000-8000-00000000001e",
+      "capturedAt": "2026-10-07T14:41:07.471Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/task-detail-delete-dialog-390.jpg",
+      "renderedUrl": "/tasks/d3500000-0000-4000-8000-00000000001e",
+      "heading": "Book the pottery workshop"
+    },
+    {
+      "routeId": "task-detail",
+      "view": "unavailable",
+      "fixture": "disposable / exceptional",
+      "state": "unavailable",
+      "url": "/tasks/00000000-0000-4000-8000-000000000099",
+      "capturedAt": "2026-10-07T14:36:26.831Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/task-detail-unavailable-1440.jpg",
+      "renderedUrl": "/tasks/00000000-0000-4000-8000-000000000099",
+      "heading": "Task unavailable"
+    },
+    {
+      "routeId": "task-detail",
+      "view": "unavailable",
+      "fixture": "disposable / exceptional",
+      "state": "unavailable",
+      "url": "/tasks/00000000-0000-4000-8000-000000000099",
+      "capturedAt": "2026-10-07T14:41:08.554Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/task-detail-unavailable-390.jpg",
+      "renderedUrl": "/tasks/00000000-0000-4000-8000-000000000099",
+      "heading": "Task unavailable"
+    },
+    {
+      "routeId": "task-detail",
+      "view": "request-error",
+      "fixture": "disposable / exceptional",
+      "state": "request-error",
+      "url": "/tasks/38cbb629-3023-4479-bf1b-fced92af3f22",
+      "capturedAt": "2026-10-07T14:36:42.782Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/task-detail-request-error-1440.jpg",
+      "renderedUrl": "/tasks/38cbb629-3023-4479-bf1b-fced92af3f22",
+      "heading": "We could not load this task"
+    },
+    {
+      "routeId": "task-detail",
+      "view": "request-error",
+      "fixture": "disposable / exceptional",
+      "state": "request-error",
+      "url": "/tasks/a51a7778-04c3-4841-9332-5a2f244e2537",
+      "capturedAt": "2026-10-07T14:41:24.459Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/task-detail-request-error-390.jpg",
+      "renderedUrl": "/tasks/a51a7778-04c3-4841-9332-5a2f244e2537",
+      "heading": "We could not load this task"
+    },
+    {
+      "routeId": "task-detail",
+      "view": "pending-deletion",
+      "fixture": "disposable / exceptional",
+      "state": "pending-deletion",
+      "url": "/tasks/38cbb629-3023-4479-bf1b-fced92af3f22",
+      "capturedAt": "2026-10-07T14:38:45.955Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/task-detail-pending-deletion-1440.jpg",
+      "renderedUrl": "/tasks/38cbb629-3023-4479-bf1b-fced92af3f22",
+      "heading": "Task unavailable"
+    },
+    {
+      "routeId": "task-detail",
+      "view": "pending-deletion",
+      "fixture": "disposable / exceptional",
+      "state": "pending-deletion",
+      "url": "/tasks/a51a7778-04c3-4841-9332-5a2f244e2537",
+      "capturedAt": "2026-10-07T14:43:32.613Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/task-detail-pending-deletion-390.jpg",
+      "renderedUrl": "/tasks/a51a7778-04c3-4841-9332-5a2f244e2537",
+      "heading": "Task unavailable"
+    },
+    {
+      "routeId": "task-edit",
+      "view": "default",
+      "fixture": "Anna + Marek / Anna",
+      "state": "default",
+      "url": "/tasks/d3500000-0000-4000-8000-00000000001e/edit",
+      "capturedAt": "2026-10-07T14:36:43.941Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/task-edit-default-1440.jpg",
+      "fullPageFile": "images/task-edit-default-1440-full.jpg",
+      "renderedUrl": "/tasks/d3500000-0000-4000-8000-00000000001e/edit",
+      "heading": "Edit task"
+    },
+    {
+      "routeId": "task-edit",
+      "view": "default",
+      "fixture": "Anna + Marek / Anna",
+      "state": "default",
+      "url": "/tasks/d3500000-0000-4000-8000-00000000001e/edit",
+      "capturedAt": "2026-10-07T14:41:25.568Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/task-edit-default-390.jpg",
+      "fullPageFile": "images/task-edit-default-390-full.jpg",
+      "renderedUrl": "/tasks/d3500000-0000-4000-8000-00000000001e/edit",
+      "heading": "Edit task"
+    },
+    {
+      "routeId": "task-edit",
+      "view": "conflict",
+      "fixture": "disposable / exceptional",
+      "state": "conflict",
+      "url": "/tasks/38cbb629-3023-4479-bf1b-fced92af3f22/edit",
+      "capturedAt": "2026-10-07T14:36:45.200Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/task-edit-conflict-1440.jpg",
+      "fullPageFile": "images/task-edit-conflict-1440-full.jpg",
+      "renderedUrl": "/tasks/38cbb629-3023-4479-bf1b-fced92af3f22/edit",
+      "heading": "Edit task"
+    },
+    {
+      "routeId": "task-edit",
+      "view": "conflict",
+      "fixture": "disposable / exceptional",
+      "state": "conflict",
+      "url": "/tasks/a51a7778-04c3-4841-9332-5a2f244e2537/edit",
+      "capturedAt": "2026-10-07T14:41:26.805Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/task-edit-conflict-390.jpg",
+      "fullPageFile": "images/task-edit-conflict-390-full.jpg",
+      "renderedUrl": "/tasks/a51a7778-04c3-4841-9332-5a2f244e2537/edit",
+      "heading": "Edit task"
+    },
+    {
+      "routeId": "task-lists",
+      "view": "default",
+      "fixture": "Anna + Marek / Anna",
+      "state": "default",
+      "url": "/tasks/lists",
+      "capturedAt": "2026-10-07T14:36:46.347Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/task-lists-default-1440.jpg",
+      "renderedUrl": "/tasks/lists",
+      "heading": "Task lists"
+    },
+    {
+      "routeId": "task-lists",
+      "view": "default",
+      "fixture": "Anna + Marek / Anna",
+      "state": "default",
+      "url": "/tasks/lists",
+      "capturedAt": "2026-10-07T14:41:27.422Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/task-lists-default-390.jpg",
+      "renderedUrl": "/tasks/lists",
+      "heading": "Task lists"
+    },
+    {
+      "routeId": "task-lists",
+      "view": "create",
+      "fixture": "Anna + Marek / Anna",
+      "state": "create",
+      "url": "/tasks/lists",
+      "capturedAt": "2026-10-07T14:36:47.081Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/task-lists-create-1440.jpg",
+      "renderedUrl": "/tasks/lists",
+      "heading": "Task lists"
+    },
+    {
+      "routeId": "task-lists",
+      "view": "create",
+      "fixture": "Anna + Marek / Anna",
+      "state": "create",
+      "url": "/tasks/lists",
+      "capturedAt": "2026-10-07T14:41:28.055Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/task-lists-create-390.jpg",
+      "renderedUrl": "/tasks/lists",
+      "heading": "Task lists"
+    },
+    {
+      "routeId": "task-list-detail",
+      "view": "general",
+      "fixture": "Anna + Marek / Anna",
+      "state": "general",
+      "url": "/tasks/lists/c9ca3446-7db3-41cc-bab4-08f617468570",
+      "capturedAt": "2026-10-07T14:36:48.226Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/task-list-detail-general-1440.jpg",
+      "renderedUrl": "/tasks/lists/c9ca3446-7db3-41cc-bab4-08f617468570",
+      "heading": "General"
+    },
+    {
+      "routeId": "task-list-detail",
+      "view": "general",
+      "fixture": "Anna + Marek / Anna",
+      "state": "general",
+      "url": "/tasks/lists/c9ca3446-7db3-41cc-bab4-08f617468570",
+      "capturedAt": "2026-10-07T14:41:29.120Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/task-list-detail-general-390.jpg",
+      "renderedUrl": "/tasks/lists/c9ca3446-7db3-41cc-bab4-08f617468570",
+      "heading": "General"
+    },
+    {
+      "routeId": "task-list-detail",
+      "view": "nonempty",
+      "fixture": "Anna + Marek / Anna",
+      "state": "nonempty",
+      "url": "/tasks/lists/d3500000-0000-4000-8000-00000000044f",
+      "capturedAt": "2026-10-07T14:36:49.356Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/task-list-detail-nonempty-1440.jpg",
+      "renderedUrl": "/tasks/lists/d3500000-0000-4000-8000-00000000044f",
+      "heading": "Groceries"
+    },
+    {
+      "routeId": "task-list-detail",
+      "view": "nonempty",
+      "fixture": "Anna + Marek / Anna",
+      "state": "nonempty",
+      "url": "/tasks/lists/d3500000-0000-4000-8000-00000000044f",
+      "capturedAt": "2026-10-07T14:41:30.188Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/task-list-detail-nonempty-390.jpg",
+      "renderedUrl": "/tasks/lists/d3500000-0000-4000-8000-00000000044f",
+      "heading": "Groceries"
+    },
+    {
+      "routeId": "task-list-detail",
+      "view": "empty",
+      "fixture": "disposable / exceptional",
+      "state": "empty",
+      "url": "/tasks/lists/2c359c77-e946-4ff7-8034-a5ca2faf9931",
+      "capturedAt": "2026-10-07T14:36:50.534Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/task-list-detail-empty-1440.jpg",
+      "renderedUrl": "/tasks/lists/2c359c77-e946-4ff7-8034-a5ca2faf9931",
+      "heading": "Weekend plans"
+    },
+    {
+      "routeId": "task-list-detail",
+      "view": "empty",
+      "fixture": "disposable / exceptional",
+      "state": "empty",
+      "url": "/tasks/lists/afd3861a-ccb4-4859-b222-504cc8bd2b00",
+      "capturedAt": "2026-10-07T14:41:31.271Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/task-list-detail-empty-390.jpg",
+      "renderedUrl": "/tasks/lists/afd3861a-ccb4-4859-b222-504cc8bd2b00",
+      "heading": "Weekend plans"
+    },
+    {
+      "routeId": "task-list-detail",
+      "view": "move-dialog",
+      "fixture": "Anna + Marek / Anna",
+      "state": "move-dialog",
+      "url": "/tasks/lists/d3500000-0000-4000-8000-00000000044f",
+      "capturedAt": "2026-10-07T14:36:51.695Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/task-list-detail-move-dialog-1440.jpg",
+      "renderedUrl": "/tasks/lists/d3500000-0000-4000-8000-00000000044f",
+      "heading": "Groceries"
+    },
+    {
+      "routeId": "task-list-detail",
+      "view": "move-dialog",
+      "fixture": "Anna + Marek / Anna",
+      "state": "move-dialog",
+      "url": "/tasks/lists/d3500000-0000-4000-8000-00000000044f",
+      "capturedAt": "2026-10-07T14:41:32.389Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/task-list-detail-move-dialog-390.jpg",
+      "renderedUrl": "/tasks/lists/d3500000-0000-4000-8000-00000000044f",
+      "heading": "Groceries"
+    },
+    {
+      "routeId": "task-list-detail",
+      "view": "remove-dialog",
+      "fixture": "disposable / exceptional",
+      "state": "remove-dialog",
+      "url": "/tasks/lists/2c359c77-e946-4ff7-8034-a5ca2faf9931",
+      "capturedAt": "2026-10-07T14:36:52.879Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/task-list-detail-remove-dialog-1440.jpg",
+      "renderedUrl": "/tasks/lists/2c359c77-e946-4ff7-8034-a5ca2faf9931",
+      "heading": "Weekend plans"
+    },
+    {
+      "routeId": "task-list-detail",
+      "view": "remove-dialog",
+      "fixture": "disposable / exceptional",
+      "state": "remove-dialog",
+      "url": "/tasks/lists/afd3861a-ccb4-4859-b222-504cc8bd2b00",
+      "capturedAt": "2026-10-07T14:41:33.556Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/task-list-detail-remove-dialog-390.jpg",
+      "renderedUrl": "/tasks/lists/afd3861a-ccb4-4859-b222-504cc8bd2b00",
+      "heading": "Weekend plans"
+    },
+    {
+      "routeId": "ideas",
+      "view": "saved",
+      "fixture": "Anna + Marek / Anna",
+      "state": "saved",
+      "url": "/ideas",
+      "capturedAt": "2026-10-07T14:36:53.559Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/ideas-saved-1440.jpg",
+      "renderedUrl": "/ideas",
+      "heading": "Date ideas"
+    },
+    {
+      "routeId": "ideas",
+      "view": "saved",
+      "fixture": "Anna + Marek / Anna",
+      "state": "saved",
+      "url": "/ideas",
+      "capturedAt": "2026-10-07T14:41:34.241Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/ideas-saved-390.jpg",
+      "renderedUrl": "/ideas",
+      "heading": "Date ideas"
+    },
+    {
+      "routeId": "ideas",
+      "view": "planned",
+      "fixture": "disposable / exceptional",
+      "state": "planned",
+      "url": "/ideas",
+      "capturedAt": "2026-10-07T14:36:54.242Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/ideas-planned-1440.jpg",
+      "renderedUrl": "/ideas",
+      "heading": "Date ideas"
+    },
+    {
+      "routeId": "ideas",
+      "view": "planned",
+      "fixture": "disposable / exceptional",
+      "state": "planned",
+      "url": "/ideas",
+      "capturedAt": "2026-10-07T14:41:35.395Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/ideas-planned-390.jpg",
+      "renderedUrl": "/ideas",
+      "heading": "Date ideas"
+    },
+    {
+      "routeId": "ideas",
+      "view": "archived",
+      "fixture": "disposable / exceptional",
+      "state": "archived",
+      "url": "/ideas",
+      "capturedAt": "2026-10-07T14:36:55.410Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/ideas-archived-1440.jpg",
+      "renderedUrl": "/ideas",
+      "heading": "Date ideas"
+    },
+    {
+      "routeId": "ideas",
+      "view": "archived",
+      "fixture": "disposable / exceptional",
+      "state": "archived",
+      "url": "/ideas",
+      "capturedAt": "2026-10-07T14:41:36.195Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/ideas-archived-390.jpg",
+      "renderedUrl": "/ideas",
+      "heading": "Date ideas"
+    },
+    {
+      "routeId": "ideas",
+      "view": "empty",
+      "fixture": "disposable / empty",
+      "state": "empty",
+      "url": "/ideas",
+      "capturedAt": "2026-10-07T14:36:56.043Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/ideas-empty-1440.jpg",
+      "renderedUrl": "/ideas",
+      "heading": "Date ideas"
+    },
+    {
+      "routeId": "ideas",
+      "view": "empty",
+      "fixture": "disposable / empty",
+      "state": "empty",
+      "url": "/ideas",
+      "capturedAt": "2026-10-07T14:41:37.135Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/ideas-empty-390.jpg",
+      "renderedUrl": "/ideas",
+      "heading": "Date ideas"
+    },
+    {
+      "routeId": "idea-new",
+      "view": "default",
+      "fixture": "Anna + Marek / Anna",
+      "state": "default",
+      "url": "/ideas/new",
+      "capturedAt": "2026-10-07T14:36:57.192Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/idea-new-default-1440.jpg",
+      "fullPageFile": "images/idea-new-default-1440-full.jpg",
+      "renderedUrl": "/ideas/new",
+      "heading": "Add idea"
+    },
+    {
+      "routeId": "idea-new",
+      "view": "default",
+      "fixture": "Anna + Marek / Anna",
+      "state": "default",
+      "url": "/ideas/new",
+      "capturedAt": "2026-10-07T14:41:38.009Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/idea-new-default-390.jpg",
+      "fullPageFile": "images/idea-new-default-390-full.jpg",
+      "renderedUrl": "/ideas/new",
+      "heading": "Add idea"
+    },
+    {
+      "routeId": "idea-new",
+      "view": "validation",
+      "fixture": "Anna + Marek / Anna",
+      "state": "validation",
+      "url": "/ideas/new",
+      "capturedAt": "2026-10-07T14:36:58.388Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/idea-new-validation-1440.jpg",
+      "fullPageFile": "images/idea-new-validation-1440-full.jpg",
+      "renderedUrl": "/ideas/new",
+      "heading": "Add idea"
+    },
+    {
+      "routeId": "idea-new",
+      "view": "validation",
+      "fixture": "Anna + Marek / Anna",
+      "state": "validation",
+      "url": "/ideas/new",
+      "capturedAt": "2026-10-07T14:41:39.559Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/idea-new-validation-390.jpg",
+      "fullPageFile": "images/idea-new-validation-390-full.jpg",
+      "renderedUrl": "/ideas/new",
+      "heading": "Add idea"
+    },
+    {
+      "routeId": "idea-detail",
+      "view": "saved",
+      "fixture": "Anna + Marek / Anna",
+      "state": "saved",
+      "url": "/ideas/d3500000-0000-4000-8000-000000000014",
+      "capturedAt": "2026-10-07T14:36:59.490Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/idea-detail-saved-1440.jpg",
+      "renderedUrl": "/ideas/d3500000-0000-4000-8000-000000000014",
+      "heading": "Pottery evening"
+    },
+    {
+      "routeId": "idea-detail",
+      "view": "saved",
+      "fixture": "Anna + Marek / Anna",
+      "state": "saved",
+      "url": "/ideas/d3500000-0000-4000-8000-000000000014",
+      "capturedAt": "2026-10-07T14:41:40.978Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/idea-detail-saved-390.jpg",
+      "renderedUrl": "/ideas/d3500000-0000-4000-8000-000000000014",
+      "heading": "Pottery evening"
+    },
+    {
+      "routeId": "idea-detail",
+      "view": "planned",
+      "fixture": "disposable / exceptional",
+      "state": "planned",
+      "url": "/ideas/8b895028-775a-4209-a983-ff21010612f2",
+      "capturedAt": "2026-10-07T14:37:00.592Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/idea-detail-planned-1440.jpg",
+      "renderedUrl": "/ideas/8b895028-775a-4209-a983-ff21010612f2",
+      "heading": "Gallery visit"
+    },
+    {
+      "routeId": "idea-detail",
+      "view": "planned",
+      "fixture": "disposable / exceptional",
+      "state": "planned",
+      "url": "/ideas/c90cc943-489d-4799-9c1c-f4a20e019598",
+      "capturedAt": "2026-10-07T14:41:42.405Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/idea-detail-planned-390.jpg",
+      "renderedUrl": "/ideas/c90cc943-489d-4799-9c1c-f4a20e019598",
+      "heading": "Gallery visit"
+    },
+    {
+      "routeId": "idea-detail",
+      "view": "archived",
+      "fixture": "disposable / exceptional",
+      "state": "archived",
+      "url": "/ideas/bca76fd7-302b-4339-a9e8-be328c94eca9",
+      "capturedAt": "2026-10-07T14:37:01.690Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/idea-detail-archived-1440.jpg",
+      "renderedUrl": "/ideas/bca76fd7-302b-4339-a9e8-be328c94eca9",
+      "heading": "Summer picnic"
+    },
+    {
+      "routeId": "idea-detail",
+      "view": "archived",
+      "fixture": "disposable / exceptional",
+      "state": "archived",
+      "url": "/ideas/417a49f0-0347-4863-bf03-7473d50a70e1",
+      "capturedAt": "2026-10-07T14:41:43.779Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/idea-detail-archived-390.jpg",
+      "renderedUrl": "/ideas/417a49f0-0347-4863-bf03-7473d50a70e1",
+      "heading": "Summer picnic"
+    },
+    {
+      "routeId": "idea-detail",
+      "view": "archive-dialog",
+      "fixture": "Anna + Marek / Anna",
+      "state": "archive-dialog",
+      "url": "/ideas/d3500000-0000-4000-8000-000000000014",
+      "capturedAt": "2026-10-07T14:37:02.827Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/idea-detail-archive-dialog-1440.jpg",
+      "renderedUrl": "/ideas/d3500000-0000-4000-8000-000000000014",
+      "heading": "Pottery evening"
+    },
+    {
+      "routeId": "idea-detail",
+      "view": "archive-dialog",
+      "fixture": "Anna + Marek / Anna",
+      "state": "archive-dialog",
+      "url": "/ideas/d3500000-0000-4000-8000-000000000014",
+      "capturedAt": "2026-10-07T14:41:45.180Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/idea-detail-archive-dialog-390.jpg",
+      "renderedUrl": "/ideas/d3500000-0000-4000-8000-000000000014",
+      "heading": "Pottery evening"
+    },
+    {
+      "routeId": "idea-detail",
+      "view": "unavailable",
+      "fixture": "disposable / exceptional",
+      "state": "unavailable",
+      "url": "/ideas/00000000-0000-4000-8000-000000000099",
+      "capturedAt": "2026-10-07T14:37:03.477Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/idea-detail-unavailable-1440.jpg",
+      "renderedUrl": "/ideas/00000000-0000-4000-8000-000000000099",
+      "heading": "Idea unavailable"
+    },
+    {
+      "routeId": "idea-detail",
+      "view": "unavailable",
+      "fixture": "disposable / exceptional",
+      "state": "unavailable",
+      "url": "/ideas/00000000-0000-4000-8000-000000000099",
+      "capturedAt": "2026-10-07T14:41:46.660Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/idea-detail-unavailable-390.jpg",
+      "renderedUrl": "/ideas/00000000-0000-4000-8000-000000000099",
+      "heading": "Idea unavailable"
+    },
+    {
+      "routeId": "idea-detail",
+      "view": "request-error",
+      "fixture": "disposable / exceptional",
+      "state": "request-error",
+      "url": "/ideas/45b98904-8804-4e06-8bad-461c3248eaf7",
+      "capturedAt": "2026-10-07T14:37:19.473Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/idea-detail-request-error-1440.jpg",
+      "renderedUrl": "/ideas/45b98904-8804-4e06-8bad-461c3248eaf7",
+      "heading": "We could not load this idea"
+    },
+    {
+      "routeId": "idea-detail",
+      "view": "request-error",
+      "fixture": "disposable / exceptional",
+      "state": "request-error",
+      "url": "/ideas/7b3d7fd6-8209-494e-a720-87aded2ec66d",
+      "capturedAt": "2026-10-07T14:42:02.870Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/idea-detail-request-error-390.jpg",
+      "renderedUrl": "/ideas/7b3d7fd6-8209-494e-a720-87aded2ec66d",
+      "heading": "We could not load this idea"
+    },
+    {
+      "routeId": "idea-edit",
+      "view": "default",
+      "fixture": "Anna + Marek / Anna",
+      "state": "default",
+      "url": "/ideas/d3500000-0000-4000-8000-000000000014/edit",
+      "capturedAt": "2026-10-07T14:37:20.589Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/idea-edit-default-1440.jpg",
+      "fullPageFile": "images/idea-edit-default-1440-full.jpg",
+      "renderedUrl": "/ideas/d3500000-0000-4000-8000-000000000014/edit",
+      "heading": "Edit idea"
+    },
+    {
+      "routeId": "idea-edit",
+      "view": "default",
+      "fixture": "Anna + Marek / Anna",
+      "state": "default",
+      "url": "/ideas/d3500000-0000-4000-8000-000000000014/edit",
+      "capturedAt": "2026-10-07T14:42:04.003Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/idea-edit-default-390.jpg",
+      "fullPageFile": "images/idea-edit-default-390-full.jpg",
+      "renderedUrl": "/ideas/d3500000-0000-4000-8000-000000000014/edit",
+      "heading": "Edit idea"
+    },
+    {
+      "routeId": "idea-edit",
+      "view": "conflict",
+      "fixture": "disposable / exceptional",
+      "state": "conflict",
+      "url": "/ideas/45b98904-8804-4e06-8bad-461c3248eaf7/edit",
+      "capturedAt": "2026-10-07T14:37:21.806Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/idea-edit-conflict-1440.jpg",
+      "fullPageFile": "images/idea-edit-conflict-1440-full.jpg",
+      "renderedUrl": "/ideas/45b98904-8804-4e06-8bad-461c3248eaf7/edit",
+      "heading": "Edit idea"
+    },
+    {
+      "routeId": "idea-edit",
+      "view": "conflict",
+      "fixture": "disposable / exceptional",
+      "state": "conflict",
+      "url": "/ideas/7b3d7fd6-8209-494e-a720-87aded2ec66d/edit",
+      "capturedAt": "2026-10-07T14:42:05.234Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/idea-edit-conflict-390.jpg",
+      "fullPageFile": "images/idea-edit-conflict-390-full.jpg",
+      "renderedUrl": "/ideas/7b3d7fd6-8209-494e-a720-87aded2ec66d/edit",
+      "heading": "Edit idea"
+    },
+    {
+      "routeId": "notifications",
+      "view": "list",
+      "fixture": "disposable / exceptional",
+      "state": "list",
+      "url": "/notifications",
+      "capturedAt": "2026-10-07T14:37:22.908Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/notifications-list-1440.jpg",
+      "renderedUrl": "/notifications",
+      "heading": "Notifications"
+    },
+    {
+      "routeId": "notifications",
+      "view": "list",
+      "fixture": "disposable / exceptional",
+      "state": "list",
+      "url": "/notifications",
+      "capturedAt": "2026-10-07T14:42:06.356Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/notifications-list-390.jpg",
+      "renderedUrl": "/notifications",
+      "heading": "Notifications"
+    },
+    {
+      "routeId": "notifications",
+      "view": "empty",
+      "fixture": "disposable / empty",
+      "state": "empty",
+      "url": "/notifications",
+      "capturedAt": "2026-10-07T14:37:24.044Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/notifications-empty-1440.jpg",
+      "renderedUrl": "/notifications",
+      "heading": "Notifications"
+    },
+    {
+      "routeId": "notifications",
+      "view": "empty",
+      "fixture": "disposable / empty",
+      "state": "empty",
+      "url": "/notifications",
+      "capturedAt": "2026-10-07T14:42:07.463Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/notifications-empty-390.jpg",
+      "renderedUrl": "/notifications",
+      "heading": "Notifications"
+    },
+    {
+      "routeId": "notifications",
+      "view": "unavailable",
+      "fixture": "disposable / exceptional",
+      "state": "unavailable",
+      "url": "/notifications",
+      "capturedAt": "2026-10-07T14:37:24.760Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/notifications-unavailable-1440.jpg",
+      "renderedUrl": "/notifications",
+      "heading": "Notifications"
+    },
+    {
+      "routeId": "notifications",
+      "view": "unavailable",
+      "fixture": "disposable / exceptional",
+      "state": "unavailable",
+      "url": "/notifications",
+      "capturedAt": "2026-10-07T14:42:08.670Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/notifications-unavailable-390.jpg",
+      "renderedUrl": "/notifications",
+      "heading": "Notifications"
+    },
+    {
+      "routeId": "notifications",
+      "view": "error",
+      "fixture": "disposable / exceptional",
+      "state": "error",
+      "url": "/notifications",
+      "capturedAt": "2026-10-07T14:37:26.664Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/notifications-error-1440.jpg",
+      "renderedUrl": "/notifications",
+      "heading": "Notifications"
+    },
+    {
+      "routeId": "notifications",
+      "view": "error",
+      "fixture": "disposable / exceptional",
+      "state": "error",
+      "url": "/notifications",
+      "capturedAt": "2026-10-07T14:42:10.619Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/notifications-error-390.jpg",
+      "renderedUrl": "/notifications",
+      "heading": "Notifications"
+    },
+    {
+      "routeId": "settings",
+      "view": "default",
+      "fixture": "Anna + Marek / Anna",
+      "state": "default",
+      "url": "/settings",
+      "capturedAt": "2026-10-07T14:37:27.757Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/settings-default-1440.jpg",
+      "renderedUrl": "/settings",
+      "heading": "Settings"
+    },
+    {
+      "routeId": "settings",
+      "view": "default",
+      "fixture": "Anna + Marek / Anna",
+      "state": "default",
+      "url": "/settings",
+      "capturedAt": "2026-10-07T14:42:11.236Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/settings-default-390.jpg",
+      "renderedUrl": "/settings",
+      "heading": "Settings"
+    },
+    {
+      "routeId": "settings",
+      "view": "unpaired",
+      "fixture": "disposable / unpaired",
+      "state": "unpaired",
+      "url": "/settings",
+      "capturedAt": "2026-10-07T14:37:28.841Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/settings-unpaired-1440.jpg",
+      "renderedUrl": "/settings",
+      "heading": "Settings"
+    },
+    {
+      "routeId": "settings",
+      "view": "unpaired",
+      "fixture": "disposable / unpaired",
+      "state": "unpaired",
+      "url": "/settings",
+      "capturedAt": "2026-10-07T14:42:12.355Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/settings-unpaired-390.jpg",
+      "renderedUrl": "/settings",
+      "heading": "Settings"
+    },
+    {
+      "routeId": "settings",
+      "view": "ended",
+      "fixture": "disposable / ended",
+      "state": "ended",
+      "url": "/settings",
+      "capturedAt": "2026-10-07T14:37:29.440Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/settings-ended-1440.jpg",
+      "renderedUrl": "/settings",
+      "heading": "Settings"
+    },
+    {
+      "routeId": "settings",
+      "view": "ended",
+      "fixture": "disposable / ended",
+      "state": "ended",
+      "url": "/settings",
+      "capturedAt": "2026-10-07T14:42:13.454Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/settings-ended-390.jpg",
+      "renderedUrl": "/settings",
+      "heading": "Settings"
+    },
+    {
+      "routeId": "settings-profile",
+      "view": "default",
+      "fixture": "Anna + Marek / Anna",
+      "state": "default",
+      "url": "/settings/profile",
+      "capturedAt": "2026-10-07T14:37:30.573Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/settings-profile-default-1440.jpg",
+      "fullPageFile": "images/settings-profile-default-1440-full.jpg",
+      "renderedUrl": "/settings/profile",
+      "heading": "Profile"
+    },
+    {
+      "routeId": "settings-profile",
+      "view": "default",
+      "fixture": "Anna + Marek / Anna",
+      "state": "default",
+      "url": "/settings/profile",
+      "capturedAt": "2026-10-07T14:42:14.602Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/settings-profile-default-390.jpg",
+      "fullPageFile": "images/settings-profile-default-390-full.jpg",
+      "renderedUrl": "/settings/profile",
+      "heading": "Profile"
+    },
+    {
+      "routeId": "settings-profile",
+      "view": "conflict",
+      "fixture": "disposable / exceptional",
+      "state": "conflict",
+      "url": "/settings/profile",
+      "capturedAt": "2026-10-07T14:37:31.290Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/settings-profile-conflict-1440.jpg",
+      "fullPageFile": "images/settings-profile-conflict-1440-full.jpg",
+      "renderedUrl": "/settings/profile",
+      "heading": "Profile"
+    },
+    {
+      "routeId": "settings-profile",
+      "view": "conflict",
+      "fixture": "disposable / exceptional",
+      "state": "conflict",
+      "url": "/settings/profile",
+      "capturedAt": "2026-10-07T14:42:15.936Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/settings-profile-conflict-390.jpg",
+      "fullPageFile": "images/settings-profile-conflict-390-full.jpg",
+      "renderedUrl": "/settings/profile",
+      "heading": "Profile"
+    },
+    {
+      "routeId": "settings-pair",
+      "view": "default",
+      "fixture": "Anna + Marek / Anna",
+      "state": "default",
+      "url": "/settings/pair",
+      "capturedAt": "2026-10-07T14:37:31.922Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/settings-pair-default-1440.jpg",
+      "fullPageFile": "images/settings-pair-default-1440-full.jpg",
+      "renderedUrl": "/settings/pair",
+      "heading": "Your pair"
+    },
+    {
+      "routeId": "settings-pair",
+      "view": "default",
+      "fixture": "Anna + Marek / Anna",
+      "state": "default",
+      "url": "/settings/pair",
+      "capturedAt": "2026-10-07T14:42:17.050Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/settings-pair-default-390.jpg",
+      "fullPageFile": "images/settings-pair-default-390-full.jpg",
+      "renderedUrl": "/settings/pair",
+      "heading": "Your pair"
+    },
+    {
+      "routeId": "settings-pair",
+      "view": "verification",
+      "fixture": "disposable / exceptional",
+      "state": "verification",
+      "url": "/settings/pair",
+      "capturedAt": "2026-10-07T14:37:33.290Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/settings-pair-verification-1440.jpg",
+      "fullPageFile": "images/settings-pair-verification-1440-full.jpg",
+      "renderedUrl": "/settings/pair",
+      "heading": "Your pair"
+    },
+    {
+      "routeId": "settings-pair",
+      "view": "verification",
+      "fixture": "disposable / exceptional",
+      "state": "verification",
+      "url": "/settings/pair",
+      "capturedAt": "2026-10-07T14:42:18.568Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/settings-pair-verification-390.jpg",
+      "fullPageFile": "images/settings-pair-verification-390-full.jpg",
+      "renderedUrl": "/settings/pair",
+      "heading": "Your pair"
+    },
+    {
+      "routeId": "settings-pair",
+      "view": "end-dialog",
+      "fixture": "disposable / exceptional",
+      "state": "end-dialog",
+      "url": "/settings/pair",
+      "capturedAt": "2026-10-07T14:38:35.805Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/settings-pair-end-dialog-1440.jpg",
+      "fullPageFile": "images/settings-pair-end-dialog-1440-full.jpg",
+      "renderedUrl": "/settings/pair",
+      "heading": "Your pair"
+    },
+    {
+      "routeId": "settings-pair",
+      "view": "end-dialog",
+      "fixture": "disposable / exceptional",
+      "state": "end-dialog",
+      "url": "/settings/pair",
+      "capturedAt": "2026-10-07T14:43:20.932Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/settings-pair-end-dialog-390.jpg",
+      "fullPageFile": "images/settings-pair-end-dialog-390-full.jpg",
+      "renderedUrl": "/settings/pair",
+      "heading": "Your pair"
+    },
+    {
+      "routeId": "settings-pair",
+      "view": "ended",
+      "fixture": "disposable / ended",
+      "state": "ended",
+      "url": "/settings/pair",
+      "capturedAt": "2026-10-07T14:38:36.468Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/settings-pair-ended-1440.jpg",
+      "fullPageFile": "images/settings-pair-ended-1440-full.jpg",
+      "renderedUrl": "/settings/pair",
+      "heading": "Your pair"
+    },
+    {
+      "routeId": "settings-pair",
+      "view": "ended",
+      "fixture": "disposable / ended",
+      "state": "ended",
+      "url": "/settings/pair",
+      "capturedAt": "2026-10-07T14:43:22.014Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/settings-pair-ended-390.jpg",
+      "fullPageFile": "images/settings-pair-ended-390-full.jpg",
+      "renderedUrl": "/settings/pair",
+      "heading": "Your pair"
+    },
+    {
+      "routeId": "settings-notifications",
+      "view": "default",
+      "fixture": "disposable / unpaired",
+      "state": "default",
+      "url": "/settings/notifications",
+      "capturedAt": "2026-10-07T14:38:37.197Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/settings-notifications-default-1440.jpg",
+      "fullPageFile": "images/settings-notifications-default-1440-full.jpg",
+      "renderedUrl": "/settings/notifications",
+      "heading": "Notification preferences"
+    },
+    {
+      "routeId": "settings-notifications",
+      "view": "default",
+      "fixture": "disposable / unpaired",
+      "state": "default",
+      "url": "/settings/notifications",
+      "capturedAt": "2026-10-07T14:43:23.132Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/settings-notifications-default-390.jpg",
+      "fullPageFile": "images/settings-notifications-default-390-full.jpg",
+      "renderedUrl": "/settings/notifications",
+      "heading": "Notification preferences"
+    },
+    {
+      "routeId": "settings-notifications",
+      "view": "quiet-hours",
+      "fixture": "disposable / unpaired",
+      "state": "quiet-hours",
+      "url": "/settings/notifications",
+      "capturedAt": "2026-10-07T14:38:38.442Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/settings-notifications-quiet-hours-1440.jpg",
+      "fullPageFile": "images/settings-notifications-quiet-hours-1440-full.jpg",
+      "renderedUrl": "/settings/notifications",
+      "heading": "Notification preferences"
+    },
+    {
+      "routeId": "settings-notifications",
+      "view": "quiet-hours",
+      "fixture": "disposable / unpaired",
+      "state": "quiet-hours",
+      "url": "/settings/notifications",
+      "capturedAt": "2026-10-07T14:43:24.298Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/settings-notifications-quiet-hours-390.jpg",
+      "fullPageFile": "images/settings-notifications-quiet-hours-390-full.jpg",
+      "renderedUrl": "/settings/notifications",
+      "heading": "Notification preferences"
+    },
+    {
+      "routeId": "settings-notifications",
+      "view": "conflict",
+      "fixture": "disposable / unpaired",
+      "state": "conflict",
+      "url": "/settings/notifications",
+      "capturedAt": "2026-10-07T14:38:39.243Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/settings-notifications-conflict-1440.jpg",
+      "fullPageFile": "images/settings-notifications-conflict-1440-full.jpg",
+      "renderedUrl": "/settings/notifications",
+      "heading": "Notification preferences"
+    },
+    {
+      "routeId": "settings-notifications",
+      "view": "conflict",
+      "fixture": "disposable / unpaired",
+      "state": "conflict",
+      "url": "/settings/notifications",
+      "capturedAt": "2026-10-07T14:43:25.518Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/settings-notifications-conflict-390.jpg",
+      "fullPageFile": "images/settings-notifications-conflict-390-full.jpg",
+      "renderedUrl": "/settings/notifications",
+      "heading": "Notification preferences"
+    },
+    {
+      "routeId": "settings-account",
+      "view": "default",
+      "fixture": "Anna + Marek / Anna",
+      "state": "default",
+      "url": "/settings/account",
+      "capturedAt": "2026-10-07T14:38:40.388Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/settings-account-default-1440.jpg",
+      "fullPageFile": "images/settings-account-default-1440-full.jpg",
+      "renderedUrl": "/settings/account",
+      "heading": "Account"
+    },
+    {
+      "routeId": "settings-account",
+      "view": "default",
+      "fixture": "Anna + Marek / Anna",
+      "state": "default",
+      "url": "/settings/account",
+      "capturedAt": "2026-10-07T14:43:26.612Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/settings-account-default-390.jpg",
+      "fullPageFile": "images/settings-account-default-390-full.jpg",
+      "renderedUrl": "/settings/account",
+      "heading": "Account"
+    },
+    {
+      "routeId": "settings-account",
+      "view": "unpaired",
+      "fixture": "disposable / unpaired",
+      "state": "unpaired",
+      "url": "/settings/account",
+      "capturedAt": "2026-10-07T14:38:41.102Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/settings-account-unpaired-1440.jpg",
+      "fullPageFile": "images/settings-account-unpaired-1440-full.jpg",
+      "renderedUrl": "/settings/account",
+      "heading": "Account"
+    },
+    {
+      "routeId": "settings-account",
+      "view": "unpaired",
+      "fixture": "disposable / unpaired",
+      "state": "unpaired",
+      "url": "/settings/account",
+      "capturedAt": "2026-10-07T14:43:27.712Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/settings-account-unpaired-390.jpg",
+      "fullPageFile": "images/settings-account-unpaired-390-full.jpg",
+      "renderedUrl": "/settings/account",
+      "heading": "Account"
+    },
+    {
+      "routeId": "settings-account",
+      "view": "ended",
+      "fixture": "disposable / ended",
+      "state": "ended",
+      "url": "/settings/account",
+      "capturedAt": "2026-10-07T14:38:41.752Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/settings-account-ended-1440.jpg",
+      "fullPageFile": "images/settings-account-ended-1440-full.jpg",
+      "renderedUrl": "/settings/account",
+      "heading": "Account"
+    },
+    {
+      "routeId": "settings-account",
+      "view": "ended",
+      "fixture": "disposable / ended",
+      "state": "ended",
+      "url": "/settings/account",
+      "capturedAt": "2026-10-07T14:43:28.812Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/settings-account-ended-390.jpg",
+      "fullPageFile": "images/settings-account-ended-390-full.jpg",
+      "renderedUrl": "/settings/account",
+      "heading": "Account"
+    },
+    {
+      "routeId": "unknown-route",
+      "view": "not-found",
+      "fixture": "disposable / signedOut",
+      "state": "not-found",
+      "url": "/no-such-page",
+      "capturedAt": "2026-10-07T14:38:41.972Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "file": "images/unknown-route-not-found-1440.jpg",
+      "renderedUrl": "/no-such-page",
+      "heading": "Page not found"
+    },
+    {
+      "routeId": "unknown-route",
+      "view": "not-found",
+      "fixture": "disposable / signedOut",
+      "state": "not-found",
+      "url": "/no-such-page",
+      "capturedAt": "2026-10-07T14:43:28.999Z",
+      "sourceRevision": "701f078ed9384918d18287b687de92fb192a0d06",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "file": "images/unknown-route-not-found-390.jpg",
+      "renderedUrl": "/no-such-page",
+      "heading": "Page not found"
+    }
+  ]
+}
