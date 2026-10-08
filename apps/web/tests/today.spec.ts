@@ -24,7 +24,7 @@ test('Today limits plans and tasks and shows the important date', async ({ page 
     await expect(page.getByTestId('today-events').getByText('5 Oct · Together', { exact: true })).toBeVisible();
     await expect(page.getByTestId('today-events').getByText('6 Oct · Anna', { exact: true })).toBeVisible();
     // Importance 98: overlapping plans must show their inclusive range and current state.
-    await expect(page.getByTestId('today-events').getByText('30 Sep – 6 Oct · Ongoing · Together', { exact: true })).toBeVisible();
+    await expect(page.getByTestId('today-events').getByText('30 Sep - 6 Oct · Ongoing · Together', { exact: true })).toBeVisible();
     await expect(page.getByTestId('today-tasks').getByRole('article')).toHaveCount(3);
     await expect(page.getByTestId('today-tasks').getByRole('checkbox', { checked: true })).toHaveCount(0);
     await expect(page.getByTestId('today-tasks').getByText(/Due today · 5 Oct/).first()).toBeVisible();

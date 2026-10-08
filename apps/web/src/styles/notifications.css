@@ -1,10 +1,11 @@
 .notification-list { max-width:960px; }
 .notification-row { padding:24px 0; }
+.notification-heading h2 { font-size:18px; }
 .notification-row:first-child { padding-top:0; }
 .notification-row:last-child { padding-bottom:0; }
 .notification-row + .notification-row { border-top:1px solid var(--line); }
 .notification-main { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px; }
-.notification-content { flex:1 1 240px; min-width:0; display:grid; gap:8px; }
+.notification-content { flex:1 1 240px; min-width:0; display:grid; gap:4px; }
 .notification-heading { display:flex; align-items:center; flex-wrap:wrap; gap:8px 16px; }
 .notification-heading h2, .notification-content p { margin:0; }
 .notification-content time { font-variant-numeric:tabular-nums; }

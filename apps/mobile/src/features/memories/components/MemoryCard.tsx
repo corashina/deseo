@@ -14,7 +14,7 @@ export function MemoryCard({ memory, authorName, onOpen }: { memory: Memory; aut
     <Pressable accessibilityRole="button" accessibilityLabel={`Open memory. ${memory.caption || date}. ${authorName}, ${date}`}
     onPress={onOpen} style={({ pressed }) => [styles.open, pressed && styles.pressed]}>
     <View style={styles.text}>
-      {!!memory.caption && <Text style={theme.typography.body}>{memory.caption}</Text>}
+      {!!memory.caption && <Text style={theme.typography.headline}>{memory.caption}</Text>}
       <Text style={theme.typography.secondary}>{authorName} · {date}</Text>
     </View>
   </Pressable></View>;
@@ -24,5 +24,5 @@ const useStyles = makeStyles(theme => ({
   card: { padding: 0, gap: 0, overflow: 'hidden' },
   open: { minHeight: theme.touchTarget, borderRadius: theme.radius.card },
   pressed: { backgroundColor: theme.colors.sidebar },
-  text: { gap: theme.space[2], padding: theme.space[5] },
+  text: { gap: theme.space[2], padding: theme.space[6] },
 }));

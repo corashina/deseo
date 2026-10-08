@@ -26,8 +26,8 @@ export function NoteCard({ message, authorName, timezone, locale, onReply, onOpe
 }
 const useStyles = makeStyles(theme => ({
   card: { backgroundColor: theme.colors.note, borderColor: theme.colors.noteLine, borderWidth: 1,
-    borderRadius: theme.radius.card, padding: theme.space[5], gap: theme.space[2] },
+    borderRadius: theme.radius.card, padding: theme.space[6], gap: theme.space[3] },
   from: { flexDirection: 'row', alignItems: 'center', gap: theme.space[1] },
-  author: { flex: 1 }, timestamp: { fontVariant: ['tabular-nums'] },
+  author: { flex: 1, fontWeight: '600' }, timestamp: { fontVariant: ['tabular-nums'] },
   actions: { flexDirection: 'row', flexWrap: 'wrap', columnGap: theme.space[4] },
 }));

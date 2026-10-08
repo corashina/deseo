@@ -1,17 +1,21 @@
-.button { min-height: var(--nav-target); max-width: 100%; border: 1px solid var(--action-border); border-radius: var(--radius-control); padding: 12px 16px; font-size: 14px; font-weight: 600; display: inline-flex; justify-content: center; align-items: center; gap: 10px; cursor: pointer; text-decoration: none; line-height: 1.4; transition: background-color var(--duration-feedback) var(--ease); }
+.button { min-height: var(--nav-target); max-width: 100%; border: 1px solid var(--action-border); border-radius: var(--radius-control); padding: 12px 16px; font-size: 14px; font-weight: 600; display: inline-flex; justify-content: center; align-items: center; gap: 10px; cursor: pointer; text-decoration: none; line-height: 1.4; transition: background-color var(--duration-feedback) var(--ease), color var(--duration-feedback) var(--ease), border-color var(--duration-feedback) var(--ease), transform var(--duration-feedback) var(--ease); }
 .button.primary { background: var(--action); color: var(--on-action); }
 .button.primary:hover:not(:disabled) { background: var(--action-hover); }
 .button.secondary { background: var(--surface); color: var(--ink); border-color: var(--control); }
 .button.danger { background: var(--danger); color: white; border-color: var(--danger); }
 .button.secondary:hover:not(:disabled) { background: var(--sidebar); }
 .button.danger:hover:not(:disabled) { background: var(--danger-soft); color: var(--danger); }
+.button:active:not(:disabled) { transform: translateY(1px); }
 .button:disabled { opacity: .6; cursor: default; }
+.field input, .field select, .field textarea, .message-composer textarea { caret-color: var(--focus); }
+.field input:focus-visible, .field select:focus-visible, .field textarea:focus-visible { border-color: var(--focus); }
 .field { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; font-weight: 600; }
+.field > span:first-child { font-size: 14px; }
 .field-hint, .field-error { font-size: 13px; font-weight: 400; margin: 0; }
 .field-hint { color: var(--muted); }
 .field-error { color: var(--danger); }
 .field input[aria-invalid=true], .field select[aria-invalid=true], .field textarea[aria-invalid=true] { border-color: var(--danger); }
-.field input, .field select, .form-page .field textarea { width: 100%; min-width: 0; min-height: 48px; padding: 12px 16px; border: 1px solid var(--control); border-radius: 12px; color: var(--ink); background: var(--surface); font-size: 16px; font-weight: 400; }
+.field input, .field select, .form-page .field textarea { width: 100%; min-width: 0; min-height: 48px; padding: 12px 16px; border: 1px solid var(--control); border-radius: var(--radius-control); color: var(--ink); background: var(--surface); font-size: 16px; font-weight: 400; }
 .form-page fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
 .field-check > span { display: flex; align-items: center; gap: 12px; min-height: 48px; }
 .field-check input { width: 24px; height: 24px; min-height: 24px; padding: 0; margin: 0; flex-shrink: 0; accent-color: var(--link); }
@@ -25,7 +29,7 @@ dialog { border: 1px solid var(--line); border-radius: 20px; padding: 24px; colo
 dialog::backdrop { background: rgb(56 53 71 / .35); }
 .dialog-heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 24px; }
 .dialog-heading h2 { margin: 0; }
-.view-tabs { display:flex; gap:8px; flex-wrap:wrap; padding:4px; background:var(--canvas); border:1px solid var(--line); border-radius:12px; }
+.view-tabs { display:flex; gap:4px; flex-wrap:wrap; padding:4px; background:var(--canvas); border:1px solid var(--line); border-radius:var(--radius-control); }
 .view-tabs button { min-height:48px; border:1px solid transparent; border-radius:12px; background:transparent; padding:10px 16px; color:var(--ink); cursor:pointer; }
-.view-tabs button[aria-pressed=true] { background:var(--shared-soft); border-color:var(--shared); }
+.view-tabs button[aria-pressed=true] { background:var(--shared-soft); border-color:var(--control); color:var(--link); font-weight:600; }
 @media (max-width:767px) { .view-tabs { width:100%; } .view-tabs button { flex:1; padding:8px; } }

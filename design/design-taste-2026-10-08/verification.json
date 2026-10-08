@@ -1,0 +1,124 @@
+{
+  "recordedAt": "2026-10-08T11:29:22.551Z",
+  "branch": "codex/design-taste",
+  "skill": "https://github.com/Leonxlnx/taste-skill/blob/main/skills/taste-skill/SKILL.md",
+  "design": {
+    "variance": 4,
+    "motion": 3,
+    "density": 5
+  },
+  "captures": {
+    "screens": 8,
+    "viewports": [
+      {
+        "width": 1440,
+        "height": 1000
+      },
+      {
+        "width": 390,
+        "height": 844
+      }
+    ],
+    "individualImages": 32,
+    "comparisonImages": 3,
+    "displayTime": "2026-10-05T10:00:00+02:00",
+    "fixture": "Anna + Marek",
+    "beforeOrigin": "http://127.0.0.1:4174",
+    "afterOrigin": "http://127.0.0.1:4174",
+    "calendarView": "Agenda",
+    "afterHeadingVerification": true,
+    "overflow": 0,
+    "pageErrors": [],
+    "afterCapturedAt": "2026-10-08T10:15:34.194Z"
+  },
+  "checks": {
+    "webTypes": "passed",
+    "lint": "passed",
+    "webBuild": "passed",
+    "native": {
+      "suites": 46,
+      "tests": 205,
+      "result": "passed"
+    },
+    "exports": {
+      "android": "passed",
+      "ios": "passed"
+    },
+    "designDetector": {
+      "findings": 0
+    },
+    "browserUI": {
+      "initialPassed": 24,
+      "initialFailed": 2,
+      "correctedPassed": 4,
+      "uniqueChecksCovered": 26,
+      "coverage": "Five widths, 200 percent text, fresh routes, account identity, keyboard focus, dialogs, and Today order."
+    },
+    "browserFull": {
+      "passed": 272,
+      "skipped": 2,
+      "result": "passed"
+    },
+    "domain": {
+      "passed": 7,
+      "result": "passed"
+    },
+    "compiledAssets": {
+      "checkedAssets": 62,
+      "serverValuesFound": 0,
+      "nativeImportsFound": 0
+    }
+  },
+  "limits": [
+    "Native device rendering and device accessibility remain unverified.",
+    "Both canonical screenshot sets retain the observed demo photo error. Stored photo repair is outside this change."
+  ],
+  "sourceHashes": {
+    "README.md": "3262eec35a1761c741e8f7612b8a0c9b62074caf8bfdc15cb11c47e5daebe724",
+    "STYLE.md": "4ef9f3fc7642ce6ee92b41e3bd99374c25da08336865f7ebfa17f5d7e88c61cd",
+    "apps/mobile/src/app/(tabs)/_layout.tsx": "0b49d90b511f280032039603058ad464c76cf3987ed980c746ae0ab8b5ccfb69",
+    "apps/mobile/src/components/ui/Field.tsx": "3aaedc8746fd329c4c8b80bb8be0ac554107544f9f5f5d78499f29ba6812acd7",
+    "apps/mobile/src/components/ui/Screen.tsx": "d765db6cfd30a9e3b3fec8c24512c8ce65676041f9ab7702cb7339c7f2d6724d",
+    "apps/mobile/src/components/ui/Section.tsx": "0dbd0f18d8950b5cc47254cc1d562ce16cf075337b8db9d72320e37e56ef541e",
+    "apps/mobile/src/features/calendar/components/EventRow.tsx": "8158f33b7ab24c0b9572ae8d32c96f881f2723dd77e8c6183bb9e15bd8f20786",
+    "apps/mobile/src/features/memories/components/MemoryCard.tsx": "968aed94a88cf79a85e45fc0897cbc469af125ed73573005990551073685061b",
+    "apps/mobile/src/features/messages/components/MessageRow.tsx": "07dbe48d36aeebc22f5415244de294143e20f5c41a36b54b737bc091329263b3",
+    "apps/mobile/src/features/messages/components/NoteCard.tsx": "0eb597ff7c86c04425151debb1886bb435523028b1fed5cd8feed286c3f9bcdd",
+    "apps/mobile/src/features/tasks/components/TaskRow.tsx": "5ce327e1c695925f4ace9b886ab50998a0ffac6345528644830d0f19babb0c6a",
+    "apps/mobile/src/theme/index.ts": "a26de7a48bce37ecfcb2451cfbc8403c10f9eb03dc5103a311a6c0dded6a6700",
+    "apps/web/package.json": "441fa6eb48c8fd185cd07aeea5d63ac0e0263b4519cb0784903967bfce2268e9",
+    "apps/web/src/app/AppShell.tsx": "e49da6c25cd5196f885541d5c51f5313bc66af291b44c345b0961b91271119db",
+    "apps/web/src/components/ui/PortalNavigation.tsx": "58590d500b568aa17565b25134b16e766a0831081d16825892289075699acd8a",
+    "apps/web/src/features/calendar/components/EventRow.tsx": "4d4652c89bee0f5e9fe2d80f952369d574f5a267e7b14ec8c5473ac284763577",
+    "apps/web/src/styles/base.css": "b263164522fa2431fe553d292f12fcf474e57202926225b9768de02886a79b39",
+    "apps/web/src/styles/calendar.css": "b9e9627b651734e0e95b66a1fe6cc2569868dcee33fe69e185e4b76e2a5b0976",
+    "apps/web/src/styles/controls.css": "5e07559078c2107d2dcf2f4a5b660c3cb0c767385cdcde4307be93c45e0112f7",
+    "apps/web/src/styles/memories.css": "990fed9e951e2a267ee168875f6457107dad57a21e30f7a1be2a0a3cc725e14b",
+    "apps/web/src/styles/messages.css": "7e4463f83cff73ac6df9a1ee9541c23bf59de27bda789df79f9c7a85a6c99329",
+    "apps/web/src/styles/notifications.css": "08f685f35347d5612b796da8e0989db087f34187dae762900a5539ae1981dfbc",
+    "apps/web/src/styles/planning.css": "2b9e1f4370afa6597048bb223d7f617e613dac45fe2c5124328bf924f61efd97",
+    "apps/web/src/styles/settings.css": "e4e5c1b55774b6c0ce980b108d5df9ced2fa3dcbc1d6bc17ee3a3d50446b9456",
+    "apps/web/src/styles/shell.css": "1edf989ce837a6fd1994ea50540437adeea74349dfe4ef50f9ee8eb4e7936a83",
+    "apps/web/src/styles/tokens.css": "af01728193d8c51e2b771e5d5703648ebbcb0c0ee268479e7cef301c6a6fd9a0",
+    "apps/web/tests/today.spec.ts": "d95ddb9515309b85d81a0bb8ea50e173fdcab3d69e602a2bf9f4e374ebba3e82",
+    "docs/DEVELOPMENT.md": "eae8ebc9b68d8d2e03ed9bb6a3fb04b5d83e801b6a5b1ee4b37054f25a059c3f",
+    "docs/README.md": "acee831455c2103cf61a15520bb5941c5304b377f1ae02d4db8c122e3da1f033",
+    "package-lock.json": "581b9385647fd513c62aa4b5864c26e7420132f956214029fa0e20e08799948f"
+  },
+  "merge": {
+    "base": "083ea55255251cdf08f701ba1b5205a877d4f9a8",
+    "target": "master",
+    "priorFullRun": {
+      "passed": 271,
+      "failed": 1,
+      "reason": "Disposable memory inspection failed during an Edge runtime restart, before calendar UI execution."
+    },
+    "unchangedCalendarReplay": {
+      "passed": 2
+    },
+    "finalFullRun": {
+      "passed": 272,
+      "skipped": 2
+    }
+  }
+}

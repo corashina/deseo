@@ -73,11 +73,11 @@ export function TaskRow({ task, accountId, assignee, online, onOpen, onCompleted
   </View>;
 }
 const useStyles = makeStyles(theme => ({
-  row: { paddingVertical: theme.space[2], gap: theme.space[2] },
+  row: { paddingVertical: theme.space[3], gap: theme.space[2] },
   line: { flexDirection: 'row', alignItems: 'center' },
   checkbox: { flex: 1, minHeight: theme.touchTarget, flexDirection: 'row', alignItems: 'center', gap: theme.space[3], borderRadius: theme.radius.control },
   pressed: { opacity: 0.6 },
-  text: { flex: 1, gap: 2 },
+  text: { flex: 1, gap: theme.space[1] },
   done: { textDecorationLine: 'line-through' },
   undo: { paddingLeft: 38 },
 }));

@@ -1,0 +1,103 @@
+{
+  "capturedAt": "2026-10-08T09:07:45.985Z",
+  "displayTime": "2026-10-05T10:00:00+02:00",
+  "fixture": "Anna + Marek",
+  "records": [
+    {
+      "name": "welcome",
+      "path": "/",
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "name": "welcome",
+      "path": "/",
+      "width": 390,
+      "overflow": false
+    },
+    {
+      "name": "today",
+      "path": "/today",
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "name": "today",
+      "path": "/today",
+      "width": 390,
+      "overflow": false
+    },
+    {
+      "name": "calendar",
+      "path": "/calendar",
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "name": "calendar",
+      "path": "/calendar",
+      "width": 390,
+      "overflow": false
+    },
+    {
+      "name": "memories",
+      "path": "/memories",
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "name": "memories",
+      "path": "/memories",
+      "width": 390,
+      "overflow": false
+    },
+    {
+      "name": "messages",
+      "path": "/messages",
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "name": "messages",
+      "path": "/messages",
+      "width": 390,
+      "overflow": false
+    },
+    {
+      "name": "tasks",
+      "path": "/tasks",
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "name": "tasks",
+      "path": "/tasks",
+      "width": 390,
+      "overflow": false
+    },
+    {
+      "name": "settings",
+      "path": "/settings",
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "name": "settings",
+      "path": "/settings",
+      "width": 390,
+      "overflow": false
+    },
+    {
+      "name": "event-form",
+      "path": "/events/new",
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "name": "event-form",
+      "path": "/events/new",
+      "width": 390,
+      "overflow": false
+    }
+  ]
+}

@@ -23,7 +23,7 @@ export function Section({ title, link, card = false, children }: Props) {
 }
 
 const useStyles = makeStyles(theme => ({
-  plain: { gap: theme.space[3], paddingTop: theme.space[2] },
-  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', columnGap: theme.space[3], minHeight: theme.touchTarget, marginVertical: -theme.space[2] },
+  plain: { gap: theme.space[4], paddingTop: theme.space[1] },
+  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', columnGap: theme.space[3], minHeight: theme.touchTarget, marginTop: -theme.space[2] },
   title: { flexShrink: 1 },
 }));

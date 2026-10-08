@@ -12,8 +12,8 @@ function createTheme(colors: Colors, dark: boolean) {
     radius: tokens.radius,
     touchTarget: tokens.touchTarget,
     typography: StyleSheet.create({
-      title: { fontSize: 28, lineHeight: 34, fontWeight: '700', letterSpacing: -0.4, color: colors.ink },
-      section: { fontSize: 19, lineHeight: 25, fontWeight: '600', color: colors.ink },
+      title: { fontSize: 28, lineHeight: 34, fontWeight: '700', letterSpacing: -0.6, color: colors.ink },
+      section: { fontSize: 19, lineHeight: 25, fontWeight: '600', letterSpacing: -0.2, color: colors.ink },
       headline: { fontSize: 16, lineHeight: 22, fontWeight: '600', color: colors.ink },
       body: { fontSize: 16, lineHeight: 24, color: colors.ink },
       button: { fontSize: 14, lineHeight: 20, fontWeight: '600' },
@@ -24,7 +24,7 @@ function createTheme(colors: Colors, dark: boolean) {
     }),
     ui: StyleSheet.create({
       card: { backgroundColor: colors.surface, borderColor: colors.line, borderWidth: 1,
-        borderRadius: tokens.radius.card, padding: tokens.space[5], gap: tokens.space[3] },
+        borderRadius: tokens.radius.card, padding: tokens.space[6], gap: tokens.space[4] },
       row: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: tokens.space[2] },
       stack: { gap: tokens.space[3] },
       separator: { height: StyleSheet.hairlineWidth, backgroundColor: colors.line },

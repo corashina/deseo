@@ -17,11 +17,11 @@ export function eventDateLabel(event: AgendaItem, timezone: string): string {
   if (temporal.kind === 'allDay') {
     const start = DateTime.fromISO(temporal.startDate, { zone: 'UTC' }).toLocaleString(DateTime.DATE_MED);
     const last = inclusiveEndDate(temporal.endDateExclusive);
-    return last === temporal.startDate ? start : `${start} – ${DateTime.fromISO(last, { zone: 'UTC' }).toLocaleString(DateTime.DATE_MED)}`;
+    return last === temporal.startDate ? start : `${start} - ${DateTime.fromISO(last, { zone: 'UTC' }).toLocaleString(DateTime.DATE_MED)}`;
   }
   const start = DateTime.fromISO(temporal.startsAt).setZone(timezone);
   const end = DateTime.fromISO(temporal.endsAt).setZone(timezone);
-  return `${start.toLocaleString(DateTime.DATETIME_MED)} – ${end.toLocaleString(start.hasSame(end, 'day') ? DateTime.TIME_SIMPLE : DateTime.DATETIME_MED)}`;
+  return `${start.toLocaleString(DateTime.DATETIME_MED)} - ${end.toLocaleString(start.hasSame(end, 'day') ? DateTime.TIME_SIMPLE : DateTime.DATETIME_MED)}`;
 }
 
 export function EventRow({ event, viewerTimezone, ownerNames, onPress }: EventRowProps) {
@@ -51,8 +51,8 @@ export function EventRow({ event, viewerTimezone, ownerNames, onPress }: EventRo
 }
 
 const useStyles = makeStyles(theme => ({
-  row: { flexDirection: 'row', gap: theme.space[3] },
-  time: { width: 56, paddingTop: theme.space[3], fontVariant: ['tabular-nums'] },
+  row: { alignItems: 'flex-start', flexDirection: 'row', gap: theme.space[3] },
+  time: { width: 56, paddingTop: theme.space[3], fontWeight: '600', fontVariant: ['tabular-nums'] },
   body: { flex: 1, gap: theme.space[1], minHeight: theme.touchTarget, paddingVertical: theme.space[3], paddingHorizontal: theme.space[4],
     borderRadius: theme.radius.control, borderLeftWidth: 3 },
   pressed: { opacity: 0.75 },

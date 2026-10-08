@@ -19,8 +19,8 @@ export function Field({ label, error, hint, style, ...props }: FieldProps) {
 }
 
 const useStyles = makeStyles(theme => ({
-  container: { gap: 8 }, label: { ...theme.typography.body, fontWeight: '600' },
-  input: { ...theme.typography.body, minHeight: 48, padding: 12, backgroundColor: theme.colors.surface,
+  container: { gap: theme.space[2] }, label: { ...theme.typography.button, color: theme.colors.ink },
+  input: { ...theme.typography.body, minHeight: theme.touchTarget, paddingHorizontal: theme.space[4], paddingVertical: theme.space[3], backgroundColor: theme.colors.surface,
     borderWidth: 1, borderColor: theme.colors.control, borderRadius: theme.radius.control },
   multiline: { minHeight: 112, textAlignVertical: 'top' }, invalid: { borderColor: theme.colors.danger },
   error: { ...theme.typography.secondary, color: theme.colors.danger },
