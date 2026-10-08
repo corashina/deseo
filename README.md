@@ -53,6 +53,8 @@ apps/site/         Planned public information site
 
 ## Screenshots
 
+Open [the UI/UX Pro Max comparison](design/ui-ux-pro-max-2026-10-08/index.html) for matched before and after screenshots.
+
 Open [the reviewed frontend gallery](design/frontend-2026-10-07/web/index.html) or [the capture index](design/frontend-2026-10-07/web/README.md).
 Keep [the historical gallery](design/web-portal/index.html) as its recorded-source reference.
 The frontend gallery has 39 routes, 119 views, 238 records, and 321 page JPEGs.

@@ -282,11 +282,11 @@ Use the system sans-serif stack from the CSS foundation. Use real text for label
 
 | Role | Desktop | Mobile | Weight / line height |
 |---|---|---|---|
-| Page title | 32px | 28px | 650 / 1.2 |
-| Section title | 20px | 19px | 650 / 1.3 |
+| Page title | 32px | 28px | 700 / 1.2 |
+| Section title | 20px | 20px | 650 / 1.3 |
 | Body and input | 16px | 16px | 400 / 1.5 |
-| Button | 14px | 14px | 600 / 1.4 |
-| Secondary text | 13px | 13px | 400 / 1.5 |
+| Button | 15px | 15px | 600 / 1.4 |
+| Secondary text | 14px | 14px | 400 / 1.5 |
 | Badge | 12px | 12px | 600 / 1.4 |
 | Navigation label | 15px | 12px | 550 / 1.4 |
 

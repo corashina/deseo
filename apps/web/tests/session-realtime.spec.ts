@@ -52,7 +52,7 @@ test('represented profile signal does not abort lost-response reconciliation', a
     await page.getByRole('button', { name: 'Save profile', exact: true }).click();
     await expect.poll(change.held).toBe(true);
     await page.evaluate(() => window.dispatchEvent(new Event('focus')));
-    await expect(page.locator('.sidebar-identity')).toContainText('Verified profile');
+    await expect(page.locator('.topbar-label')).toContainText('Verified profile');
     let reconciliation = false;
     await page.route('**/rest/v1/rpc/get_session_context', async route => {
       const response = await route.fetch();

@@ -21,7 +21,7 @@ export function Button({ label, onPress, variant = 'primary', loading = false, d
   const styles = useStyles();
   const pressedStyles = usePressedStyles();
   const inactive = loading || disabled;
-  const color = variant === 'danger' ? theme.colors.danger : variant === 'text' ? theme.colors.link : theme.colors.onAction;
+  const color = variant === 'danger' ? theme.colors.danger : variant === 'text' ? theme.colors.link : variant === 'secondary' ? theme.colors.ink : theme.colors.onAction;
   return <Pressable accessibilityRole="button" accessibilityLabel={label}
     accessibilityState={{ disabled: inactive, busy: loading }} disabled={inactive} onPress={onPress}
     style={({ pressed }) => [styles.base, styles[variant], (compact || variant === 'text') && styles.compact,

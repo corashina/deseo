@@ -10,7 +10,7 @@ export function IconButton({ icon, label, onPress, dot = false, disabled = false
   const styles = useStyles();
   return <Pressable accessibilityRole="button" accessibilityLabel={label} accessibilityState={{ disabled }} disabled={disabled}
     onPress={onPress} style={({ pressed }) => [styles.target, pressed && styles.pressed, disabled && styles.inactive]}>
-    <Ionicons name={icon} size={24} color={theme.colors.ink} />
+    <Ionicons name={icon} size={20} color={theme.colors.ink} accessibilityElementsHidden importantForAccessibility="no" />
     {dot && <View style={styles.dot} />}
   </Pressable>;
 }

@@ -13,7 +13,7 @@ export default function TabsLayout() {
   const unread = useQuery({ queryKey: messageKeys.unread(accountId, pairId), queryFn: () => getUnreadCount(pairId),
     enabled: !!accountId && !!pairId });
   return <Tabs screenOptions={{ headerShown: false, tabBarActiveTintColor: theme.colors.link,
-    tabBarInactiveTintColor: theme.colors.muted, tabBarStyle: styles.bar, tabBarItemStyle: styles.item, tabBarLabelStyle: theme.typography.navigation }}>
+    tabBarInactiveTintColor: theme.colors.muted, tabBarActiveBackgroundColor: theme.colors.sharedSoft, tabBarStyle: styles.bar, tabBarItemStyle: styles.item, tabBarLabelStyle: theme.typography.navigation }}>
     <Tabs.Screen name="today" options={{ title: 'Today', tabBarIcon: ({ color, size }) => <Ionicons name="heart-outline" color={color} size={size} /> }} />
     <Tabs.Screen name="calendar" options={{ title: 'Calendar', tabBarIcon: ({ color, size }) => <Ionicons name="calendar-outline" color={color} size={size} /> }} />
     <Tabs.Screen name="memories" options={{ title: 'Memories', tabBarIcon: ({ color, size }) => <Ionicons name="images-outline" color={color} size={size} /> }} />

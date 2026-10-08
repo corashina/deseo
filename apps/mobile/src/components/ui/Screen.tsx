@@ -67,11 +67,11 @@ function ScreenHeader({ title, subtitle, action, toolbar }: Omit<Props, 'childre
 
 const useStyles = makeStyles(theme => ({
   safe: { flex: 1, backgroundColor: theme.colors.canvas },
-  scroll: { flexGrow: 1, paddingHorizontal: theme.space[4], paddingTop: theme.space[2], paddingBottom: theme.space[8] },
+  scroll: { flexGrow: 1, paddingHorizontal: theme.space[4], paddingTop: theme.space[3], paddingBottom: theme.space[8] },
   content: { width: '100%', maxWidth: 680, alignSelf: 'center', gap: theme.space[4] },
   toolbar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginHorizontal: -theme.space[1] },
   header: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'flex-end', justifyContent: 'space-between',
-    columnGap: theme.space[4], rowGap: theme.space[3], paddingTop: theme.space[2], paddingBottom: theme.space[2] },
+    columnGap: theme.space[4], rowGap: theme.space[3], paddingTop: theme.space[2], paddingBottom: theme.space[3] },
   heading: { flexGrow: 1, flexShrink: 1, flexBasis: 200, gap: theme.space[1] },
   subtitle: { color: theme.colors.muted },
   listContent: { width: '100%', maxWidth: 680 + 2 * theme.space[4], alignSelf: 'center' },

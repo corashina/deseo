@@ -21,7 +21,7 @@ export const Composer = forwardRef<TextInput, {
   </View>;
 });
 const useStyles = makeStyles(theme => ({
-  container: { gap: theme.space[2], padding: theme.space[4], flexShrink: 0, borderTopWidth: 1, borderColor: theme.colors.line, backgroundColor: theme.colors.canvas },
-  input: { ...theme.typography.body, minHeight: 48, maxHeight: 128, padding: 12, borderWidth: 1,
+  container: { gap: theme.space[2], padding: theme.space[4], flexShrink: 0, borderTopWidth: 1, borderColor: theme.colors.line, backgroundColor: theme.colors.sidebar },
+  input: { ...theme.typography.body, minHeight: theme.touchTarget, maxHeight: 160, paddingHorizontal: theme.space[4], paddingVertical: theme.space[3], borderWidth: 1,
     borderColor: theme.colors.control, borderRadius: theme.radius.control, backgroundColor: theme.colors.surface },
 }));

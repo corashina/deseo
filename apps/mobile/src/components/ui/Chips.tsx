@@ -27,7 +27,7 @@ const useStyles = makeStyles(theme => ({
   scroll: { flexGrow: 0, marginHorizontal: -theme.space[4] },
   row: { gap: theme.space[2], paddingHorizontal: theme.space[4] },
   chip: { minHeight: theme.touchTarget, paddingHorizontal: theme.space[4], borderRadius: theme.radius.control, flexDirection: 'row', alignItems: 'center',
-    gap: theme.space[2], backgroundColor: theme.colors.sidebar, borderWidth: 1, borderColor: theme.colors.sidebar },
+    gap: theme.space[2], backgroundColor: theme.colors.sidebar, borderWidth: 1, borderColor: theme.colors.line },
   selected: { backgroundColor: theme.colors.action, borderColor: theme.colors.actionBorder },
   pressed: { backgroundColor: theme.colors.sharedSoft },
   dot: { width: 10, height: 10, borderRadius: 5 },
