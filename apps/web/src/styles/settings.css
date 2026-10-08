@@ -1,7 +1,8 @@
 .settings-menu { max-width: var(--form-width); padding: 0; }
-.settings-link { display: block; padding: 24px; text-decoration: none; color: var(--ink); border-radius: var(--radius-card); }
+.settings-link { position: relative; display: block; padding: 24px 64px 24px 24px; text-decoration: none; color: var(--ink); border-radius: var(--radius-card); }
 .settings-link + .settings-link { border-top: 1px solid var(--line); border-top-left-radius: 0; border-top-right-radius: 0; }
 .settings-link:not(:last-child) { border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+.settings-link::after { content: ''; position: absolute; right: 28px; top: 50%; width: 8px; height: 8px; border-top: 2px solid var(--link); border-right: 2px solid var(--link); transform: translateY(-50%) rotate(45deg); }
 .settings-link:hover { background: var(--sidebar); }
 .settings-link h2 { margin-bottom: 4px; }
 .settings-link p { color: var(--muted); margin-bottom: 0; }
@@ -9,4 +10,4 @@
 .settings-section > .button { margin-bottom: 20px; }
 .settings-section .actions { margin-bottom: 0; }
 .settings-detail .paired-members { padding-top: 0; }
-@media (max-width: 767px) { .settings-link { padding: 20px; } .settings-section { padding-top: 20px; margin-top: 20px; } }
+@media (max-width: 767px) { .settings-link { padding: 20px 56px 20px 20px; } .settings-section { padding-top: 20px; margin-top: 20px; } }

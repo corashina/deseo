@@ -115,7 +115,7 @@ test('narrow Calendar defaults to Agenda and preserves explicit views', async ({
   } finally { await cleanupPortalPairFixture(ids); }
 });
 
-// Importance 92: shell owner colors must use current verified membership on desktop and narrow views.
+// Importance 95: account and partner colors must follow verified membership across shell layouts.
 test('Marek shell controls use the verified teal slot', async ({ page }) => {
   const ids = await createPortalPairFixture();
   try {
@@ -124,7 +124,14 @@ test('Marek shell controls use the verified teal slot', async ({ page }) => {
       await page.setViewportSize({ width, height: 1000 });
       await page.goto('/today'); await ready(page);
       const avatars = width === 1440 ? page.locator('.sidebar .avatar') : page.locator('.mobile-account .avatar');
-      await expect(avatars).toHaveCount(width === 1440 ? 2 : 1);
+      await expect(avatars).toHaveCount(1);
+      const partners = page.locator('.topbar .pair-avatars .avatar');
+      await expect(partners).toHaveCount(2);
+      await expect(partners.nth(0)).toHaveClass('avatar slot-a');
+      await expect(partners.nth(1)).toHaveClass('avatar slot-b');
+      expect(await partners.nth(0).evaluate(element => getComputedStyle(element).backgroundColor)).toBe('rgb(245, 227, 235)');
+      expect(await partners.nth(1).evaluate(element => getComputedStyle(element).backgroundColor)).toBe('rgb(222, 240, 233)');
+      await expect(page.locator('.topbar-label')).toHaveText('Anna + Marek');
       for (const avatar of await avatars.all()) {
         await expect(avatar).toHaveClass('avatar slot-b');
         expect(await avatar.evaluate(element => getComputedStyle(element).backgroundColor)).toBe('rgb(222, 240, 233)');
