@@ -303,3 +303,47 @@ for (const changed of [true, false]) {
     } finally { releaseAcknowledgement(); await cleanupPortalPairFixture(ids); }
   });
 }
+
+// Importance 95: month cells include adjacent dates and exclude the all-day end.
+test('month cells keep adjacent events, owner filters, and exclusive ends', async ({ page }) => {
+  const ids = await createPortalPairFixture();
+  try {
+    const anna = await portalClient(ids.annaEmail);
+    const eventId = randomUUID();
+    expect((await anna.rpc('create_event', {
+      p_input: { id: eventId, pair_id: ids.pairId, title: 'Across the month', owner: 'together', visibility: 'shared', timezone: 'Europe/Warsaw',
+        start_date: '2026-09-29', end_date_exclusive: '2026-10-02', repeat: 'none' },
+      p_command_id: randomUUID(),
+    })).data.ok).toBe(true);
+    await loginWithLocalEmailCode(page, ids.annaEmail);
+    await page.goto('/calendar?view=month&date=2026-10-01&owner=all');
+    const narrow = (page.viewportSize()?.width ?? 1440) < 768;
+    const cell = (label: string) => page.locator('.month-day').filter({ has: page.getByRole('button', { name: label, exact: true }) });
+    const eventLink = 'a[href="/events/' + eventId + '"]';
+    for (const [label, count] of [['29 September 2026', '1 event'], ['30 September 2026', '2 events'], ['1 October 2026', '2 events']]) {
+      await expect(cell(label).locator(eventLink)).toHaveCount(1);
+      if (narrow) {
+        await expect(cell(label).locator('.day-count')).toBeVisible();
+        await expect(cell(label).locator('.day-count')).toHaveText(count);
+      }
+    }
+    await expect(cell('29 September 2026')).toHaveClass(/outside/);
+    await expect(cell('2 October 2026').locator(eventLink)).toHaveCount(0);
+    const selectedEvent = page.locator('.selected-agenda').getByRole('link', { name: /Across the month/ });
+    await expect(selectedEvent).toBeVisible();
+    await page.getByRole('button', { name: '2 October 2026', exact: true }).click();
+    await expect(selectedEvent).toHaveCount(0);
+    await page.getByRole('button', { name: '1 October 2026', exact: true }).click();
+    await expect(selectedEvent).toBeVisible();
+    await page.getByRole('button', { name: 'Anna', exact: true }).click();
+    await expect(page.locator('.month-grid').locator(eventLink)).toHaveCount(0);
+    await expect(cell('29 September 2026').locator('.day-count')).toHaveCount(0);
+    await page.getByRole('button', { name: 'Everyone', exact: true }).click();
+    await expect(cell('29 September 2026').locator(eventLink)).toHaveCount(1);
+    await page.getByRole('button', { name: 'Next month', exact: true }).click();
+    await expect(page.getByRole('heading', { name: 'November 2026', exact: true })).toBeVisible();
+    await expect(page.locator('.month-grid').locator(eventLink)).toHaveCount(0);
+    await page.getByRole('button', { name: 'Previous month', exact: true }).click();
+    await expect(cell('29 September 2026').locator(eventLink)).toHaveCount(1);
+  } finally { await cleanupPortalPairFixture(ids); }
+});

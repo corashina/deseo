@@ -257,8 +257,8 @@ test('sign-out clears private sends before another account opens Messages', asyn
   } finally { await cleanupPortalPairFixture(ids); }
 });
 
-// Importance 98: pagination and new durable reads must retain the reader's position.
-test('older messages paginate past fifty without scrolling for new messages', async ({ page }, testInfo) => {
+// Importance 100: paged duplicates preserve versions, order, read cursors, and scroll position.
+test('paged duplicate messages keep versions and position while new messages arrive', async ({ page }, testInfo) => {
   const ids = await createPortalPairFixture();
   try {
     const client = await portalClient(ids.annaEmail);
@@ -267,14 +267,49 @@ test('older messages paginate past fifty without scrolling for new messages', as
     }
     await loginWithLocalEmailCode(page, ids.annaEmail);
     await page.goto('/messages');
+    type StoredMessage = { id: string; body: string; version: number; created_at: string };
+    let duplicates: StoredMessage[] = [];
+    await page.route('**/rest/v1/messages?*', async route => {
+      const response = await route.fetch();
+      const rows = await response.json() as StoredMessage[];
+      const older = new URL(route.request().url()).searchParams.has('or');
+      if (!older && !duplicates.length) duplicates = rows.slice(0, 3);
+      const recentBodies = ['Recent higher version', 'Recent lower version', 'First equal version'];
+      const recentVersions = [3, 1, 2];
+      const modified = rows.map(row => {
+        const index = duplicates.findIndex(duplicate => duplicate.id === row.id);
+        return index < 0 ? row : { ...row, body: recentBodies[index], version: recentVersions[index] };
+      });
+      if (older) modified.unshift(...duplicates.map((row, index) => ({ ...row, version: 2,
+        body: ['Older lower version', 'Older higher version', 'Second equal version'][index] })));
+      await route.fulfill({ response, json: modified });
+    });
+    await page.reload();
+    await expect(page.getByTestId('message-row')).toHaveCount(50);
     await page.getByRole('button', { name: 'Load older messages', exact: true }).click();
     await expect(page.getByTestId('message-row')).toHaveCount(57);
+    for (const body of ['Recent higher version', 'Older higher version', 'First equal version']) {
+      await expect(page.getByTestId('message-row').filter({ hasText: body })).toHaveCount(1);
+    }
+    for (const body of ['Older lower version', 'Recent lower version', 'Second equal version']) {
+      await expect(page.getByText(body, { exact: true })).toHaveCount(0);
+    }
+    const orderedIds = await page.getByTestId('message-row').evaluateAll(rows => rows.map(row => (row as HTMLElement).dataset.messageId!));
+    expect(new Set(orderedIds).size).toBe(orderedIds.length);
+    const stored = await client.from('messages').select('id').eq('pair_id', ids.pairId)
+      .order('created_at', { ascending: true }).order('id', { ascending: true });
+    if (stored.error) throw stored.error;
+    expect(orderedIds).toEqual(stored.data.map(row => row.id));
     const history = page.getByLabel('Conversation messages');
     await history.evaluate(element => { element.scrollTop = 240; });
     const oldScroll = await history.evaluate(element => element.scrollTop);
     const marek = await portalClient(ids.marekEmail);
     expect((await marek.rpc('send_message', { p_pair_id: ids.pairId, p_client_id: randomUUID(), p_body: 'New while reading history' })).data.ok).toBe(true);
     await expect(page.getByText('New while reading history', { exact: true })).toBeAttached();
+    await expect(page.getByTestId('message-row')).toHaveCount(58);
+    const updatedIds = await page.getByTestId('message-row').evaluateAll(rows => rows.map(row => (row as HTMLElement).dataset.messageId!));
+    expect(new Set(updatedIds).size).toBe(updatedIds.length);
+    expect(updatedIds.slice(0, -1)).toEqual(orderedIds);
     expect(await history.evaluate(element => element.scrollTop)).toBeCloseTo(oldScroll, -1);
     expect((await client.rpc('get_unread_count', { p_pair_id: ids.pairId })).data.data.count).toBeGreaterThan(0);
     await page.getByRole('button', { name: 'Latest messages', exact: true }).click();

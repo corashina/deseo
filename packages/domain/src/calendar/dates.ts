@@ -11,8 +11,16 @@ export function importantDateCountdown(date: string, pairTimezone: string, now: 
 export function nextImportantDate(items: AgendaItem[], pairTimezone: string, now: DateTime = DateTime.now()): AgendaItem | undefined {
   zoneSchema.parse(pairTimezone);
   const today = now.setZone(pairTimezone).toISODate()!;
-  return items.filter(event => event.temporal.kind === 'allDay' && event.temporal.startDate >= today)
-    .sort((a, b) => a.temporal.kind === 'allDay' && b.temporal.kind === 'allDay' ? a.temporal.startDate.localeCompare(b.temporal.startDate) : 0)[0];
+  let next: AgendaItem | undefined;
+  let earliestDate: string | undefined;
+  for (const event of items) {
+    if (event.temporal.kind !== 'allDay' || event.temporal.startDate < today) continue;
+    if (earliestDate === undefined || event.temporal.startDate < earliestDate) {
+      next = event;
+      earliestDate = event.temporal.startDate;
+    }
+  }
+  return next;
 }
 
 export function agendaDates(event: AgendaItem, viewerTimezone: string, from: string, to: string): string[] {

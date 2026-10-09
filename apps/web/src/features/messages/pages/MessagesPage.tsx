@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { Link, useSearchParams } from 'react-router-dom';
 import { compareMessageCursors, type Message, type MessageCursor } from '@deseo/domain/messages';
@@ -33,11 +33,13 @@ export function MessagesPage() {
     queryFn: ({ pageParam }) => listMessages(pairId, pageParam), initialPageParam: undefined as string | undefined,
     getNextPageParam: page => page.nextCursor ?? undefined, enabled: !notesView });
   const notes = useQuery({ queryKey: messageKeys.notes(accountId, pairId), queryFn: () => listPinnedNotes(pairId), enabled: notesView });
-  const messagesById = new Map<string, Message>();
-  for (const page of conversation.data?.pages ?? []) for (const message of page.items) {
-    if ((messagesById.get(message.id)?.version ?? 0) < message.version) messagesById.set(message.id, message);
-  }
-  const messages = [...messagesById.values()].sort(compareMessageCursors);
+  const { messagesById, messages } = useMemo(() => {
+    const messagesById = new Map<string, Message>();
+    for (const page of conversation.data?.pages ?? []) for (const message of page.items) {
+      if ((messagesById.get(message.id)?.version ?? 0) < message.version) messagesById.set(message.id, message);
+    }
+    return { messagesById, messages: [...messagesById.values()].sort(compareMessageCursors) };
+  }, [conversation.data?.pages]);
   const list = useRef<HTMLDivElement>(null);
   const mountedList = useRef<HTMLDivElement | null>(null);
   const scrollPosition = useRef<number | null>(null);
@@ -96,7 +98,7 @@ export function MessagesPage() {
     scope.signal.addEventListener('abort', close, { once: true });
     return () => { scope.signal.removeEventListener('abort', close); document.removeEventListener('visibilitychange', observe); close(); };
     // Use each authenticated data result to observe its rendered message rows.
-  }, [conversation.data, notesView, online, pairId, readAttempt]);
+  }, [conversation.data, messagesById, notesView, online, pairId, readAttempt]);
 
   async function execute(next: Attempt) {
     if (!online || pendingAction.current || currentAttempt.current && currentAttempt.current.commandId !== next.commandId) return;

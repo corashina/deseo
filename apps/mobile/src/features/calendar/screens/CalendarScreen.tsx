@@ -46,7 +46,7 @@ function ActiveCalendar({ account, pair, online, refresh }: { account: Core['acc
   const agenda = useQuery({ queryKey: calendarKeys.agenda(account.id, range), queryFn: () => listAgenda(range) });
   const names = { a: pair.members.find((member) => member.slot === 'a')!.displayName, b: pair.members.find((member) => member.slot === 'b')!.displayName };
   const viewerSlot = pair.members.find((member) => member.userId === account.id)!.slot;
-  const groups = useMemo(() => {
+  const { groupsByDate, groups } = useMemo(() => {
     const values = new Map<string, NonNullable<typeof agenda.data>>();
     for (const event of agenda.data ?? []) {
       if (filter !== 'all' && event.owner !== filter) continue;
@@ -56,9 +56,9 @@ function ActiveCalendar({ account, pair, online, refresh }: { account: Core['acc
         values.set(date, items);
       }
     }
-    return [...values].sort(([a], [b]) => a.localeCompare(b));
+    return { groupsByDate: values, groups: [...values].sort(([a], [b]) => a.localeCompare(b)) };
   }, [agenda.data, filter, account.timezone, from, to]);
-  const days = Array.from({ length: month.daysInMonth! }, (_, index) => month.plus({ days: index }).toISODate()!);
+  const days = useMemo(() => Array.from({ length: month.daysInMonth! }, (_, index) => month.plus({ days: index }).toISODate()!), [month]);
   const visibleGroups = view === 'month' ? groups.filter(([date]) => date === selectedDate) : groups;
   const changeMonth = (delta: number) => {
     const next = month.plus({ months: delta });
@@ -89,13 +89,13 @@ function ActiveCalendar({ account, pair, online, refresh }: { account: Core['acc
       {weekdays.map((day) => <Text key={day} style={[theme.typography.badge, styles.cell, styles.weekday]}>{day}</Text>)}
       {Array.from({ length: month.weekday - 1 }, (_, index) => <View key={`blank-${index}`} style={styles.cell} />)}
       {days.map((date) => {
-        const events = groups.find(([groupDate]) => groupDate === date)?.[1] ?? [];
+        const events = groupsByDate.get(date);
         const selected = date === selectedDate;
-        return <Pressable key={date} accessibilityRole="button" accessibilityLabel={`${DateTime.fromISO(date).toLocaleString(DateTime.DATE_MED)}, ${events.length} events`} accessibilityState={{ selected }}
+        return <Pressable key={date} accessibilityRole="button" accessibilityLabel={`${DateTime.fromISO(date).toLocaleString(DateTime.DATE_MED)}, ${events?.length ?? 0} events`} accessibilityState={{ selected }}
           style={styles.cell} onPress={() => setSelectedDate(date)}>
           {({ pressed }) => <View style={[styles.day, selected && styles.selected, pressed && !selected && styles.dayPressed]}>
             <Text style={[theme.typography.body, styles.dayNumber, date === todayIso && styles.today, selected && styles.selectedText]}>{Number(date.slice(-2))}</Text>
-            <View style={styles.dots}>{events.slice(0, 3).map(event => <View key={event.id} style={[styles.dot, { backgroundColor: theme.ownerTones[event.owner].accent }]} />)}</View>
+            <View style={styles.dots}>{events?.slice(0, 3).map(event => <View key={event.id} style={[styles.dot, { backgroundColor: theme.ownerTones[event.owner].accent }]} />)}</View>
           </View>}
         </Pressable>;
       })}
