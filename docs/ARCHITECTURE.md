@@ -513,7 +513,7 @@ See [verification](DEVELOPMENT.md#verification) for importance ratings and requi
 
 ## Architecture optimization design: 9 October 2026
 
-Status: proposed design; scope approved; written design review pending.
+Status: written design approved on 9 October 2026; implementation plan review pending.
 
 ### Intent and scope
 
@@ -724,3 +724,22 @@ Render changes use current modules and installed libraries.
 Cleanup follows verified replacement or missing callers.
 Measured candidates remain conditional.
 Implementation starts after written design and plan review.
+
+### Worktree verification clarification
+
+Planning found a checkout-path constraint in the local backend helpers.
+Both helpers compare Docker workdir labels with their current source checkout.
+Serving worktree functions changes the Edge label but leaves persistent services under the primary checkout.
+
+The implementation plan proposes one shared workspace identity helper.
+Resolve the primary checkout and registered worktrees from the same Git common directory.
+Reject missing, prunable, unregistered, and unrelated worktree paths.
+Require matching Supabase configuration for shared serving.
+Keep persistent container ownership tied to the primary checkout.
+Allow Edge ownership only through a verified registered worktree.
+Keep project names, ports, origin checks, and foreign-port rejection.
+Reject Start and Reset from linked worktrees.
+Allow verified Test and Status reads through the populated backend.
+Verify source mounts and unchanged database identity before claiming local serving.
+
+This clarification forms part of the implementation plan review.
