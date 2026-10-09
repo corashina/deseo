@@ -13,7 +13,7 @@ import { PortalNavigation } from '../components/ui/PortalNavigation';
 import { CaretLeftIcon } from '@phosphor-icons/react/dist/csr/CaretLeft';
 import { CaretRightIcon } from '@phosphor-icons/react/dist/csr/CaretRight';
 import { ListIcon } from '@phosphor-icons/react/dist/csr/List';
-import icon from '../../../../brand/icon-source.png';
+import icon from '../../../../brand/icon-web.png';
 export function AppShell({ children }: { children: ReactNode }) {
   const { account, pair } = useSession();
   const slot = pair?.status === 'active' ? pair.members.find(member => member.userId === account?.id)?.slot : pair?.status === 'pending' ? pair.member.slot : undefined;
