@@ -1,6 +1,6 @@
 import { browserOriginHeaders, browserPreflight } from '../_shared/browser-origin.ts';
 import { runtimeKeys } from '../_shared/keys.ts';
-import { createClient } from '@supabase/supabase-js';
+import { createClient } from 'npm:@supabase/supabase-js@2.117.2';
 
 type ErrorCode = 'UNAUTHENTICATED' | 'FORBIDDEN' | 'VALIDATION' | 'RATE_LIMITED' | 'RETRYABLE';
 const fail = (code: ErrorCode, status = 400) => Response.json({ ok: false, error: { code } }, { status });
