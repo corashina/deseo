@@ -5,7 +5,7 @@ import { DateTime } from 'luxon';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useSession } from '../../../app/SessionProvider';
 import { useNetworkStatus } from '../../../lib/network';
-import { captureQueryScope } from '../../../lib/query-client';
+import { useCommandScope } from '../../../lib/use-command-scope';
 import { readDraft, writeDraft, removeDraft } from '../../../lib/drafts';
 import { PageHeader } from '../../../components/ui/PageHeader';
 import { Button } from '../../../components/ui/Button';
@@ -22,21 +22,13 @@ export function MemoryDetailPage() {
   const pairId = pair?.status === 'active' ? pair.pairId : '';
   const navigate = useNavigate(); const online = useNetworkStatus();
   const mounted = useRef(false); const busy = useRef(false);
-  const scopeCleanup = useRef<() => void>(undefined);
-  useEffect(() => { mounted.current = true; return () => { mounted.current = false; scopeCleanup.current?.(); }; }, []);
+  useEffect(() => { mounted.current = true; return () => { mounted.current = false; }; }, []);
   const key = 'memory-delete:' + memoryId;
   const attempt = useRef(readDraft<{ version: number; commandId: string }>(account!.id, pairId, key));
   const [confirm, setConfirm] = useState(false); const [saving, setSaving] = useState(false); const [error, setError] = useState('');
   useMemorySignals(account!.id, pair);
   const query = useQuery({ queryKey: memoryKeys.detail(account!.id, pairId, memoryId), queryFn: () => getMemory(pairId, memoryId), retry: false });
-  function beginScope() {
-    scopeCleanup.current?.();
-    const scope = captureQueryScope();
-    const unlock = () => { if (mounted.current) { busy.current = false; setSaving(false); } };
-    scope.signal.addEventListener('abort', unlock, { once: true });
-    scopeCleanup.current = () => scope.signal.removeEventListener('abort', unlock);
-    return scope;
-  }
+  const beginScope = useCommandScope(() => { busy.current = false; setSaving(false); });
   async function remove() {
     if (!online || busy.current || (!query.data && !attempt.current)) return;
     const next = attempt.current ?? { version: query.data!.version, commandId: crypto.randomUUID() };

@@ -102,7 +102,7 @@
         "width": 1440,
         "height": 1000
       },
-      "file": "images/entry-welcome-invited-1440.jpg",
+      "file": "../../shared/0c37ce31f110a0632ac7ea9bc5d1f60dbfc63ecd5989f77b3330771bf5c54509.jpg",
       "renderedUrl": "/welcome",
       "heading": "Plan your days together."
     },
@@ -118,7 +118,7 @@
         "width": 390,
         "height": 844
       },
-      "file": "images/entry-welcome-invited-390.jpg",
+      "file": "../../shared/1ba194c5399823c36a90fc57058db2719972145392e89ed18b12f351ca322337.jpg",
       "renderedUrl": "/welcome",
       "heading": "Plan your days together."
     },
@@ -710,7 +710,7 @@
         "width": 1440,
         "height": 1000
       },
-      "file": "images/invite-entry-valid-1440.jpg",
+      "file": "../../shared/0c37ce31f110a0632ac7ea9bc5d1f60dbfc63ecd5989f77b3330771bf5c54509.jpg",
       "renderedUrl": "/welcome",
       "heading": "Plan your days together.",
       "redirectTo": "/welcome"
@@ -727,7 +727,7 @@
         "width": 390,
         "height": 844
       },
-      "file": "images/invite-entry-valid-390.jpg",
+      "file": "../../shared/1ba194c5399823c36a90fc57058db2719972145392e89ed18b12f351ca322337.jpg",
       "renderedUrl": "/welcome",
       "heading": "Plan your days together.",
       "redirectTo": "/welcome"
@@ -1540,8 +1540,8 @@
         "width": 1440,
         "height": 1000
       },
-      "file": "images/memory-new-default-1440.jpg",
-      "fullPageFile": "images/memory-new-default-1440-full.jpg",
+      "file": "../../shared/db932cb733e0e64d4b03a20936d2dda0ed42b747468e9215ab41d3d381f81ac9.jpg",
+      "fullPageFile": "../../shared/db932cb733e0e64d4b03a20936d2dda0ed42b747468e9215ab41d3d381f81ac9.jpg",
       "renderedUrl": "/memories/new",
       "heading": "Add memory"
     },
@@ -1866,8 +1866,8 @@
         "width": 1440,
         "height": 1000
       },
-      "file": "images/memory-edit-default-1440.jpg",
-      "fullPageFile": "images/memory-edit-default-1440-full.jpg",
+      "file": "../../shared/12dac4da9357658a3875bc9ef833a2f080a70f17989121dd4a671e687ca4305c.jpg",
+      "fullPageFile": "../../shared/12dac4da9357658a3875bc9ef833a2f080a70f17989121dd4a671e687ca4305c.jpg",
       "renderedUrl": "/memories/a9599668-eab9-4ead-ad13-23e0909be31c/edit",
       "heading": "Edit memory"
     },
@@ -1883,8 +1883,8 @@
         "width": 390,
         "height": 844
       },
-      "file": "images/memory-edit-default-390.jpg",
-      "fullPageFile": "images/memory-edit-default-390-full.jpg",
+      "file": "../../shared/5582c4fd031afe42f5d6e698e28fd03f9c45e0957892c27aee9b11adf8861f46.jpg",
+      "fullPageFile": "../../shared/5582c4fd031afe42f5d6e698e28fd03f9c45e0957892c27aee9b11adf8861f46.jpg",
       "renderedUrl": "/memories/bc34a7d5-382d-419a-b4c2-604630ed2754/edit",
       "heading": "Edit memory"
     },
@@ -1900,8 +1900,8 @@
         "width": 1440,
         "height": 1000
       },
-      "file": "images/memory-edit-conflict-1440.jpg",
-      "fullPageFile": "images/memory-edit-conflict-1440-full.jpg",
+      "file": "../../shared/ea4da457fb4379ef32ae3a0c8665321335b54dd8866f0d1730efbd805787330a.jpg",
+      "fullPageFile": "../../shared/ea4da457fb4379ef32ae3a0c8665321335b54dd8866f0d1730efbd805787330a.jpg",
       "renderedUrl": "/memories/a611d189-ed52-42c9-b6a4-a5046018c98a/edit",
       "heading": "Edit memory"
     },
@@ -1917,8 +1917,8 @@
         "width": 390,
         "height": 844
       },
-      "file": "images/memory-edit-conflict-390.jpg",
-      "fullPageFile": "images/memory-edit-conflict-390-full.jpg",
+      "file": "../../shared/bcb71d83c2589e3d2784e833aa6c4e7297fedf3a030ba55f90d88341c6157048.jpg",
+      "fullPageFile": "../../shared/bcb71d83c2589e3d2784e833aa6c4e7297fedf3a030ba55f90d88341c6157048.jpg",
       "renderedUrl": "/memories/58f68567-1e8b-4415-a4ae-90321c7800df/edit",
       "heading": "Edit memory"
     },
@@ -2198,7 +2198,7 @@
         "width": 1440,
         "height": 1000
       },
-      "file": "images/tasks-groceries-1440.jpg",
+      "file": "../../shared/358d70ab5ea4241a45060c0da4e3dcb8b76c191774c9e8b6f86956ea15a5cd67.jpg",
       "renderedUrl": "/tasks?list=d3500000-0000-4000-8000-00000000044f",
       "heading": "Tasks"
     },
@@ -2214,7 +2214,7 @@
         "width": 390,
         "height": 844
       },
-      "file": "images/tasks-groceries-390.jpg",
+      "file": "../../shared/63a59f8a0f9b23797e04342b48c1ddb125e3b7c9c395270853c2ffb3ee9ca364.jpg",
       "renderedUrl": "/tasks?list=d3500000-0000-4000-8000-00000000044f",
       "heading": "Tasks"
     },
@@ -2230,7 +2230,7 @@
         "width": 1440,
         "height": 1000
       },
-      "file": "images/tasks-completed-1440.jpg",
+      "file": "../../shared/358d70ab5ea4241a45060c0da4e3dcb8b76c191774c9e8b6f86956ea15a5cd67.jpg",
       "renderedUrl": "/tasks?list=d3500000-0000-4000-8000-00000000044f",
       "heading": "Tasks"
     },
@@ -2246,7 +2246,7 @@
         "width": 390,
         "height": 844
       },
-      "file": "images/tasks-completed-390.jpg",
+      "file": "../../shared/63a59f8a0f9b23797e04342b48c1ddb125e3b7c9c395270853c2ffb3ee9ca364.jpg",
       "renderedUrl": "/tasks?list=d3500000-0000-4000-8000-00000000044f",
       "heading": "Tasks"
     },
@@ -2295,8 +2295,8 @@
         "width": 1440,
         "height": 1000
       },
-      "file": "images/task-new-default-1440.jpg",
-      "fullPageFile": "images/task-new-default-1440-full.jpg",
+      "file": "../../shared/4b94342771c9c5bfe91a193b60857d4083db50205bd03360079b86b3d0eabe8c.jpg",
+      "fullPageFile": "../../shared/4b94342771c9c5bfe91a193b60857d4083db50205bd03360079b86b3d0eabe8c.jpg",
       "renderedUrl": "/tasks/new",
       "heading": "Add task"
     },
@@ -2312,8 +2312,8 @@
         "width": 390,
         "height": 844
       },
-      "file": "images/task-new-default-390.jpg",
-      "fullPageFile": "images/task-new-default-390-full.jpg",
+      "file": "../../shared/52cb50e33e057a76a86c759f8b28f359d19b9951dca26ed8ffe40075ef1bd009.jpg",
+      "fullPageFile": "../../shared/52cb50e33e057a76a86c759f8b28f359d19b9951dca26ed8ffe40075ef1bd009.jpg",
       "renderedUrl": "/tasks/new",
       "heading": "Add task"
     },
@@ -2329,8 +2329,8 @@
         "width": 1440,
         "height": 1000
       },
-      "file": "images/task-new-validation-1440.jpg",
-      "fullPageFile": "images/task-new-validation-1440-full.jpg",
+      "file": "../../shared/81ca0ebad7d9add53cd4d67a9be65a86adb9080e85576a5ad2e65564e65b3989.jpg",
+      "fullPageFile": "../../shared/81ca0ebad7d9add53cd4d67a9be65a86adb9080e85576a5ad2e65564e65b3989.jpg",
       "renderedUrl": "/tasks/new",
       "heading": "Add task"
     },
@@ -2523,8 +2523,8 @@
         "width": 1440,
         "height": 1000
       },
-      "file": "images/task-edit-default-1440.jpg",
-      "fullPageFile": "images/task-edit-default-1440-full.jpg",
+      "file": "../../shared/82f58f6f375c8986e43e852b4ef6f7e7d1fb0af1d65a7ad97be6a4715de6c28f.jpg",
+      "fullPageFile": "../../shared/82f58f6f375c8986e43e852b4ef6f7e7d1fb0af1d65a7ad97be6a4715de6c28f.jpg",
       "renderedUrl": "/tasks/d3500000-0000-4000-8000-00000000001e/edit",
       "heading": "Edit task"
     },
@@ -2540,8 +2540,8 @@
         "width": 390,
         "height": 844
       },
-      "file": "images/task-edit-default-390.jpg",
-      "fullPageFile": "images/task-edit-default-390-full.jpg",
+      "file": "../../shared/bcfded965f23b7931b661125887b1e21faad329c0c0e30081938a266a55346dc.jpg",
+      "fullPageFile": "../../shared/bcfded965f23b7931b661125887b1e21faad329c0c0e30081938a266a55346dc.jpg",
       "renderedUrl": "/tasks/d3500000-0000-4000-8000-00000000001e/edit",
       "heading": "Edit task"
     },
@@ -2557,8 +2557,8 @@
         "width": 1440,
         "height": 1000
       },
-      "file": "images/task-edit-conflict-1440.jpg",
-      "fullPageFile": "images/task-edit-conflict-1440-full.jpg",
+      "file": "../../shared/1f6e94cea2c2a7d73933140c11d6767c9dc1aa9b0a846c37051a12c89fd44c8e.jpg",
+      "fullPageFile": "../../shared/1f6e94cea2c2a7d73933140c11d6767c9dc1aa9b0a846c37051a12c89fd44c8e.jpg",
       "renderedUrl": "/tasks/99b5a6a3-fcce-4d97-89d0-d1a43a43d1e8/edit",
       "heading": "Edit task"
     },
@@ -2943,8 +2943,8 @@
         "width": 1440,
         "height": 1000
       },
-      "file": "images/idea-new-default-1440.jpg",
-      "fullPageFile": "images/idea-new-default-1440-full.jpg",
+      "file": "../../shared/5f0b4981f6af826d843746cc3a43e65d2c0c352eca9e0d7638767ef29d846a73.jpg",
+      "fullPageFile": "../../shared/5f0b4981f6af826d843746cc3a43e65d2c0c352eca9e0d7638767ef29d846a73.jpg",
       "renderedUrl": "/ideas/new",
       "heading": "Add idea"
     },
@@ -2960,8 +2960,8 @@
         "width": 390,
         "height": 844
       },
-      "file": "images/idea-new-default-390.jpg",
-      "fullPageFile": "images/idea-new-default-390-full.jpg",
+      "file": "../../shared/c21d170f847aa8ddb003914e696149994c1a2517a903b8e4296a54cca70af5cf.jpg",
+      "fullPageFile": "../../shared/c21d170f847aa8ddb003914e696149994c1a2517a903b8e4296a54cca70af5cf.jpg",
       "renderedUrl": "/ideas/new",
       "heading": "Add idea"
     },
@@ -2994,8 +2994,8 @@
         "width": 390,
         "height": 844
       },
-      "file": "images/idea-new-validation-390.jpg",
-      "fullPageFile": "images/idea-new-validation-390-full.jpg",
+      "file": "../../shared/b5c8d84286e25e5c0bdb3a8726f7f3cfa8b5a660e62f0958a74b2edb53f12e46.jpg",
+      "fullPageFile": "../../shared/b5c8d84286e25e5c0bdb3a8726f7f3cfa8b5a660e62f0958a74b2edb53f12e46.jpg",
       "renderedUrl": "/ideas/new",
       "heading": "Add idea"
     },
@@ -3203,8 +3203,8 @@
         "width": 1440,
         "height": 1000
       },
-      "file": "images/idea-edit-default-1440.jpg",
-      "fullPageFile": "images/idea-edit-default-1440-full.jpg",
+      "file": "../../shared/d9538684b6fe09b8a1cefb0abc3c78cc4e3ed4b5967d18b45c20388d169d5d20.jpg",
+      "fullPageFile": "../../shared/d9538684b6fe09b8a1cefb0abc3c78cc4e3ed4b5967d18b45c20388d169d5d20.jpg",
       "renderedUrl": "/ideas/d3500000-0000-4000-8000-000000000014/edit",
       "heading": "Edit idea"
     },
@@ -3220,8 +3220,8 @@
         "width": 390,
         "height": 844
       },
-      "file": "images/idea-edit-default-390.jpg",
-      "fullPageFile": "images/idea-edit-default-390-full.jpg",
+      "file": "../../shared/6d1abd2334a6af9d634da1dc3cd56fbf33b67f923fd5d7262afd8674962cc549.jpg",
+      "fullPageFile": "../../shared/6d1abd2334a6af9d634da1dc3cd56fbf33b67f923fd5d7262afd8674962cc549.jpg",
       "renderedUrl": "/ideas/d3500000-0000-4000-8000-000000000014/edit",
       "heading": "Edit idea"
     },
@@ -3237,8 +3237,8 @@
         "width": 1440,
         "height": 1000
       },
-      "file": "images/idea-edit-conflict-1440.jpg",
-      "fullPageFile": "images/idea-edit-conflict-1440-full.jpg",
+      "file": "../../shared/62dc2c8f0595aaef60ee94b582b441a51fe6225d340c3de84266bbecf3e0df32.jpg",
+      "fullPageFile": "../../shared/62dc2c8f0595aaef60ee94b582b441a51fe6225d340c3de84266bbecf3e0df32.jpg",
       "renderedUrl": "/ideas/1aeece80-78f8-453d-83ad-d95764c2e0de/edit",
       "heading": "Edit idea"
     },
@@ -3431,7 +3431,7 @@
         "width": 1440,
         "height": 1000
       },
-      "file": "images/settings-unpaired-1440.jpg",
+      "file": "../../shared/e0696c744fc95c0bb9f78e2b9b7feb595e8631e4940a220ce11f5325dce6a49e.jpg",
       "renderedUrl": "/settings",
       "heading": "Settings"
     },
@@ -3447,7 +3447,7 @@
         "width": 390,
         "height": 844
       },
-      "file": "images/settings-unpaired-390.jpg",
+      "file": "../../shared/72b1482bdd07ae11fbe24a05bfdf26d99d96482fa3075ebcb021fe10dc2cb1fe.jpg",
       "renderedUrl": "/settings",
       "heading": "Settings"
     },
@@ -3463,7 +3463,7 @@
         "width": 1440,
         "height": 1000
       },
-      "file": "images/settings-ended-1440.jpg",
+      "file": "../../shared/e0696c744fc95c0bb9f78e2b9b7feb595e8631e4940a220ce11f5325dce6a49e.jpg",
       "renderedUrl": "/settings",
       "heading": "Settings"
     },
@@ -3479,7 +3479,7 @@
         "width": 390,
         "height": 844
       },
-      "file": "images/settings-ended-390.jpg",
+      "file": "../../shared/72b1482bdd07ae11fbe24a05bfdf26d99d96482fa3075ebcb021fe10dc2cb1fe.jpg",
       "renderedUrl": "/settings",
       "heading": "Settings"
     },
@@ -3495,8 +3495,8 @@
         "width": 1440,
         "height": 1000
       },
-      "file": "images/settings-profile-default-1440.jpg",
-      "fullPageFile": "images/settings-profile-default-1440-full.jpg",
+      "file": "../../shared/a5f0a8f983ab6eeb98b49a53af7eb99867189bd6badd2a561eec5ba1efdda077.jpg",
+      "fullPageFile": "../../shared/a5f0a8f983ab6eeb98b49a53af7eb99867189bd6badd2a561eec5ba1efdda077.jpg",
       "renderedUrl": "/settings/profile",
       "heading": "Profile"
     },
@@ -3512,8 +3512,8 @@
         "width": 390,
         "height": 844
       },
-      "file": "images/settings-profile-default-390.jpg",
-      "fullPageFile": "images/settings-profile-default-390-full.jpg",
+      "file": "../../shared/f7eb3f0a11ae60799599427903df10735711ae8aa334ae88e2f7b967f1ae69b0.jpg",
+      "fullPageFile": "../../shared/f7eb3f0a11ae60799599427903df10735711ae8aa334ae88e2f7b967f1ae69b0.jpg",
       "renderedUrl": "/settings/profile",
       "heading": "Profile"
     },
@@ -3529,8 +3529,8 @@
         "width": 1440,
         "height": 1000
       },
-      "file": "images/settings-profile-conflict-1440.jpg",
-      "fullPageFile": "images/settings-profile-conflict-1440-full.jpg",
+      "file": "../../shared/45ec9aa6f3ea124e0f8d76a77e769e2e94e507fabe114a4e4f93130e03ce5ef8.jpg",
+      "fullPageFile": "../../shared/45ec9aa6f3ea124e0f8d76a77e769e2e94e507fabe114a4e4f93130e03ce5ef8.jpg",
       "renderedUrl": "/settings/profile",
       "heading": "Profile"
     },
@@ -3546,8 +3546,8 @@
         "width": 390,
         "height": 844
       },
-      "file": "images/settings-profile-conflict-390.jpg",
-      "fullPageFile": "images/settings-profile-conflict-390-full.jpg",
+      "file": "../../shared/b304ebce112243c5be0dc39994f2037ac3b791ddf8c8a42bd27363eb6b919fbf.jpg",
+      "fullPageFile": "../../shared/b304ebce112243c5be0dc39994f2037ac3b791ddf8c8a42bd27363eb6b919fbf.jpg",
       "renderedUrl": "/settings/profile",
       "heading": "Profile"
     },
@@ -3563,8 +3563,8 @@
         "width": 1440,
         "height": 1000
       },
-      "file": "images/settings-pair-default-1440.jpg",
-      "fullPageFile": "images/settings-pair-default-1440-full.jpg",
+      "file": "../../shared/b6163938c4efd37d9740b38ce2229b43612243feacfff9a31b2df508475d95d2.jpg",
+      "fullPageFile": "../../shared/b6163938c4efd37d9740b38ce2229b43612243feacfff9a31b2df508475d95d2.jpg",
       "renderedUrl": "/settings/pair",
       "heading": "Your pair"
     },
@@ -3580,8 +3580,8 @@
         "width": 390,
         "height": 844
       },
-      "file": "images/settings-pair-default-390.jpg",
-      "fullPageFile": "images/settings-pair-default-390-full.jpg",
+      "file": "../../shared/8762564d06221a185dae3baf5d558399a2f976a7ee9e073414337fcf1b00f15d.jpg",
+      "fullPageFile": "../../shared/8762564d06221a185dae3baf5d558399a2f976a7ee9e073414337fcf1b00f15d.jpg",
       "renderedUrl": "/settings/pair",
       "heading": "Your pair"
     },
@@ -3597,8 +3597,8 @@
         "width": 1440,
         "height": 1000
       },
-      "file": "images/settings-pair-verification-1440.jpg",
-      "fullPageFile": "images/settings-pair-verification-1440-full.jpg",
+      "file": "../../shared/bb9015cba52a582566131147c2795f0c163fcc1506c5b731e96faa1fae01f1cf.jpg",
+      "fullPageFile": "../../shared/bb9015cba52a582566131147c2795f0c163fcc1506c5b731e96faa1fae01f1cf.jpg",
       "renderedUrl": "/settings/pair",
       "heading": "Your pair"
     },
@@ -3665,8 +3665,8 @@
         "width": 1440,
         "height": 1000
       },
-      "file": "images/settings-pair-ended-1440.jpg",
-      "fullPageFile": "images/settings-pair-ended-1440-full.jpg",
+      "file": "../../shared/4167e14a643303da68382a9fbfaebf5b4b8a00cd9af600433d0bb65ed1c732dd.jpg",
+      "fullPageFile": "../../shared/4167e14a643303da68382a9fbfaebf5b4b8a00cd9af600433d0bb65ed1c732dd.jpg",
       "renderedUrl": "/settings/pair",
       "heading": "Your pair"
     },
@@ -3682,8 +3682,8 @@
         "width": 390,
         "height": 844
       },
-      "file": "images/settings-pair-ended-390.jpg",
-      "fullPageFile": "images/settings-pair-ended-390-full.jpg",
+      "file": "../../shared/28f44ce75b11926b5f8d7970e4013139fe1a9afdc3d494565337793be276a819.jpg",
+      "fullPageFile": "../../shared/28f44ce75b11926b5f8d7970e4013139fe1a9afdc3d494565337793be276a819.jpg",
       "renderedUrl": "/settings/pair",
       "heading": "Your pair"
     },
@@ -3801,8 +3801,8 @@
         "width": 1440,
         "height": 1000
       },
-      "file": "images/settings-account-default-1440.jpg",
-      "fullPageFile": "images/settings-account-default-1440-full.jpg",
+      "file": "../../shared/d6d3122e540867a777132d950de20d4d371e6936e289abdeb23a23a3105d5a58.jpg",
+      "fullPageFile": "../../shared/d6d3122e540867a777132d950de20d4d371e6936e289abdeb23a23a3105d5a58.jpg",
       "renderedUrl": "/settings/account",
       "heading": "Account"
     },
@@ -3818,8 +3818,8 @@
         "width": 390,
         "height": 844
       },
-      "file": "images/settings-account-default-390.jpg",
-      "fullPageFile": "images/settings-account-default-390-full.jpg",
+      "file": "../../shared/236ac56224bbaef6f178a7e1c32bbc204b352e76f89c2c140813f351d76f0993.jpg",
+      "fullPageFile": "../../shared/236ac56224bbaef6f178a7e1c32bbc204b352e76f89c2c140813f351d76f0993.jpg",
       "renderedUrl": "/settings/account",
       "heading": "Account"
     },
@@ -3835,8 +3835,8 @@
         "width": 1440,
         "height": 1000
       },
-      "file": "images/settings-account-unpaired-1440.jpg",
-      "fullPageFile": "images/settings-account-unpaired-1440-full.jpg",
+      "file": "../../shared/10ea490e81d6da87cbd144c3f812b54c525ad715370ea7ffd1034b07a7c313ec.jpg",
+      "fullPageFile": "../../shared/10ea490e81d6da87cbd144c3f812b54c525ad715370ea7ffd1034b07a7c313ec.jpg",
       "renderedUrl": "/settings/account",
       "heading": "Account"
     },
@@ -3852,8 +3852,8 @@
         "width": 390,
         "height": 844
       },
-      "file": "images/settings-account-unpaired-390.jpg",
-      "fullPageFile": "images/settings-account-unpaired-390-full.jpg",
+      "file": "../../shared/d4afe266411e5df1805d8e12d9b4f0bd313ecfe413acdda6d6b48802f528907f.jpg",
+      "fullPageFile": "../../shared/d4afe266411e5df1805d8e12d9b4f0bd313ecfe413acdda6d6b48802f528907f.jpg",
       "renderedUrl": "/settings/account",
       "heading": "Account"
     },
@@ -3869,8 +3869,8 @@
         "width": 1440,
         "height": 1000
       },
-      "file": "images/settings-account-ended-1440.jpg",
-      "fullPageFile": "images/settings-account-ended-1440-full.jpg",
+      "file": "../../shared/10ea490e81d6da87cbd144c3f812b54c525ad715370ea7ffd1034b07a7c313ec.jpg",
+      "fullPageFile": "../../shared/10ea490e81d6da87cbd144c3f812b54c525ad715370ea7ffd1034b07a7c313ec.jpg",
       "renderedUrl": "/settings/account",
       "heading": "Account"
     },
@@ -3886,8 +3886,8 @@
         "width": 390,
         "height": 844
       },
-      "file": "images/settings-account-ended-390.jpg",
-      "fullPageFile": "images/settings-account-ended-390-full.jpg",
+      "file": "../../shared/d4afe266411e5df1805d8e12d9b4f0bd313ecfe413acdda6d6b48802f528907f.jpg",
+      "fullPageFile": "../../shared/d4afe266411e5df1805d8e12d9b4f0bd313ecfe413acdda6d6b48802f528907f.jpg",
       "renderedUrl": "/settings/account",
       "heading": "Account"
     },
@@ -3903,7 +3903,7 @@
         "width": 1440,
         "height": 1000
       },
-      "file": "images/unknown-route-not-found-1440.jpg",
+      "file": "../../shared/8d66208c23528c9f5cfe5930d4dad32852b56e2774d77f604dbd59dc6d076990.jpg",
       "renderedUrl": "/no-such-page",
       "heading": "Page not found"
     },
@@ -3919,7 +3919,7 @@
         "width": 390,
         "height": 844
       },
-      "file": "images/unknown-route-not-found-390.jpg",
+      "file": "../../shared/57572af85dd550134651a1132b95d213be61561cf41fd8abbfb9abbe09860386.jpg",
       "renderedUrl": "/no-such-page",
       "heading": "Page not found"
     }

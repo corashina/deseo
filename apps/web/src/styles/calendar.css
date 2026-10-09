@@ -7,11 +7,9 @@
 .calendar-date-controls .button[aria-label] { width:48px; flex-shrink:0; }
 .owner-filters { display:flex; gap:8px; flex-wrap:wrap; }
 .owner-filters button { min-height:48px; border:1px solid transparent; border-radius:12px; background:transparent; padding:10px 16px; color:var(--ink); cursor:pointer; }
-.owner-filters button:hover { border-color:var(--control); }
 .owner-filters button[aria-pressed=true] { background:var(--shared-soft); border-color:var(--shared); }
 .owner-filters button.owner-a { color:var(--rose); background:var(--rose-soft); }
 .owner-filters button.owner-b { color:var(--teal); background:var(--teal-soft); }
-.owner-filters button:hover { border-color:var(--control); }
 .owner-filters button[aria-pressed=true].owner-a { border-color:var(--rose); }
 .owner-filters button:hover { border-color:var(--control); }
 .owner-filters button[aria-pressed=true].owner-b { border-color:var(--teal); }
@@ -51,7 +49,6 @@
 .comparison-day h3 { font-size:16px; }
 .comparison-owner { display:none; }
 .comparison-shared { grid-column:2/-1; min-width:0; }
-.event-fields fieldset { border:0; padding:0; margin:0; min-width:0; }
 .event-fields .field select, .event-fields .field textarea { width:100%; padding:12px 16px; border:1px solid var(--control); border-radius:12px; color:var(--ink); background:var(--surface); font-weight:400; }
 .form-grid { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:0 24px; }
 .event-fields .checkbox-field { display:flex; gap:12px; align-items:center; min-height:48px; margin-bottom:8px; cursor:pointer; }

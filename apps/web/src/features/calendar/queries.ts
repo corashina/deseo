@@ -40,17 +40,3 @@ export async function getEvent(pairId: string, id: string): Promise<Event | null
   if (error) throw error;
   return data === null ? null : eventRowSchema.parse(data);
 }
-
-export function agendaDates(event: AgendaItem, viewerTimezone: string, from: string, to: string): string[] {
-  const temporal = event.temporal;
-  const start = temporal.kind === 'allDay' ? temporal.startDate : DateTime.fromISO(temporal.startsAt).setZone(viewerTimezone).toISODate()!;
-  const end = temporal.kind === 'allDay' ? temporal.endDateExclusive : DateTime.fromISO(temporal.endsAt).setZone(viewerTimezone).minus({ milliseconds: 1 }).plus({ days: 1 }).toISODate()!;
-  const dates: string[] = [];
-  let cursor = DateTime.fromISO(start < from ? from : start, { zone: 'UTC' });
-  const limit = end < to ? end : to;
-  while (cursor.toISODate()! < limit) {
-    dates.push(cursor.toISODate()!);
-    cursor = cursor.plus({ days: 1 });
-  }
-  return dates;
-}

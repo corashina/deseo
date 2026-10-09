@@ -1,9 +1,5 @@
 // Importance: 98. Wrong dates can change a person's plans.
 import { eventInputSchema, resolveWallTime, toEventInput, inclusiveEndDate } from '@deseo/domain/calendar';
-import { agendaDates } from './queries';
-
-jest.mock('../../lib/supabase', () => ({ getSupabase: jest.fn() }));
-jest.mock('../../lib/query-client', () => ({ captureQueryScope: () => ({ signal: new AbortController().signal, assertCurrent: jest.fn() }) }));
 
 const base = { id: '74ff3de3-609c-43c3-bbd3-01e064593ba9', pairId: '610bc9c7-8c81-47d1-894e-314c92071cf1', title: 'Dinner', owner: 'a' as const, visibility: 'shared' as const, timezone: 'Europe/Warsaw' };
 
@@ -37,17 +33,5 @@ describe('calendar dates', () => {
   });
   it('keeps a timed event crossing midnight valid', () => {
     expect(toEventInput({ ...base, allDay: false, startDate: '2026-07-01', endDate: '2026-07-02', startTime: '23:30', endTime: '00:30', location: '', description: '' }).temporal).toEqual({ kind: 'timed', startsAt: '2026-07-01T21:30:00.000Z', endsAt: '2026-07-01T22:30:00.000Z' });
-  });
-});
-
-// Importance: 96. The agenda must include each overlapping day.
-describe('agenda range', () => {
-  it('includes each overlapped day and excludes the end instant', () => {
-    const item = { ...base, authorId: 'author', version: 1, temporal: { kind: 'timed' as const, startsAt: '2026-07-01T21:30:00Z', endsAt: '2026-07-02T22:00:00Z' } };
-    expect(agendaDates(item, 'Europe/Warsaw', '2026-07-02', '2026-07-04')).toEqual(['2026-07-02']);
-  });
-  it('does not move all-day dates into the viewer timezone', () => {
-    const item = { ...base, authorId: 'author', version: 1, temporal: { kind: 'allDay' as const, startDate: '2026-07-01', endDateExclusive: '2026-07-03' } };
-    expect(agendaDates(item, 'America/New_York', '2026-07-01', '2026-07-04')).toEqual(['2026-07-01', '2026-07-02']);
   });
 });

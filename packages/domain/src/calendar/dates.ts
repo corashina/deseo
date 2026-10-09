@@ -14,3 +14,17 @@ export function nextImportantDate(items: AgendaItem[], pairTimezone: string, now
   return items.filter(event => event.temporal.kind === 'allDay' && event.temporal.startDate >= today)
     .sort((a, b) => a.temporal.kind === 'allDay' && b.temporal.kind === 'allDay' ? a.temporal.startDate.localeCompare(b.temporal.startDate) : 0)[0];
 }
+
+export function agendaDates(event: AgendaItem, viewerTimezone: string, from: string, to: string): string[] {
+  const temporal = event.temporal;
+  const start = temporal.kind === 'allDay' ? temporal.startDate : DateTime.fromISO(temporal.startsAt).setZone(viewerTimezone).toISODate()!;
+  const end = temporal.kind === 'allDay' ? temporal.endDateExclusive : DateTime.fromISO(temporal.endsAt).setZone(viewerTimezone).minus({ milliseconds: 1 }).plus({ days: 1 }).toISODate()!;
+  const dates: string[] = [];
+  let cursor = DateTime.fromISO(start < from ? from : start, { zone: 'UTC' });
+  const limit = end < to ? end : to;
+  while (cursor.toISODate()! < limit) {
+    dates.push(cursor.toISODate()!);
+    cursor = cursor.plus({ days: 1 });
+  }
+  return dates;
+}

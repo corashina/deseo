@@ -4,7 +4,6 @@ import { useQuery } from '@tanstack/react-query';
 import { getSupabase } from '../../lib/supabase';
 import { captureQueryScope, queryClient } from '../../lib/query-client';
 import type { PairContext } from '@deseo/domain/pair';
-import type { MessageCursor } from '@deseo/domain/messages';
 import { AppError, resultSchema, type Page } from '@deseo/domain/result';
 import { decodeMessageCursor, encodeMessageCursor, messageIdSchema, messageRowSchema } from '@deseo/domain/messages';
 import type { Message, ReconciledMessageSends } from '@deseo/domain/messages';
@@ -17,13 +16,6 @@ export const messageKeys = {
   unread: (accountId: string, pairId: string) => [...messageKeys.all(accountId, pairId), 'unread'] as const,
   notes: (accountId: string, pairId: string) => [...messageKeys.all(accountId, pairId), 'notes'] as const,
 };
-
-export function compareMessageCursors(left: MessageCursor, right: MessageCursor): number {
-  const milliseconds = Date.parse(left.createdAt) - Date.parse(right.createdAt);
-  if (milliseconds) return milliseconds;
-  const fraction = (time: string) => Number((/\.(\d+)/.exec(time)?.[1] ?? '').padEnd(6, '0').slice(3, 6));
-  return fraction(left.createdAt) - fraction(right.createdAt) || (left.id < right.id ? -1 : left.id > right.id ? 1 : 0);
-}
 
 // Signals contain no content. Authenticated queries supply messages and unread counts.
 export function useMessageSignals(accountId: string, pair: PairContext | null) {

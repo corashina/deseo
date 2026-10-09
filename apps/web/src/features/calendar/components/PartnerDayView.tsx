@@ -1,6 +1,6 @@
 import { DateTime } from 'luxon';
 import type { AgendaItem } from '@deseo/domain/calendar';
-import { agendaDates } from '../queries';
+import { agendaDates } from '@deseo/domain/calendar';
 import { EventRow, type OwnerNames } from './EventRow';
 export function PartnerDayView({ events, date, names, timezone }: { events: AgendaItem[]; date: string; names: OwnerNames; timezone: string }) {
   const start = DateTime.fromISO(date).startOf('week');

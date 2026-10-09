@@ -11,4 +11,3 @@ export async function getPairContext() {
   if (!result.ok) throw new AppError(result.error);
   return result.data;
 }
-export const pairKeys = { context: (accountId: string) => ['account', accountId, 'pair'] as const };

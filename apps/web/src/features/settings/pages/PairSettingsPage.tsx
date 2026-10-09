@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useSession } from '../../../app/SessionProvider';
 import { requestSensitiveActionCode, verifySensitiveAction } from '../../auth';
 import { endPair } from '../../pair';
-import { captureQueryScope } from '../../../lib/query-client';
+import { useCommandScope } from '../../../lib/use-command-scope';
 import { readDraft, writeDraft, removeDraft, useUnsavedChanges } from '../../../lib/drafts';
 import { useNetworkStatus } from '../../../lib/network';
 import { Avatar } from '../../../components/ui/Avatar';
@@ -19,24 +19,16 @@ export function PairSettingsPage() {
   const pairId = pair && 'pairId' in pair ? pair.pairId : null;
   const attempt = useRef(readDraft<Attempt>(account!.id, pairId, 'end-pair'));
   const mounted = useRef(false); const pending = useRef(false);
-  const scopeCleanup = useRef<() => void>(undefined);
   const [code, setCode] = useState(''); const [sent, setSent] = useState(false); const [busy, setBusy] = useState(false);
   const [confirm, setConfirm] = useState(false); const [error, setError] = useState(''); const [uncertain, setUncertain] = useState(Boolean(attempt.current));
   useUnsavedChanges(Boolean(code) || uncertain);
-  useEffect(() => { mounted.current = true; return () => { mounted.current = false; scopeCleanup.current?.(); }; }, []);
+  useEffect(() => { mounted.current = true; return () => { mounted.current = false; }; }, []);
   useEffect(() => {
     if (pair?.status === 'active') return;
     removeDraft(account!.id, pairId, 'end-pair'); attempt.current = undefined;
     setCode(''); setSent(false); setConfirm(false); setUncertain(false);
   }, [account, pairId, pair?.status]);
-  function beginScope() {
-    scopeCleanup.current?.();
-    const scope = captureQueryScope();
-    const unlock = () => { if (mounted.current) { pending.current = false; setBusy(false); setUncertain(Boolean(attempt.current)); } };
-    scope.signal.addEventListener('abort', unlock, { once: true });
-    scopeCleanup.current = () => scope.signal.removeEventListener('abort', unlock);
-    return scope;
-  }
+  const beginScope = useCommandScope(() => { pending.current = false; setBusy(false); setUncertain(Boolean(attempt.current)); });
   async function send() {
     if (!online || pending.current || uncertain) return;
     const scope = beginScope(); pending.current = true; setBusy(true); setError('');

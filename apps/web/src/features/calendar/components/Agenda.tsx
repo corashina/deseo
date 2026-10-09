@@ -1,6 +1,6 @@
 import { DateTime } from 'luxon';
 import type { AgendaItem } from '@deseo/domain/calendar';
-import { agendaDates } from '../queries';
+import { agendaDates } from '@deseo/domain/calendar';
 import { EventRow, type OwnerNames } from './EventRow';
 export function Agenda({ events, from, to, timezone, names }: { events: AgendaItem[]; from: string; to: string; timezone: string; names: OwnerNames }) {
   const days = new Map<string, AgendaItem[]>();

@@ -13,9 +13,9 @@ import { makeStyles, useTheme } from '../../../theme';
 import { useCore } from '../../pair';
 import { EventRow } from '../components/EventRow';
 import { useCalendarSignals } from '../realtime';
-import { importantDateCountdown, nextImportantDate } from '@deseo/domain/calendar';
+import { agendaDates, importantDateCountdown, nextImportantDate } from '@deseo/domain/calendar';
 import { listImportantDates } from '../important-dates';
-import { agendaDates, calendarKeys, listAgenda } from '../queries';
+import { calendarKeys, listAgenda } from '../queries';
 import type { Owner } from '@deseo/domain/calendar';
 
 const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];

@@ -2,7 +2,7 @@ import { getSupabase } from '../../lib/supabase';
 import { AppError, toAppError } from '@deseo/domain/result';
 import { captureQueryScope } from '../../lib/query-client';
 import { sessionResultSchema } from '@deseo/domain/auth';
-import type { Account, SessionContext } from '@deseo/domain/auth';
+import type { SessionContext } from '@deseo/domain/auth';
 
 export async function restoreSession(): Promise<SessionContext | null> {
   const scope = captureQueryScope();
@@ -24,7 +24,4 @@ export async function restoreSession(): Promise<SessionContext | null> {
     throw new AppError({ code: 'FORBIDDEN', message: 'This account is disabled.' });
   }
   return context;
-}
-export async function getAccount(): Promise<Account | null> {
-  return (await restoreSession())?.account ?? null;
 }

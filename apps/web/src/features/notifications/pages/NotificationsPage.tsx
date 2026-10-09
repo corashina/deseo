@@ -4,7 +4,7 @@ import { useInfiniteQuery } from '@tanstack/react-query';
 import { Link, useNavigate } from 'react-router-dom';
 import { AppError, toAppError } from '@deseo/domain/result';
 import { useSession } from '../../../app/SessionProvider';
-import { captureQueryScope } from '../../../lib/query-client';
+import { useCommandScope } from '../../../lib/use-command-scope';
 import { useNetworkStatus } from '../../../lib/network';
 import { PageHeader } from '../../../components/ui/PageHeader';
 import { Status } from '../../../components/ui/Status';
@@ -19,16 +19,8 @@ export function NotificationsPage() {
   const online = useNetworkStatus(); const navigate = useNavigate();
   const [error, setError] = useState(''); const [failedId, setFailedId] = useState(''); const [opening, setOpening] = useState('');
   const mounted = useRef(false); const pending = useRef(false);
-  const scopeCleanup = useRef<() => void>(undefined);
-  useEffect(() => { mounted.current = true; return () => { mounted.current = false; scopeCleanup.current?.(); }; }, []);
-  function beginScope() {
-    scopeCleanup.current?.();
-    const scope = captureQueryScope();
-    const unlock = () => { if (mounted.current) { pending.current = false; setOpening(''); } };
-    scope.signal.addEventListener('abort', unlock, { once: true });
-    scopeCleanup.current = () => scope.signal.removeEventListener('abort', unlock);
-    return scope;
-  }
+  useEffect(() => { mounted.current = true; return () => { mounted.current = false; }; }, []);
+  const beginScope = useCommandScope(() => { pending.current = false; setOpening(''); });
   const query = useInfiniteQuery({ queryKey: notificationKeys.list(account!.id, pairId), initialPageParam: null as string | null,
     queryFn: ({ pageParam }) => listNotifications(pageParam), getNextPageParam: page => page.nextCursor ?? undefined, enabled: Boolean(pairId) });
   async function open(id: string) {

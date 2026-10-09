@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import type { NotificationPreferences } from '@deseo/domain/notifications';
 import { useSession } from '../../../app/SessionProvider';
-import { captureQueryScope } from '../../../lib/query-client';
+import { useCommandScope } from '../../../lib/use-command-scope';
 import { readDraft, writeDraft, removeDraft, useUnsavedChanges } from '../../../lib/drafts';
 import { useNetworkStatus } from '../../../lib/network';
 import { PageHeader } from '../../../components/ui/PageHeader';
@@ -19,18 +19,11 @@ export function PreferencesPage() {
   const pairId = pair && 'pairId' in pair ? pair.pairId : null;
   const query = useQuery({ queryKey: notificationKeys.preferences(account!.id), queryFn: getNotificationPreferences });
   const online = useNetworkStatus(); const mounted = useRef(false);
-  const pending = useRef(false); const scopeCleanup = useRef<() => void>(undefined);
+  const pending = useRef(false);
   const [draft, setDraft] = useState(() => readDraft<Draft>(account!.id, pairId, 'preferences'));
   const [busy, setBusy] = useState(false); const [message, setMessage] = useState(''); const [conflict, setConflict] = useState(false);
-  useEffect(() => { mounted.current = true; return () => { mounted.current = false; scopeCleanup.current?.(); }; }, []);
-  function beginScope() {
-    scopeCleanup.current?.();
-    const scope = captureQueryScope();
-    const unlock = () => { if (mounted.current) { pending.current = false; setBusy(false); } };
-    scope.signal.addEventListener('abort', unlock, { once: true });
-    scopeCleanup.current = () => scope.signal.removeEventListener('abort', unlock);
-    return scope;
-  }
+  useEffect(() => { mounted.current = true; return () => { mounted.current = false; }; }, []);
+  const beginScope = useCommandScope(() => { pending.current = false; setBusy(false); });
   useUnsavedChanges(Boolean(draft));
   const input = draft?.input ?? query.data;
   function change(values: Partial<NotificationPreferences>) {

@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import type { ProfileInput } from '@deseo/domain/auth';
 import { useSession } from '../../../app/SessionProvider';
 import { saveProfile, restoreSession } from '../../auth';
-import { captureQueryScope } from '../../../lib/query-client';
+import { useCommandScope } from '../../../lib/use-command-scope';
 import { readDraft, writeDraft, removeDraft, useUnsavedChanges } from '../../../lib/drafts';
 import { useNetworkStatus } from '../../../lib/network';
 import { Field } from '../../../components/ui/Field';
@@ -18,16 +18,9 @@ export function ProfileSettingsPage() {
   const [draft, setDraft] = useState(() => readDraft<Draft>(account!.id, pairId, 'profile-settings'));
   const [busy, setBusy] = useState(false); const [message, setMessage] = useState(''); const [conflict, setConflict] = useState(false);
   const mounted = useRef(false); const online = useNetworkStatus();
-  const pending = useRef(false); const scopeCleanup = useRef<() => void>(undefined);
-  useEffect(() => { mounted.current = true; return () => { mounted.current = false; scopeCleanup.current?.(); }; }, []);
-  function beginScope() {
-    scopeCleanup.current?.();
-    const scope = captureQueryScope();
-    const unlock = () => { if (mounted.current) { pending.current = false; setBusy(false); } };
-    scope.signal.addEventListener('abort', unlock, { once: true });
-    scopeCleanup.current = () => scope.signal.removeEventListener('abort', unlock);
-    return scope;
-  }
+  const pending = useRef(false);
+  useEffect(() => { mounted.current = true; return () => { mounted.current = false; }; }, []);
+  const beginScope = useCommandScope(() => { pending.current = false; setBusy(false); });
   useUnsavedChanges(Boolean(draft));
   const input = draft?.input ?? { displayName: account!.displayName, timezone: account!.timezone, locale: account!.locale };
   function change(values: Partial<ProfileInput>) {

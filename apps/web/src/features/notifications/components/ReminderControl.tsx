@@ -4,7 +4,7 @@ import { DateTime } from 'luxon';
 import { resolveWallTime } from '@deseo/domain/calendar';
 import type { ReminderInput } from '@deseo/domain/notifications';
 import { useSession } from '../../../app/SessionProvider';
-import { captureQueryScope } from '../../../lib/query-client';
+import { useCommandScope } from '../../../lib/use-command-scope';
 import { readDraft, writeDraft, removeDraft, useUnsavedChanges } from '../../../lib/drafts';
 import { useNetworkStatus } from '../../../lib/network';
 import { Button } from '../../../components/ui/Button';
@@ -20,20 +20,12 @@ export function ReminderControl(props: Props) {
   const pairId = pair?.status === 'active' ? pair.pairId : '';
   const sourceId = props.eventId ?? props.taskId!; const key = 'reminder:' + sourceId;
   const mounted = useRef(false); const pending = useRef(false);
-  const scopeCleanup = useRef<() => void>(undefined);
   const [draft, setDraft] = useState(() => readDraft<Draft>(account!.id, pairId, key));
   const [busy, setBusy] = useState(false); const [message, setMessage] = useState(''); const [conflict, setConflict] = useState(false);
   const query = useQuery({ queryKey: [...notificationKeys.reminder(account!.id, pairId, sourceId), props.sourceVersion], queryFn: () => getReminder(props.eventId ?? null, props.taskId ?? null), enabled: Boolean(pairId) });
   const preferences = useQuery({ queryKey: notificationKeys.preferences(account!.id), queryFn: getNotificationPreferences, enabled: Boolean(props.eventId) });
-  useEffect(() => { mounted.current = true; return () => { mounted.current = false; scopeCleanup.current?.(); }; }, []);
-  function beginScope() {
-    scopeCleanup.current?.();
-    const scope = captureQueryScope();
-    const unlock = () => { if (mounted.current) { pending.current = false; setBusy(false); } };
-    scope.signal.addEventListener('abort', unlock, { once: true });
-    scopeCleanup.current = () => scope.signal.removeEventListener('abort', unlock);
-    return scope;
-  }
+  useEffect(() => { mounted.current = true; return () => { mounted.current = false; }; }, []);
+  const beginScope = useCommandScope(() => { pending.current = false; setBusy(false); });
   useUnsavedChanges(Boolean(draft));
   const current = query.data;
   const initial = current?.remindAt ? DateTime.fromISO(current.remindAt).setZone(props.timezone) : DateTime.now().setZone(props.timezone);

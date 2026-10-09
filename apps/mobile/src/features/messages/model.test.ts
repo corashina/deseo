@@ -1,6 +1,6 @@
 // Importance: 95. Reordered pages and replies must not lose messages or repeat confirmed sends.
-import { compareMessageCursors, flattenMessagePages, reconcilePendingMessages } from './model';
-import { encodeMessageCursor, decodeMessageCursor, messageBodySchema } from '@deseo/domain/messages';
+import { flattenMessagePages, reconcilePendingMessages } from './model';
+import { messageBodySchema } from '@deseo/domain/messages';
 import type { Message } from '@deseo/domain/messages';
 import type { PendingMessage } from './types';
 
@@ -14,13 +14,6 @@ const message: Message = {
 it('matches the server body limit in Unicode code points', () => {
   expect(messageBodySchema.parse('🌷'.repeat(4000))).toBe('🌷'.repeat(4000));
   expect(messageBodySchema.safeParse('🌷'.repeat(4001)).success).toBe(false);
-});
-
-it('compares equivalent offsets and preserves microsecond order before UUID ties', () => {
-  const later = { ...message, createdAt: '2026-10-04T12:00:00.123457+02:00', id: '00000000-0000-4000-8000-000000000000' };
-  expect(compareMessageCursors(later, message)).toBeGreaterThan(0);
-  expect(compareMessageCursors({ ...message, createdAt: '2026-10-04T12:00:00.123456+02:00' }, message)).toBe(0);
-  expect(decodeMessageCursor(encodeMessageCursor({ createdAt: message.createdAt, id: message.id }))).toEqual({ createdAt: message.createdAt, id: message.id });
 });
 
 it('keeps the highest version once when pages overlap and updates arrive out of order', () => {

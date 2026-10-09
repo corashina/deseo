@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { Link, useSearchParams } from 'react-router-dom';
-import type { Message, MessageCursor } from '@deseo/domain/messages';
+import { compareMessageCursors, type Message, type MessageCursor } from '@deseo/domain/messages';
 import { useSession } from '../../../app/SessionProvider';
 import { PageHeader } from '../../../components/ui/PageHeader';
 import { Button } from '../../../components/ui/Button';
@@ -11,7 +11,7 @@ import { readDraft, writeDraft, removeDraft } from '../../../lib/drafts';
 import { useCommandScope } from '../../../lib/use-command-scope';
 import { captureQueryScope } from '../../../lib/query-client';
 import { useNetworkStatus } from '../../../lib/network';
-import { compareMessageCursors, listMessages, messageKeys } from '../queries';
+import { listMessages, messageKeys } from '../queries';
 import { deleteMessage, setReadCursor } from '../commands';
 import { listPinnedNotes, pinMessage, unpinMessage } from '../notes';
 import { usePendingSends } from '../pending-sends';

@@ -30,7 +30,6 @@ export function sceneUrl(scene: ScreenshotScenario, fixtures: CaptureFixtures, r
     .replace(':taskId', ids.taskId).replace(':memoryId', ids.memoryId)
     .replace(':ideaId', scene.view === 'planned' ? fixtures.plannedId : scene.view === 'archived' ? fixtures.archivedId : ids.ideaId)
     .replace(':listId', scene.view === 'general' ? ids.generalListId : ['empty', 'remove-dialog'].includes(scene.view) ? fixtures.emptyListId : ids.groceriesListId);
-  if (scene.routeId === 'task-list-detail' && scene.view === 'empty') url = '/tasks/lists/' + fixtures.emptyListId;
   if (scene.routeId === 'unknown-route') url = '/no-such-page';
   if (scene.view === 'unavailable' && scene.routeId !== 'pair-join' && scene.routeId !== 'notifications') url = url.replace(/\/[^/]+$/, '/00000000-0000-4000-8000-000000000099');
   if (scene.routeId === 'calendar') url += '?date=2026-10-05&view=' + (['agenda', 'compare'].includes(scene.view) ? scene.view : 'month');
@@ -55,7 +54,6 @@ export async function renderScene(page: Page, scene: ScreenshotScenario, fixture
   const { routeId: id, view } = scene;
   let url = sceneUrl(scene, fixtures, role);
   let release = () => {};
-  if (id === 'task-list-detail' && view === 'empty') role = 'exceptional';
   if (view === 'invited' || id === 'invite-entry') url = '/invite?token=' + (view === 'invalid' ? 'invalid' : fixtures.inviter.inviteToken);
   if (view === 'global-signout-failure') url = '/settings/account';
   if (id === 'entry-verify') {

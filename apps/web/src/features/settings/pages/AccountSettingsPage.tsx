@@ -5,21 +5,14 @@ import { PageHeader } from '../../../components/ui/PageHeader';
 import { Button } from '../../../components/ui/Button';
 import { Status } from '../../../components/ui/Status';
 import { useNetworkStatus } from '../../../lib/network';
-import { captureQueryScope } from '../../../lib/query-client';
+import { useCommandScope } from '../../../lib/use-command-scope';
 import '../../../styles/settings.css';
 export function AccountSettingsPage() {
   const [error, setError] = useState(''); const [busy, setBusy] = useState(false); const online = useNetworkStatus();
   const mounted = useRef(false);
-  const pending = useRef(false); const scopeCleanup = useRef<() => void>(undefined);
-  useEffect(() => { mounted.current = true; return () => { mounted.current = false; scopeCleanup.current?.(); }; }, []);
-  function beginScope() {
-    scopeCleanup.current?.();
-    const queryScope = captureQueryScope();
-    const unlock = () => { if (mounted.current) { pending.current = false; setBusy(false); } };
-    queryScope.signal.addEventListener('abort', unlock, { once: true });
-    scopeCleanup.current = () => queryScope.signal.removeEventListener('abort', unlock);
-    return queryScope;
-  }
+  const pending = useRef(false);
+  useEffect(() => { mounted.current = true; return () => { mounted.current = false; }; }, []);
+  const beginScope = useCommandScope(() => { pending.current = false; setBusy(false); });
   async function leave(scope: 'local' | 'global') {
     if (pending.current || !online) return;
     const queryScope = beginScope(); pending.current = true;

@@ -3,8 +3,8 @@ import type { InfiniteData } from '@tanstack/react-query';
 import { getSupabase, type RpcName } from '../../lib/supabase';
 import { captureQueryScope, queryClient } from '../../lib/query-client';
 import { errorResult, resultSchema, type Page, type Result } from '@deseo/domain/result';
-import { encodeMessageCursor, messageCursorSchema, messageIdSchema, messageRowSchema, readCursorRowSchema, sendMessageSchema } from '@deseo/domain/messages';
-import { compareMessageCursors, messageKeys } from './queries';
+import { compareMessageCursors, encodeMessageCursor, messageCursorSchema, messageIdSchema, messageRowSchema, readCursorRowSchema, sendMessageSchema } from '@deseo/domain/messages';
+import { messageKeys } from './queries';
 import { assertOnline } from '../../lib/network';
 import type { Message, MessageCursor, SendMessageInput } from '@deseo/domain/messages';
 

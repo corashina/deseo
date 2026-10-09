@@ -1,6 +1,6 @@
 import { DateTime } from 'luxon';
 import type { AgendaItem } from '@deseo/domain/calendar';
-import { agendaDates } from '../queries';
+import { agendaDates } from '@deseo/domain/calendar';
 import { EventRow, type OwnerNames } from './EventRow';
 export function MonthGrid({ events, date, selected, onSelect, timezone, names }: { events: AgendaItem[]; date: string; selected: string; onSelect(date: string): void; timezone: string; names: OwnerNames }) {
   const start = DateTime.fromISO(date).startOf('month');

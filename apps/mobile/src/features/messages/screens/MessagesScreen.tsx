@@ -16,13 +16,13 @@ import { captureQueryScope } from '../../../lib/query-client';
 import { deleteMessage, setReadCursor } from '../commands';
 import { listMessages, messageKeys } from '../queries';
 import { listPinnedNotes, pinMessage, unpinMessage } from '../notes';
-import { compareMessageCursors, flattenMessagePages } from '../model';
+import { flattenMessagePages } from '../model';
 import { subscribeMessages } from '../realtime';
 import { useMessageDraft } from '../useMessageDraft';
 import { Composer } from '../components/Composer';
 import { MessageRow, PendingMessageRow } from '../components/MessageRow';
 import { NoteCard } from '../components/NoteCard';
-import type { Message, MessageCursor } from '@deseo/domain/messages';
+import { compareMessageCursors, type Message, type MessageCursor } from '@deseo/domain/messages';
 import type { PendingMessage } from '../types';
 
 type Row = { kind: 'message'; message: Message; startsGroup: boolean } | { kind: 'pending'; message: PendingMessage };

@@ -7,7 +7,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { memoryInputSchema, type Memory, type MemoryInput } from '@deseo/domain/memories';
 import { useSession } from '../../../app/SessionProvider';
 import { readDraft, writeDraft, removeDraft, useUnsavedChanges } from '../../../lib/drafts';
-import { captureQueryScope } from '../../../lib/query-client';
+import { useCommandScope } from '../../../lib/use-command-scope';
 import { useNetworkStatus } from '../../../lib/network';
 import { PageHeader } from '../../../components/ui/PageHeader';
 import { Button } from '../../../components/ui/Button';
@@ -34,7 +34,6 @@ function MemoryEditor({ memory }: { memory?: Memory }) {
   const id = useRef(stored.current?.id ?? memory?.id ?? crypto.randomUUID());
   const version = useRef(stored.current?.version ?? memory?.version);
   const attempt = useRef(stored.current?.attempt); const mounted = useRef(false); const busy = useRef(false);
-  const scopeCleanup = useRef<() => void>(undefined);
   const [photos, setPhotos] = useState(stored.current?.photos ?? []);
   const [saving, setSaving] = useState(false); const [preparing, setPreparing] = useState(false);
   const [frozen, setFrozen] = useState(Boolean(attempt.current)); const [error, setError] = useState('');
@@ -43,20 +42,10 @@ function MemoryEditor({ memory }: { memory?: Memory }) {
   const form = useForm<MemoryInput>({ defaultValues: stored.current?.values ?? (memory ? { caption: memory.caption, memoryDate: memory.memoryDate } : { caption: '', memoryDate: DateTime.now().setZone(pair.timezone).toISODate()! }) });
   const keep = (values = form.getValues(), currentPhotos = photos) => writeDraft(accountId, pairId, key, { values, photos: currentPhotos, id: id.current, version: version.current, attempt: attempt.current, dirty: true } satisfies Draft);
   useUnsavedChanges(!confirmed && (form.formState.isDirty || photos.length > 0 || stored.current?.dirty === true || frozen));
-  useEffect(() => { mounted.current = true; return () => { mounted.current = false; scopeCleanup.current?.(); }; }, []);
+  useEffect(() => { mounted.current = true; return () => { mounted.current = false; }; }, []);
   useEffect(() => { const subscription = form.watch(values => writeDraft(accountId, pairId, key, { values, photos, id: id.current, version: version.current, attempt: attempt.current, dirty: true })); return () => subscription.unsubscribe(); }, [form, photos, accountId, pairId, key]);
   useEffect(() => { if (confirmed) navigate('/memories/' + id.current, { replace: true }); }, [confirmed, navigate]);
-  function beginScope() {
-    scopeCleanup.current?.();
-    const scope = captureQueryScope();
-    const unlock = () => {
-      if (!mounted.current) return;
-      busy.current = false; setSaving(false); setPreparing(false); setProgress('');
-    };
-    scope.signal.addEventListener('abort', unlock, { once: true });
-    scopeCleanup.current = () => scope.signal.removeEventListener('abort', unlock);
-    return scope;
-  }
+  const beginScope = useCommandScope(() => { busy.current = false; setSaving(false); setPreparing(false); setProgress(''); });
   async function select(files: File[]) {
     if (busy.current || frozen || !files.length) return;
     if (photos.length + files.length > 5) { setError('Choose no more than five photos.'); return; }
