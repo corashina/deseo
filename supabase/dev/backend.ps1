@@ -27,7 +27,17 @@ if ($Action -ne 'Start' -and -not $backendDatabaseVerified) { throw 'Start the v
 $env:DO_NOT_TRACK = '1'
 $env:SUPABASE_TELEMETRY_DISABLED = 'true'
 switch ($Action) {
-    'Start' { & $backendCli --workdir $backendRepo start }
+    'Start' {
+        $backendLogger = & (Join-Path $PSScriptRoot 'repair-logging.ps1')
+        & $backendCli --workdir $backendRepo start
+        $backendStartExit = $LASTEXITCODE
+        $backendLogger = & (Join-Path $PSScriptRoot 'repair-logging.ps1')
+        if ($backendStartExit -ne 0 -and $backendLogger.Changed) {
+            & $backendCli --workdir $backendRepo start
+        } elseif ($backendStartExit -ne 0) {
+            throw 'Supabase Start failed.'
+        }
+    }
     'Reset' { & $backendCli --workdir $backendRepo db reset --local }
     'Test' { & $backendCli --workdir $backendSource test db --local }
     'Status' { & $backendCli --workdir $backendRepo status }
