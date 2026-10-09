@@ -25,7 +25,7 @@ Keep exact pins. Add packages only when a feature needs them.
 
 ### Local browser backend
 
-Run Docker Desktop. Use one `deseo` project from the repository root.
+Run Docker Desktop. Start the single `deseo` backend from the primary checkout.
 Its API uses 55721, database 55722, mail 55724, and inspector 55728.
 
 ```powershell
@@ -39,9 +39,16 @@ $env:DO_NOT_TRACK = '1'
 $env:SUPABASE_TELEMETRY_DISABLED = 'true'
 ```
 
-The start command saves status in `.superpowers/backend/status.local.json`. Keep this ignored file private.
+Start and Status save `.superpowers/backend/status.local.json` under the source checkout. Keep this ignored file private.
 
 Refresh the saved status with `npm run status:backend`.
+
+The helper resolves the primary checkout from registered Git worktrees.
+Persistent services must belong to that checkout, with matching project, configuration, and port checks.
+Only the primary checkout can run Start or Reset.
+Registered worktrees can run Test and Status against the primary backend.
+Test uses the worktree SQL source. Status reads the primary backend and saves status under the source checkout.
+Reset destroys local data. Keep populated development data unless the owner requests a reset.
 
 Create `apps/web/.env.local` from `.env.example` and use the local publishable key.
 
@@ -56,6 +63,10 @@ Do not add the unused planned `VITE_SITE_URL` variable.
 ### One Edge origin
 
 Start one Edge process in a separate terminal. Stop it before changing modes.
+Run from the checkout whose Edge source you need.
+The helper accepts the primary checkout or a registered worktree with matching Supabase configuration.
+It verifies Kong, database, and existing Edge ownership before serving source from that checkout.
+These checks cover local serving. Hosted bundling and runtime remain unverified.
 
 Development:
 
@@ -73,7 +84,10 @@ npm run verify:web
 
 Run each second command in another terminal while Edge remains active.
 Development uses `http://127.0.0.1:5174`. Tests use `http://127.0.0.1:4174`.
-Stop the other portal server before switching modes. The guarded script rejects the conflicting listener.
+An origin change requires no listener on the other mode's port.
+The guard rejects any such listener. It does not classify processes or foreign Vite projects.
+A source reload can retain that listener only when an owned, running Edge already has the target origin.
+Its environment must contain exactly one `WEB_APP_ORIGIN` value matching that origin.
 Playwright starts and stops its own preview. Run Windows browser checks elevated for Docker and owned process teardown.
 
 | Server variable | Use |
@@ -124,14 +138,13 @@ Use `npm run start:backend` for the single current project.
 Run Edge checks from the root:
 
 ```powershell
+npm run typecheck:functions
 npm run test:memories:functions
-npm run typecheck:memories:functions
 npm run test:notifications:functions
-npm run typecheck:notifications:functions
-npm exec --yes --package deno@2.9.6 -- deno check --frozen --config supabase/functions/verify-sensitive-action/deno.json supabase/functions/verify-sensitive-action/index.ts
 ```
 
-The sensitive function has its own committed dependency map. Use its config for standalone checks.
+The single typecheck covers all six Edge entrypoints with Deno 2.9.6 and the shared frozen configuration.
+Use `supabase/functions/deno.json` and its lockfile. Sensitive verification has no separate configuration.
 Discover CLI options through the installed help before changing commands.
 
 After you change a migration, regenerate the shared database types from a running local stack:
@@ -147,7 +160,7 @@ CI fails when the committed file differs from the schema.
 
 `.github/workflows/ci.yml` runs on pushes to `master` and on each pull request.
 
-- The apps job runs `verify:mobile`, domain tests, and the web typecheck, lint, and build.
+- The apps job runs `verify:mobile`, domain tests, `test:architecture`, and the web typecheck, lint, and build.
 - The backend job starts Supabase. It runs SQL suites, the type check, three race harnesses, and Deno function checks.
 
 Playwright portal tests need the seeded development backend and its Edge functions. Run them locally with `npm run test:web`.
@@ -206,7 +219,7 @@ Physical Android and iOS acceptance remains unverified.
 
 ### Portal verification
 
-Run `npm run verify:mobile`, `npm run test:domain`, and `npm run verify:web` on final source.
+Run `npm run verify:mobile`, `npm run test:domain`, `npm run test:architecture`, and `npm run verify:web` on final source.
 Browser verification runs TypeScript, scoped lint, production build, and the complete Playwright suite.
 Use real local Auth, pair transactions, private media, and durable writes.
 Controlled transport failures cover unknown outcomes, replay, conflicts, focus, remount, and authority changes.
@@ -221,8 +234,7 @@ Do not overlap global worker claims with browser fixture setup.
 Notification races require an empty notification table and never call Expo.
 Memory races require empty memory and cleanup tables. Do not reset development data to run them.
 
-Check modified Edge functions with their committed Deno config and frozen dependency locks.
-The sensitive function uses `supabase/functions/verify-sensitive-action/deno.json`.
+Run `npm run typecheck:functions` and both function test commands with the shared frozen configuration.
 Record live gateway behavior separately from direct handler tests.
 Valid-user unknown/null-origin requests must reject before action work. Native no-Origin requests remain supported.
 
@@ -474,501 +486,228 @@ Keep draft documentation status distinct from shipped behavior. Update the READM
 
 ## Frontend design handoff
 
-Historical record: 7 October 2026. The owner approved the spec, plan, and sequential subagent execution.
-All seven task reviews and the final review passed after scoped corrections and one final fix wave.
-These results apply to the listed revisions and original feature checkout.
-Use [Setup](#setup) for current commands and [the merge record](#frontend-merge-record) for combined-source limits.
-The 8 October merge preserves the eleven controller rulings and original verdicts below.
+The records below describe checks from 7 and 8 October 2026.
+Use [Setup](#setup) for current commands. Each gallery covers its recorded source.
+Later forms, controls, and message actions can differ from gallery images.
+Git history retains the full task reviews and controller rulings at `e96ab62dcbc2a3929ce62a95ddc7346a829fc5ad`.
 
-| Source | Revision or location |
-|---|---|
-| Implementation base | `aaa066d483b547252a3b9a33927d0e296363c2f7` |
-| Product revision | `af1f109be95ba5f7b7ec3e63d3b8344ea12f7bab` |
-| Capture writer | `5b21b1a`, `e4fd34c` |
-| Canonical paths and captured source | `701f078ed9384918d18287b687de92fb192a0d06` |
-| Managed checkout | `C:/Users/Corashina/.codex/worktrees/deseo-frontend-design/deseo` |
-| Ignored evidence | `.superpowers/frontend-design/evidence/2026-10-07` |
+### Dated evidence
 
-The implementers preserved the original checkout, named data, shared Test runtime, and product source during Task 7.
-They added no package, render harness, query cache, backend configuration, or named-media repair.
+| Date and source | Confirmed result | Evidence and limit |
+|---|---|---|
+| 7 October; product `af1f109be95ba5f7b7ec3e63d3b8344ea12f7bab`; final web `261ae21` | Mobile 203 tests; domain 7; final web 244, two generation skips; both JavaScript exports passed | `.superpowers/frontend-design/evidence/2026-10-07`; original feature checkout and backend |
+| 7 October; capture `701f078ed9384918d18287b687de92fb192a0d06` | 39 routes; 119 views; 238 viewport records; 321 page JPEGs and two named-failure JPEGs | [Gallery](../design/frontend-2026-10-07/web/index.html), [index](../design/frontend-2026-10-07/web/README.md), [verification](../design/frontend-2026-10-07/web/verification.json), [coverage](../design/frontend-2026-10-07/web/coverage.json) |
+| 8 October; merge base `3428eae8cd6fcb7e6245ac4e6b364a15a16cc394`; feature `e96ab62dcbc2a3929ce62a95ddc7346a829fc5ad` | Web 272, two generation skips; mobile 205; domain 7; database 517 assertions; both JavaScript exports passed | `.superpowers/merge-frontend-2026-10-08`; existing migrations applied with stored content preserved |
+| 8 October; UI/UX base `880bcb7173ff7221526214ff6e82a8287806840d` | Web 272, two skips; mobile 205; domain 7; both exports; 238 matched before/after pairs | [Comparison](../design/ui-ux-pro-max-2026-10-08/index.html), [verification](../design/ui-ux-pro-max-2026-10-08/verification.json); after diff SHA256 `fb872902a2f3a4fe19d0464206138408c7bb03801e541aa8160d8df3f2b86dad` |
+| 8 October; Design Taste `a3caba651d8eaf09536518522407dc70d5199aee`; merge base `083ea55255251cdf08f701ba1b5205a877d4f9a8` | Final web 272, two skips; mobile 205; domain 7; both exports; 32 images and three comparisons | [Comparison](../design/design-taste-2026-10-08/index.html), [verification](../design/design-taste-2026-10-08/verification.json); 62 compiled assets without server values or native imports |
+| 8 October; combined master base `0531c27fa7beef81cff80131afcd2f2904f60050` and Design Taste `a3caba6` | Web 272, two skips; mobile 205; domain 7; focused browser 18; repeated realtime 12; repeated photo publication 6; both exports | `.superpowers/design-taste/combined-*`; source fingerprint `cb683adbdb5d6c053bdc86688e3beb177fa999bf391da234ae8e0286906010ac` |
 
-### Final checks
-
-Environment: Windows, Europe/Warsaw, Node 24.18.0, npm 11.16.0, root lockfile.
-Another Deseo chat owned the existing `deseo` API at `127.0.0.1:55721`, with Test origin `127.0.0.1:4174`.
-Playwright owned temporary previews. The implementer checked listeners and ran browser batches in sequence.
-The run did not use the documented `deseo-web` launcher or change backend configuration or service processes.
-
-| Command | Result | Exit |
-|---|---|---:|
-| `npm run verify:mobile` | Types/lint; 45 suites, 203 tests passed | 0 |
-| `npm run test:domain` | 2 suites, 7 tests passed | 0 |
-| `npm exec --workspace @deseo/mobile -- expo export --platform android --platform ios --output-dir dist` | Both Hermes JavaScript exports passed | 0 |
-| `npm run test:web -- screenshot-coverage.spec.ts screenshot-cleanup.spec.ts`, `DESEO_CAPTURE=1` | 13 passed; one intentional skip; 9.5 minutes | 0 |
-| Initial `npm run verify:web` | Types/lint/build passed; 242 passed, two failed, two generation skips; 29.7 minutes | 1 |
-| Unchanged deleted-send replay, both projects | 2 passed; 12.1 seconds | 0 |
-| Unchanged same-account pair-change replay, both projects | 2 passed; 7.8 seconds | 0 |
-| Corrected recovery cases, both projects | 4 passed; 21.5 seconds; types/lint passed | 0 |
-| Fresh `npm run verify:web` on `261ae21` | Types/lint/build passed; 244 passed, two generation skips; 29.5 minutes | 0 |
-| Built asset review | 62 text assets; four private values absent; no native module imports | 0 |
-| `git diff --check` | Writer and canonical path changes passed | 0 |
-
-Mobile/domain checks used `af1f109`; those trees remained unchanged through Task 7.
-Task 7 changed capture tests, fixture verification, documentation, and gallery paths.
-Vendor Supabase runtime and key-prefix comparisons in the bundle are neither native imports nor credentials.
-The implementer retained failed/passing logs, ownership journals, and private sessions in ignored scratch outside Git.
-
-### Mechanical detector
-
-After Tasks 1–6, the implementer ran `impeccable.cmd detect --json` against 37 changed web paths, `aaa066d` to `af1f109`.
-Result: `[]`, exit 0. The implementer kept approved fonts, palette, corners, targets, and motion rules.
-The detector result provides no rendering or device acceptance.
+The source fingerprint covers 378 files. The Design Taste verification record retains its per-file hashes.
+Historical checks used Windows, Europe/Warsaw, Node 24.18.0, npm 11.16.0, and the root lockfile.
+Browser checks used real local Auth, PostgreSQL, private Storage, and controlled transport failures.
+The historical source detector found no required design issue. It provides no browser or device acceptance.
 
 ### Gallery, fixtures, and privacy
 
-Use [the gallery](../design/frontend-2026-10-07/web/index.html), [capture index](../design/frontend-2026-10-07/web/README.md), and [verification record](../design/frontend-2026-10-07/web/verification.json).
-Keep [the historical gallery](../design/web-portal/index.html) as evidence of its recorded source.
+Keep [the historical gallery](../design/web-portal/index.html) and its [coverage](../design/web-portal/coverage.json).
+Galleries reuse identical hash-named JPEGs in `design/shared`.
+Keep capture manifests, source hashes, real UTC timestamps, and fixture labels with their galleries.
 
-| Recorded capture fact | Value or check |
+| Record | Preserved evidence |
 |---|---|
-| Coverage | 39 routes, 119 views, 238 viewport records |
-| Viewports | Desktop 1440 × 1000; phone 390 × 844 |
-| Original outputs | 236 distinct viewport images plus 85 full-page images: 321 page JPEGs; two named-failure JPEGs |
-| Real capture interval | `2026-10-07T14:34:54.196Z` to `2026-10-07T14:43:32.613Z` |
-| Display clock | 5 October 2026, 10:00 Europe/Warsaw; backend/Auth retained real time |
-| Provenance | `coverage.json` records real UTC capture time and tested source revision |
-| Validation | JPEG bytes, decoding, exact viewport/full-page dimensions; root redirects to the shared Welcome image |
-| Gallery assertions | Desktop skipped during incomplete narrow capture; narrow validated both sets; final `verify:web` passed both |
-| Historical preservation | All 327 hashes matched before and after path consolidation |
-| Cleanup | All 60 retained journals recorded `cleaned=true` and removal of owned accounts; named pair intact |
+| Viewports | Desktop 1440 × 1000; phone browser 390 × 844 |
+| Capture interval | `2026-10-07T14:34:54.196Z` to `2026-10-07T14:43:32.613Z` |
+| Display clock | 5 October 2026, 10:00 Europe/Warsaw; Auth and backend used real time |
+| Historical consolidation | All 327 historical hashes matched; shared files retained exact bytes |
+| Fixture ownership | Historical final cleanup recorded 60 journals with `cleaned=true`; owned accounts removed; named pair retained |
+| Privacy | Masked emails, invitation tokens, sign-in codes, and verification codes; capture URLs use `MASKED` |
+| Private evidence | Sessions, keys, traces, failed logs, and ownership journals remain in ignored scratch |
 
-Shared hash-named files preserve exact image bytes. Manifests retain source revisions, timestamps, and view coverage.
-Original output counts describe capture evidence; galleries can reference shared files outside their own folders.
-The implementer masked emails, invitation codes, sign-in codes, and verification codes; coverage URLs use `MASKED` invitation tokens.
-Sessions, keys, traces, and fixture journals stay outside galleries.
-Cleanup checks cover partial setup, failed deletion, disposal, and journal recovery.
+The named-media preflight record remains at `.superpowers/frontend-design/capture/named-media-preflight.json`.
+Normal photo views use owned disposable pairs with decoded-image checks.
+Other views use named Anna/Marek content, disposable fixtures, or controlled request failures.
+Remove fixtures only through their ownership records. Keep unknown rows and user edits.
 
-### Named media limit and capture correction
+### Failure records
 
-| Evidence | Result and correction |
+| Failure or correction | Evidence and limit |
 |---|---|
-| Read-only preflight on `af1f109`, `2026-10-07T14:15:10.599Z` | Today: one photo error; Memories: two; named detail: one. Media/Storage: HTTP 200; no decoded photo. |
-| Named failure captures | Separate [desktop](../design/frontend-2026-10-07/web/named-media-failure-1440.jpg) and [phone](../design/frontend-2026-10-07/web/named-media-failure-390.jpg) images. No assigned cause or byte repair. |
-| Normal photo coverage | Controller-approved owned disposable pairs; exact fixture labels; decoding, bounds, and absent-error checks. |
-| Other views | Named planning/task/message/account fixtures; disposable or controlled failure fixtures for error/conflict/pending/unavailable states. |
-| First full capture | 10 passed, three failed, one skipped; exit 1. Both projects failed `memory-edit/default`, then incomplete-gallery validation. |
-| Capture correction | Limit decoding to photo-bearing views; existing edit page contains only caption/date. Types/lint/diff passed before `e4fd34c`. |
+| Named media | Read-only preflight on `af1f109` found Today/feed/detail photo errors despite HTTP 200. Cause and repair remain unverified. |
+| Named failure captures | Keep [desktop](../design/frontend-2026-10-07/web/named-media-failure-1440.jpg) and [phone](../design/frontend-2026-10-07/web/named-media-failure-390.jpg) images. Design Taste retains the demo error and Retry. |
+| Initial capture | 10 passed, three failed, one skipped. Decode checks incorrectly included caption-only edit views; corrected capture passed. |
+| Initial full feature web | 242 passed, two failed. Unchanged replays passed; tests then awaited verified session recovery. Fresh full run passed 244. |
+| Journal collision | Secondary journal write could bypass cleanup. Importance-95 collision/recovery checks failed before correction, then passed 16 with two generation skips. |
+| Expiry fixture identity | Fixed database naming could select the wrong stack. Endpoint/project/workdir checks now select the immutable database container ID. |
+| Identity correction checks | Four regression cases failed before correction; 20 checks then passed, including both real expired-code cases. Types and lint passed. |
+| UI/UX checks | Native timeout, fixture directory, results directory, and concurrent capture errors preceded successful full reruns. Raw `.superpowers/ui-ux-*` logs remain. |
+| Design Taste full run | 271 passed before fixture setup failed during an Edge restart. Both unchanged Calendar replays and fresh full web verification passed. |
+| Combined checks | Initial realtime timeout and photo-publication timeout remain in ignored logs. Subscription confirmation and bounded test budgets preceded repeated passes. |
 
-The implementer reported preflight failures before full capture and retained failed logs and cleanup journals.
-Product behavior stayed unchanged. Disposable normal-photo captures provide local fixture evidence, with separate named-media limits.
+Historical reviewers cleared the recorded branch after scoped corrections.
+Corrections cover narrow date/file text, native message spacing, account-zone note timestamps, journal cleanup, and expiry target identity.
+The implementers kept authority cleanup, immutable command inputs, and protected unknown outcomes.
+A focused rerun proves its covered cases. Keep failed logs beside later full results.
 
-### Full web recovery-test results
-
-The initial full run failed desktop deleted-send recovery and phone same-account pair-change invitation generation.
-Unchanged replays passed both projects; these replays did not replace a passing full run.
-Both failures overlapped privacy-triggered session revalidation.
-
-| Case | Observed state | Correction in `261ae21` |
-|---|---|---|
-| Deleted send | Pending send remained after reconciliation lost query scope | Await verified session recovery before Retry; retain pending, no-resend, and deleted-result assertions. |
-| Same-account pair change | Old token cleared; new pair adopted; new invitation remained unconfirmed | Await own signals and verified new-pair recovery; retain old/new-token and isolation assertions. |
-
-The original Messages implementer added a fixture observer, forwarding realtime frames unchanged.
-It observes joined channels, expected own signals, and fresh session/new-pair responses.
-Traces prove overlapping requests and protected pending state. Exact realtime event delivery remains an inference from source.
-Four covering checks and browser types/lint passed. Product privacy guards stayed unchanged.
-Fresh full verification passed 244 checks and both gallery assertions; two generation checks skipped outside capture mode.
-The implementer retained the prior full-run failure in ignored evidence.
-
-### Layer evidence
-
-| Layer | Commit | Scoped result | Baseline or correction |
-|---|---|---|---|
-| Foundation | `8519e94` | Browser 12; native Field 2; types/lint | Header assertion already passed; implementer retained that result. |
-| Entry/settings | `49d2095` | Browser 70; native auth/pair 17; types/lint | Baseline: 60 passed, two obsolete-container failures. Scoped expiry helper passed both cases. |
-| Today/calendar | `467d545` | Browser 46; native 15 plus Calendar 29; types/lint | Today order failed before restructuring, then passed. |
-| Tasks/notifications | `44ee848` | Browser 56 plus copy 12; native 39; types/lint | Baseline: browser 44/native 11. Importance-95 row completion failed, then passed; focused native 27; capture batch 27 views. |
-| Memories | `e6eed64`, `503a536` | Browser 46; form fix 14; native 7; types/lint | Photo recovery and widget readability failed, then passed scoped corrections. |
-| Messages/notes | `8f3be6d`, `af1f109` | Browser 36; native 15; fix 21; types/lint | Account-zone pin assertions failed, then passed. |
-
-Task 2's CSS zoom probe does not prove doubled-computed-text acceptance.
-Reviewers approved each layer after its recorded corrections; see [the verdicts](#preserved-review-verdicts).
-
-### Browser review
-
-The implementer reviewed 119 views at both widths through 15 contact sheets; no new required UI issue.
-The review covered hierarchy, order, controls, wrapping, masks, dialogs, photo recovery, and sender labels.
-The controller checked phone Today planning and the desktop conversation.
-
-| Route | Reviewed views, each at 1440px and 390px | Result |
-|---|---|---|
-| entry-root | resolved-entry | No required issue |
-| entry-welcome | default, invited, global-signout-failure | No required issue |
-| entry-email | default, error | No required issue |
-| entry-verify | default, invalid-code | No required issue |
-| entry-profile | new-account | No required issue |
-| pair-start | default | No required issue |
-| pair-invite | default, generated-code, delivery-unconfirmed, already-delivered | No required issue |
-| pair-join | default, review, unavailable | No required issue |
-| pair-waiting | default, cancel-dialog | No required issue |
-| pair-welcome | default | No required issue |
-| pair-ended | default | No required issue |
-| invite-entry | valid, invalid | No required issue |
-| calendar | month, agenda, compare, empty, error | No required issue |
-| event-new | default, validation, plan-date | No required issue |
-| event-detail | shared, private, delete-dialog, unavailable, request-error, pending-deletion | No required issue |
-| event-edit | default, conflict, share-dialog | No required issue |
-| today | planning, empty, error | No required issue |
-| memories | month-feed, empty, error | No required issue |
-| memory-new | default, selected, upload-error | No required issue |
-| memory-detail | author, partner, delete-dialog, unavailable, media-error, request-error, pending-deletion | No required issue |
-| memory-edit | default, conflict | No required issue |
-| messages | conversation, notes, empty, error, pending-send, delete-dialog, pending-action | No required issue |
-| tasks | general, groceries, completed, completion-error | No required issue |
-| task-new | default, validation | No required issue |
-| task-detail | default, delete-dialog, unavailable, request-error, pending-deletion | No required issue |
-| task-edit | default, conflict | No required issue |
-| task-lists | default, create | No required issue |
-| task-list-detail | general, nonempty, empty, move-dialog, remove-dialog | No required issue |
-| ideas | saved, planned, archived, empty | No required issue |
-| idea-new | default, validation | No required issue |
-| idea-detail | saved, planned, archived, archive-dialog, unavailable, request-error | No required issue |
-| idea-edit | default, conflict | No required issue |
-| notifications | list, empty, unavailable, error | No required issue |
-| settings | default, unpaired, ended | No required issue |
-| settings-profile | default, conflict | No required issue |
-| settings-pair | default, verification, end-dialog, ended | No required issue |
-| settings-notifications | default, quiet-hours, conflict | No required issue |
-| settings-account | default, unpaired, ended | No required issue |
-| unknown-route | not-found | No required issue |
-
-Existing suites cover five widths and long/doubled computed text (92), keyboard/dialog focus (93), and draft retention (95).
-Widths: 320, 390, 768, 1024, and 1440px.
-Browser confirmation prompts sit outside page images; navigation checks cover dismissal and acceptance.
-
-<a id="native-frontend-evidence"></a>
 ### Native frontend evidence
 
-Native types/lint and 45 suites/203 tests passed. Both JavaScript exports passed.
-
-| Platform | Ignored bundle in `apps/mobile/dist` |
-|---|---|
-| Android | `entry-60c8670ebc76930b5c32fe1e2b5f71cb.hbc`, 5.2 MB |
-| iOS | `entry-5c5b1464c595fb2b254763798f712cdf.hbc`, 5 MB |
-
-Exports and `metadata.json` remain ignored. The implementer installed no harness and captured no native device screenshot.
-Device tools, native SDKs, simulators, and a native render harness were unavailable.
-Physical keyboard, large fonts, safe areas, final-item clearance, VoiceOver, and TalkBack remain unverified.
-Camera/photo permissions, push, native binaries, stores, and deployment require separate acceptance.
-Source checks and JavaScript exports provide no device acceptance.
-The controller requested compact live guides; the implementer removed completed prompts, templates, and raw plans.
-Git history retains those records. Current guides retain contracts, scope, checks, rulings, reviews, and remaining work.
-
-### Controller rulings
-
-The controller made ten task rulings, then corrected the fixture identity ruling during final review.
-These historical decisions retain their original context; ruling 11 supersedes ruling 3's fixed database name.
-
-| # | Context and ruling | Reason and risk |
-|---|---|---|
-| 1 | Use approved committed source in the managed checkout; retain unrelated backend edits in the original checkout. Use ignored fixture environment files. | Isolate design work. Baseline checks may need environment adjustment. |
-| 2 | Retain honest baseline results when a new assertion already passes. | Confirm existing behavior. A latent case may need a more specific assertion. |
-| 3 | Task 2: verify identity, then change only disposable expiry from `supabase_db_deseo-web` to the running `supabase_db_deseo`. Retain baseline failures and review the helper. | Use the existing backend without configuration changes or dirty-file copies. A fixed name could select the wrong stack; see correction 11. |
-| 4 | Task 4: add read-only permission Retry through the existing reader and Status props; importance 95. Retain focus recovery, public props, and one listener. | Recover failed reads. Extra reads/races need scoped checks. No permission requests, device registration, backend writes, or new listener. |
-| 5 | Task 5: fix browser date/file readability at 320px doubled text, overriding earlier deferral and the two-round polish ceiling. | Approved text requirement controls. Preserve picker semantics, values, focus, prepared bytes, props, and packages. Verify affected forms/crops/recovery and narrow captures. |
-| 6 | Task 6: allow required account timezone/locale props on native NoteCard; update all callers. | Account preferences control display. Preserve explicit data; add no compatibility defaults or hidden state. Check callers, types, and time settings. |
-| 7 | Task 7: retain named failures and use verified owned disposable pairs for normal Today/feed/detail/edit/author/partner/delete photo captures. Keep exact fixture labels and named content elsewhere. | Show decoded private photos with honest provenance. Change no named data, bytes, or infrastructure. Normal photo content differs from named demo content. |
-| 8 | Task 7: consolidate into three canonical docs; move assets to root `design`. Retain approved spec/plan in ignored scratch; preserve the original checkout. | Current AGENTS replaces old artifact paths. Original docs supply layout references only where contracts match; their backend command/status differs. New gallery: `design/frontend-2026-10-07/web`. |
-| 9 | Task 7: original Messages implementer awaits verified session recovery before deleted-send Retry, after the full failure and unchanged replay. | Preserve privacy revalidation/query abort. Keep pending/no-resend/deleted assertions and observed responses/state; use no sleeps or product changes. |
-| 10 | Task 7: apply ruling 9 to same-account pair change; await own membership/profile signals and verified new-pair recovery before generating. | Privacy signals can interrupt invitations. Retain old/new-token, isolation, and unknown-outcome checks; change no product/privacy guard. |
-| 11 | Final review: derive SQL target from fixture `API_URL`/`DB_URL` status endpoints; reject ambiguous or mismatched identity. | Fixed names proved only the current run's target. Controlled rejection and real expiry checks guard wrong-database writes and blocked valid checks. |
-
-Fix bases: Task 5 `e6eed64e104d210d65944584163fcbda80c63735`; Task 6 `8f3be6d72cd4ff81cbd09e0f3dcc1e16efc02bfe`.
-Named preflight record: `.superpowers/frontend-design/capture/named-media-preflight.json`.
-
-### Preserved review verdicts
-
-Reviewers repeated no tests. These verdicts cover their recorded source and saved checks, with the limits below.
-Original task reviewers used `gpt-6.1-sol/high`; scoped reviewers used `gpt-6.1-sol/medium`.
-
-| Original verdict and reviewer | Evidence, correction, and limit |
-|---|---|
-| <a id="task-1-review"></a>Task 1: spec Approved for verified changes; quality Approved. `/root/review1_foundation` | No Critical/Important/Minor. Checked direct `messages.css` imports in TodayPage/ MessagesPage. Field/focus logs support unchanged controls and interfaces. Native visuals/devices unverified. |
-| <a id="task-2-review"></a>Task 2: spec Approved for source changes; quality Approved. `/root/review2_entry_settings` | No findings. Checked native account gate, selector callers, composition, fixture UUID/email guards. Browser 70/native 17 passed without warnings. Controller inspected six captures from 72 browser views and Welcome 16px source/checks. Unchanged composition and devices remain limits; final images belonged to Task 7. |
-| <a id="task-3-review"></a>Task 3: spec Approved for changed source; quality Approved. `/root/review3_planning` | No findings. Checked Today order/date/columns, form callbacks/validation, native idea actions, phone owner headings/shared rows. Browser 46/native 15+29 and types/lint passed. Controller inspected disposable-photo Today and phone comparison. Unchanged EventRow/screens and devices remain limits. Task 5 must fix failed-photo Retry clipping; retain named failures. |
-| <a id="task-4-review"></a>Task 4: spec Approved; quality Approved. `/root/review4_tasks_notifications` | No findings. Checked row completion/Details, account-zone dates, local errors, reminders/quiet hours. Permission reader calls only `getPermissionsAsync`; Retry keeps props and one AppState listener. Browser 56/copy 12/native 39 passed without warnings. Unchanged drafts/screens and devices remain limits; final headers belonged to Task 7. |
-| <a id="task-5-review"></a>Task 5: spec Needs fixes; quality Needs fixes. `/root/review5_memories` | Important: `MemoryFormPage.tsx:146` and `PhotoSelection.tsx:10` clip date/file status at 320px doubled text. Accessibility values do not prove readability. Required recovery approved: sibling controls, expandable errors, 3:2 crops/detail proportions. Browser 46/confirmation 6/native 7 and types/lint passed; reviewer inspected capture and `widget-evidence.json`. No other findings; devices/unchanged data remain limits. |
-| <a id="task-5-fix-1-review"></a>Task 5 fix: ADDRESSED. `/root/rereview5_forms` | Scoped date insets and native file input with wrapping status retain 16px text, labels, focus, disabled state, callbacks, bytes, and crops/recovery. Browser 14/types/lint passed; checks cover twelve dates, real file selection, values, bounds, and overflow. Controller inspected `selected-320-text-2-narrow`. No new findings or outside-scope observations. |
-| <a id="task-6-review"></a>Task 6: spec Needs fixes; quality Needs fixes. `/root/review6_messages` | Important: `MessagesScreen.tsx:78,257` uses older-neighbor boundaries with bottom padding in newest-first data. `NoteCard.tsx:17` uses device preferences instead of account preferences. Browser sender layout, bounded conversation, props/identities, and direct routes passed review. Browser 36/native 15/types/lint passed. Devices remain unverified. |
-| <a id="task-6-fix-1-review"></a>Task 6 fix: both findings ADDRESSED. `/root/rereview6_native` | Top padding matches counter-inverted cells. MessagesScreen/TodayScreen pass required timezone/locale without defaults. Two timestamp checks failed before correction; four suites/21 checks and native types passed. Empty lint log plus implementer success preceded Task 7's fresh lint exit 0. No new findings, outside-scope observations, or reviewer source mutations. Devices remain unverified. |
-
-### Native source coverage
-
-Reviewers checked the following files under `apps/mobile/src/features/`. Physical-device review remains unverified for each file.
-
-| Feature | Reviewed files in `screens/` |
-|---|---|
-| today | `TodayScreen.tsx` |
-| messages | `MessagesScreen.tsx` |
-| auth | `WelcomeScreen.tsx`, `VerifyScreen.tsx`, `ProfileScreen.tsx`, `EmailScreen.tsx` |
-| calendar | `IdeaListScreen.tsx`, `IdeaFormScreen.tsx`, `IdeaDetailScreen.tsx`, `EventFormScreen.tsx`, `EventDetailScreen.tsx`, `CalendarScreen.tsx` |
-| memories | `MemoryFormScreen.tsx`, `MemoryDetailScreen.tsx`, `MemoriesScreen.tsx` |
-| tasks | `TasksScreen.tsx`, `TaskFormScreen.tsx`, `TaskDetailScreen.tsx`, `ListDetailScreen.tsx` |
-| pair | `WelcomeScreen.tsx`, `WaitingScreen.tsx`, `StartScreen.tsx`, `SettingsScreen.tsx`, `JoinScreen.tsx`, `InviteScreen.tsx`, `EntryScreen.tsx`, `EndedScreen.tsx` |
-| notifications | `NotificationPreferencesScreen.tsx`, `NotificationListScreen.tsx` |
-
-### Task 7 review and fix round 1
-
-Reviewer: `/root/review7_evidence`, `gpt-6.1-sol/high`. Original spec and quality: Needs fixes. Critical: None.
-Important: `screenshot-coverage.spec.ts:74-75` writes the second journal after fixtures exist, before cleanup protection at 128/188.
-An exclusive-write failure could bypass cleanup. Minor deferred: repeated native `NO_COLOR`/`FORCE_COLOR` warnings; retain the raw log.
-The reviewer checked clocks, masks, recovery, 39 routes/119 views/238 records, 323 original JPEGs, 327 historical hashes, and three docs.
-Saved logs: browser 244/two skips, mobile 203, domain 7, both exports. Reviewer repeated no tests.
-The reviewer checked the outside-diff journal failure and read the truncated gallery-validation tail.
-Devices remained unverified; original-checkout/live-data preservation required controller evidence.
-The controller confirmed managed-worktree edits/commits, no original-source writes, preserved populated runtime, and read-only named photos.
-At that review, 40 journals were clean; concurrent original-checkout changes belonged to other chats.
-
-| Fix round 1/5 | Result |
-|---|---|
-| Base | `e1a2ddd94d7e5cc7bbb0a13617df844bb508e62a`; original Task 7 implementer |
-| Correction | Clean main fixtures after secondary setup failure; retain both errors and main journal if cleanup fails. |
-| Importance 95 | Real EEXIST after 11 accounts; disposal, unchanged secondary ownership, failed cleanup, saved-journal recovery. |
-| Baseline and fixed batch | Two failures before fix; 16 passed, two generation skips; 1.8 minutes; exit 0. |
-| Other checks | Both existing-gallery assertions, web types, and lint passed. Prior full result remains `261ae21`: 244/two skips. |
-| Preservation | All 60 journals clean; 327 historical hashes and 323 original JPEGs unchanged. |
-
-The fix required no broad suite, native export, capture, package, product source, or runtime change.
-The controller retained export warnings as a deferred Minor. Final whole-branch review later passed.
-
-### Task 7 scoped review
-
-Reviewer: `/root/rereview7_cleanup`, `gpt-6.1-sol/medium`. Secondary journal cleanup: ADDRESSED.
-The reviewer checked saved importance-95 collision/recovery evidence: two baseline failures, then 16 passes/two skips; types/lint passed.
-No new Critical or Important; no repeated tests. Native color warnings: environmental, nonblocking Minor.
-Task 7 completed; physical-device acceptance remained unverified.
-
-### Final whole-branch review and fixture identity correction
-
-Reviewer: `/root/final_review`, `gpt-6-astra/high`. Original assessment: With fixes. Critical: None.
-Reviewed range: `aaa066d483b547252a3b9a33927d0e296363c2f7..a2fba9b23c2a37ba7f643554c547ac1fb923c524`.
-Strengths: Today order, separate photo recovery, scoped styles, unchanged domain/dependencies, evidence boundaries, and journal cleanup.
-Important: the fixed `supabase_db_deseo` expiry target conflicts with documented `deseo-web` setup; controller ruling 11 corrects ruling 3.
-
-The helper resolves `API_URL`/`DB_URL` from selected running Docker labels and published ports.
-It requires one owner per endpoint, matching project/workdir labels, and gateway/database roles.
-It uses the verified immutable database container ID, retains UUID/disposable-email guards, and fails unmatched guarded updates.
-Fix wave base: `a2fba9b23c2a37ba7f643554c547ac1fb923c524`. New identity checks rate 100.
-
-| Command or condition | Result | Exit |
-|---|---|---:|
-| Docker identity preflight | Daemon and endpoint ports absent; raw failure retained | 1 |
-| `npm run test:web -- fixture-identity.spec.ts`, before fix | Four expected regression failures | 1 |
-| `npm run test:web -- fixture-identity.spec.ts entry.spec.ts --grep "fixture database\|expired email code does not restore a session"` | 20 passed; 9.0 seconds | 0 |
-| `npm run typecheck --workspace @deseo/web` | Passed | 0 |
-| `npm run lint --workspace @deseo/web` | Passed | 0 |
-
-The controller restored Docker Desktop and verified resumed `deseo` API, database, mail, and Auth health.
-The implementer started no service and reset no data. Backend setup/schema, product source, and named data stayed unchanged.
-Controlled Docker inputs covered documented `deseo-web`; no second stack. Both real expired-code cases passed on the shared stack.
-The fix required no broad suite, export, or gallery rerun. Ignored evidence retains the raw logs.
-The controller verified the preserved export log's SHA256: `.superpowers/frontend-design/evidence/2026-10-07/task-7-native-export.log`.
-Minor triage: color warnings are environmental and nonblocking. Use one color setting during the next required export.
-The controller declined device acceptance and named-photo repair. Disposable normal photos and named failures retain separate provenance.
-One scoped final review passed with no new Critical or Important findings.
-
-### Final scoped review and delivery
-
-Reviewer: `/root/final_rereview`, `gpt-6.1-sol/medium`. Database mismatch: ADDRESSED; endpoint owners and immutable ID verified.
-Saved checks: 20 passed, including two real expired-code cases; types/lint passed. UUID/email guards and unmatched-update rejection remain.
-No new Critical/Important or outside-scope observations; reviewer repeated no tests. Final review cleared after one fix wave.
-Native color warnings remain nonblocking. Physical native and named-data acceptance remain unverified.
-The controller preserved the detached worktree pending the owner's integration choice; [the later merge](#frontend-merge-record) records that choice.
+Historical native source checks and Android/iOS JavaScript exports passed as listed above.
+Exports remain ignored under `apps/mobile/dist`.
+Native SDKs, simulators, and a native render harness were unavailable during the original frontend review.
+Physical Android/iOS rendering, keyboard behavior, large fonts, safe areas, VoiceOver, and TalkBack remain unverified.
+Camera/photo permissions, encrypted storage, push, native binaries, and stores need device checks.
+Native export color warnings remain an environmental limit in the retained raw log.
+No listed browser check or JavaScript export proves physical-device acceptance.
 
 ## Frontend merge record
 
-Date: 8 October 2026. The owner authorized merging the reviewed frontend branch into master.
-Master before merge: `3428eae8cd6fcb7e6245ac4e6b364a15a16cc394`.
-Reviewed feature: `e96ab62dcbc2a3929ce62a95ddc7346a829fc5ad`.
+The owner authorized the 8 October frontend merge into master.
+The merged source retains current backend contracts, access guards, native theme hooks, and newer form/date/message controls.
+It adds reviewed styles, Today reading order, task targets, photo Retry controls, message grouping, and note timestamps.
+The combined design merge keeps both review galleries and their recorded-source limits.
+The table above records merge checks and hashes. The galleries do not capture the final combined interface.
+Named-photo repair remains excluded. Remote push, hosted deployment, and store publication remain unverified.
 
-The merge keeps the current backend, domain contracts, access rules, Today summary query, and native theme hooks.
-It retains field errors, timezone controls, task date labels, memory virtualization, and message action menus from master.
-It adds the reviewed control styles, Today reading order, task targets, memory Retry controls, grouping, and note timestamps.
-The guarded expiry helper reads the current backend status and resolves one API/database identity before SQL.
-It uses the immutable database container ID and rejects unmatched fixture updates.
+## Architecture optimization evidence: 9 October 2026
 
-The gallery retains captured source `701f078`. Its records prove only that recorded interface.
-The merged forms, date labels, and message actions can differ from those images.
-The merge does not regenerate the gallery or repair named photos.
+The branch implements the approved contract, calculation, asset, feature-seam, and local Edge changes.
+The coordinator retains reports in ignored `.superpowers/sdd/DEVELOPMENT` and raw logs in `.superpowers/architecture-optimization`.
 
-Both application typechecks and root lint passed after installation from the unchanged master lockfile.
-Full merged browser, mobile, backend, and export results require separate checks.
-Physical Android and iOS acceptance remains unverified.
-The historical feature handoff above keeps its original revisions, eleven controller rulings, and review verdicts.
+### Source and checked behavior
 
-## Frontend merge verification — 8 October 2026
+| Change | Revision | Confirmed behavior |
+|---|---|---|
+| Browser icon | `0223efa` | 288 × 288 PNG; 869,970 bytes reduced to 67,385; compiled browser excludes the source PNG |
+| Shared Today | `ef31114` | Both clients parse the shared contract and existing `get_today`; browser keeps the separate latest Memory read |
+| Calendar and Messages | `51efb2d` | One Important date scan; cached Calendar groups; one cached message Map and ordered rows |
+| Feature interfaces | `8455431` | Static/type imports, re-exports, and literal dynamic imports obey feature and platform rules |
+| Edge and worktree guards | `a549c57` | Six entrypoints use one frozen check; backend owner and registered Edge source remain distinct |
 
-Merged reviewed frontend source e96ab62 into master from baseline3428eae.
-All 39 conflicts were resolved. Current backend, access guards, theme hooks, and newer product behavior were retained.
-Source review found no Critical, Important, or Minor issue.
+| Command or scope | Confirmed result | Limit |
+|---|---|---|
+| `npm run verify:mobile`, `npm run test:domain`, `npm run typecheck` | Native 211 tests; domain 19; workspace types passed | Physical devices remain unverified |
+| `npm run test:architecture` | 42 passed | Installed ESLint engine checks |
+| `node --test supabase/dev/workspace.test.mjs` | 23 passed | Real Git/PowerShell; controlled Docker/CLI inputs |
+| `npm run typecheck:functions` | All six entrypoints passed | Shared frozen Deno 2.9.6 configuration |
+| Both function test commands | 22 memory/origin/key tests and 15 notification tests passed | Direct function checks |
+| `npm run test:web -- today.spec.ts session-isolation.spec.ts` and fixed replays | 18 initial passes; both corrected delayed-summary cases passed | Fresh full browser acceptance pending |
+| `npm run test:web -- calendar.spec.ts messages.spec.ts` and fixed replay | 41 initial passes; corrected adjacent-month case passed | Fresh full browser acceptance pending |
+| `npm run test:web -- gateway-origin.spec.ts pair-revocation.spec.ts` | Eight passed across both browser projects | Local gateway and authority revocation |
+| Android/iOS JavaScript export command from Setup | Both passed | Native binaries and device behavior remain unverified |
+| Worktree Edge serving | Source mount and label selected the worktree; database container ID unchanged | Exact Test origin retained; existing 5174 listener preserved |
 
-| Check | Result |
-|---|---|
-| Browser verification | 272 passed; two capture-generation skips; exit 0 |
-| Native verification | 46 suites; 205 tests passed; exit 0 |
-| Domain contracts | 7 passed; exit 0 |
-| Local database | 14 files; 517 assertions passed; exit 0 |
-| Android and iOS JavaScript exports | Both passed; exit 0 |
-| Types, lint, and staged diff | Passed |
+The coordinator retained original failure logs and later replay results.
+The Today gate first waited on a route with no summary request. Its correction navigates to Today before sign-out.
+The narrow Calendar case now checks stable Event links, visible day counts, and selected-agenda rows.
+Guard review removed the Vite classifier after it accepted an unsafe served-root assumption.
+The corrected guard rejects other-mode listeners during origin changes and verifies existing origin identity for source reloads.
+Final SQL verification passed: 14 files and 517 assertions, using worktree source without a database reset.
+Final combined browser and release acceptance remain pending.
+Hosted bundling/runtime, physical-device checks, push delivery, and store publication remain unverified.
 
-The existing local master migrations for read policies and Today were applied. Stored content was preserved.
-Browser startup failures were traced to cache visibility. The successful run used a project-local headless browser cache.
-Raw merge logs remain in the ignored .superpowers/merge-frontend-2026-10-08 directory.
-Earlier feature raw logs remain in .superpowers/frontend-design/evidence/2026-10-07.
-The frontend gallery describes its recorded source. It does not claim to capture the merged interface.
-Physical native acceptance remains unverified. Named photo repair remains excluded.
-The merge is local. No remote push was requested.
+### Local calculation measurements
 
-## UI/UX Pro Max frontend review
+Command: `node .superpowers/sdd/DEVELOPMENT/task-2-measure.cjs`.
+Runtime: Node 24.18.0 and npm 11.16.0; seven measured rounds after three warm-up calls.
+Selection used 1,000 fixed all-day rows and 500 calls per round.
+Grid calculations used 100 Events, 35 cells, and three calls per round.
+Both strategies retained identical date groups and Event ID order.
 
-Worktree: `codex/ui-ux-pro-max`. Baseline: `880bcb7`.
-The baseline preserves the staged project from the original checkout.
+| Operation | Before, median ms/call | After, median ms/call |
+|---|---:|---:|
+| Important date selection | 0.2141294 | 0.0971312 |
+| Grid calculation | 72.5477 | 2.3841333 |
 
-I used [UI/UX Pro Max](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill) at revision `1a2c459`.
-The product-wide searches returned marketing patterns. React and React Native searches provided the applicable control guidance.
-STYLE.md remains the visual authority for the pastel colors, system fonts, shapes, and platform navigation.
+These microbenchmarks measure calculation operations. They do not measure application rendering or browser interaction latency.
+The Task 2 report retains repeat timings and fixture details.
 
-I increased secondary and button text sizes. I mapped shared geometry and added control feedback.
-You can see both partners in the browser header. You open the phone account menu through its named control.
-I kept 48dp native targets. I used the shared palette for event borders, captions, notes, and tab selection.
-I used a div for browser status messages to keep multi-paragraph HTML valid.
+### Important date workload
 
-Open [the comparison](../design/ui-ux-pro-max-2026-10-08/index.html) for 238 matched before/after pairs.
-Both sets cover 39 routes and 119 views at 1440×1000 and 390×844.
-Each capture produced 323 JPEGs, including full-page images and named-media failure evidence.
-The capture checks and an independent image read verified matching coverage and physical image dimensions.
-Normal photo views use owned disposable fixtures. Failure views use controlled requests and owned accounts.
-Emails, invitation codes, and verification values remain masked.
-Fixture timestamps and unread counts can change between captures.
+Source: existing database reads on `a549c571ea6c83f82c8d7bcfe6d3b708c7a717b2`; this branch changes no SQL read.
+Input and output: `.superpowers/architecture-optimization/important-dates-serialization.sql` and `important-dates-serialization.log`.
+The coordinator executed this command after backend identity checks:
 
-The after records identify the baseline and SHA256 of the exact frontend diff.
-Read [verification.json](../design/ui-ux-pro-max-2026-10-08/verification.json) for source and skill revisions.
+```powershell
+Get-Content -Raw .superpowers/architecture-optimization/important-dates-serialization.sql | docker exec -i supabase_db_deseo psql -X -v ON_ERROR_STOP=1 -U postgres
+```
 
-| Check | Result |
-|---|---|
-| Browser TypeScript, lint, production build | Passed |
-| Complete browser acceptance | 272 passed; 2 capture-generation checks skipped |
-| Native TypeScript, lint, Jest | 46 suites, 205 tests passed |
-| Shared domain | 7 tests passed |
-| Android and iOS JavaScript exports | Passed |
-| Before and after gallery checks | Passed; 238 matched pairs |
-| Comparison controls and image links | Passed; importance 90 |
+The synthetic range covers 9 October 2026 through 9 October 2027, with an exclusive end of 10 October.
+The range contains 366 days. Fixtures include shared Events, partner-private Events, and February 29 yearly dates.
+One-third of stored Events belong to the partner and remain private.
+Each cohort used two warm-up calls, then seven measured calls under the authenticated fixture account.
+The log records three savepoint rollbacks and the final transaction rollback.
+The coordinator checked the reserved fixture-user prefix before and after; both counts were zero.
 
-No new acceptance tests were added. The updated shell identity check rates 95 and verifies header partners and account colors.
-The realtime profile check rates 100 and reads the verified name from its new header location.
-The layout suite checks five widths and 200% text sizes.
+| Stored Events | Visible year Events | Important dates | Year array bytes | Important array bytes |
+|---:|---:|---:|---:|---:|
+| 30 | 20 | 2 | 11,922 | 1,218 |
+| 300 | 200 | 20 | 119,408 | 12,194 |
+| 3,000 | 2,000 | 200 | 1,196,062 | 122,128 |
 
-The browser checks use an isolated preview on 4184 and a local relay on 4185.
-The relay forwards requests to the existing backend and its selected 4174 Edge origin.
-It changes transport headers, without inventing backend responses. Gateway-origin checks call the backend directly.
-The original preview and Edge process retain their configuration.
+| Stored Events | Year RPC median ms | Today RPC median ms | Year text conversion median ms | Important text conversion median ms |
+|---:|---:|---:|---:|---:|
+| 30 | 2.490 | 5.957 | 0.047 | 0.006 |
+| 300 | 4.747 | 8.252 | 0.329 | 0.033 |
+| 3,000 | 33.630 | 43.282 | 3.603 | 0.339 |
 
-A native test timed out during the first run. Its eight-test suite and the full native rerun passed.
-Initial browser runs hit a fixture working-directory error and a shared results-folder error.
-One concurrent capture failed with ERR_NO_BUFFER_SPACE. Separate capture runs completed without source changes.
-Failed logs remain in the ignored `.superpowers/ui-ux-*` files. The final browser run uses a separate results folder.
-The final run passed with the corrected tests loaded before collection. Read `.superpowers/ui-ux-web-complete.log`.
-A browser alignment check found a reserved scrollbar gutter. Removing it restored the message edge.
-The design detector's one warning identifies the settings chevron's two-pixel stroke, rather than a card accent.
+The tables use one measurement run. Timestamp metadata can change byte totals between runs.
+The earlier `important-dates.sql` and `important-dates.log` remain in ignored evidence.
+Bytes use `octet_length(jsonb::text)` for result arrays; they exclude the Result envelope and HTTP transport.
+Text conversion medians measure that operation on completed JSONB arrays, including byte counting.
+RPC medians include row selection, yearly expansion, and JSON construction; they do not measure HTTP transfer.
+The Important array comes from existing `get_today`; this measurement adds no separate Important date RPC.
 
-Phone captures show the browser portal. Native device screenshots, safe areas, keyboard behavior, and screen readers remain unverified.
-Android emulator tools were unavailable in PATH. JavaScript exports do not establish physical-device acceptance.
+The nonrepeating Event plan uses `events_pair_date` with current Pair access and author/private filters.
+At 3,000 stored Events, that ID-query plan took 2.328ms; the full year RPC plan took 31.882ms.
+Text conversion was measured separately. The plan gap may include result construction and yearly expansion.
+A separate narrow Important date design is justified by the measured bytes and full-read cost.
+That design must preserve the complete 366-day range, overlap rules, leap-day expansion, and private Event access.
+This plan implements no new Important date read.
 
-## Design Taste update
+### Realtime lifecycle workload
 
-Date: 8 October 2026. Work stays on `codex/design-taste` in a separate managed worktree.
+Source: `a549c571ea6c83f82c8d7bcfe6d3b708c7a717b2`; application source `8455431`.
+Records: `.superpowers/sdd/DEVELOPMENT/task-6-realtime-report.md` and `.superpowers/architecture-optimization/realtime-measure.json`.
+One importance-90 Playwright experiment passed in 13.6 seconds with fixture cleanup and zero page errors.
+The harness used Chromium, one worker, a 1440 × 1000 viewport, and one owned disposable active Pair.
+It used the existing production build, Test origin 4174, and local backend 55721.
 
-The owner approved preserving Deseo's pastel brand, icon, system fonts, routes, and working actions.
-Browser changes cover page headings, navigation groups, account identity, controls, forms, calendar, messages, tasks, memories, and settings.
-Native changes cover the shared theme, screen spacing, sections, fields, tabs, event rows, task rows, memory cards, and messages.
-Browser navigation uses pinned Phosphor icons through individual imports. Native screens retain Ionicons.
+```powershell
+npx playwright test --config .superpowers/architecture-optimization/realtime-measure.config.ts
+```
 
-Design Taste settings: variance 4, motion 3, density 5. Feedback uses the existing 140ms duration.
-The online skill excludes native and dense product screens. STYLE.md controls those surfaces.
-Native device screenshots and physical-device acceptance remain unverified. Browser captures do not prove native rendering.
+Each phase settled after successful joins, completed reads, network idle, and two animation frames.
+The harness confirmed the same authenticated account and active Pair after each phase.
 
-Open [the before and after comparison](../design/design-taste-2026-10-08/index.html).
-The capture records identify the demo account, display time, viewport, and capture time.
-Both sets retain the observed photo error and Retry. Stored photos remain unchanged.
+| Phase | Joins | Leaves | Socket opens / closes | Authenticated reads |
+|---|---:|---:|---:|---:|
+| Cold Today | 5 | 0 | 1 / 0 | 11 |
+| Each of three same-Pair focus events | 4 | 8 | 0 / 0 | 15 |
+| Ordinary offline → online | 4 | 8 | 0 / 0 | 15 |
+| Offline, controlled socket disconnect, then online | 5 | 8 | 1 / 1 | 15 |
 
-### Design Taste checks
+Cold Today joined membership, Messages, Memories, Tasks, and Calendar once each.
+Each focus event left each feature channel twice and joined it once; membership remained subscribed.
+The controlled disconnect added a fresh membership join.
+Cold reads included session 1, Pair 1, unread count 2, Today 3, latest Memory 3, and media 1.
+Each later phase read session 1, Pair 1, unread count 2, Today 5, latest Memory 5, and media 1.
+All counted reads returned successful responses. All observed joins returned `ok`.
 
-| Check | Result |
-|---|---|
-| Browser types, lint, and build | Passed |
-| Native types, lint, and tests | 46 suites, 205 tests passed |
-| Android and iOS JavaScript exports | Passed |
-| Browser UI | 24 passed; two account-avatar failures corrected; four focused checks then passed |
-| Layout | Five widths and doubled text passed |
-| Design detector | No findings |
-| Captures | 32 individual images and three comparison images; no page overflow |
+The routed WebSocket proxy forwarded frames without changing their contents.
+It retained aggregate counts and no Auth value, frame payload, private content, signed URL, or fixture ID.
+Counts exclude Auth codes, fixture requests, signed image downloads, and preflight requests.
+Ordinary Chromium offline mode left the WebSocket open; that case checks online revalidation without a transport reconnect.
+The controlled case closed both proxy endpoints with code 1001 while offline, then observed a fresh connection.
+Proxy and response timing can change invalidation overlap. These counts do not set a fixed device read budget.
+The experiment checks wire joins and completed reads; it does not prove each internal callback or authority epoch.
+It covers one Pair and browser size, three focus events, and one run of each network case.
+Native lifecycle, physical-device, and hosted behavior remain unverified.
 
-The complete browser run stopped to release the shared test port for the master merge.
-Focused UI checks used port 4175. The pair-termination check requires the reserved Test Edge origin and was excluded.
-Initial after captures used port 4175. The merge refresh captured them on port 4174 with a verified demo session.
-Both sets show Calendar Agenda. Each after capture checks its expected heading before saving.
-Read [the verification record](../design/design-taste-2026-10-08/verification.json) for the exact checks and limits.
-
-### Design Taste merge verification
-
-Date: 8 October 2026. The design branch starts from master commit `083ea55`.
-
-| Check | Result |
-|---|---|
-| Fresh full browser verification | 272 passed, two capture-generation skips |
-| Native verification | 46 suites, 205 tests passed |
-| Domain contracts | 7 passed |
-| Android and iOS JavaScript exports | Passed on unchanged native source |
-| Compiled browser assets | 62 files scanned; no server values or native imports |
-| Before and after captures | 32 individual images, three comparisons; both origins use port 4174 |
-
-The first complete browser run passed 271 checks. Photo fixture setup failed before the remaining calendar check ran.
-The Edge runtime log records a restart during that failure. Both unchanged calendar replays passed.
-The final fresh full run passed. No backend, fixture, domain, or product logic change was required.
-Raw attempts remain in the ignored `.superpowers/design-taste` directory.
-The refreshed comparison retains the observed demo photo error and Retry control.
-Physical native acceptance remains unverified.
-
-### Combined frontend review merge
-
-Date: 8 October 2026. Master advanced to `0531c27` while the Design Taste verification ran.
-I resolved the 20 overlapping paths in the isolated design worktree.
-The result keeps Design Taste headings, navigation groups, icon components, and welcome layout.
-It also keeps the newer readable control sizes, paired header identity, valid status markup, and shared geometry.
-Both review records and their galleries remain in the project. Each gallery shows its recorded source.
-
-| Combined check | Result |
-|---|---|
-| Complete browser verification | 272 passed; two capture-generation skips |
-| Native types, lint, and tests | 46 suites; 205 passed |
-| Domain contracts | 7 passed |
-| Focused identity, layout, and realtime checks | 18 passed |
-| Repeated realtime subscription checks | 12 passed |
-| Repeated one- and five-photo publication checks | 6 passed |
-| Android and iOS JavaScript exports | Passed |
-
-The focused checks cover both partner colors, the current account, five widths, doubled text, focus, and profile signals.
-The two existing realtime tests now wait for PostgreSQL subscription confirmation before changes.
-Their importance rating remains 100. The repeated check covers both browser widths.
-A 60-second budget covers cold fixture setup, sign-in, subscription, and reconciliation.
-The first repeated run exhausted the former 30-second budget; its evidence remains in ignored files.
-The existing importance-98 photo test now allows 15 seconds for sequential photo publication.
-The failed five-second check still showed photo five uploading. It returned no application error.
-That partial run and its failure evidence remain in ignored files.
-Docker was unavailable after an interruption. I restored the existing stack without resetting data.
-The stale runtime socket folder remains under a backup name.
-Backend and domain source remain unchanged. Physical native acceptance remains unverified.
-Combined logs remain in the ignored `.superpowers/design-taste/combined-*` files.
+The harness removed its Pair and both accounts and confirmed their absence.
+Playwright stopped its preview. The existing 5174 listener remained active.
+Initial harness failures and cleanup records remain beside the final report.
+Repeated feature setup and Today reads justify a separate lifecycle design.
+That design must retain authority checks, scope-abort channel closure, stale-callback rejection, and private-data cleanup.
+This experiment implements no realtime consolidation.
 
 ## Architecture optimization implementation plan: 9 October 2026
 
