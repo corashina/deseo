@@ -1,6 +1,28 @@
 import tseslint from 'typescript-eslint';
 
-const features = ['auth', 'pair', 'calendar', 'today', 'memories'];
+const nativeFeatures = ['auth', 'pair', 'calendar', 'today', 'memories', 'messages', 'tasks', 'notifications'];
+const applications = [
+  { name: 'mobile', features: nativeFeatures, restrictions: [] },
+  { name: 'web', features: [...nativeFeatures, 'settings'], restrictions: [{
+    regex: '(?:^|/)(?:apps/)?mobile(?:/|$)|^@deseo/mobile(?:/|$)',
+    message: 'Import shared rules and data. Keep native screens separate.',
+  }] },
+];
+const uiRestriction = {
+  regex: '(?:^|/)features(?:/|$)|(?:^|/)lib/supabase(?:[.](?:[cm]?[jt]s|[jt]sx))?$|^@supabase/supabase-js(?:/|$)',
+  message: 'UI controls must not import feature data or backend clients.',
+};
+
+function restrictedImports(patterns) {
+  return {
+    'no-restricted-imports': ['error', { patterns }],
+    'no-restricted-syntax': ['error', ...patterns.map(({ regex, message }) => ({
+      selector: `ImportExpression[source.value=/${regex.replaceAll('/', '\\/')}/]`,
+      message,
+    }))],
+  };
+}
+
 export default tseslint.config(
   { ignores: ['**/node_modules/**', '**/.expo/**', '**/dist/**', '**/.auth/**', '**/test-results/**', '**/playwright-report/**'] },
   ...tseslint.configs.recommended,
@@ -10,8 +32,7 @@ export default tseslint.config(
   } },
   { files: ['apps/web/**/*.{ts,tsx}'], rules: {
     '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
-    'no-restricted-imports': ['error', { patterns: [{ group: ['**/apps/mobile', '**/apps/mobile/**', '**/mobile', '**/mobile/**', '@deseo/mobile', '@deseo/mobile/**'],
-      message: 'Import shared rules and data. Keep native screens separate.' }] }],
+    ...restrictedImports(applications[1].restrictions),
   } },
   { files: ['packages/domain/src/**/*.ts'], rules: {
     'no-restricted-imports': ['error', { patterns: [{ group: [
@@ -30,15 +51,17 @@ export default tseslint.config(
       message: 'Keep browser state outside domain rules.',
     }],
   } },
-  ...features.map(name => ({
-    files: [`apps/mobile/src/features/${name}/**/*.{ts,tsx}`],
-    rules: { 'no-restricted-imports': ['error', { patterns: features.filter(other => other !== name).map(other => ({
-      regex: `(?:^|/)${other}/(?!index$)`,
-      message: 'Import the feature public interface.',
-    })) }] },
-  })),
-  { files: ['apps/mobile/src/components/ui/**/*.{ts,tsx}', 'apps/mobile/src/app/**/*.{ts,tsx}'], rules: {
-    'no-restricted-imports': ['error', { patterns: [{ group: ['**/lib/supabase', '**/features/*/commands', '**/features/*/queries'],
-      message: 'Use a feature public interface. UI controls must not access feature data.' }] }],
-  } },
+  ...applications.flatMap(({ name, features, restrictions }) => [
+    ...features.map(feature => ({
+      files: [`apps/${name}/src/features/${feature}/**/*.{ts,tsx}`],
+      rules: restrictedImports([...restrictions, {
+        regex: `(?:^|/)(?:${features.filter(other => other !== feature).join('|')})/(?!index(?:[.]tsx?)?$)`,
+        message: 'Import the feature public interface.',
+      }]),
+    })),
+    {
+      files: [`apps/${name}/src/components/ui/**/*.{ts,tsx}`],
+      rules: restrictedImports([...restrictions, uiRestriction]),
+    },
+  ]),
 );
