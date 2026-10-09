@@ -341,10 +341,37 @@ test('focus preserves an uncertain deletion and replays its command', async ({ p
   const ids = await createPortalPairFixture();
   let confirmUnlock = () => {};
   const unlocked = new Promise<void>(resolve => { confirmUnlock = resolve; });
+  let subscribed = false;
+  let revoked = false;
+  page.on('websocket', socket => socket.on('framereceived', frame => {
+    let values;
+    try { values = JSON.parse(String(frame.payload)); } catch { return; }
+    if (!Array.isArray(values)) return;
+    const [, , topic, event, payload] = values;
+    if (topic !== 'realtime:portal-memories:' + ids.annaId + ':' + ids.pairId) return;
+    if (event === 'system' && payload?.status === 'ok' && payload?.extension === 'postgres_changes') subscribed = true;
+    if (event === 'postgres_changes' && payload?.data?.table === 'memory_access_revocations'
+      && payload.data.record?.memory_id === ids.memoryId) revoked = true;
+  }));
+  const requests = new Map<import('@playwright/test').Request, number>();
+  page.on('request', request => { if (revoked) requests.set(request, requests.size); });
+  const verification = page.waitForResponse(async response => {
+    if (!requests.has(response.request()) || !response.url().endsWith('/rpc/get_pair_context')) return false;
+    const result = await response.json();
+    return response.ok() && result.ok && result.data.status === 'active' && result.data.pairId === ids.pairId;
+  });
+  const settled = page.waitForResponse(async response => {
+    if (!requests.has(response.request()) || !response.url().endsWith('/rpc/get_memory')) return false;
+    const pair = await verification;
+    if (requests.get(response.request())! <= requests.get(pair.request())!) return false;
+    const result = await response.json();
+    return response.ok() && !result.ok && result.error.code === 'FORBIDDEN';
+  });
   try {
     await loginWithLocalEmailCode(page, ids.annaEmail);
     await page.goto('/memories/' + ids.memoryId);
     await expect(page.locator('.memory-detail img')).toBeVisible();
+    await expect.poll(() => subscribed).toBe(true);
     const attempts: unknown[] = [];
     let interrupted = false;
     await page.route('**/rest/v1/rpc/delete_memory', async route => {
@@ -360,6 +387,8 @@ test('focus preserves an uncertain deletion and replays its command', async ({ p
     await page.getByRole('button', { name: 'Delete memory', exact: true }).click();
     await page.getByRole('button', { name: 'Confirm deletion', exact: true }).click();
     await unlocked;
+    await settled;
+    await expect(page.getByRole('heading', { name: 'Memory unavailable', exact: true })).toBeVisible();
     await page.getByRole('button', { name: 'Retry deletion', exact: true }).click();
     await expect(page).toHaveURL(/\/memories$/);
     expect(attempts).toHaveLength(2);

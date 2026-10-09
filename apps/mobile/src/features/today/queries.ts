@@ -15,7 +15,9 @@ export async function getToday(pairId: string, date: string): Promise<TodaySumma
   const response = await client.rpc('get_today', { p_pair_id: pair, p_date: date }).abortSignal(scope.signal);
   scope.assertCurrent();
   if (response.error) throw response.error;
-  const result = todayResultSchema.parse(response.data);
+  const parsed = todayResultSchema.safeParse(response.data);
+  if (!parsed.success) throw new AppError({ code: 'RETRYABLE' });
+  const result = parsed.data;
   if (!result.ok) throw new AppError(result.error);
   const { agenda, importantDates, dueTasks, notes } = result.data;
   if ([agenda, importantDates, dueTasks, notes].some(rows => rows.some(row => row.pairId !== pair))) {

@@ -3,6 +3,31 @@ import { randomUUID } from 'node:crypto';
 import { DateTime } from 'luxon';
 import { createPortalPairFixture, cleanupPortalPairFixture, portalClient } from './support/fixtures';
 import { loginWithLocalEmailCode } from './support/local-auth';
+
+// Importance: 100. A malformed summary must show the combined error without partial Memory content.
+test('Today rejects a malformed summary and supports retry', async ({ page }) => {
+  const ids = await createPortalPairFixture();
+  try {
+    await page.clock.install({ time: new Date('2026-10-05T08:00:00Z') });
+    await page.route('**/rest/v1/rpc/get_today', async route => {
+      const response = await route.fetch();
+      const result = await response.json();
+      expect(result.ok).toBe(true);
+      await route.fulfill({ response, json: { ...result, data: { ...result.data, notes: null } } });
+    });
+    await loginWithLocalEmailCode(page, ids.annaEmail);
+    await page.goto('/today');
+    await expect(page.getByRole('alert')).toHaveText('We could not load Today.');
+    for (const section of ['today-events', 'today-memory', 'today-note', 'today-tasks', 'today-important-date']) {
+      await expect(page.getByTestId(section)).toHaveCount(0);
+    }
+    await page.unroute('**/rest/v1/rpc/get_today');
+    await page.getByRole('button', { name: 'Retry', exact: true }).click();
+    await expect(page.getByTestId('today-events')).toBeVisible();
+    await expect(page.getByTestId('today-note')).toContainText('See you tonight.');
+    await expect(page.getByTestId('today-memory')).toBeVisible();
+  } finally { await cleanupPortalPairFixture(ids); }
+});
 // Importance 92: Today composes pair-local plans and unfinished tasks with strict limits.
 test('Today limits plans and tasks and shows the important date', async ({ page }) => {
 

@@ -1,3 +1,4 @@
+import { AppError } from '@deseo/domain/result';
 import { getToday } from './queries';
 import { getSupabase } from '../../lib/supabase';
 import { resetPrivateQueries } from '../../lib/query-client';
@@ -79,7 +80,9 @@ test('Today rejects invalid Pair IDs, invalid calendar dates, and malformed summ
   }
   expect(getSupabase).not.toHaveBeenCalled();
   respond({ ok: true, data: { ...empty, notes: null } });
-  await expect(getToday(pairId, '2026-10-04')).rejects.toThrow();
+  const malformed = getToday(pairId, '2026-10-04');
+  await expect(malformed).rejects.toBeInstanceOf(AppError);
+  await expect(malformed).rejects.toMatchObject({ code: 'RETRYABLE' });
 });
 
 // Importance: 98. Today retains all upcoming plans and removes plans ending at the current instant.
