@@ -11,7 +11,8 @@
     "./tasks": "./src/tasks/index.ts",
     "./messages": "./src/messages/index.ts",
     "./memories": "./src/memories/index.ts",
-    "./notifications": "./src/notifications/index.ts"
+    "./notifications": "./src/notifications/index.ts",
+    "./today": "./src/today/index.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

@@ -8,7 +8,7 @@ import { useSession } from '../../../app/SessionProvider';
 import { PageHeader } from '../../../components/ui/PageHeader';
 import { Button } from '../../../components/ui/Button';
 import { Status } from '../../../components/ui/Status';
-import { EventRow, useCalendarSignals } from '../../calendar';
+import { EventRow, nextImportantDate, useCalendarSignals } from '../../calendar';
 import { TaskRow, useTaskSignals } from '../../tasks';
 import { NoteCard } from '../../messages';
 import '../../../styles/messages.css';
@@ -27,7 +27,8 @@ export function TodayPage() {
   if (pair?.status !== 'active')
     return null;
   const names = { a: pair.members.find(member => member.slot === 'a')!.displayName, b: pair.members.find(member => member.slot === 'b')!.displayName, together: 'Together' };
-  const important = query.data?.importantDate;
+  const important = query.data ? nextImportantDate(query.data.importantDates, zone) : undefined;
+  const note = query.data?.notes[0];
   const days = important?.temporal.kind === 'allDay' ? importantDateCountdown(important.temporal.startDate, zone) : null;
   return <>
     <PageHeader
@@ -43,7 +44,7 @@ export function TodayPage() {
             <h2>Upcoming plans</h2>
             <Link to="/calendar">View calendar</Link>
           </div>
-          {query.data.agenda.length ? query.data.agenda.map(event => <EventRow
+          {query.data.agenda.length ? query.data.agenda.slice(0, 3).map(event => <EventRow
             key={event.id + (event.temporal.kind === 'allDay' ? event.temporal.startDate : event.temporal.startsAt)}
             event={event}
             names={names}
@@ -51,14 +52,14 @@ export function TodayPage() {
             timezone={zone} />) : <p>Nothing planned for the next seven days.</p>}
         </section>
       {query.data.memory && <section data-testid="today-memory"><h2>Latest memory</h2><MemoryCard memory={query.data.memory} author={pair.members.find(member => member.userId === query.data.memory!.createdBy)!.displayName} /></section>}
-      {query.data.note && <div data-testid="today-note"><NoteCard message={query.data.note} name={pair.members.find(member => member.userId === query.data.note!.authorId)!.displayName} /></div>}
-      {!query.data.memory && !query.data.note && <section className="card today-intro" data-testid="today-intro"><h2>Keep a moment together</h2><p>Add a photo, or pin a message to keep a note here.</p><div className="today-intro-actions"><Link to="/memories/new">Add memory</Link><Link to="/messages">Send a message</Link></div></section>}
+      {note && <div data-testid="today-note"><NoteCard message={note} name={pair.members.find(member => member.userId === note.authorId)!.displayName} /></div>}
+      {!query.data.memory && !note && <section className="card today-intro" data-testid="today-intro"><h2>Keep a moment together</h2><p>Add a photo, or pin a message to keep a note here.</p><div className="today-intro-actions"><Link to="/memories/new">Add memory</Link><Link to="/messages">Send a message</Link></div></section>}
         <section className="card" data-testid="today-tasks">
           <div className="section-heading">
             <h2>Due tasks</h2>
             <Link to="/tasks">View tasks</Link>
           </div>
-          {query.data.tasks.length ? query.data.tasks.map(task => <TaskRow
+          {query.data.dueTasks.length ? query.data.dueTasks.map(task => <TaskRow
             key={task.id}
              task={task}
              accountId={account!.id}

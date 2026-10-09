@@ -1,36 +1,31 @@
+import { z } from 'zod';
 import { latestMemory } from '../memories';
+import type { Memory } from '@deseo/domain/memories';
 import { captureQueryScope } from '../../lib/query-client';
-import { DateTime } from 'luxon';
-import { listAgenda, nextImportantDate } from '../calendar';
-import { listDueTasks } from '../tasks';
-import { getPairContext } from '../pair';
+import { getSupabase } from '../../lib/supabase';
+import { dateSchema } from '@deseo/domain/calendar';
 import { AppError } from '@deseo/domain/result';
-import { listPinnedNotes } from '../messages';
+import { todayResultSchema, type TodaySummary } from '@deseo/domain/today';
+
 export const todayKeys = { day: (accountId: string, pairId: string, date: string) => ['today', accountId, pairId, date] as const };
-export async function getToday(pairId: string, date: string) {
+export async function getToday(pairId: string, date: string): Promise<TodaySummary & { memory: Memory | null }> {
+  const pair = z.string().uuid().parse(pairId);
+  if (!dateSchema.safeParse(date).success) throw new AppError({ code: 'VALIDATION', field: 'date' });
   const scope = captureQueryScope();
-  const pair = await getPairContext();
+  const client = getSupabase();
   scope.assertCurrent();
-  if (pair.status !== 'active' || pair.pairId !== pairId)
-    throw new AppError({ code: 'FORBIDDEN' });
-  const day = DateTime.fromISO(date, { zone: pair.timezone });
-  if (!day.isValid || day.toISODate() !== date)
-    throw new AppError({ code: 'VALIDATION', field: 'date' });
-  const [events, tasks, notes, memory] = await Promise.all([
-    listAgenda({ pairId, from: date, to: day.plus({ days: 366 }).toISODate()! }), listDueTasks(pairId, date), listPinnedNotes(pairId), latestMemory(pairId),
+  const [response, memory] = await Promise.all([
+    client.rpc('get_today', { p_pair_id: pair, p_date: date }).abortSignal(scope.signal), latestMemory(pair),
   ]);
   scope.assertCurrent();
-  const now = DateTime.now().setZone(pair.timezone);
-  const weekEnd = day.plus({ days: 7 }).toISODate()!;
-  const agenda = events.filter(event => event.temporal.kind === 'allDay'
-    ? event.temporal.startDate < weekEnd && event.temporal.endDateExclusive > date
-    : DateTime.fromISO(event.temporal.endsAt) > now && DateTime.fromISO(event.temporal.startsAt).setZone(pair.timezone).toISODate()! < weekEnd).slice(0, 3);
-  return {
-    pair,
-    memory,
-    agenda,
-    tasks: tasks.slice(0, 3),
-    note: notes[0] ?? null,
-    importantDate: nextImportantDate(events.filter(event => event.importantDate || event.repeat === 'yearly'), pair.timezone, day)
-  };
+  if (response.error) throw response.error;
+  const result = todayResultSchema.parse(response.data);
+  if (!result.ok) throw new AppError(result.error);
+  const { agenda, importantDates, dueTasks, notes } = result.data;
+  if ([agenda, importantDates, dueTasks, notes].some(rows => rows.some(row => row.pairId !== pair))) {
+    throw new AppError({ code: 'FORBIDDEN' });
+  }
+  const now = Date.now();
+  return { agenda: agenda.filter(event => event.temporal.kind === 'allDay' || Date.parse(event.temporal.endsAt) > now),
+    importantDates, dueTasks, notes, memory };
 }

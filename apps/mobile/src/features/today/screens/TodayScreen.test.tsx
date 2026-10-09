@@ -9,6 +9,7 @@ import { todayKeys } from '../keys';
 import { taskKeys } from '../../tasks';
 import { NoteCard } from '../../messages';
 import { latestMemory } from '../../memories';
+import { EventRow } from '../../calendar';
 import { listNotifications, notificationKeys } from '../../notifications';
 
 jest.mock('expo-router', () => ({ router: { push: jest.fn() } }));
@@ -18,7 +19,7 @@ jest.mock('../../notifications', () => ({ listNotifications: jest.fn(), notifica
 jest.mock('../../pair', () => ({ useCore: () => ({ account: mockAccount, pair: mockPair, online: true }) }));
 jest.mock('../../calendar', () => ({
   nextImportantDate: (rows: unknown[]) => rows[0], importantDateCountdown: () => 1,
-  EventRow: () => null,
+  EventRow: jest.fn(() => null),
 }));
 jest.mock('../../tasks', () => {
   const { Text, Pressable } = jest.requireActual('react-native');
@@ -50,12 +51,12 @@ let mockMemoryReady = true;
 const dayKey = todayKeys.day('account', 'pair', '2026-10-05');
 function today(dueTasks: object[]) {
   return { agenda: [], dueTasks, notes: [{ id: 'note', authorId: 'partner', body: 'See you tonight' }],
-    importantDates: [{ id: 'date', title: 'Our anniversary', temporal: { kind: 'allDay', startDate: '2026-10-06' } }] } as never;
+    importantDates: [{ id: 'date', title: 'Our anniversary', temporal: { kind: 'allDay', startDate: '2026-10-06' } }] };
 }
 beforeEach(() => {
   jest.clearAllMocks(); mockMemoryReady = true; Settings.now = () => Date.parse('2026-10-04T23:00:00Z');
   jest.mocked(listNotifications).mockResolvedValue({ items: [], nextCursor: null });
-  jest.mocked(getToday).mockResolvedValue(today([task]));
+  jest.mocked(getToday).mockResolvedValue(today([task]) as never);
   jest.mocked(latestMemory).mockResolvedValue({ id: 'memory', createdBy: 'partner', caption: 'Our day at the sea' } as never);
 });
 afterEach(() => { Settings.now = () => Date.now(); });
@@ -138,4 +139,30 @@ it('opens notifications and removes New after the shared cache marks recent item
     pages: [{ items: [{ id: 'notification', readAt: '2026-10-05T00:00:00Z' }], nextCursor: null }], pageParams: [null],
   }));
   await waitFor(() => expect(screen.getByRole('button', { name: 'Notifications' })).toBeOnTheScreen());
+});
+
+// Importance: 98. Today shows three rows while counting the full agenda in the account timezone.
+it('keeps the full weekly count and passes account display time settings', async () => {
+  const agenda = Array.from({ length: 5 }, (_, index) => ({ id: 'event-' + index, title: 'Plan ' + index }));
+  const summary = { ...today([task]), agenda };
+  jest.mocked(getToday).mockResolvedValue(summary as never);
+  await mount();
+  await waitFor(() => expect(screen.getByText('2 more this week')).toBeOnTheScreen());
+  const rows = jest.mocked(EventRow).mock.calls.slice(-3).map(([props]) => props);
+  expect(rows.map(props => props.event.id)).toEqual(['event-0', 'event-1', 'event-2']);
+  expect(rows.every(props => props.viewerTimezone === mockAccount.timezone)).toBe(true);
+  expect(screen.getByText('Sunday, October 4, 2026')).toBeOnTheScreen();
+});
+
+// Importance: 98. A Memory failure must keep the summary and its newest Note visible.
+it('keeps Today content when the independent Memory query fails', async () => {
+  jest.mocked(latestMemory).mockRejectedValue(new Error('Offline'));
+  jest.mocked(getToday).mockResolvedValue({ ...today([task]), notes: [
+    { id: 'note', authorId: 'partner', body: 'Newest note' }, { id: 'old-note', authorId: 'partner', body: 'Older note' },
+  ] } as never);
+  await mount();
+  await waitFor(() => expect(screen.getByText('We could not load your memory.')).toBeOnTheScreen());
+  expect(screen.getByText('Newest note')).toBeOnTheScreen();
+  expect(screen.queryByText('Older note')).toBeNull();
+  expect(screen.getByText('Bring flowers')).toBeOnTheScreen();
 });

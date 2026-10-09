@@ -73,7 +73,7 @@ export async function renderScene(page: Page, scene: ScreenshotScenario, fixture
     await page.route('**/' + path, route => route.fulfill({ status: 503, json: { message: 'Controlled unavailable service' } }));
   }
   if (view === 'error') {
-    const path = id === 'calendar' || id === 'today' ? 'rest/v1/rpc/list_agenda' : id === 'memories' ? 'rest/v1/rpc/list_memories' : id === 'messages' ? 'rest/v1/messages?*' : id === 'notifications' ? 'rest/v1/rpc/list_notifications' : 'auth/v1/otp';
+    const path = id === 'calendar' ? 'rest/v1/rpc/list_agenda' : id === 'today' ? 'rest/v1/rpc/get_today' : id === 'memories' ? 'rest/v1/rpc/list_memories' : id === 'messages' ? 'rest/v1/messages?*' : id === 'notifications' ? 'rest/v1/rpc/list_notifications' : 'auth/v1/otp';
     await page.route('**/' + path, route => route.fulfill({ status: id === 'messages' ? 400 : 503, json: { code: id === 'messages' ? 'PGRST000' : 'unexpected_failure', message: 'Controlled unavailable service' } }));
   }
   if (view === 'media-error') await failure(page, 'functions/v1/get-memory-media');

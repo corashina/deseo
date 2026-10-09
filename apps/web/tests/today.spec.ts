@@ -127,3 +127,61 @@ test('Today follows the personal content order in the document and keyboard', as
     expect(visited).toEqual(order);
   } finally { await cleanupPortalPairFixture(ids); }
 });
+
+// Importance: 98. Either failed read must show the combined Today error and support retry.
+for (const rpc of ['get_today', 'latest_memory']) {
+  test('Today keeps its combined error when ' + rpc + ' fails', async ({ page }) => {
+    const ids = await createPortalPairFixture();
+    try {
+      await page.clock.install({ time: new Date('2026-10-05T08:00:00Z') });
+      await page.route('**/rest/v1/rpc/' + rpc, route => route.fulfill({
+        status: 200, json: { ok: false, error: { code: 'RETRYABLE' } },
+      }));
+      await loginWithLocalEmailCode(page, ids.annaEmail);
+      await page.goto('/today');
+      await expect(page.getByRole('alert')).toHaveText('We could not load Today.');
+      await expect(page.getByTestId('today-events')).toHaveCount(0);
+      await expect(page.getByTestId('today-memory')).toHaveCount(0);
+      await page.unroute('**/rest/v1/rpc/' + rpc);
+      await page.getByRole('button', { name: 'Retry', exact: true }).click();
+      await expect(page.getByTestId('today-events')).toBeVisible();
+      await expect(page.getByTestId('today-note')).toContainText('See you tonight.');
+      await expect(page.getByTestId('today-memory')).toBeVisible();
+    } finally { await cleanupPortalPairFixture(ids); }
+  });
+}
+
+// Importance: 100. A summary returned after sign-out must expose no former Pair content.
+test('Today discards a delayed summary after sign-out', async ({ page, context }) => {
+  const ids = await createPortalPairFixture();
+  let release = () => {};
+  try {
+    await page.clock.install({ time: new Date('2026-10-05T08:00:00Z') });
+    await loginWithLocalEmailCode(page, ids.annaEmail);
+    await expect(page.getByRole('heading', { name: 'Anna + Marek' })).toBeVisible();
+    const second = await context.newPage();
+    await second.goto('/');
+    await expect(second.getByRole('button', { name: 'Account menu' })).toBeVisible();
+    let received!: () => void;
+    let finished!: () => void;
+    const arrived = new Promise<void>(resolve => { received = resolve; });
+    const returned = new Promise<void>(resolve => { finished = resolve; });
+    const gate = new Promise<void>(resolve => { release = resolve; });
+    await page.route('**/rest/v1/rpc/get_today', async route => {
+      const response = await route.fetch();
+      expect((await response.json()).ok).toBe(true);
+      received(); await gate;
+      try { await route.fulfill({ response }).catch(() => undefined); }
+      finally { finished(); }
+    });
+    await page.goto('/today', { waitUntil: 'domcontentloaded' });
+    await arrived;
+    await second.getByRole('button', { name: 'Account menu' }).click();
+    await second.getByRole('button', { name: 'Sign out', exact: true }).click();
+    await expect(page.getByRole('link', { name: 'Continue with email' })).toBeVisible();
+    release(); await returned;
+    await expect(page.getByRole('link', { name: 'Continue with email' })).toBeVisible();
+    await expect(page.locator('body')).not.toContainText('Marek');
+    await expect(page.getByTestId('today-note')).toHaveCount(0);
+  } finally { release(); await cleanupPortalPairFixture(ids); }
+});
