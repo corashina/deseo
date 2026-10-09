@@ -569,8 +569,9 @@ Named-photo repair remains excluded. Remote push, hosted deployment, and store p
 
 ## Architecture optimization evidence: 9 October 2026
 
-The branch implements the approved contract, calculation, asset, feature-seam, and local Edge changes.
-The coordinator retains reports in ignored `.superpowers/sdd/DEVELOPMENT` and raw logs in `.superpowers/architecture-optimization`.
+The branch implements the approved contract, calculation, asset, feature-interface, and local Edge changes.
+Git retains the approved design at `761553e:docs/ARCHITECTURE.md` and implementation plan at `19421cd:docs/DEVELOPMENT.md`.
+The coordinator retains reports in ignored `.superpowers/architecture-optimization/reports` and raw logs in `.superpowers/architecture-optimization`.
 
 ### Source and checked behavior
 
@@ -581,6 +582,8 @@ The coordinator retains reports in ignored `.superpowers/sdd/DEVELOPMENT` and ra
 | Calendar and Messages | `51efb2d` | One Important date scan; cached Calendar groups; one cached message Map and ordered rows |
 | Feature interfaces | `8455431` | Static/type imports, re-exports, and literal dynamic imports obey feature and platform rules |
 | Edge and worktree guards | `a549c57` | Six entrypoints use one frozen check; backend owner and registered Edge source remain distinct |
+| Today response errors | `a11d23b` | Both queries use `safeParse`; malformed responses raise `AppError` code `RETRYABLE` |
+| Memory acceptance harness | `f742d34e48e47d182574fc2197dd1b7542f2beeb` | Revocation observation precedes explicit focus; recovery requests follow focus; product code unchanged |
 
 | Command or scope | Confirmed result | Limit |
 |---|---|---|
@@ -589,24 +592,69 @@ The coordinator retains reports in ignored `.superpowers/sdd/DEVELOPMENT` and ra
 | `node --test supabase/dev/workspace.test.mjs` | 23 passed | Real Git/PowerShell; controlled Docker/CLI inputs |
 | `npm run typecheck:functions` | All six entrypoints passed | Shared frozen Deno 2.9.6 configuration |
 | Both function test commands | 22 memory/origin/key tests and 15 notification tests passed | Direct function checks |
-| `npm run test:web -- today.spec.ts session-isolation.spec.ts` and fixed replays | 18 initial passes; both corrected delayed-summary cases passed | Fresh full browser acceptance pending |
-| `npm run test:web -- calendar.spec.ts messages.spec.ts` and fixed replay | 41 initial passes; corrected adjacent-month case passed | Fresh full browser acceptance pending |
+| `npm run test:web -- today.spec.ts session-isolation.spec.ts` and fixed replays | 18 initial passes; both corrected delayed-summary cases passed | Scoped checks; full-run retry limits below |
+| `npm run test:web -- calendar.spec.ts messages.spec.ts` and fixed replay | 41 initial passes; corrected adjacent-month case passed | Scoped checks; full-run retry limits below |
 | `npm run test:web -- gateway-origin.spec.ts pair-revocation.spec.ts` | Eight passed across both browser projects | Local gateway and authority revocation |
 | Android/iOS JavaScript export command from Setup | Both passed | Native binaries and device behavior remain unverified |
 | Worktree Edge serving | Source mount and label selected the worktree; database container ID unchanged | Exact Test origin retained; existing 5174 listener preserved |
+| Final response and recovery checks on `a11d23b` | Native Today 10; domain 19; workspace types; four browser cases; six Memory repeats passed | Focused checks before the final harness correction |
+| `npm run test:web -- --retries=1` resumed full run | Exit 0; 280 passed, two flaky cases passed on retry, two generation skips; 36.1 minutes | 284 scheduled cases; precedes the final Memory harness correction |
+| Corrected Memory harness strict repeats | Exit 0; ten passed in 1.3 minutes; focused ESLint passed | Five desktop and five narrow cases; retries disabled; scoped review passed |
 
-The coordinator retained original failure logs and later replay results.
-The Today gate first waited on a route with no summary request. Its correction navigates to Today before sign-out.
-The narrow Calendar case now checks stable Event links, visible day counts, and selected-agenda rows.
-Guard review removed the Vite classifier after it accepted an unsafe served-root assumption.
-The corrected guard rejects other-mode listeners during origin changes and verifies existing origin identity for source reloads.
+The coordinator retained failed logs and later results.
+The Today gate correction navigates to Today before sign-out. The narrow Calendar correction checks visible counts and selected-agenda rows.
+Guard review removed the Vite classifier and retained exact-origin checks.
 Final SQL verification passed: 14 files and 517 assertions, using worktree source without a database reset.
-Final combined browser and release acceptance remain pending.
+
+### Browser verification and retry limits
+
+Product source remains `a11d23b`. The resumed `npm run test:web -- --retries=1` run exited zero after 36.1 minutes.
+Committed Playwright configuration keeps retries at zero; the resumed command overrode that value for this run.
+Of 284 scheduled cases, 280 passed, two flaky cases passed on retry, and two intentional capture-generation cases skipped.
+The log is `.superpowers/architecture-optimization/final-web-resumed.log`; `final-web-resumed.exit` records exit zero.
+This result includes two first-attempt failures and precedes the final Memory harness correction.
+
+The Memory harness required a revocation event lost during its focus-reset gap.
+Backend deletion, active Pair verification, and the `FORBIDDEN` read succeeded; the page enabled Retry.
+The reviewed harness correction records the owned revocation before explicit focus and accepts recovery requests only after focus.
+Memory product code and authority rules remain unchanged.
+The Navigation first attempt failed on `ERR_NO_BUFFER_SPACE` for an Auth asset at sign-in, before its product actions.
+Its retry passed in 7.9 seconds.
+Private traces remain under `.superpowers/architecture-optimization/failures/resumed-memory-narrow` and `resumed-navigation-narrow`.
+
+The harness correction passed scoped specification and quality review and focused ESLint.
+Commit `f742d34e48e47d182574fc2197dd1b7542f2beeb` changes only the test file; product source remains `a11d23b`.
+All ten corrected Memory cases passed in 1.3 minutes with retries disabled: five desktop and five narrow cases.
+The command exited zero. Records: `.superpowers/architecture-optimization/memory-order-repeat.log` and `memory-order-repeat.exit`.
+The full suite result above retains its two retries; the strict repeats cover the corrected Memory case.
+
+The first full run before `a11d23b` passed 279 cases, skipped two, and failed one Memory recovery case in 37 minutes.
+Its `first-full-web.log` and private trace retain the late-revocation scope change and subsequent test synchronization evidence.
+The second full `npm run verify:web` run passed types, lint, and build on `a11d23b`.
+Its browser suite passed 281 cases, skipped two, and failed one reminder transport case in 35.2 minutes.
+Both unchanged isolated reminder cases passed in 24.8 seconds; `second-full-web.log` and `reminder-transport-rerun.log` retain the evidence.
+User interruption stopped a later partial run after 92 passing cases. Its log remains in ignored evidence.
+Four earlier focused browser cases and six earlier Memory repeats passed before the final harness correction.
+
+Architecture changes stayed in the worktree. Primary HEAD remained `b4fffcd`.
+Separate primary logging edits existed at closeout: modified `supabase/dev/backend.ps1` and untracked `supabase/dev/repair-logging.ps1`.
+The coordinator left both edits untouched. The verified Edge source remained in the worktree and database container identity remained unchanged.
+
+Release acceptance remains outside these local checks.
 Hosted bundling/runtime, physical-device checks, push delivery, and store publication remain unverified.
+
+### Browser assets and dependency audit
+
+The coordinator scanned 55 compiled JavaScript files on the corrected source.
+The scan found zero server-value, fixture-literal, or native-import matches. The compiled icon remains 67,385 bytes.
+The workspace `npm audit --omit=dev` snapshot reported 99 advisories, including native packages and toolchains.
+The complete web production tree contained 57 package names; none matched an advisory package in that snapshot.
+The coordinator changed no package pins. This comparison does not establish a vulnerability-free workspace.
+Records: `.superpowers/architecture-optimization/compiled-scan.json` and `audit-production.json`.
 
 ### Local calculation measurements
 
-Command: `node .superpowers/sdd/DEVELOPMENT/task-2-measure.cjs`.
+Command: `node .superpowers/architecture-optimization/reports/task-2-measure.cjs`.
 Runtime: Node 24.18.0 and npm 11.16.0; seven measured rounds after three warm-up calls.
 Selection used 1,000 fixed all-day rows and 500 calls per round.
 Grid calculations used 100 Events, 35 cells, and three calls per round.
@@ -661,12 +709,12 @@ At 3,000 stored Events, that ID-query plan took 2.328ms; the full year RPC plan 
 Text conversion was measured separately. The plan gap may include result construction and yearly expansion.
 A separate narrow Important date design is justified by the measured bytes and full-read cost.
 That design must preserve the complete 366-day range, overlap rules, leap-day expansion, and private Event access.
-This plan implements no new Important date read.
+This change implements no new Important date read.
 
 ### Realtime lifecycle workload
 
 Source: `a549c571ea6c83f82c8d7bcfe6d3b708c7a717b2`; application source `8455431`.
-Records: `.superpowers/sdd/DEVELOPMENT/task-6-realtime-report.md` and `.superpowers/architecture-optimization/realtime-measure.json`.
+Records: `.superpowers/architecture-optimization/reports/task-6-realtime-report.md` and `.superpowers/architecture-optimization/realtime-measure.json`.
 One importance-90 Playwright experiment passed in 13.6 seconds with fixture cleanup and zero page errors.
 The harness used Chromium, one worker, a 1440 × 1000 viewport, and one owned disposable active Pair.
 It used the existing production build, Test origin 4174, and local backend 55721.
@@ -708,278 +756,3 @@ Initial harness failures and cleanup records remain beside the final report.
 Repeated feature setup and Today reads justify a separate lifecycle design.
 That design must retain authority checks, scope-abort channel closure, stale-callback rejection, and private-data cleanup.
 This experiment implements no realtime consolidation.
-
-## Architecture optimization implementation plan: 9 October 2026
-
-> For agentic workers: use superpowers:subagent-driven-development for implementation and independent task review.
-> Read the approved design before each task. Track completed steps with checkboxes.
-
-**Goal:** Improve architecture and runtime cost, then remove code each replacement makes unused.
-
-**Architecture:** Share the Today contract and use existing server reads.
-Keep UI, clients, storage, and request lifecycle inside each application.
-Complete each stage before starting dependent work.
-
-**Tech stack:** React, Expo, TypeScript, TanStack Query, Zod, Luxon, ESLint, Supabase, Jest, and Playwright.
-
-**Spec:** [Approved architecture design](ARCHITECTURE.md#architecture-optimization-design-9-october-2026), commit `761553e`.
-
-**Status:** Written design approved. Implementation plan review pending.
-
-### Global constraints
-
-- Work in `C:/Users/Corashina/.codex/worktrees/architecture-optimization/deseo`.
-- Use branch `codex/architecture-optimization`; preserve the original checkout.
-- Use Node 24.18.0, npm 11.16.0, and the root lockfile.
-- Use existing dependencies and exact pins; add no product dependency.
-- Keep native and browser UI separate.
-- Keep one backend, one root npm lockfile, and exactly three Markdown files in docs.
-- Keep shared rows and browser drafts in memory.
-- Keep current authority checks, immutable commands, and stale-callback rejection.
-- Remove replaced code; add no compatibility exports or fallback paths.
-- Use stop-slop for text. Keep instructions at 20 words or less.
-- Rate new tests before writing them. Implement only scores of at least 90.
-- Store private logs and local keys in ignored files. Do not print keys.
-- Keep native device, push, deployment, and store acceptance separate.
-- Commit each completed task after its checks and independent review pass.
-
-### Review focus
-
-1. A delayed Today result after sign-out must expose no former Pair content. Task 1 owns this check.
-2. A timed Event ending now must not displace the next plan. Task 1 owns this check.
-3. Calendar cells outside the selected month must retain overlapping Events. Task 2 owns this check.
-4. Literal dynamic imports must obey the same feature seam as static imports. Task 4 owns this check.
-5. Worktree Edge serving must preserve the populated database and reject unrelated source paths. Task 5 owns this check.
-
-### File responsibilities and execution
-
-| Task | Main files | Responsibility |
-|---|---|---|
-| 1 | Domain Today schema; native and browser Today queries | One result contract and existing summary read |
-| 2 | Domain calendar dates; Calendar grids; Messages page | Reuse derived data and remove repeated selection work |
-| 3 | Browser icon; AppShell; Welcome | Smaller approved brand asset |
-| 4 | ESLint config and its behavior test | Enforce feature interfaces |
-| 5 | Edge import; root commands; CI; backend helpers | Frozen Edge checks and verified worktree serving |
-| 6 | Development and ignored measurement records | Measure candidates and remove obsolete narrative |
-| 7 | Final branch and acceptance results | Verify combined behavior and review the branch |
-
-Tasks 1, 2, and 3 may run together after baseline checks.
-Their implementers own separate files.
-Run Tasks 4 and 5 after those changes pass review.
-The coordinator owns root commands, shared documentation, backend processes, and final checks.
-Give each subagent the design, its task, allowed files, and required checks.
-Do not give agents overlapping file ownership.
-A fresh reviewer checks each completed task.
-Use no database race harness while browser fixtures or global workers run.
-
-### Task 1: Share Today and replace browser aggregation
-
-**Create:** `packages/domain/src/today/schema.ts`, `packages/domain/src/today/index.ts`, `packages/domain/tests/today-summary.test.ts`.
-**Modify:** `packages/domain/package.json`; both applications' `features/today/queries.ts`; native `features/today/index.ts`.
-**Modify:** browser `features/today/pages/TodayPage.tsx`, `features/tasks/queries.ts`, `tests/today.spec.ts`, `tests/support/screenshot-render.ts`.
-**Extend:** native `features/today/today.test.ts` and `features/today/screens/TodayScreen.test.tsx`.
-**Remove:** native `features/today/types.ts` after replacing its imports.
-
-**Interfaces:** Export `todaySummarySchema`, `todayResultSchema`, and `TodaySummary` through `@deseo/domain/today`.
-The schema parses `agenda`, `important_dates`, `due_tasks`, and `notes`.
-It returns `agenda`, `importantDates`, `dueTasks`, and `notes`.
-Native `getToday(pairId: string, date: string): Promise<TodaySummary>` returns the summary.
-Browser returns `Promise<TodaySummary & { memory: Memory | null }>`.
-Keep `todayKeys.day(accountId, pairId, date)` unchanged.
-
-- [ ] Install with `npm ci` in the worktree. Run baseline mobile verification, domain tests, and browser build.
-- [ ] Prepare ignored local environment files from verified local configuration without changing the original checkout.
-- [ ] For Tasks 1–4, use original-checkout Test Edge serving; Edge source remains unchanged during those tasks.
-- [ ] Rate contract and authority tests 100; presentation tests 98.
-- [ ] Add a shared-contract test before exporting the new schema.
-
-```ts
-const empty = { agenda: [], important_dates: [], due_tasks: [], notes: [] };
-expect(todayResultSchema.parse({ ok: true, data: empty })).toEqual({
-  ok: true, data: { agenda: [], importantDates: [], dueTasks: [], notes: [] },
-});
-expect(todaySummarySchema.safeParse({ ...empty, notes: null }).success).toBe(false);
-```
-
-- [ ] Run `npm run test --workspace @deseo/domain -- --runTestsByPath tests/today-summary.test.ts`. Expect failure before the export exists.
-- [ ] Reuse existing row schemas. Cap due Tasks at three and Notes at two; keep the full agenda.
-- [ ] Extend tests for the caps using complete valid rows from the existing contract fixtures.
-- [ ] Parse the existing Result envelope. Reject malformed data rather than returning an empty result.
-- [ ] Change both clients to the existing `get_today` RPC with UUID/date validation and captured request scope.
-- [ ] Reject foreign Pair rows in all four arrays before filtering timed Events.
-- [ ] Filter timed Events whose end is at or before the current instant.
-- [ ] Keep browser summary and latest Memory reads together; preserve native's independent Memory query.
-- [ ] Render browser `agenda.slice(0, 3)`, `dueTasks`, `notes[0]`, and the existing Important date selector.
-- [ ] Preserve native full agenda counts, account display timezones, Pair query dates, and section order.
-- [ ] Remove browser Pair/Event/Task/Note aggregation, `listDueTasks`, `taskKeys.due`, and their unused imports.
-- [ ] Remove native Today schema/type copies and the obsolete `TodayView` export.
-- [ ] Change only Today failure interceptions from `list_agenda` to `get_today`.
-- [ ] Extend native query checks for foreign rows in each array and stale scope after a delayed result.
-- [ ] Extend browser Today checks for combined Memory failure and a delayed summary released after sign-out.
-
-```ts
-await expect(page.getByRole('link', { name: 'Continue with email' })).toBeVisible();
-await expect(page.locator('body')).not.toContainText('Marek');
-```
-
-- [ ] Keep existing limit, due-date, overlapping Event, Note, and independent native Memory assertions.
-- [ ] Run domain tests, mobile verification, workspace TypeScript, and browser build. Expect exit zero.
-- [ ] With the existing Test Edge runtime, run `npm run test:web -- today.spec.ts session-isolation.spec.ts`.
-- [ ] Verify replaced declarations have no callers with `rg`; obtain task review; commit `refactor: share the Today summary contract`.
-
-### Task 2: Reuse Calendar and Messages calculations
-
-**Modify:** `packages/domain/src/calendar/dates.ts`, `packages/domain/tests/calendar-dates.test.ts`.
-**Modify:** browser `features/calendar/pages/CalendarPage.tsx`, `features/calendar/components/MonthGrid.tsx`.
-**Modify:** native `features/calendar/screens/CalendarScreen.tsx`.
-**Modify:** browser `features/messages/pages/MessagesPage.tsx`.
-**Extend:** browser `tests/calendar.spec.ts` and `tests/messages.spec.ts`.
-
-**Interfaces:** Keep `nextImportantDate(items: AgendaItem[], pairTimezone: string, now?: DateTime): AgendaItem | undefined`.
-Keep `agendaDates` and `compareMessageCursors` unchanged.
-Derived Maps remain internal to their current screens.
-
-- [ ] Rate Important date tests 96, Calendar tests 95, and message paging checks 100.
-- [ ] Extend Important date tests for first-item ties, past dates, timezone boundaries, and unchanged input.
-- [ ] Run these behavior checks before refactoring. Existing behavior must pass.
-- [ ] Replace filter/sort selection with one scan. Update the candidate only for an earlier eligible date.
-- [ ] Cache browser owner-filtered Events by query data and owner, so MonthGrid receives stable inputs.
-- [ ] Cache grid dates by month. Group Events once across the complete grid range, including adjacent-month cells.
-- [ ] Keep Event order and exclusive end dates; use direct date lookups in each cell.
-- [ ] Keep native grouping Map and sorted agenda groups together. Cache month dates by month.
-- [ ] Cache the browser message Map and ordered rows by query pages.
-- [ ] Retain the highest version per ID; retain the first encountered item on equal versions.
-- [ ] Use `compareMessageCursors` for display order and the same Map for read observation.
-- [ ] Extend Calendar acceptance with an Event spanning an adjacent-month cell and its exclusive end.
-- [ ] Extend message acceptance with duplicate paged IDs, version precedence, and new Messages while reading history.
-- [ ] Assert each Message appears once and the reader's position remains stable.
-- [ ] Run `npm run test:domain`, `npm run verify:mobile`, and `npm run build:web`. Expect exit zero.
-- [ ] With the existing Test Edge runtime, run `npm run test:web -- calendar.spec.ts messages.spec.ts`.
-- [ ] Record selection and grid calculation costs against the baseline using identical input sizes.
-- [ ] Obtain task review; commit `perf: reuse calendar and conversation calculations`.
-
-### Task 3: Reduce browser icon bytes
-
-**Create:** `brand/icon-web.png`.
-**Modify:** browser `app/AppShell.tsx` and `features/auth/pages/WelcomePage.tsx`.
-**Interfaces:** Keep existing image imports, CSS dimensions, and alternative text; change the asset path only.
-
-- [ ] Use the lockfile's installed `jimp-compact@0.16.1` to derive a 288×288 PNG from `brand/icon-source.png`.
-- [ ] Keep the source intact. Add no dependency or runtime image preparation.
-- [ ] Verify output dimensions, transparency, and a size below 100,000 bytes.
-- [ ] Compare the rendered icon at 40px, 64px, and 96px.
-- [ ] Rate a standalone decorative asset test 25; skip it. Use byte and visual checks.
-- [ ] Update the two browser imports and run `npm run build:web`.
-- [ ] Confirm compiled browser assets exclude the 869,970-byte source PNG.
-- [ ] Obtain task review; commit `perf: use a browser-sized brand icon`.
-
-### Task 4: Enforce feature seams
-
-**Modify:** `eslint.config.mjs`; root `package.json` for `test:architecture`; `.github/workflows/ci.yml`.
-**Create:** `eslint.config.test.mjs`.
-**Interfaces:** Keep the exported ESLint configuration.
-Test helper `restricted(filePath: string, source: string): Promise<string[]>` returns restricted-rule messages from `ESLint.lintText`.
-
-- [ ] Rate seam checks 95. Test the installed ESLint engine rather than matching configuration text.
-- [ ] Add failing cases for cross-feature static/type imports, re-exports, and literal dynamic imports.
-- [ ] Add failing cases for browser native imports and UI control imports of feature data.
-- [ ] Add passing cases for same-feature internals, public feature imports, domain imports, and route page imports.
-- [ ] Run `node --test eslint.config.test.mjs`; the new missing seam coverage must fail.
-- [ ] Cover the eight native features and browser Settings.
-- [ ] Apply static import/re-export rules and matching ImportExpression selectors for dynamic imports.
-- [ ] Preserve domain platform rules and browser native-isolation rules when composing feature configuration.
-- [ ] Keep routes free to import feature pages/screens and providers free to own session client access.
-- [ ] Resolve any violation through the existing public interface; add no forwarding module.
-- [ ] Add `test:architecture` as `node --test eslint.config.test.mjs`.
-- [ ] Run test:architecture in the apps CI job.
-- [ ] Run `npm run test:architecture` and `npm run lint`; expect exit zero.
-- [ ] Obtain task review; commit `chore: enforce feature interfaces in both apps`.
-
-### Task 5: Consolidate Edge checks and support verified worktree sources
-
-**Modify:** `supabase/functions/verify-sensitive-action/index.ts`, root `package.json`, `.github/workflows/ci.yml`.
-**Remove:** sensitive verification's `deno.json` and `deno.lock`.
-**Create:** `supabase/dev/workspace.ps1`, `supabase/dev/workspace.test.mjs`.
-**Modify:** `supabase/dev/backend.ps1`, `supabase/dev/serve-web-functions.ps1`, `supabase/dev/save-status.mjs`.
-**Modify:** current Edge and backend instructions in Development.
-
-**Interfaces:** `Get-DeseoWorkspace -SourceRoot <path>` returns canonical `SourceRoot`, `BackendRoot`, and `WorktreeRoots`.
-`Assert-DeseoContainerOwner -Workspace <value> -Name <name> -Project <project> -Workdir <path>` throws on mismatched identity.
-The shared helper performs reads only.
-`save-status.mjs <BackendRoot>` writes status under its source checkout's ignored backend folder.
-
-- [ ] Rate workspace identity checks 100. Use registered Git worktrees and rejected unrelated paths.
-- [ ] Write failing checks for foreign project labels, unregistered Edge sources, and worktree Start/Reset.
-- [ ] Include passing checks for primary persistent services and registered-worktree Edge sources.
-- [ ] Run node --test supabase/dev/workspace.test.mjs before implementing the helper; expect the new checks to fail.
-- [ ] Require canonical paths, the same Git common directory, current registration, and no prunable worktree.
-- [ ] Resolve BackendRoot from the primary Git worktree record.
-- [ ] Require identical source/backend Supabase configuration for shared serving.
-- [ ] Require persistent containers' project `deseo` and workdir BackendRoot.
-- [ ] Permit the Edge runtime workdir only when it matches a verified WorktreeRoot.
-- [ ] Keep exact container names, API 55721, database 55722, and foreign-port rejection.
-- [ ] Reject worktree Start/Reset actions. Permit verified Test/Status actions.
-- [ ] Run Test with SourceRoot, and Status with BackendRoot. Save status in SourceRoot.
-- [ ] Check Kong, database, and any existing Edge identity before serving.
-- [ ] Keep origin-mode and conflicting-listener checks; run the source CLI with `--workdir SourceRoot`.
-- [ ] Use `npm:@supabase/supabase-js@2.117.2` in sensitive verification.
-- [ ] Add one `typecheck:functions` command using Deno 2.9.6, `--frozen`, and the common configuration.
-- [ ] Check finalize-memory, get-memory-media, cleanup, dispatch-notifications, check-push-receipts, and verify-sensitive-action.
-- [ ] Remove the two old function typecheck commands. Update verify, CI, and current documentation.
-- [ ] Keep existing function test commands and frozen dependency versions.
-- [ ] Remove the separate sensitive config/lock after shared resolution passes.
-- [ ] Run `node --test supabase/dev/workspace.test.mjs`, `npm run typecheck:functions`, and both function test commands.
-- [ ] Record the database container ID before serving; start Test Edge from the worktree.
-- [ ] Inspect the new Edge source mount and label. Confirm the database container ID remains unchanged.
-- [ ] Run `npm run test:web -- gateway-origin.spec.ts pair-revocation.spec.ts`.
-- [ ] Record deployed bundling/runtime as unverified. Do not reset data or deploy.
-- [ ] Obtain task review; commit `chore: unify Edge checks and verified worktree serving`.
-
-### Task 6: Measure remaining candidates and remove obsolete documentation
-
-**Modify:** `docs/DEVELOPMENT.md`, with necessary link corrections in root README, docs README, and STYLE.
-**Records:** ignored `.superpowers/architecture-optimization`; visual evidence belongs in design.
-**Interfaces:** No new product interface. Record exact commands, inputs, source revision, and check limits.
-
-- [ ] Record websocket channel joins/leaves and authenticated reads during focus, reconnect, and same-Pair revalidation.
-- [ ] Use owned fixtures and redact Auth values. Retain authority cleanup behavior.
-- [ ] Measure Important date results at 30, 300, and 3,000 synthetic Events in the 366-day range.
-- [ ] Record Event counts, returned bytes, serialization time, and database query plans.
-- [ ] Use fixture IDs and a rollback transaction for database measurements. Keep private Events in the cases.
-- [ ] Compare any measured candidate with current semantics. Document whether a separate design is justified.
-- [ ] Implement neither realtime consolidation nor a new Important date read under this plan.
-- [ ] Remove repeated historical review narrative; retain current results, source references, failure limits, and open delivery work.
-- [ ] Scan code callers and recorded asset references before deleting any additional file.
-- [ ] Keep active features, SQL migration history, gallery sources, and fixture ownership records.
-- [ ] Check internal documentation links and gallery asset references.
-- [ ] Verify exactly three Markdown files and no folders inside docs.
-- [ ] Obtain task review; commit `docs: record optimization evidence and remove obsolete narrative`.
-
-### Task 7: Verify the combined branch
-
-**Modify:** Development acceptance results and plan checkboxes.
-**Interfaces:** No product change. Fix review findings through the task that owns them.
-
-- [ ] Run `npm run verify:mobile`, `npm run test:domain`, `npm run test:architecture`, and `npm run typecheck`.
-- [ ] Run `npm run typecheck:functions` and both function test commands with frozen locks.
-- [ ] Run `npm run verify:web` against verified Test Edge. Expect the complete suite to pass.
-- [ ] Run `npm run test:db` against the verified populated backend. Preserve records and rolled-back fixtures.
-- [ ] Run `npm exec --workspace @deseo/mobile -- expo export --platform android --platform ios --output-dir dist`.
-- [ ] Check changed screens at 320px, 768px, and 1024px, with enlarged text and keyboard controls.
-- [ ] Check compiled browser output for server values, native imports, and obsolete paths without printing secret matches.
-- [ ] Verify gallery links and image references after documentation cleanup.
-- [ ] Obtain an independent whole-branch review against `b4fffcd`.
-- [ ] Fix actionable findings, then rerun only affected checks unless the final source requires a fresh complete run.
-- [ ] Record actual acceptance and any unavailable check. Do not claim physical-device or deployment acceptance.
-- [ ] Confirm the original checkout remains unchanged and the worktree has no unintended files.
-- [ ] Commit final evidence. Leave the branch ready for review; do not merge or publish.
-
-### Plan self-review
-
-The tasks cover the approved shared contract, calculations, asset, feature seams, Edge checks, and verified cleanup.
-Task 5 adds required worktree-aware backend identity checks discovered during planning.
-Existing persistent-service ownership stays strict; Edge source ownership requires registered worktree identity.
-The five review-focus cases have owning tasks and importance ratings.
-Tasks use the same Today field names and existing date/message interfaces.
-The measured candidates require separate designs before implementation.
-Execution will use subagents for independent work and coordinator-owned integration.
