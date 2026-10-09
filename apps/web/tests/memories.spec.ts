@@ -343,6 +343,7 @@ test('focus preserves an uncertain deletion and replays its command', async ({ p
   const unlocked = new Promise<void>(resolve => { confirmUnlock = resolve; });
   let subscribed = false;
   let revoked = false;
+  let verifying = false;
   page.on('websocket', socket => socket.on('framereceived', frame => {
     let values;
     try { values = JSON.parse(String(frame.payload)); } catch { return; }
@@ -354,12 +355,13 @@ test('focus preserves an uncertain deletion and replays its command', async ({ p
       && payload.data.record?.memory_id === ids.memoryId) revoked = true;
   }));
   const requests = new Map<import('@playwright/test').Request, number>();
-  page.on('request', request => { if (revoked) requests.set(request, requests.size); });
+  page.on('request', request => { if (verifying) requests.set(request, requests.size); });
   const verification = page.waitForResponse(async response => {
     if (!requests.has(response.request()) || !response.url().endsWith('/rpc/get_pair_context')) return false;
     const result = await response.json();
     return response.ok() && result.ok && result.data.status === 'active' && result.data.pairId === ids.pairId;
   });
+  void verification.catch(() => undefined);
   const settled = page.waitForResponse(async response => {
     if (!requests.has(response.request()) || !response.url().endsWith('/rpc/get_memory')) return false;
     const pair = await verification;
@@ -367,6 +369,8 @@ test('focus preserves an uncertain deletion and replays its command', async ({ p
     const result = await response.json();
     return response.ok() && !result.ok && result.error.code === 'FORBIDDEN';
   });
+  void settled.catch(() => undefined);
+  let routeError: unknown;
   try {
     await loginWithLocalEmailCode(page, ids.annaEmail);
     await page.goto('/memories/' + ids.memoryId);
@@ -377,16 +381,22 @@ test('focus preserves an uncertain deletion and replays its command', async ({ p
     await page.route('**/rest/v1/rpc/delete_memory', async route => {
       attempts.push(route.request().postDataJSON());
       if (!interrupted) {
-        interrupted = true; await route.fetch();
-        await page.evaluate(() => window.dispatchEvent(new Event('focus')));
-        await expect(page.getByRole('button', { name: 'Retry deletion', exact: true })).toBeEnabled();
+        interrupted = true;
+        try {
+          await route.fetch();
+          await expect.poll(() => revoked).toBe(true);
+          verifying = true;
+          await page.evaluate(() => window.dispatchEvent(new Event('focus')));
+          await expect(page.getByRole('button', { name: 'Retry deletion', exact: true })).toBeEnabled();
+        } catch (error) { routeError = error; }
+        try { await route.abort(); } catch (error) { routeError ??= error; }
         confirmUnlock();
-        await route.abort();
       } else await route.continue();
     });
     await page.getByRole('button', { name: 'Delete memory', exact: true }).click();
     await page.getByRole('button', { name: 'Confirm deletion', exact: true }).click();
     await unlocked;
+    if (routeError) throw routeError;
     await settled;
     await expect(page.getByRole('heading', { name: 'Memory unavailable', exact: true })).toBeVisible();
     await page.getByRole('button', { name: 'Retry deletion', exact: true }).click();
