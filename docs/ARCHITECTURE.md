@@ -510,3 +510,217 @@ Simultaneous invitation joins, one user joining two pairs, stale tokens, cross-p
 Also test uploads after disconnect, old media links, disabled accounts with valid JWTs, duplicate workers, and exports racing with deletion.
 
 See [verification](DEVELOPMENT.md#verification) for importance ratings and required evidence.
+
+## Architecture optimization design: 9 October 2026
+
+Status: proposed design; scope approved; written design review pending.
+
+### Intent and scope
+
+Improve the complete project without changing its current product flows.
+Use the staged refactor from the architecture review.
+Keep each stage usable before starting the next.
+
+The owner approved this scope on 9 October 2026.
+The owner requested a separate worktree and permitted subagents.
+Use branch `codex/architecture-optimization`, starting from `b4fffcd`.
+
+Keep separate native and browser UI, one backend, and one root npm lockfile.
+Use installed libraries and exact package pins.
+Remove replaced code after checking its callers.
+Add no compatibility exports, fallback paths, or unused abstractions.
+
+### Today module and shared contract
+
+Use the existing `get_today(pair_id, date)` transaction in both applications.
+Keep client creation, authentication, cancellation, and query keys inside each application.
+Put the Today result schema and type in `packages/domain/src/today`.
+Expose that contract through `@deseo/domain/today`.
+Do not put a backend client or React hook in domain.
+
+The shared schema parses the existing database result:
+
+| Stored field | Shared field | Rule |
+|---|---|---|
+| `agenda` | `agenda` | Event rows; retain the complete returned agenda |
+| `important_dates` | `importantDates` | Event rows within the existing 366-day range |
+| `due_tasks` | `dueTasks` | Task rows; at most three |
+| `notes` | `notes` | Message rows; at most two |
+
+Reuse the Event, Task, Message, and Result schemas.
+Remove the local native Today schema and type copy.
+Validate Pair UUID and calendar date before calling the transaction.
+Reject a returned row from another Pair.
+Raise existing AppError values for server rejection and invalid responses.
+Abort old requests and reject stale callbacks after authority changes.
+
+The transaction remains responsible for current account and Pair access.
+Remove the browser's extra Pair read and separate Event, Task, and Note reads.
+Keep the existing latest Memory read in the Memories module.
+Run browser summary and Memory reads together inside its Today query.
+Keep the browser's combined error state if either read fails.
+Keep native Memory loading and errors independent.
+
+Filter timed Events whose end is no longer in the future.
+Browser Today shows at most three plans, three Tasks, and the newest Note.
+Native Today retains its full agenda for its count and existing display.
+Use the Pair timezone for query dates, Task due dates, and Important dates.
+Keep account timezone for native Event rows, Notes, and header dates.
+Keep the current section order and all navigation controls.
+
+Remove browser `listDueTasks` and `taskKeys.due` after confirming no callers remain.
+Remove the unused Pair value from browser Today results.
+Keep calendar and pinned-Note reads for their remaining feature callers.
+Update Today failure fixtures to intercept `get_today`.
+Keep Calendar failure fixtures on `list_agenda`.
+
+### Render calculations
+
+Keep temporal rules in domain.
+Replace `nextImportantDate` filtering and sorting with one scan.
+Return the earliest eligible all-day Event.
+Keep the first input item when two eligible dates match.
+Do not modify the input array.
+
+Browser MonthGrid computes its month grid when the month changes.
+Group Events by visible date when Events, range, or viewer timezone change.
+Use `agendaDates` once per Event across that range.
+Keep Event order inside each day.
+Include browser adjacent-month cells across the full displayed grid range.
+Keep the existing Calendar query range.
+Render day cells through direct date lookups.
+
+Native Calendar retains its grouping Map for direct cell lookups.
+Cache month dates until the month changes.
+Keep sorted groups for the agenda view.
+Preserve account timezone display, adjacent query days, filters, and selected dates.
+
+Browser Messages computes its ID Map and ordered rows when query pages change.
+Keep the highest version per Message ID.
+For duplicate IDs with equal versions, retain the first encountered Message.
+Sort displayed Messages with compareMessageCursors.
+Use the same Map for visible-row read tracking.
+Keep scroll position, older-page loading, retries, and pending-send behavior.
+
+### Browser brand asset
+
+Derive one 288-pixel browser icon from the approved Two voices source.
+Use an established image encoder and compare the result at 40, 64, and 96 pixels.
+Keep colors, framing, transparency, and current CSS dimensions.
+Target an encoded size below 100 KB.
+Use the asset in AppShell and Welcome.
+Keep the source for native assets and design references.
+Remove the full source PNG from the browser import graph.
+
+### Feature interfaces
+
+Extend the existing ESLint configuration to both applications.
+Cover Auth, Pair, Calendar, Today, Memories, Messages, Tasks, and Notifications.
+Cover browser Settings as well.
+Apply the seam rule to static imports, type imports, re-exports, and literal dynamic imports.
+Allow each feature to import its own internal files.
+Require cross-feature calls to use the public feature interface.
+Permit shared domain imports.
+
+Routes may import feature pages and screens, as the module rules specify.
+UI controls must not import feature data or backend clients.
+Keep application providers' client access for session lifecycle.
+Keep the existing domain platform restrictions.
+Keep the browser restrictions against importing native application code.
+Resolve violations through current public interfaces; add no forwarding module.
+
+### Edge dependency configuration
+
+Keep the common Edge configuration and frozen lockfile.
+Use `npm:@supabase/supabase-js@2.117.2` in sensitive verification.
+Remove its separate `deno.json` and `deno.lock` after common resolution passes.
+Use one typecheck:functions command for all six Edge entrypoints.
+Check finalize-memory, get-memory-media, cleanup, dispatch-notifications, check-push-receipts, and verify-sensitive-action.
+Keep Deno 2.9.6, frozen resolution, and the common configuration.
+Remove typecheck:memories:functions and typecheck:notifications:functions.
+Update verify, CI, and Development to use typecheck:functions.
+Keep the existing Edge test commands.
+Update the documented check command to use the common configuration.
+Verify local serving after removing the function-specific configuration.
+These checks establish local resolution and serving only.
+Deployed bundling, runtime, and verification remain unverified.
+
+Keep sensitive verification behavior, origin checks, fresh proofs, and rate limits.
+Make no Auth, RLS, transaction, or proof changes for this consolidation.
+
+### Measurements before further changes
+
+Measure browser channel setup during focus, reconnect, and Pair revalidation.
+Count repeated setup and duplicate authenticated reads on the same authority.
+Consolidate lifecycle code only if measurement confirms repeated work.
+Keep feature channel types and invalidation ownership.
+Close channels on scope abort, even when the Pair ID stays the same.
+Do not weaken account checks or keep private data after authority loss.
+
+Measure Important date payload bytes and database work across a realistic year.
+Keep the full 366-day horizon.
+Record Event counts, payload bytes, serialization cost, and database query plans.
+Any replacement must preserve yearly expansion, leap-day rules, private Events, and RLS.
+Use one authenticated Important date read for existing consumers.
+Require separate database verification before changing that read.
+Record measurements and the implementation decision in Development.
+This scope includes measurements for these two candidates.
+Present a separate concrete design before implementing either candidate.
+
+### Cleanup and documentation
+
+No current product feature is confirmed obsolete.
+Native route imports reach the reviewed production modules.
+Keep features that have active callers and current requirements.
+
+Remove replaced declarations, imports, type copies, and redundant dependency files.
+Check code callers, commands, documentation links, and recorded asset references before deletion.
+Keep database migration history and fixture ownership records.
+Keep source images required by recorded galleries and native builds.
+Remove unreferenced generated artifacts only after checking their provenance.
+Condense old Development review narrative into current evidence and source references.
+Preserve unverified native, push, release, and account-delivery limits.
+Keep exactly README.md, ARCHITECTURE.md, and DEVELOPMENT.md inside docs.
+Put visual review assets in design.
+
+### Verification and acceptance
+
+Rate new tests before implementation. Add only tests with scores of at least 90.
+Use existing behavior tests first.
+Keep tests focused on user outcomes, permissions, dates, and failure recovery.
+
+| Behavior | Importance | Required evidence |
+|---|---:|---|
+| Today contract and access | 100 | Malformed results, cross-Pair rows, rejected access, stale callbacks |
+| Today presentation | 98 | Plan limits, full native count, Task order, Note, and Memory errors |
+| Important date selection | 96 | Ties, leap days, past dates, timezone dates, and unchanged input |
+| Calendar rendering | 95 | Month changes, adjacent-month cells, overlapping Events, filters, and viewer timezone |
+| Messages | 100 | Paging, version precedence, read cursor, scroll position, and retries |
+| Feature interfaces | 95 | Allowed public imports and rejected cross-feature internal imports |
+| Sensitive verification | 100 | Frozen resolution, local serving, origin rejection, and existing verification flow |
+| Render and asset cost | 90 | Repeated calculations and browser asset bytes before and after |
+
+Run focused checks after each stage.
+Run final mobile verification, domain tests, browser verification, and affected Edge checks.
+Run affected SQL and access tests if database code changes.
+Export Android and iOS JavaScript after shared-contract changes.
+Check 320px, 768px, and 1024px layouts and enlarged text for changed controls.
+Verify recorded gallery links after documentation or asset cleanup.
+Keep named local accounts and populated databases.
+Use owned fixtures for destructive tests.
+
+Baseline `b4fffcd` passed workspace TypeScript, source lint, and browser production build.
+Its domain suite passed 13 tests; its native suite passed 202 tests.
+Sandbox Jest runs failed on Windows realpath; the runs outside the sandbox passed.
+Native tests reported an existing ReminderControl act warning.
+This baseline does not establish final branch acceptance.
+Browser acceptance, SQL, and physical device checks were not run for this design.
+
+### Design review result
+
+The design keeps current product scope and access rules.
+The Today contract provides reuse across two applications.
+Render changes use current modules and installed libraries.
+Cleanup follows verified replacement or missing callers.
+Measured candidates remain conditional.
+Implementation starts after written design and plan review.
