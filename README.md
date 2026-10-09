@@ -28,7 +28,7 @@ npm run test:domain
 npm run start:backend
 ```
 
-Set the browser environment and start one Edge process before `npm run dev:web`.
+Set the browser environment and start one Edge process before `npm run dev`.
 Follow [Development](docs/DEVELOPMENT.md#setup) for exact commands, local keys, and origin modes.
 
 ## Read first

@@ -12,6 +12,7 @@
     "npm": "11.16.0"
   },
   "scripts": {
+    "dev": "npm run dev --workspace @deseo/web",
     "dev:mobile": "npm run start --workspace @deseo/mobile",
     "build:mobile:preview": "cd apps/mobile && npm exec --yes --package eas-cli@24.11.0 -- eas build --profile preview --platform all",
     "typecheck": "npm run typecheck --workspaces --if-present",

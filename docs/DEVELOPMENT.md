@@ -72,7 +72,7 @@ Development:
 
 ```powershell
 npm run start:functions -- -Mode Development
-npm run dev:web
+npm run dev
 ```
 
 Tests:
@@ -83,6 +83,7 @@ npm run verify:web
 ```
 
 Run each second command in another terminal while Edge remains active.
+`npm run dev` starts the browser portal. Use `npm run dev:mobile` for Expo.
 Development uses `http://127.0.0.1:5174`. Tests use `http://127.0.0.1:4174`.
 An origin change requires no listener on the other mode's port.
 The guard rejects any such listener. It does not classify processes or foreign Vite projects.
