@@ -3,7 +3,7 @@ import type { InfiniteData } from '@tanstack/react-query';
 import { getSupabase, type RpcName } from '../../lib/supabase';
 import { captureQueryScope, queryClient } from '../../lib/query-client';
 import { errorResult, resultSchema, type Page, type Result } from '@deseo/domain/result';
-import { compareMessageCursors, encodeMessageCursor, messageCursorSchema, messageIdSchema, messageRowSchema, readCursorRowSchema, sendMessageSchema } from '@deseo/domain/messages';
+import { mergeConfirmedMessagePages, messageCursorSchema, messageIdSchema, messageRowSchema, readCursorRowSchema, sendMessageSchema } from '@deseo/domain/messages';
 import { messageKeys } from './queries';
 import type { Message, MessageCursor, SendMessageInput } from '@deseo/domain/messages';
 
@@ -51,29 +51,8 @@ export async function sendMessage(input: SendMessageInput): Promise<Result<Messa
       const confirmed = result.data;
       queryClient.setQueryData<InfiniteData<Page<Message>>>(messageKeys.conversation(confirmed.authorId, confirmed.pairId), cached => {
         scope.assertCurrent();
-        if (!cached?.pages.length) return { pages: [{ items: [confirmed], nextCursor:
-          encodeMessageCursor({ createdAt: confirmed.createdAt, id: confirmed.id }) }], pageParams: [undefined] };
-        let latest = confirmed;
-        let target = -1;
-        const matches = (message: Message) => message.id === confirmed.id
-          || message.authorId === confirmed.authorId && message.clientId === confirmed.clientId;
-        cached.pages.forEach((page, index) => {
-          for (const message of page.items) {
-            if (!matches(message)) continue;
-            if (target < 0) target = index;
-            if (message.version > latest.version) latest = message;
-          }
-        });
-        if (target < 0) target = 0;
-        const pages = cached.pages.map((page, index) => {
-          const items = page.items.filter(message => !matches(message));
-          if (index === target) {
-            items.push(latest);
-            items.sort((left, right) => compareMessageCursors(right, left));
-          }
-          return { ...page, items };
-        });
-        return { ...cached, pages };
+        const pages = mergeConfirmedMessagePages(cached?.pages, confirmed);
+        return cached?.pages.length ? { ...cached, pages } : { pages, pageParams: [undefined] };
       });
       scope.assertCurrent();
       try {
