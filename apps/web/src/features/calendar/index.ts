@@ -1,5 +1,3 @@
-export * from './queries';
-export * from './commands';
-export * from '@deseo/domain/calendar';
-export * from './realtime';
+export { nextImportantDate } from '@deseo/domain/calendar';
+export { useCalendarSignals } from './realtime';
 export { EventRow } from './components/EventRow';

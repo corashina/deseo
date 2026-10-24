@@ -57,13 +57,13 @@ apps/mobile/src/
   theme/                    Native brand mapping
   lib/                      Native client, encrypted storage, lifecycle
 apps/web/src/
-  app/                      Browser router, providers, gate, shell, manifest
+  app/                      Browser router, providers, gate, shell
   features/                 Browser pages, queries, commands, controls
   components/ui/            Browser controls
   styles/                   Browser tokens and feature styles
   lib/                      Browser client, media, drafts, lifecycle
-apps/web/tests/             Real-browser acceptance and gallery capture
-packages/domain/src/       Shared schemas, Today contract, date rules, payloads, results
+apps/web/tests/             Real-browser account isolation and revocation checks
+packages/domain/src/       Shared schemas, date rules, message merging, payloads, results
 supabase/
   migrations/              Authoritative schema and transactions
   functions/               Narrow server operations and workers

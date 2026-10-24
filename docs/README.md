@@ -23,7 +23,7 @@ Check [remaining work](DEVELOPMENT.md#remaining-work) before treating a requirem
 
 ### Browser portal
 
-The [route manifest](../apps/web/src/app/route-manifest.ts) defines 39 routes.
+The [router](../apps/web/src/app/router.tsx) defines the browser routes.
 The [gallery](../design/web-portal/index.html) covers 119 views at 1440×1000 and 390×844.
 The browser uses a sidebar, rail, or drawer. Expo keeps bottom tabs and native stacks.
 
@@ -536,7 +536,7 @@ Explain destructive effects before confirmation. This update adds no language sy
 Use [Development verification](DEVELOPMENT.md#verification) for commands, test importance, browser widths, and evidence requirements.
 The approved priorities were focus and recovery 95, enlarged/narrow text 92, and Today order 90.
 Decoration tests scored 25 and required visual review only.
-Review route-manifest views at desktop and phone widths. Record gallery coverage, links, dimensions, and source revision.
+Review browser routes at desktop and phone widths. Record gallery coverage, links, dimensions, and source revision.
 Keep source checks, browser captures, native exports, and physical-device evidence separate.
 Physical native acceptance remains unverified; see [native evidence](DEVELOPMENT.md#native-frontend-evidence).
 

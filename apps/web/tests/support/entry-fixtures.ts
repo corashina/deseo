@@ -1,9 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { randomUUID } from 'node:crypto';
-import { execFileSync } from 'node:child_process';
-import { join } from 'node:path';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
-import { resolveFixtureDatabase, type FixtureContainer } from './fixture-backend';
 
 // Credentials remain in the test process and the ignored local status file.
 const config = JSON.parse(readFileSync(new URL('../../../../.superpowers/backend/status.local.json', import.meta.url), 'utf8'));
@@ -18,7 +15,7 @@ export function entryFixtureClient(email: string): SupabaseClient {
   return client;
 }
 export type EntryFixture = { accountIds: string[]; email: string; pairId: string | null; inviteToken: string | null };
-export async function createEntryFixture(state: 'unpaired' | 'pending' | 'active', recordOwnership?: (fixture: EntryFixture) => Promise<void>): Promise<EntryFixture> {
+export async function createEntryFixture(state: 'pending' | 'active'): Promise<EntryFixture> {
   const fixture: EntryFixture = { accountIds: [], email: '', pairId: null, inviteToken: null };
   async function account(name: string) {
     const email = `entry-${randomUUID()}@example.test`;
@@ -26,7 +23,6 @@ export async function createEntryFixture(state: 'unpaired' | 'pending' | 'active
     const { data, error } = await admin.auth.admin.createUser({ email, password, email_confirm: true });
     if (error || !data.user) throw error ?? new Error('Account missing');
     fixture.accountIds.push(data.user.id);
-    await recordOwnership?.(fixture);
     const client = createClient(localUrl, publicKey, { auth: { persistSession: false, autoRefreshToken: false } });
     const login = await client.auth.signInWithPassword({ email, password });
     if (login.error) throw login.error;
@@ -37,17 +33,14 @@ export async function createEntryFixture(state: 'unpaired' | 'pending' | 'active
   try {
     const owner = await account('Anna');
     fixture.email = owner.email;
-    if (state !== 'unpaired') {
-      fixture.pairId = (await fixtureRpc(owner.client, 'create_pair', { p_timezone: 'Europe/Warsaw', p_command_id: randomUUID() })).pairId;
-      await recordOwnership?.(fixture);
-      fixture.inviteToken = (await fixtureRpc(owner.client, 'create_invite', { p_pair_id: fixture.pairId, p_command_id: randomUUID() })).token;
-      if (state === 'active') {
-        const partner = await account('Marek');
-        await fixtureRpc(partner.client, 'accept_invite', { p_token: fixture.inviteToken, p_command_id: randomUUID() });
-      }
+    fixture.pairId = (await fixtureRpc(owner.client, 'create_pair', { p_timezone: 'Europe/Warsaw', p_command_id: randomUUID() })).pairId;
+    fixture.inviteToken = (await fixtureRpc(owner.client, 'create_invite', { p_pair_id: fixture.pairId, p_command_id: randomUUID() })).token;
+    if (state === 'active') {
+      const partner = await account('Marek');
+      await fixtureRpc(partner.client, 'accept_invite', { p_token: fixture.inviteToken, p_command_id: randomUUID() });
     }
     return fixture;
-  } catch (error) { if (!recordOwnership) await cleanupEntryFixture(fixture); throw error; }
+  } catch (error) { await cleanupEntryFixture(fixture); throw error; }
 }
 export async function fixtureRpc(client: SupabaseClient, name: string, args = {}) {
   const { data, error } = await client.rpc(name, args);
@@ -70,20 +63,4 @@ export async function cleanupEntryFixtureSessions(accountIds: readonly string[])
     const session = await client.auth.getSession();
     if (accountIds.includes(session.data.session?.user.id ?? '')) { await client.auth.signOut({ scope: 'local' }); fixtureClients.delete(email); }
   }
-}
-export function expireEntryCode(accountId: string): void {
-  if (!/^[0-9a-f-]{36}$/.test(accountId)) throw new Error('Invalid fixture ID');
-  const docker = join(process.env.LOCALAPPDATA!, 'Programs/DockerDesktop/resources/bin/docker.exe');
-  const ids = execFileSync(docker, ['ps', '--filter', 'label=com.supabase.cli.project', '--format', '{{.ID}}'],
-    { encoding: 'utf8', stdio: 'pipe' }).trim().split(/\r?\n/).filter(Boolean);
-  if (!ids.length) throw new Error('Running fixture backend identity is missing.');
-  // Inspect labels and published ports only. Never read Docker environment credentials.
-  const format = '{"id":{{json .Id}},"name":{{json .Name}},"running":{{json .State.Running}},"project":{{json (index .Config.Labels "com.supabase.cli.project")}},"workdir":{{json (index .Config.Labels "com.supabase.cli.workdir")}},"ports":{{json .NetworkSettings.Ports}}}';
-  const containers = execFileSync(docker, ['inspect', ...ids, '--format', format],
-    { encoding: 'utf8', stdio: 'pipe' }).trim().split(/\r?\n/).map(line => JSON.parse(line) as FixtureContainer);
-  const databaseId = resolveFixtureDatabase(localUrl, config.DB_URL, containers);
-  const updated = execFileSync(docker, ['exec', databaseId, 'psql', '-U', 'postgres', '-d', 'postgres', '-Atq', '-v', 'ON_ERROR_STOP=1', '-c',
-    `update auth.users set confirmation_sent_at=now()-interval '2 hours', recovery_sent_at=now()-interval '2 hours' where id='${accountId}' and email like 'entry-%@example.test' returning id`],
-    { encoding: 'utf8', stdio: 'pipe' });
-  if (updated.trim() !== accountId.toLowerCase()) throw new Error('Expiry target did not match one disposable fixture.');
 }

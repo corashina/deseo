@@ -1,4 +1,3 @@
-export * from './commands';
-export * from './queries';
+export { requestEmailCode, verifyEmailCode, saveProfile, signOut, entryIntent, requestSensitiveActionCode, verifySensitiveAction } from './commands';
+export { restoreSession } from './queries';
 export { clearGlobalSignOutFailure, useGlobalSignOutFailure } from './sign-out-notice';
-export type { Account, ProfileInput } from '@deseo/domain/auth';

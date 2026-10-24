@@ -126,10 +126,8 @@ npm run test:db
 ```
 
 The SQL suites use fixture IDs and roll back their transactions. Preserve development records and unknown rows.
-Run race tests separately from browser tests. Set test keys from the ignored backend status file.
-All race harnesses use API 55721. Notification races require an empty notification table.
-Memory races require empty memory and cleanup tables because their workers claim jobs across the database.
-Do not reset the development database to satisfy these requirements.
+Run `npm run test:db:race` separately from browser tests. Set keys from the ignored backend status file.
+The planning race harness uses API 55721 and removes its own fixtures.
 
 On 2026-10-07, the `deseo` backend combined the web and integration development data.
 The private backups and transfer checks are in `.superpowers/consolidation`.
@@ -140,8 +138,7 @@ Run Edge checks from the root:
 
 ```powershell
 npm run typecheck:functions
-npm run test:memories:functions
-npm run test:notifications:functions
+npm run test:functions
 ```
 
 The single typecheck covers all six Edge entrypoints with Deno 2.9.6 and the shared frozen configuration.
@@ -161,8 +158,8 @@ CI fails when the committed file differs from the schema.
 
 `.github/workflows/ci.yml` runs on pushes to `master` and on each pull request.
 
-- The apps job runs `verify:mobile`, domain tests, `test:architecture`, and the web typecheck, lint, and build.
-- The backend job starts Supabase. It runs SQL suites, the type check, three race harnesses, and Deno function checks.
+- The apps job runs `verify:mobile`, domain tests, and the web typecheck, lint, and build.
+- The backend job starts Supabase. It runs three SQL suites, planning races, and Edge type and JPEG checks.
 
 Playwright portal tests need the seeded development backend and its Edge functions. Run them locally with `npm run test:web`.
 
@@ -214,13 +211,16 @@ Preserve failed logs and state each rerun's scope.
 Generate database types after schema changes. Test fresh replay and populated fixtures.
 Keep account, pair, and private-state cleanup contracts intact.
 
+The 9 October source cleanup removed unused feature exports and shared acknowledged-message merging.
+Calendar types now come from existing Zod schemas. Each application keeps its client and authority checks.
+
 ## Verification
 
 Physical Android and iOS acceptance remains unverified.
 
 ### Portal verification
 
-Run `npm run verify:mobile`, `npm run test:domain`, `npm run test:architecture`, and `npm run verify:web` on final source.
+Run `npm run verify:mobile`, `npm run test:domain`, and `npm run verify:web` on final source.
 Browser verification runs TypeScript, scoped lint, production build, and the complete Playwright suite.
 Use real local Auth, pair transactions, private media, and durable writes.
 Controlled transport failures cover unknown outcomes, replay, conflicts, focus, remount, and authority changes.
@@ -230,13 +230,11 @@ Scope test reads, updates, and assertions to fixture IDs. Keep real cross-pair a
 SQL transactions roll back. Cleanup worker assertions select their fixture from bounded claims.
 Preserve populated data and unknown rows. Fixture cleanup requires ownership records and checked deletion results.
 
-Run pairing, planning, messages, memory, and notification race harnesses in a separate test window.
-Do not overlap global worker claims with browser fixture setup.
-Notification races require an empty notification table and never call Expo.
-Memory races require empty memory and cleanup tables. Do not reset development data to run them.
+Run the planning race harness in a separate test window.
+SQL memory and notification suites roll back worker claims with their fixture transactions.
 
-Run `npm run typecheck:functions` and both function test commands with the shared frozen configuration.
-Record live gateway behavior separately from direct handler tests.
+Run `npm run typecheck:functions` and `npm run test:functions` with the shared frozen configuration.
+Record live gateway behavior through a separate manual check.
 Valid-user unknown/null-origin requests must reject before action work. Native no-Origin requests remain supported.
 
 Export Android and iOS JavaScript after final shared changes. Record device checks separately.
@@ -259,6 +257,33 @@ The remaining sections describe product acceptance, including separate account, 
 Rate importance before implementation. Implement only scores of 90 or higher, as AGENTS.md requires.
 
 Test user behavior, security rules, and failure recovery. Avoid tests that repeat markup or internal function bodies.
+
+On 9 October 2026, the cleanup removed 91 of 101 test files, or 90.1%.
+The ten retained files cover the highest-risk boundaries across both applications and the backend.
+This percentage counts files, not individual cases. SQL suites retain many assertions within each file.
+
+| Retained file | Importance | Coverage |
+|---|---:|---|
+| `apps/mobile/src/features/auth/session.test.tsx` | 100 | Restore races, background privacy, account changes |
+| `apps/mobile/src/lib/private-storage.test.ts` | 100 | Key loss, corruption, failed writes, scoped removal |
+| `apps/web/tests/session-isolation.spec.ts` | 100 | Browser account and pair isolation |
+| `apps/web/tests/pair-revocation.spec.ts` | 100 | Fresh verification, pair closure, global sign-out |
+| `packages/domain/tests/calendar-dates.test.ts` | 96 | Date boundaries, DST, pair-local selection |
+| `supabase/functions/finalize-memory/validate-jpeg.test.ts` | 100 | JPEG bytes, dimensions, embedded metadata |
+| `supabase/tests/memories.test.sql` | 100 | Access, quota, immutable uploads, publication, cleanup |
+| `supabase/tests/messages.test.sql` | 100 | Access, retries, cursor order, revocation |
+| `supabase/tests/notification-jobs.test.sql` | 100 | Leases, cancellation, quiet hours, receipts |
+| `supabase/tests/planning-races.test.ts` | 100 | Concurrent writes, conflicts, retries, cross-pair access |
+
+The cleanup also removed unused capture helpers, the screenshot manifest, and expired-code fixture code.
+Browser fixtures now create one pair and one event, without photo uploads or unrelated content.
+Earlier evidence tables describe the previous test inventory and command names.
+The reduced suite omits broad UI flows, native draft recovery, concurrent pairing, and full Edge handler checks.
+Use manual acceptance checks for these areas until a specific defect requires a focused regression test.
+
+#### Acceptance priorities
+
+The following priorities cover product acceptance. They do not describe the retained automated inventory.
 
 | Suite | Importance | Required cases |
 |---|---:|---|

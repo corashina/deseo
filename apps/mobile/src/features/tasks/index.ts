@@ -1,11 +1,8 @@
-export { listTaskLists, listTasks, getTask, taskKeys } from './queries';
-export { createTask, updateTask, setTaskCompleted, deleteTask, createList, renameList, moveListTasksToGeneral, deleteEmptyList } from './commands';
-export { taskInputSchema, taskDateSchema, listNameSchema } from '@deseo/domain/tasks';
-export type { Task, TaskInput, TaskList } from '@deseo/domain/tasks';
+export { getTask, taskKeys } from './queries';
+export type { Task } from '@deseo/domain/tasks';
 export { TasksScreen } from './screens/TasksScreen';
 export { TaskFormScreen } from './screens/TaskFormScreen';
 export { TaskDetailScreen } from './screens/TaskDetailScreen';
 export { ListDetailScreen } from './screens/ListDetailScreen';
-export { TaskAccess } from './TaskAccess';
-export { TaskRow, type TaskRowProps } from './components/TaskRow';
+export { TaskRow } from './components/TaskRow';
 export { connectTaskSignals } from './realtime';

@@ -1,8 +1,8 @@
-export { requestEmailCode, verifyEmailCode, saveProfile, signOut, requestSensitiveActionCode, verifySensitiveAction } from './commands';
+export { signOut, requestSensitiveActionCode, verifySensitiveAction } from './commands';
 export { restoreSession } from './queries';
 export { AuthProvider, useAuth } from './session';
-export { emailSchema, emailCodeSchema, profileSchema, timezoneSchema } from '@deseo/domain/auth';
-export type { Account, AuthState, ProfileInput, SensitiveAction, SessionContext } from '@deseo/domain/auth';
+export { timezoneSchema } from '@deseo/domain/auth';
+export type { Account } from '@deseo/domain/auth';
 export { WelcomeScreen } from './screens/WelcomeScreen';
 export { EmailScreen } from './screens/EmailScreen';
 export { VerifyScreen } from './screens/VerifyScreen';

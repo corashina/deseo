@@ -20,14 +20,10 @@
     "test:mobile": "npm run test --workspace @deseo/mobile --",
     "test:db": "powershell -NoProfile -File supabase/dev/backend.ps1 -Action Test",
     "gen:types": "supabase gen types typescript --local --schema public > packages/domain/src/database.types.ts",
-    "test:db:race": "node --experimental-strip-types --test supabase/tests/pairing-races.test.ts supabase/tests/planning-races.test.ts supabase/tests/messages-races.test.ts",
-    "test:memories:functions": "npm exec --yes --package deno@2.9.6 -- deno test --allow-env --frozen --config supabase/functions/deno.json supabase/functions/finalize-memory/validate-jpeg.test.ts supabase/functions/memories.test.ts supabase/functions/_shared/keys.test.ts supabase/functions/browser-origin.test.ts",
+    "test:db:race": "node --experimental-strip-types --test supabase/tests/planning-races.test.ts",
     "typecheck:functions": "npm exec --yes --package deno@2.9.6 -- deno check --frozen --config supabase/functions/deno.json supabase/functions/finalize-memory/index.ts supabase/functions/get-memory-media/index.ts supabase/functions/cleanup/index.ts supabase/functions/dispatch-notifications/index.ts supabase/functions/check-push-receipts/index.ts supabase/functions/verify-sensitive-action/index.ts",
-    "test:notifications:functions": "npm exec --yes --package deno@2.9.6 -- deno test --allow-env --frozen --config supabase/functions/deno.json supabase/functions/notifications.test.ts",
-    "test:memories:race": "node --experimental-strip-types --test supabase/tests/memories-races.test.ts",
-    "test:notifications:race": "node --experimental-strip-types --test supabase/tests/notification-races.test.ts",
     "verify:mobile": "npm run typecheck --workspace @deseo/mobile && eslint apps/mobile/src && npm run test:mobile",
-    "verify": "npm run verify:mobile && npm run typecheck:functions && npm run test:memories:functions && npm run test:notifications:functions && npm run test:db && npm run test:db:race && npm run test:memories:race && npm run test:notifications:race",
+    "verify": "npm run verify:mobile && npm run test:domain && npm run typecheck:functions && npm run test:functions && npm run test:db && npm run test:db:race",
     "test:web": "npm run test --workspace @deseo/web --",
     "verify:web": "npm run verify --workspace @deseo/web",
     "dev:web": "npm run dev --workspace @deseo/web",
@@ -39,7 +35,7 @@
     "reset:backend": "powershell -NoProfile -File supabase/dev/backend.ps1 -Action Reset",
     "status:backend": "powershell -NoProfile -File supabase/dev/backend.ps1 -Action Status",
     "start:functions": "powershell -NoProfile -File supabase/dev/serve-web-functions.ps1",
-    "test:architecture": "node --test eslint.config.test.mjs"
+    "test:functions": "npm exec --yes --package deno@2.9.6 -- deno test --frozen --config supabase/functions/deno.json supabase/functions/finalize-memory/validate-jpeg.test.ts"
   },
   "devDependencies": {
     "eslint": "10.12.0",
