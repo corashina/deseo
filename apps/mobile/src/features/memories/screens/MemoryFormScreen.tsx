@@ -6,6 +6,7 @@ import { useRouter } from 'expo-router';
 import { useCore } from '../../pair';
 import { Screen } from '../../../components/ui/Screen';
 import { Button } from '../../../components/ui/Button';
+import { DateTimeField } from '../../../components/ui/DateTimeField';
 import { Field } from '../../../components/ui/Field';
 import { Status } from '../../../components/ui/Status';
 import { useTheme } from '../../../theme';
@@ -52,8 +53,8 @@ function Form({ memory, timezone, online, reload }: { memory?: Memory; timezone:
     {!online && <Status tone="warning" message="You are offline. Your draft stays on this device. Reconnect before you upload." />}
     {(access.error || localError) && <Status tone="error" message={localError ?? access.error!} />}
     {draft.submitted && !draft.conflict && <Status message="Your last save needs confirmation. Tap Retry save to continue." />}
-    <Field label="Memory date" hint="Use YYYY-MM-DD." value={draft.memoryDate} editable={!locked} maxLength={10}
-      onChangeText={memoryDate => changeMemoryDraft(key, { memoryDate })} />
+    <DateTimeField label="Memory date" mode="date" value={draft.memoryDate} disabled={locked}
+      onChange={memoryDate => changeMemoryDraft(key, { memoryDate })} />
     <Field label="Caption (optional)" value={draft.caption} editable={!locked} multiline maxLength={1000}
       onChangeText={caption => changeMemoryDraft(key, { caption })} />
     {!memory && <>

@@ -181,6 +181,8 @@ npm exec --workspace @deseo/mobile -- expo export --platform android --platform 
 ```
 
 MMKV needs a development build. Expo Go cannot run its native storage.
+Date and time fields use the native picker from `@react-native-community/datetimepicker`. Rebuild the development and preview builds after it changes.
+Pickers run in UTC so the stored wall date and time never shift with the device zone. Timezone fields list zones from `@vvo/tzdb`.
 Android requires installed Android tooling. iOS local builds require macOS and Xcode.
 JavaScript exports verify bundling; physical device, push, native binary, and store checks remain separate.
 

@@ -4,7 +4,7 @@ import { randomUUID } from 'expo-crypto';
 import { DateTime } from 'luxon';
 import { Text, View } from 'react-native';
 import { Button } from '../../../components/ui/Button';
-import { Field } from '../../../components/ui/Field';
+import { DateTimeField } from '../../../components/ui/DateTimeField';
 import { Status } from '../../../components/ui/Status';
 import { captureQueryScope } from '../../../lib/query-client';
 import { toAppError } from '@deseo/domain/result';
@@ -68,8 +68,8 @@ function ReminderForm({ pairId, online, saved, defaultMinutes, ...props }: Props
         <Button key={String(option.value)} label={`${choice === option.value ? 'Selected: ' : ''}${option.label}`} variant={choice === option.value ? 'primary' : 'secondary'} disabled={busy} onPress={() => setChoice(option.value)} />)}
     </> : <>
       <Button label={taskEnabled ? 'Turn reminder off' : 'Choose reminder time'} variant="secondary" disabled={busy || props.completed} onPress={() => setTaskEnabled(value => !value)} />
-      {taskEnabled && <><Field label="Reminder date" value={date} onChangeText={setDate} placeholder="YYYY-MM-DD" editable={!busy} />
-        <Field label="Reminder time" value={time} onChangeText={setTime} placeholder="HH:mm" editable={!busy} />
+      {taskEnabled && <><DateTimeField label="Reminder date" mode="date" value={date} onChange={setDate} disabled={busy} />
+        <DateTimeField label="Reminder time" mode="time" value={time} onChange={setTime} disabled={busy} />
         <Text style={theme.typography.secondary}>Timezone: {props.timezone}</Text></>}
       {props.completed && <Text style={theme.typography.secondary}>Completed tasks do not send reminders.</Text>}
     </>}
