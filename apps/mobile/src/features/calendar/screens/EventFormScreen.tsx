@@ -5,7 +5,9 @@ import { DateTime } from 'luxon';
 import { useRouter } from 'expo-router';
 import { Alert, Switch, Text, View } from 'react-native';
 import { Button } from '../../../components/ui/Button';
+import { DateTimeField } from '../../../components/ui/DateTimeField';
 import { Field } from '../../../components/ui/Field';
+import { TimezoneField } from '../../../components/ui/TimezoneField';
 import { Screen } from '../../../components/ui/Screen';
 import { Status } from '../../../components/ui/Status';
 import { useTheme } from '../../../theme';
@@ -77,11 +79,20 @@ function EventForm({ account, pair, online, event, idea, reload, reloadIdea }: A
       { text: 'Cancel', style: 'cancel', onPress: () => resolve(null) }, { text: 'Share event', onPress: () => resolve({ ...input, confirmShared: true }) },
     ]))
     : input;
-  const textField = (name: 'title' | 'startDate' | 'endDate' | 'startTime' | 'endTime' | 'timezone' | 'location' | 'description', label: string, hint?: string) =>
-    <Controller key={name} control={form.control} name={name} render={({ field, fieldState }) => <Field label={label} hint={hint} error={fieldState.error?.message}
-      value={field.value} onChangeText={(text) => { field.onChange(text); if (name === 'startDate' && form.getValues('repeat') === 'yearly') form.setValue('endDate', text); if (name === 'startTime' || name === 'startDate') form.setValue('startOffset', undefined); if (name === 'endTime' || name === 'endDate') form.setValue('endOffset', undefined); if (name === 'timezone') { form.setValue('startOffset', undefined); form.setValue('endOffset', undefined); } }}
-      onBlur={field.onBlur} editable={!locked} multiline={name === 'description'} autoCapitalize={name === 'timezone' ? 'none' : 'sentences'}
-      maxLength={name === 'title' ? 120 : name === 'location' ? 200 : name === 'description' ? 2000 : undefined} /> } />;
+  // A changed wall time drops its chosen daylight-saving offset. A yearly date keeps one day.
+  const change = (name: 'startDate' | 'endDate' | 'startTime' | 'endTime' | 'timezone', value: string) => {
+    if (name === 'startDate' && form.getValues('repeat') === 'yearly') form.setValue('endDate', value);
+    if (name === 'startTime' || name === 'startDate' || name === 'timezone') form.setValue('startOffset', undefined);
+    if (name === 'endTime' || name === 'endDate' || name === 'timezone') form.setValue('endOffset', undefined);
+  };
+  const textField = (name: 'title' | 'location' | 'description', label: string) =>
+    <Controller key={name} control={form.control} name={name} render={({ field, fieldState }) => <Field label={label} error={fieldState.error?.message}
+      value={field.value} onChangeText={field.onChange} onBlur={field.onBlur} editable={!locked} multiline={name === 'description'}
+      maxLength={name === 'title' ? 120 : name === 'location' ? 200 : 2000} /> } />;
+  const pickerField = (name: 'startDate' | 'endDate' | 'startTime' | 'endTime', label: string) =>
+    <Controller key={name} control={form.control} name={name} render={({ field, fieldState }) => <DateTimeField label={label}
+      mode={name.endsWith('Date') ? 'date' : 'time'} value={field.value} error={fieldState.error?.message} disabled={locked}
+      onChange={value => { field.onChange(value); change(name, value); }} /> } />;
   const offsets = (field: 'start' | 'end') => {
     let choices: DateTime[];
     try { choices = wallTimeChoices(values[`${field}Date`], values[`${field}Time`], values.timezone); } catch { return null; }
@@ -118,11 +129,12 @@ function EventForm({ account, pair, online, event, idea, reload, reloadIdea }: A
         {values.importantDate && <View style={theme.ui.row}><Text style={theme.typography.body}>Repeat yearly</Text><Switch accessibilityLabel="Repeat yearly" value={values.repeat === 'yearly'} disabled={locked} onValueChange={value => { form.setValue('repeat', value ? 'yearly' : 'none'); if (value) form.setValue('endDate', form.getValues('startDate')); }} /></View>}
         {values.repeat === 'yearly' && <Status message="February 29 uses February 28 in non-leap years. Changes apply to the series." />}
       </>}
-      {textField('startDate', 'Start date', 'Use YYYY-MM-DD.')}
-      {!values.allDay && <>{textField('startTime', 'Start time', 'Use HH:mm, such as 18:30.')}{offsets('start')}</>}
-      {textField('endDate', values.allDay ? 'Last included date' : 'End date', 'Use YYYY-MM-DD.')}
-      {!values.allDay && <>{textField('endTime', 'End time', 'Use HH:mm, such as 19:30.')}{offsets('end')}</>}
-      {textField('timezone', 'Timezone', 'Use an IANA name, such as Europe/Warsaw.')}
+      {pickerField('startDate', 'Start date')}
+      {!values.allDay && <>{pickerField('startTime', 'Start time')}{offsets('start')}</>}
+      {pickerField('endDate', values.allDay ? 'Last included date' : 'End date')}
+      {!values.allDay && <>{pickerField('endTime', 'End time')}{offsets('end')}</>}
+      <Controller control={form.control} name="timezone" render={({ field, fieldState }) => <TimezoneField value={field.value}
+        error={fieldState.error?.message} disabled={locked} onChange={value => { field.onChange(value); change('timezone', value); }} />} />
     </View>
     <View style={theme.ui.stack}>
       <Text accessibilityRole="header" style={theme.typography.section}>Sharing</Text>

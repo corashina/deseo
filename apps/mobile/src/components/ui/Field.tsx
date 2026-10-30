@@ -6,7 +6,7 @@ export type FieldProps = TextInputProps & { label: string; error?: string; hint?
 
 export function Field({ label, error, hint, style, ...props }: FieldProps) {
   const theme = useTheme();
-  const styles = useStyles();
+  const styles = useFieldStyles();
   const id = useId();
   return <View style={styles.container}>
     <Text nativeID={id} style={styles.label}>{label}</Text>
@@ -18,7 +18,7 @@ export function Field({ label, error, hint, style, ...props }: FieldProps) {
   </View>;
 }
 
-const useStyles = makeStyles(theme => ({
+export const useFieldStyles = makeStyles(theme => ({
   container: { gap: theme.space[2] }, label: { ...theme.typography.button, color: theme.colors.ink },
   input: { ...theme.typography.body, minHeight: theme.touchTarget, paddingHorizontal: theme.space[4], paddingVertical: theme.space[3], backgroundColor: theme.colors.surface,
     borderWidth: 1, borderColor: theme.colors.control, borderRadius: theme.radius.control },

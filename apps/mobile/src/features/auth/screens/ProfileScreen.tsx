@@ -5,6 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { router } from 'expo-router';
 import { Screen } from '../../../components/ui/Screen';
 import { Field } from '../../../components/ui/Field';
+import { TimezoneField } from '../../../components/ui/TimezoneField';
 import { Button } from '../../../components/ui/Button';
 import { Status } from '../../../components/ui/Status';
 import { saveProfile } from '../commands';
@@ -27,9 +28,8 @@ export function ProfileScreen() {
   return <Screen title="Your profile" subtitle="Your partner will see your name.">
     <Controller control={control} name="displayName" render={({ field }) => <Field label="Name" value={field.value}
       onChangeText={field.onChange} maxLength={40} error={errors.displayName?.message} autoComplete="given-name" />} />
-    <Controller control={control} name="timezone" render={({ field }) => <Field label="Timezone" value={field.value}
-      onChangeText={field.onChange} autoCapitalize="none" autoCorrect={false} hint="For example, Europe/Warsaw."
-      error={errors.timezone?.message} />} />
+    <Controller control={control} name="timezone" render={({ field }) => <TimezoneField value={field.value}
+      onChange={field.onChange} error={errors.timezone?.message} />} />
     {error && <Status message={error} tone="error" />}
     <Button label="Save profile" loading={isSubmitting} onPress={() => { void submit(); }} />
   </Screen>;

@@ -3,7 +3,9 @@ import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
 import { Text, View } from 'react-native';
 import { Controller } from 'react-hook-form';
+import { DateTime } from 'luxon';
 import { Button } from '../../../components/ui/Button';
+import { DateTimeField } from '../../../components/ui/DateTimeField';
 import { Field } from '../../../components/ui/Field';
 import { Screen } from '../../../components/ui/Screen';
 import { Status } from '../../../components/ui/Status';
@@ -51,6 +53,7 @@ function TaskForm({ core, pairId, lists, task, reload, listId, quick }: Props & 
   });
   const { form, ready, saving, frozen, error, storageError } = draft;
   const values = form.watch(); const locked = !ready || frozen || saving;
+  const timezone = core.pair.status === 'active' ? core.pair.timezone : core.account.timezone;
   const fieldError = (name: keyof TaskValues) => form.formState.errors[name]?.message;
   if (draft.savedButNotCleared) { const savedId = draft.savedButNotCleared.id; return <Screen title="Task saved"><Status message="We saved your task. We could not remove its local draft." /><Button label="Open task" onPress={() => router.replace({ pathname: '/tasks/[taskId]', params: { taskId: savedId } })} /></Screen>; }
   return <Screen title={task ? 'Edit task' : quick ? 'Quick add' : 'Add task'}>
@@ -69,7 +72,9 @@ function TaskForm({ core, pairId, lists, task, reload, listId, quick }: Props & 
         {members.map(member => <Button key={member.userId} label={`${member.userId === core.account.id ? 'Me' : 'Partner'} · ${member.displayName}`} disabled={locked} variant={values.assigneeId === member.userId ? 'primary' : 'secondary'} onPress={() => form.setValue('assigneeId', member.userId)} />)}
       </View>
       {fieldError('assigneeId') && <Status tone="error" message={fieldError('assigneeId')!} />}
-      <Controller control={form.control} name="dueDate" render={({ field }) => <Field label="Due date (optional)" hint={`Use YYYY-MM-DD. Pair timezone: ${core.pair.status === 'active' ? core.pair.timezone : ''}.`} error={fieldError('dueDate')} value={field.value} onChangeText={field.onChange} editable={!locked} maxLength={10} />} />
+      <Controller control={form.control} name="dueDate" render={({ field }) => <DateTimeField label="Due date (optional)" mode="date" value={field.value}
+        emptyValue={DateTime.now().setZone(timezone).toISODate()!} hint={`Pair timezone: ${timezone}.`} error={fieldError('dueDate')} disabled={locked}
+        onChange={field.onChange} />} />
     </>}
     <Button label={frozen ? 'Retry save' : task ? 'Save changes' : 'Add task'} loading={saving} disabled={!core.online || !ready || saving || error?.code === 'CONFLICT'} onPress={() => { void (frozen ? draft.retry() : draft.save()); }} />
     <Button label="Back" variant="secondary" disabled={!ready || saving} onPress={() => { void draft.leave().then(left => { if (left) router.back(); }); }} />

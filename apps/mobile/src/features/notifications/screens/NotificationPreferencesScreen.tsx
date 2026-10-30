@@ -3,7 +3,8 @@ import { useQuery } from '@tanstack/react-query';
 import { Text } from 'react-native';
 import { Section } from '../../../components/ui/Section';
 import { Screen } from '../../../components/ui/Screen';
-import { Field } from '../../../components/ui/Field';
+import { DateTimeField } from '../../../components/ui/DateTimeField';
+import { TimezoneField } from '../../../components/ui/TimezoneField';
 import { Button } from '../../../components/ui/Button';
 import { Status } from '../../../components/ui/Status';
 import { useCore } from '../../pair';
@@ -53,9 +54,9 @@ function PreferencesForm({ saved, online, reload }: { saved: NotificationPrefere
     </Section>
     <Section card title="Quiet hours">
     <Button label={quiet ? 'Quiet hours: On' : 'Quiet hours: Off'} variant="secondary" disabled={busy} onPress={() => setQuiet(value => !value)} />
-    {quiet && <><Field label="Quiet hours start" value={start} onChangeText={setStart} placeholder="HH:mm" editable={!busy} />
-      <Field label="Quiet hours end" value={end} onChangeText={setEnd} placeholder="HH:mm" editable={!busy} /></>}
-    <Field label="Notification timezone" value={timezone} onChangeText={setTimezone} autoCapitalize="none" editable={!busy} />
+    {quiet && <><DateTimeField label="Quiet hours start" mode="time" value={start} onChange={setStart} disabled={busy} />
+      <DateTimeField label="Quiet hours end" mode="time" value={end} onChange={setEnd} disabled={busy} /></>}
+    <TimezoneField label="Notification timezone" value={timezone} onChange={setTimezone} disabled={busy} />
     <Text style={theme.typography.secondary}>Quiet hours defer pushes. Event pushes expire after the event starts.</Text>
     </Section>
     {!online && <Status message="Reconnect before saving preferences." />}
