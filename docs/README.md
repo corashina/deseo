@@ -439,7 +439,7 @@ Deseo's screen, data, and architecture decisions are original proposals. They ar
 | [Supabase Cron](https://supabase.com/docs/guides/cron) | Schedule bounded reminder and cleanup work |
 | [Supabase changelog](https://supabase.com/changelog) | Recheck SDK, keys, and database changes before provisioning |
 
-Use [Stop Slop](https://github.com/hardikpandya/stop-slop/blob/main/SKILL.md) for documentation and UI text.
+Use [unslop](https://github.com/michael-denyer/pstack-claude/blob/main/plugins/pstack/skills/unslop/SKILL.md) for documentation and UI text.
 The initial module review used [Improve Codebase Architecture](https://github.com/mattpocock/skills/blob/main/skills/engineering/improve-codebase-architecture/SKILL.md)
 and [Codebase Design](https://github.com/mattpocock/skills/blob/main/skills/engineering/codebase-design/SKILL.md).
 See [release requirements](DEVELOPMENT.md#store-preparation) for store sources.

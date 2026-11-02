@@ -9,7 +9,7 @@
 - Avoid allocations and repeated setup in per-frame update and render paths.
 - Do not implement reduced-motion variants or `prefers-reduced-motion` handling unless the user explicitly requests it.
 - Before implementing tests, give it a rating 0-100 in terms of importance and implement only those that score 90 or higher.
-- Use the [stop-slop skill](https://github.com/hardikpandya/stop-slop/blob/main/SKILL.md) when writing or editing UI text and documentation
+- Use the [unslop skill](https://github.com/michael-denyer/pstack-claude/blob/main/plugins/pstack/skills/unslop/SKILL.md) when you write or edit UI text, documentation, and code comments.
 
 - Read [README.md](README.md) and [the documentation index](docs/README.md) before product work.
 - Follow [the architecture](docs/ARCHITECTURE.md) and [data contract](docs/ARCHITECTURE.md#data-contract) for module and access rules.

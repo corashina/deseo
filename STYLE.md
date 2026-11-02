@@ -605,7 +605,7 @@ The reference supports a visual review. It does not prove product usability, acc
 
 ## 13. Writing rules
 
-Use the [stop-slop skill](https://github.com/hardikpandya/stop-slop/blob/main/SKILL.md) for UI text and documentation.
+Use the [unslop skill](https://github.com/michael-denyer/pstack-claude/blob/main/plugins/pstack/skills/unslop/SKILL.md) for UI text and documentation.
 
 Use short sentences and concrete actions. Keep instructions within 20 words.
 
