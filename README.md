@@ -8,12 +8,12 @@ The public information site remains a separate delivery task.
 
 ## Product
 
-- **Today:** Upcoming plans with dates, due tasks, a memory, a note, and an important date.
-- **Calendar:** Shared events, private events, important dates, reminders, and date ideas.
-- **Memories:** Private photos with dates, captions, and author controls.
-- **Messages:** One conversation and one pinned note per person.
-- **Tasks:** Shared lists, assignment, due dates, and completion.
-- **Settings:** Profile, pair, preferences, fresh verification, and sign-out controls.
+- **Today.** Upcoming plans with dates, due tasks, a memory, a note, and an important date.
+- **Calendar.** Shared events, private events, important dates, reminders, and date ideas.
+- **Memories.** Private photos with dates, captions, and author controls.
+- **Messages.** One conversation and one pinned note per person.
+- **Tasks.** Shared lists, assignment, due dates, and completion.
+- **Settings.** Profile, pair, preferences, fresh verification, and sign-out controls.
 
 Each account can join one active pair. Each pair has two people.
 Deseo uses pastel colors and the [Two voices icon](design/icons-round-2/icon-05-two-voices.png).

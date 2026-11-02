@@ -328,19 +328,19 @@ Use generated or licensed test photos. Include metadata, invalid extension, larg
 
 ### Test surfaces
 
-**Database:** Use real PostgreSQL policies, grants, constraints, and transactions. Do not replace access tests with client mocks.
+**Database.** Use real PostgreSQL policies, grants, constraints, and transactions. Do not replace access tests with client mocks.
 
-**Concurrent writes:** Use separate clients or connections. Sequential calls cannot prove invitation or worker race safety.
+**Concurrent writes.** Use separate clients or connections. Sequential calls cannot prove invitation or worker race safety.
 
-**Feature modules:** Test commands and screens through their public interfaces. Mock external transport only when testing local failure presentation.
+**Feature modules.** Test commands and screens through their public interfaces. Mock external transport only when testing local failure presentation.
 
-**Workers:** Use recorded provider outcomes and bounded test clocks. Verify database state before and after crashes.
+**Workers.** Use recorded provider outcomes and bounded test clocks. Verify database state before and after crashes.
 
-**Native:** Use development and release builds on both platforms. Expo Go is insufficient for storage and push evidence.
+**Native.** Use development and release builds on both platforms. Expo Go is insufficient for storage and push evidence.
 
-**Portal:** Test the production preview through real browser routes and local authenticated data.
+**Portal.** Test the production preview through real browser routes and local authenticated data.
 
-**Public site:** Test the generated static site when that separate delivery starts.
+**Public site.** Test the generated static site when that separate delivery starts.
 
 ### Complete journeys
 
@@ -500,7 +500,7 @@ Describe only working features. Do not claim therapy, guaranteed reminders, comp
 
 Provide review access to a synthetic pair without exposing real users.
 
-Ensure the store privacy labels match the exact build and enabled SDK configuration.
+Check that the store privacy labels match the exact build and enabled SDK configuration.
 
 Review current [Apple deletion guidance](https://developer.apple.com/support/offering-account-deletion-in-your-app/) and [Google deletion requirements](https://support.google.com/googleplay/android-developer/answer/13327111).
 
