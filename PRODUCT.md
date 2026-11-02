@@ -60,7 +60,7 @@ Use [the data contract](docs/ARCHITECTURE.md#data-contract) for permissions, dat
 The owner selected the Deseo name, pastel styling, and the Two voices icon.
 Use [STYLE.md](STYLE.md) for visual rules and [the selected icon](design/icons-round-2/icon-05-two-voices.png).
 Write short sentences, name concrete actions, and describe the actual state.
-Keep instructions within 20 words. Use [Stop Slop](https://github.com/hardikpandya/stop-slop/blob/main/SKILL.md) for UI text and documentation.
+Keep instructions within 20 words. Use [unslop](https://github.com/michael-denyer/pstack-claude/blob/main/plugins/pstack/skills/unslop/SKILL.md) for UI text and documentation.
 
 ## Evidence on Hand
 

@@ -50,7 +50,7 @@ function Detail({ ideaId, pairId }: { ideaId: string; pairId: string }) {
   };
   const retry = error && <Status tone="error" message={error.code === 'CONFLICT' ? 'Your partner changed this idea. Reload it before you archive it.' : error.message ?? 'We could not archive this idea.'}
     actionLabel={intent ? 'Retry archive' : 'Reload saved version'} onAction={intent ? () => { void archive(intent); } : () => { const scope = captureQueryScope(); void query.refetch().then(() => { scope.assertCurrent(); setError(null); }); }} />;
-  if (query.isPending) return <Screen title="Idea"><Status tone="loading" message="Loading your idea…" /></Screen>;
+  if (query.isPending) return <Screen title="Idea"><Status tone="loading" message="Loading idea…" /></Screen>;
   if (query.isError) return <Screen title="Idea"><Status tone="error" message="We could not load this idea." actionLabel="Retry" onAction={() => { void query.refetch(); }} />{retry}</Screen>;
   const idea = query.data;
   if (!idea) return <Screen title="Idea"><Status message="This idea is unavailable." />{retry}</Screen>;
@@ -67,7 +67,7 @@ function Detail({ ideaId, pairId }: { ideaId: string; pairId: string }) {
       {idea.state === 'saved' && <Button label="Plan date" disabled={saving || !!intent} onPress={() => router.push({ pathname: '/events/new', params: { ideaId } })} />}
       {idea.linkedEventId && <Button label="Open planned event" variant="secondary" onPress={() => router.push({ pathname: '/events/[eventId]', params: { eventId: idea.linkedEventId! } })} />}
       <Button label="Edit idea" variant="secondary" disabled={saving || !!intent} onPress={() => router.push({ pathname: '/ideas/[ideaId]/edit', params: { ideaId } })} />
-      {idea.state !== 'archived' && <Button label="Archive idea" variant="secondary" loading={saving} disabled={!core.online || !ready || !!intent || error?.code === 'CONFLICT'} onPress={() => Alert.alert(`Archive ${idea.title}?`, 'You can find this idea under Archived.', [
+      {idea.state !== 'archived' && <Button label="Archive idea" variant="secondary" loading={saving} disabled={!core.online || !ready || !!intent || error?.code === 'CONFLICT'} onPress={() => Alert.alert(`Archive ${idea.title}?`, 'You can find this idea in Archived.', [
         { text: 'Cancel', style: 'cancel' }, { text: 'Archive idea', onPress: () => { void archive({ id: ideaId, expectedVersion: idea.version, commandId: randomUUID() }); } },
       ])} />}
     </View>

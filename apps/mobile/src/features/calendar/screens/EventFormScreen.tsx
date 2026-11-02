@@ -38,10 +38,10 @@ function FormEntry({ eventId, ideaId, ...core }: ActiveProps & { eventId?: strin
   useCalendarSignals(core.account.id, core.pair.pairId, core.refresh);
   const query = useQuery({ queryKey: calendarKeys.event(core.account.id, core.pair.pairId, eventId ?? 'new'),
     queryFn: () => getEvent(core.pair.pairId, eventId!), enabled: eventId !== undefined });
-  if (ideaId && idea.isPending) return <Screen title="Plan date"><Status message="Loading your idea…" /></Screen>;
+  if (ideaId && idea.isPending) return <Screen title="Plan date"><Status message="Loading idea…" /></Screen>;
   if (ideaId && idea.isError) return <Screen title="Plan date"><Status tone="error" message="We could not load this idea." actionLabel="Retry" onAction={() => { void idea.refetch(); }} /></Screen>;
   if (ideaId && !idea.data) return <Screen title="Plan date"><Status message="This idea is unavailable." /></Screen>;
-  if (eventId && query.isPending) return <Screen title="Edit event"><Status message="Loading your event…" /></Screen>;
+  if (eventId && query.isPending) return <Screen title="Edit event"><Status message="Loading event…" /></Screen>;
   if (eventId && query.isError) return <Screen title="Edit event"><Status tone="error" message="We could not load this event." actionLabel="Retry" onAction={() => { void query.refetch(); }} /></Screen>;
   if (eventId && !query.data) return <Screen title="Edit event"><Status message="This event is unavailable." /></Screen>;
   return <EventForm {...core} idea={ideaId ? idea.data! : undefined} reloadIdea={() => idea.refetch()} event={eventId ? query.data! : undefined} reload={() => query.refetch()} />;

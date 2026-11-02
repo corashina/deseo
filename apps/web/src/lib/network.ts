@@ -14,5 +14,5 @@ export function useNetworkStatus(): boolean {
   return useSyncExternalStore(subscribe, isOnline);
 }
 export function assertOnline(): void {
-  if (!isOnline()) throw new AppError({ code: 'RETRYABLE', message: 'You are offline. Connect before you submit.' });
+  if (!isOnline()) throw new AppError({ code: 'RETRYABLE', message: 'You are offline. Reconnect before you submit.' });
 }

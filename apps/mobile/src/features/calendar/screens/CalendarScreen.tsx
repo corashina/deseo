@@ -100,7 +100,7 @@ function ActiveCalendar({ account, pair, online, refresh }: { account: Core['acc
         </Pressable>;
       })}
     </View></View>}
-    {agenda.isPending && <Status tone="loading" message="Loading your calendar…" />}
+    {agenda.isPending && <Status tone="loading" message="Loading calendar…" />}
     {agenda.isError && <Status tone="error" message="We could not load your calendar." actionLabel="Retry" onAction={() => { void agenda.refetch(); }} />}
     {!agenda.isPending && !agenda.isError && visibleGroups.length === 0 && <Status message={view === 'month'
       ? `Nothing planned for ${DateTime.fromISO(selectedDate).toLocaleString(DateTime.DATE_MED)}.` : 'No events this month.'} actionLabel="Add event" onAction={() => router.push('/events/new')} />}

@@ -51,7 +51,7 @@ export function PreferencesPage() {
       if (!mounted.current) return;
       if (result.ok) { removeDraft(account!.id, pairId, 'preferences'); setDraft(undefined); setMessage('Preferences saved.'); await query.refetch(); }
       else {
-        setMessage(result.error.code === 'CONFLICT' ? 'Your preferences changed. Your draft is kept.' : result.error.message ?? 'Preferences save failed. Retry.');
+        setMessage(result.error.code === 'CONFLICT' ? 'Your preferences changed. Your draft is kept.' : result.error.message ?? 'Preferences save failed. Try again.');
         if (result.error.code !== 'RETRYABLE') { const rejected = { input: next.input, attempt: null }; writeDraft(account!.id, pairId, 'preferences', rejected); setDraft(rejected); }
         setConflict(result.error.code === 'CONFLICT');
       }

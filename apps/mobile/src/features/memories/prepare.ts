@@ -21,7 +21,7 @@ async function jpeg(asset: ImagePickerAsset, maximum: number, assertCurrent: () 
         const file = new File(result.uri);
         if (file.size > 0 && file.size <= 5242880) return { ...result, bytes: file.size, intermediates };
       }
-      throw new AppError({ code: 'VALIDATION', message: 'This photo is too large. Select a smaller photo.' });
+      throw new AppError({ code: 'VALIDATION', message: 'This photo is too large. Choose a smaller photo.' });
     } finally { image.release(); }
   } catch (error) {
     for (const uri of intermediates) if (isOwnedCacheUri(uri)) { const file = new File(uri); if (file.exists) file.delete(); }
@@ -32,7 +32,7 @@ export async function prepareMemoryDraft(input: { draft: MemoryDraft; assets: Im
   const { assertCurrent } = input;
   let draft = input.draft;
   if (draft.reserved || draft.submitted || input.assets.length + draft.photos.length > 5 || input.assets.length < 1) {
-    throw new AppError({ code: 'VALIDATION', message: 'Select one to five photos before you upload.' });
+    throw new AppError({ code: 'VALIDATION', message: 'Choose one to five photos before you upload.' });
   }
   await writeMemoryDraft(draft, assertCurrent);
   for (const asset of input.assets) {

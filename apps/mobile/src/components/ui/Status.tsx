@@ -5,7 +5,7 @@ import { Button } from './Button';
 
 type Tone = 'info' | 'loading' | 'warning' | 'error';
 
-/** Loading and plain info stay quiet; warnings and errors get a tinted card with an icon. */
+/** Loading and info messages render as plain text. Warnings and errors render in a tinted card with an icon. */
 export function Status({ message, actionLabel, onAction, tone = 'info' }: {
   message: string; actionLabel?: string; onAction?: () => void; tone?: Tone;
 }) {

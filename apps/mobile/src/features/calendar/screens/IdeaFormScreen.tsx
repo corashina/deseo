@@ -18,7 +18,7 @@ function Entry({ ideaId }: { ideaId?: string }) {
   const core = useCore(); const pairId = core.pair.status === 'active' ? core.pair.pairId : '';
   useCalendarSignals(core.account.id, pairId, core.refresh);
   const query = useQuery({ queryKey: ideaKeys.detail(core.account.id, pairId, ideaId ?? 'new'), queryFn: () => getDateIdea(pairId, ideaId!), enabled: !!ideaId });
-  if (ideaId && query.isPending) return <Screen title="Idea"><Status message="Loading your idea…" /></Screen>;
+  if (ideaId && query.isPending) return <Screen title="Idea"><Status message="Loading idea…" /></Screen>;
   if (ideaId && query.isError) return <Screen title="Idea"><Status message="We could not load this idea." tone="error" actionLabel="Retry" onAction={() => { void query.refetch(); }} /></Screen>;
   if (ideaId && !query.data) return <Screen title="Idea"><Status message="This idea is unavailable." /></Screen>;
   return <IdeaForm key={`${core.account.id}:${pairId}:${ideaId ?? 'new'}`} pairId={pairId} idea={ideaId ? query.data! : undefined} reload={() => query.refetch()} />;

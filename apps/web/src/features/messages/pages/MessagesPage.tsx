@@ -52,7 +52,7 @@ export function MessagesPage() {
   const pendingAction = useRef(false);
   const [deleting, setDeleting] = useState<Message | null>(null);
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState(attempt ? 'We could not confirm this change. Retry.' : '');
+  const [error, setError] = useState(attempt ? 'We could not confirm this change. Try again.' : '');
   const beginScope = useCommandScope(() => { pendingAction.current = false; setBusy(false); });
   const alive = useRef(true);
   useEffect(() => { alive.current = true; return () => { alive.current = false; }; }, []);
@@ -111,7 +111,7 @@ export function MessagesPage() {
     pendingAction.current = false; setBusy(false);
     if (result.ok) { removeDraft(accountId, pairId, 'message-action'); currentAttempt.current = null; setAttempt(null); setDeleting(null); }
     else {
-      setError(result.error.message ?? 'We could not save this change. Retry.');
+      setError(result.error.message ?? 'We could not save this change. Try again.');
       if (result.error.code !== 'RETRYABLE') { removeDraft(accountId, pairId, 'message-action'); currentAttempt.current = null; setAttempt(null); setDeleting(null); }
     }
   }

@@ -93,11 +93,11 @@ Use the installed Supabase query builder without a generic repository layer.
 
 ## Reads, writes, and refresh
 
-Read: page or screen → feature query → authenticated request → RLS → typed result → Query cache.
-Write: form → feature command → transaction → confirmed result → targeted invalidation.
-Refresh: authorized Realtime signal → invalidation → authenticated read.
-Photo: selection → preparation → reservation → private upload → server validation → publication.
-Push: durable job → scheduled worker → current access check → Expo → receipt processing.
+- **Read.** A page or screen calls a feature query. The query sends an authenticated request, RLS filters the rows, and the typed result goes into the Query cache.
+- **Write.** A form calls a feature command. The command runs one transaction, returns the confirmed result, and invalidates the affected queries.
+- **Refresh.** An authorized Realtime signal invalidates queries. The app then reads them again with authentication.
+- **Photo.** The app prepares the selected photo, reserves an upload, and uploads it to private storage. The server validates the photo before it publishes the memory.
+- **Push.** A scheduled worker claims a durable job and checks current access. It sends the job to Expo and then processes the receipt.
 
 Scope keys to account and pair. Abort old reads and clear private caches before account or pair changes.
 Revalidate server authority after focus and reconnect. Reset queries again if verified authority changes.

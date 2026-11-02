@@ -1,10 +1,10 @@
 # Deseo frontend style guide
 
-**Direction:** Cupla's planning structure with Couply's personal cards.
+**Direction.** Cupla's planning structure with Couply's personal cards.
 
-**Scope:** A shared app for two partners. Cover calendars, events, reminders, photos, messages, and tasks.
+**Scope.** A shared app for two partners. Cover calendars, events, reminders, photos, messages, and tasks.
 
-**Status:** The owner approved pastel styling, icon 05, and separate React browser screens beside Expo mobile.
+**Status.** The owner approved pastel styling, icon 05, and separate React browser screens beside Expo mobile.
 
 Use this guide for frontend work. Treat the visual reference as documentation, not production code.
 
@@ -42,7 +42,7 @@ Review [the ten numbered icon concepts](design/icons/comparison.html). See [the 
 
 ![Ten pastel app icon concepts](design/icons/comparison.jpg)
 
-Selected icon: **05 — Two voices, round two**. Two pastel speech bubbles frame an ivory heart.
+Selected icon: **05, Two voices, round two**. Two pastel speech bubbles frame an ivory heart.
 
 Use [the selected icon](design/icons-round-2/icon-05-two-voices.png) as the app identity reference.
 Keep the blush and lavender colors, rounded shapes, and central heart.
@@ -605,7 +605,7 @@ The reference supports a visual review. It does not prove product usability, acc
 
 ## 13. Writing rules
 
-Use the [stop-slop skill](https://github.com/hardikpandya/stop-slop/blob/main/SKILL.md) for UI text and documentation.
+Use the [unslop skill](https://github.com/michael-denyer/pstack-claude/blob/main/plugins/pstack/skills/unslop/SKILL.md) for UI text and documentation.
 
 Use short sentences and concrete actions. Keep instructions within 20 words.
 

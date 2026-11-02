@@ -42,7 +42,7 @@ export function ProfileSettingsPage() {
       if (!mounted.current) return;
       if (result.ok) { removeDraft(account!.id, pairId, 'profile-settings'); setDraft(undefined); setMessage('Profile saved.'); await revalidate(); }
       else {
-        setMessage(result.error.code === 'CONFLICT' ? 'Your profile changed. Your draft is kept.' : result.error.message ?? 'Profile save failed. Retry.');
+        setMessage(result.error.code === 'CONFLICT' ? 'Your profile changed. Your draft is kept.' : result.error.message ?? 'Profile save failed. Try again.');
         if (result.error.code !== 'RETRYABLE') { const rejected = { ...next, uncertain: false }; writeDraft(account!.id, pairId, 'profile-settings', rejected); setDraft(rejected); }
         setConflict(result.error.code === 'CONFLICT');
       }

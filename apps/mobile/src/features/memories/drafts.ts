@@ -11,7 +11,7 @@ const registrySchema = z.array(z.object({ accountId: uuid, pairId: uuid, draftId
   key: z.string(), paths: z.array(z.string()), cleanup: z.boolean() }));
 type Registry = z.infer<typeof registrySchema>;
 const transientOwners = new Map<string, { owner: Owner; cancel(): Promise<void> }>();
-// This map describes live native work only. It intentionally starts empty after process restart.
+// This map describes live native work only. It starts empty after a process restart.
 export function beginTransientMemoryFiles(owner: Owner, scope: { signal: AbortSignal; assertCurrent(): void }) {
   scope.assertCurrent();
   const controller = new AbortController();

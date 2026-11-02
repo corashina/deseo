@@ -2,7 +2,7 @@
 
 Open [the complete gallery](index.html). It shows desktop and narrow views with full-size links.
 
-I captured real product pages at 1440 Ã— 1000 and 390 Ã— 844.
+I captured real product pages at 1440 × 1000 and 390 × 844.
 Long forms also have full-page images.
 
 The display date is 5 October 2026, 10:00 Europe/Warsaw.

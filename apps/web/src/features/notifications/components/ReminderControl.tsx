@@ -51,7 +51,7 @@ export function ReminderControl(props: Props) {
         removeDraft(account!.id, pairId, key); setDraft(undefined);
         setMessage('Reminder saved.'); await query.refetch();
       } else {
-        setMessage(result.error.code === 'CONFLICT' ? 'Your reminder changed. Your draft is kept.' : result.error.message ?? 'Reminder save failed. Retry.');
+        setMessage(result.error.code === 'CONFLICT' ? 'Your reminder changed. Your draft is kept.' : result.error.message ?? 'Reminder save failed. Try again.');
         if (result.error.code !== 'RETRYABLE') { const rejected = { ...next, attempt: null }; writeDraft(account!.id, pairId, key, rejected); setDraft(rejected); }
         setConflict(result.error.code === 'CONFLICT');
       }
@@ -60,7 +60,7 @@ export function ReminderControl(props: Props) {
     } finally { if (mounted.current && !scope.signal.aborted) { pending.current = false; setBusy(false); } }
   }
   if (!pairId) return null;
-  if ((query.isPending || props.eventId && preferences.isPending) && !draft) return <Status>Loading your reminder…</Status>;
+  if ((query.isPending || props.eventId && preferences.isPending) && !draft) return <Status>Loading reminder…</Status>;
   if (query.isError && !draft) return <><Status error>We could not load your reminder.</Status><Button onClick={() => void query.refetch()}>Retry</Button></>;
   if (props.eventId && !current && preferences.isError && !draft) return <><Status error>We could not load your reminder preferences.</Status><Button onClick={() => void preferences.refetch()}>Retry</Button></>;
   return <section className="event-reminder"><h2>Your reminder</h2>

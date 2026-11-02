@@ -26,7 +26,7 @@ export function EntryScreen() {
   if (error) return <Screen title="Connection needed">
     <Status message={error.message} tone="error" actionLabel="Try again" onAction={() => { void refresh(); }} />
     {error instanceof PrivateStorageError && <Button label="Reset local storage" variant="danger" onPress={() => Alert.alert('Reset local storage?',
-      'This removes this device’s session and unsaved drafts. You must sign in again.', [{ text: 'Cancel', style: 'cancel' },
+      "This removes this device's session and unsaved drafts. You must sign in again.", [{ text: 'Cancel', style: 'cancel' },
         { text: 'Reset', style: 'destructive', onPress: () => { void retryStorage(); } }])} />}
   </Screen>;
   if (state.status === 'signedOut') return <Redirect href="/(auth)/welcome" />;

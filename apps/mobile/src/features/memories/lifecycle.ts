@@ -244,7 +244,7 @@ export async function submitMemoryDraft(key: string): Promise<void> {
   try {
     memoryInputSchema.parse(draft);
     if (!draft.expectedVersion && draft.photos.length === 0) {
-      throw new AppError({ code: 'VALIDATION', message: 'Select at least one photo.' });
+      throw new AppError({ code: 'VALIDATION', message: 'Choose at least one photo.' });
     }
     draft = { ...draft, submitted: true };
     await persist(draft, check);
