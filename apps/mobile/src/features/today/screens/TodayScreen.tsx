@@ -74,7 +74,7 @@ function Today() {
     {notifications.isError && <Status message="We could not load notifications." tone="error" actionLabel="Retry notifications"
       onAction={() => { void notifications.refetch(); }} />}
     <Section card title="This week" link={{ label: 'View calendar', onPress: () => router.push('/(tabs)/calendar') }}>
-      {query.isPending ? <Status tone="loading" message="Loading your plans…" /> : query.error ? <Status message="We could not load your plans." tone="error"
+      {query.isPending ? <Status tone="loading" message="Loading plans…" /> : query.error ? <Status message="We could not load your plans." tone="error"
         actionLabel="Try again" onAction={() => { void query.refetch(); }} /> : agenda.length ? <>
           {agenda.slice(0, 3).map(event => <EventRow key={event.id} event={event} viewerTimezone={account.timezone} ownerNames={names}
             onPress={() => router.push({ pathname: '/events/[eventId]', params: { eventId: event.id } })} />)}
@@ -85,13 +85,13 @@ function Today() {
       <MemoryAccessBoundary><LatestMemory accountId={account.id} pairId={pairId} author={author} /></MemoryAccessBoundary>
     </Section>
     <Section title="Your note" link={{ label: 'Messages', onPress: () => router.push('/(tabs)/messages') }}>
-      {query.isPending ? <Status tone="loading" message="Loading your note…" /> : query.isError ?
+      {query.isPending ? <Status tone="loading" message="Loading note…" /> : query.isError ?
         <Status message="We could not load your note." tone="error" actionLabel="Retry note" onAction={() => { void query.refetch(); }} /> :
         note ? <NoteCard message={note} authorName={author(note.authorId)} timezone={account.timezone} locale={account.locale} onReply={() => router.push('/(tabs)/messages')}
           onOpen={() => router.push('/(tabs)/messages')} /> : <Text style={theme.typography.body}>Pin a message to keep it here.</Text>}
     </Section>
     <Section title="Due today" link={{ label: 'All tasks', onPress: () => router.push('/(tabs)/tasks') }}>
-      {query.isPending ? <Status tone="loading" message="Loading your tasks…" /> : query.isError ?
+      {query.isPending ? <Status tone="loading" message="Loading tasks…" /> : query.isError ?
         <Status message="We could not load your tasks." tone="error" /> :
         query.data.dueTasks.length || completedTask ? <RowGroup>{query.data.dueTasks.filter(task => task.id !== completedTask?.id).map(taskRow)}</RowGroup>
           : <Text style={theme.typography.body}>No tasks due today.</Text>}
@@ -113,7 +113,7 @@ function Today() {
 function LatestMemory({ accountId, pairId, author }: { accountId: string; pairId: string; author(id: string): string }) {
   const theme = useTheme();
   const memory = useQuery({ queryKey: memoryKeys.latest(accountId, pairId), queryFn: () => latestMemory(pairId) });
-  if (memory.isPending) return <Status tone="loading" message="Loading your memory…" />;
+  if (memory.isPending) return <Status tone="loading" message="Loading memory…" />;
   if (memory.isError) return <Status message="We could not load your memory." tone="error" actionLabel="Retry memory" onAction={() => { void memory.refetch(); }} />;
   if (!memory.data) return <Text style={theme.typography.body}>Save a photo from a day together.</Text>;
   return <MemoryCard memory={memory.data} authorName={author(memory.data.createdBy)}

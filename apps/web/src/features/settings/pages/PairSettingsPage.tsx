@@ -53,7 +53,7 @@ export function PairSettingsPage() {
       // The successful end command clears the query scope itself.
       if (result.ok) { removeDraft(account!.id, pairId, 'end-pair'); attempt.current = undefined; setConfirm(false); setUncertain(false); await revalidate(); return; }
       scope.assertCurrent();
-      setError(result.error.message ?? 'We could not end this pair. Retry.');
+      setError(result.error.message ?? 'We could not end this pair. Try again.');
       if (result.error.code !== 'RETRYABLE') { removeDraft(account!.id, pairId, 'end-pair'); attempt.current = undefined; setUncertain(false); setSent(false); }
       else setUncertain(true);
     } catch { if (mounted.current && !scope.signal.aborted) { setUncertain(Boolean(attempt.current)); setError('Pair termination is unconfirmed. Retry the same action.'); } }

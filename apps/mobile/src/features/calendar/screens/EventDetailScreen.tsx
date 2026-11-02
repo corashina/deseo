@@ -49,7 +49,7 @@ function ActiveDetail({ eventId, account, pair, online, refresh }: { eventId: st
     const result = await query.refetch();
     if (!result.isError) { deleteIntent.current = null; setError(null); }
   };
-  if (query.isPending) return <Screen title="Event"><Status tone="loading" message="Loading your event…" /></Screen>;
+  if (query.isPending) return <Screen title="Event"><Status tone="loading" message="Loading event…" /></Screen>;
   if (query.isError) return <Screen title="Event"><Status tone="error" message="We could not load this event." actionLabel="Retry" onAction={() => { void query.refetch(); }} /></Screen>;
   const event = query.data;
   if (!event) return <Screen title="Event"><Status message="This event is unavailable. It may have been deleted or made private." /></Screen>;
