@@ -1,3 +1,4 @@
+import * as Haptics from 'expo-haptics';
 import { useEffect, useRef, useState } from 'react';
 import { Alert, Text, View } from 'react-native';
 import { randomUUID } from 'expo-crypto';
@@ -97,7 +98,7 @@ function ListEditor({ accountId, pairId, list, listId, online, onSaved, onNameSa
         { text: 'Cancel', style: 'cancel' }, { text: 'Move tasks', onPress: () => { void submit({ kind: 'moveList', id: list.id, commandId: randomUUID() }); } },
       ])} />
       <Button label="Delete empty list" variant="danger" disabled={disabled} onPress={() => Alert.alert(`Delete ${list.name}?`, 'You can delete this list only when it has no tasks.', [
-        { text: 'Cancel', style: 'cancel' }, { text: 'Delete list', style: 'destructive', onPress: () => { void submit({ kind: 'deleteList', id: list.id, commandId: randomUUID() }); } },
+        { text: 'Cancel', style: 'cancel' }, { text: 'Delete list', style: 'destructive', onPress: () => { void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning); void submit({ kind: 'deleteList', id: list.id, commandId: randomUUID() }); } },
       ])} />
     </View>}
     {error && <Status tone="error" message={error.message ?? 'We could not change this list.'} actionLabel={action ? 'Retry' : undefined} onAction={action ? () => { void submit(action); } : undefined} />}

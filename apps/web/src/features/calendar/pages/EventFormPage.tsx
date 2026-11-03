@@ -206,7 +206,6 @@ function EventEditor({ event, idea }: { event?: Event; idea?: DateIdea }) {
   return <>
     <PageHeader
       title={event ? 'Edit event' : idea ? 'Plan date' : 'Add event'}
-      description={event ? 'Keep the details up to date.' : 'Plan time for yourself or together.'}
     />
     <section className="card form-page">
       <form onSubmit={form.handleSubmit(submitValues)}>

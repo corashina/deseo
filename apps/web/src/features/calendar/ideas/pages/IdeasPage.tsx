@@ -21,15 +21,13 @@ export function IdeasPage() {
     getNextPageParam: page => page.nextCursor ?? undefined
   });
   return <>
-    <PageHeader
+    <PageHeader back={{ to: '/calendar', label: 'Calendar' }}
       title="Date ideas"
-      description="Save something you want to do together."
       action={<Link className="button primary" to="/ideas/new">Add idea</Link>} />
     <div className="section-heading">
       <div className="view-tabs">{(['saved', 'planned', 'archived'] as const).map(value => <button key={value} aria-pressed={state === value} onClick={() => setState(value)}>{value[0].toUpperCase() + value.slice(1)}
       </button>)}
       </div>
-      <Link to="/calendar">Return to calendar</Link>
     </div>
     {query.isPending ? <Status>Loading ideas…</Status> : query.isError ? <>
       <Status error>We could not load ideas.</Status>
@@ -42,8 +40,6 @@ export function IdeasPage() {
         </h2>
         {idea.note && <p className="preserve-lines">{idea.note}
         </p>}
-        <span className="muted">{idea.state[0].toUpperCase() + idea.state.slice(1)}
-        </span>
       </article>)}
       </div>
       {query.data.pages[0].items.length === 0 && <section className="card">

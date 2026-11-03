@@ -2,6 +2,16 @@ import { DateTime } from 'luxon';
 import { dateSchema, zoneSchema } from './schema';
 import type { AgendaItem } from './types';
 
+const instantFormat = 'd LLL yyyy, HH:mm';
+export function formatInstant(iso: string, zone: string): string {
+  return DateTime.fromISO(iso).setZone(zone).setLocale('en').toFormat(instantFormat);
+}
+export function formatInstantRange(startIso: string, endIso: string, zone: string): string {
+  const start = DateTime.fromISO(startIso).setZone(zone);
+  const end = DateTime.fromISO(endIso).setZone(zone);
+  return formatInstant(startIso, zone) + ' to ' + (start.hasSame(end, 'day') ? end.toFormat('HH:mm') : formatInstant(endIso, zone));
+}
+
 export function importantDateCountdown(date: string, pairTimezone: string, now: DateTime = DateTime.now()): number {
   const day = dateSchema.parse(date);
   zoneSchema.parse(pairTimezone);

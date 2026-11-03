@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Link } from 'react-router-dom';
 import type { NotificationPreferences } from '@deseo/domain/notifications';
 import { useSession } from '../../../app/SessionProvider';
 import { useCommandScope } from '../../../lib/use-command-scope';
@@ -58,7 +57,7 @@ export function PreferencesPage() {
     } catch { if (mounted.current && !scope.signal.aborted) setMessage('Preferences save is unconfirmed. Retry the same changes.'); }
     finally { if (mounted.current && !scope.signal.aborted) { pending.current = false; setBusy(false); } }
   }
-  return <><PageHeader title="Notification preferences" description="Choose your alerts and quiet hours." /><section className="card form-page">
+  return <><PageHeader title="Notification preferences" back={{ to: '/settings', label: 'Settings' }} /><section className="card form-page">
     {query.isPending && !input ? <Status>Loading preferences…</Status> : query.isError && !input ? <><Status error>We could not load preferences.</Status><Button onClick={() => void query.refetch()}>Retry</Button></> : input && <form onSubmit={event => { event.preventDefault(); void save(); }}>
       <fieldset className="field-group" disabled={busy || Boolean(draft?.attempt)}>
       <h2>Alerts</h2>
@@ -75,5 +74,5 @@ export function PreferencesPage() {
       {message && <Status error={conflict}>{message}</Status>}
       {conflict && <Button disabled={!online || busy} variant="secondary" onClick={async () => { const fresh = await query.refetch(); if (!mounted.current || fresh.isError) return; removeDraft(account!.id, pairId, 'preferences'); setDraft(undefined); setConflict(false); setMessage(''); }}>Discard changes and reload</Button>}
       <Button type="submit" disabled={!online || busy || conflict}>{draft?.attempt ? 'Retry preferences' : 'Save preferences'}</Button>
-    </form>}<Link to="/settings">Return to settings</Link></section></>;
+    </form>}</section></>;
 }

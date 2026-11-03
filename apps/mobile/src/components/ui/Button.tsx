@@ -46,8 +46,8 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const usePressedStyles = makeStyles(theme => ({
-  primary: { backgroundColor: theme.colors.actionHover },
-  secondary: { backgroundColor: theme.colors.sidebar },
+  primary: { backgroundColor: theme.colors.actionHover, transform: [{ scale: 0.97 }] },
+  secondary: { backgroundColor: theme.colors.sidebar, transform: [{ scale: 0.97 }] },
   text: { opacity: 0.6 },
-  danger: { opacity: 0.8 },
+  danger: { opacity: 0.8, transform: [{ scale: 0.97 }] },
 }));

@@ -2,7 +2,7 @@ import { RouteErrorPage } from '../../../app/RouteErrorPage';
 import { useTaskSignals } from '../realtime';
 import { useEffect, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useSession } from '../../../app/SessionProvider';
 import { useNetworkStatus } from '../../../lib/network';
 import { useCommandScope } from '../../../lib/use-command-scope';
@@ -90,7 +90,7 @@ export function ListDetailPage() {
       {error && <Status error>{error}
       </Status>}</RouteErrorPage>;
   return <>
-    <PageHeader
+    <PageHeader back={{ to: '/tasks/lists', label: 'Task lists' }}
       title={list.name}
       description={list.isGeneral ? 'General cannot be renamed or removed.' : 'Move tasks to General before removing this list.'} />
     <section className="card task-detail">{tasks.data.length ? tasks.data.map(task => <TaskRow
@@ -131,7 +131,6 @@ export function ListDetailPage() {
       </Status>}
       {frozen && attempt.current && <Button disabled={!online || saving} onClick={() => void run(attempt.current!.kind)}>Retry list change</Button>}
       <p>
-        <Link to="/tasks/lists">Return to lists</Link>
       </p>
     </section>
     <Dialog

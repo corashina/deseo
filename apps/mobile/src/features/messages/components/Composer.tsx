@@ -1,3 +1,4 @@
+import * as Haptics from 'expo-haptics';
 import { forwardRef, useId } from 'react';
 import { Text, TextInput, View } from 'react-native';
 import { Button } from '../../../components/ui/Button';
@@ -17,7 +18,7 @@ export const Composer = forwardRef<TextInput, {
       value={body} onChangeText={value => onChange(Array.from(value).slice(0, 4000).join(''))}
       multiline maxLength={8000} editable={ready}
       style={styles.input} textAlignVertical="top" selectionColor={theme.colors.focus} />
-    <Button label="Send" onPress={onSend} disabled={!ready || !online || full || !body.trim()} />
+    <Button label="Send" onPress={() => { void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); onSend(); }} disabled={!ready || !online || full || !body.trim()} />
   </View>;
 });
 const useStyles = makeStyles(theme => ({

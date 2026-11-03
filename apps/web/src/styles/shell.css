@@ -29,6 +29,7 @@
 .skip-link:focus { top: 12px; }
 .navigation-drawer { margin: 0; height: 100dvh; max-height: 100dvh; width: min(320px, 90vw); border-radius: 0; background: var(--sidebar); }
 .mobile-account { display: none !important; width: 48px; padding: 7px; }
+.topbar .button.mobile-account { border-color: transparent; background: transparent; }
 .sidebar-account { justify-content: start; padding: 8px 12px; margin-top: auto; }
 .portal-nav .unread-count { margin-left: auto; background: var(--shared-soft); color: var(--shared); border-radius: var(--radius-badge); padding: 2px 8px; font-size: 12px; }
 .collapsed .sidebar .portal-nav .unread-count { position: absolute; top: 0; right: 0; padding: 0 4px; }

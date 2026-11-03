@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
 import type { ProfileInput } from '@deseo/domain/auth';
 import { useSession } from '../../../app/SessionProvider';
 import { saveProfile, restoreSession } from '../../auth';
@@ -49,11 +48,11 @@ export function ProfileSettingsPage() {
     } catch { if (mounted.current && !scope.signal.aborted) setMessage('Profile save is unconfirmed. Retry the same changes.'); }
     finally { if (mounted.current && !scope.signal.aborted) { pending.current = false; setBusy(false); } }
   }
-  return <section className="card form-page"><PageHeader title="Profile" description="Your timezone changes display times. Stored events keep their dates and instants." />
+  return <><PageHeader title="Profile" description="Your timezone changes display times. Stored events keep their dates and instants." back={{ to: '/settings', label: 'Settings' }} /><section className="card form-page">
     <form onSubmit={event => { event.preventDefault(); void save(); }}><fieldset className="field-group" disabled={busy || Boolean(draft?.uncertain)}>
       <Field label="Your name" required maxLength={40} value={input.displayName} onChange={event => change({ displayName: event.target.value })} />
       <TimezoneField required value={input.timezone} onChange={event => change({ timezone: event.target.value })} />
     </fieldset>{message && <Status error={conflict}>{message}</Status>}
     <div className="actions">{conflict && <Button disabled={!online || busy} variant="secondary" onClick={async () => { await revalidate(); if (!mounted.current) return; removeDraft(account!.id, pairId, 'profile-settings'); setDraft(undefined); setConflict(false); setMessage(''); }}>Discard changes and reload</Button>}
-    <Button type="submit" disabled={!online || busy || conflict}>{draft?.uncertain ? 'Retry profile' : 'Save profile'}</Button></div></form><Link to="/settings">Return to settings</Link></section>;
+    <Button type="submit" disabled={!online || busy || conflict}>{draft?.uncertain ? 'Retry profile' : 'Save profile'}</Button></div></form></section></>;
 }

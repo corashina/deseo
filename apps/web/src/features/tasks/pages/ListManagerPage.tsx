@@ -62,7 +62,7 @@ export function ListManagerPage() {
     }
   }
   return <>
-    <PageHeader title="Task lists" description="General stays available for shared tasks." />
+    <PageHeader back={{ to: '/tasks', label: 'Tasks' }} title="Task lists" description="General stays available for shared tasks." />
     <section className="card form-page">
       {query.isPending ? <Status>Loading lists…</Status> : query.isError ? <>
         <Status error>We could not load lists.</Status>
@@ -93,7 +93,6 @@ export function ListManagerPage() {
         </Button>
       </form>
       <p>
-        <Link to="/tasks">Return to tasks</Link>
       </p>
     </section>
   </>;

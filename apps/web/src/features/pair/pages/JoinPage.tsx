@@ -1,3 +1,4 @@
+import { formatInstant } from '@deseo/domain/calendar';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { acceptInvite, previewInvite, inviteTokenSchema, type InvitePreview } from '..';
@@ -57,7 +58,7 @@ export function JoinPage() {
       generation.current++; setPending(false); setToken(event.target.value); writeDraft(accountId, pairId, 'join-pair', { token: event.target.value }); setReviewed(null); setError(''); entryIntent.invite = null;
     }} autoComplete="off" />
     {!preview && <Button type="submit" disabled={pending || accepting || !online}>Review invitation</Button>}</form>
-    {reviewed && <><p className="muted">Pair timezone: {reviewed.details.timezone}</p><p className="muted">Expires {new Date(reviewed.details.expiresAt).toLocaleString()}</p><Button disabled={accepting || !online} onClick={async () => {
+    {reviewed && <><p className="muted">Pair timezone: {reviewed.details.timezone}</p><p className="muted">Expires {formatInstant(reviewed.details.expiresAt, account!.timezone)}</p><Button disabled={accepting || !online} onClick={async () => {
       if (!isOnline() || accepting) return;
       const scope = beginScope();
       const next = attempt.current ?? reviewed;

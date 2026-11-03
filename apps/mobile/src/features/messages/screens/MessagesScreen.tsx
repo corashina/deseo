@@ -1,3 +1,4 @@
+import * as Haptics from 'expo-haptics';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Alert, AppState, FlatList, Keyboard, KeyboardAvoidingView, Platform, ScrollView, Text, TextInput, View,
   type ViewToken } from 'react-native';
@@ -194,7 +195,7 @@ function Conversation({ account, pair, online }: {
   const chooseDelete = useCallback((message: Message) => {
     Alert.alert('Delete this message?', 'This removes the message and its note for both people.', [
       { text: 'Cancel', style: 'cancel' }, { text: 'Delete message', style: 'destructive', onPress: () => {
-        void runAction({ kind: 'delete', id: message.id, commandId: randomUUID() });
+        void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning); void runAction({ kind: 'delete', id: message.id, commandId: randomUUID() });
       } },
     ]);
   }, [runAction]);

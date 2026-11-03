@@ -27,7 +27,6 @@ export function TasksPage() {
   return <>
     <PageHeader
       title="Tasks"
-      description="Keep shared tasks in named lists."
       action={<Link className="button primary" to={'/tasks/new?list=' + listId}>Add task</Link>} />
     <section className="card">
       <div className="section-heading">

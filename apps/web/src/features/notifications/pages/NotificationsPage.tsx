@@ -40,7 +40,7 @@ export function NotificationsPage() {
       } catch { /* Session recovery owns access. */ }
     } finally { if (mounted.current && !scope.signal.aborted) { pending.current = false; setOpening(''); } }
   }
-  return <><PageHeader title="Notifications" description="Your updates and reminders." action={<Link to="/settings/notifications">Notification preferences</Link>} />
+  return <><PageHeader title="Notifications" action={<Link to="/settings/notifications">Notification preferences</Link>} />
     {!pairId ? <section className="card"><p>This content is unavailable without an active pair.</p></section> : query.isPending ? <Status>Loading notifications…</Status> : query.isError ? <><Status error>We could not load notifications.</Status><Button onClick={() => void query.refetch()}>Retry</Button></> :
     <div className="card notification-list">{query.data.pages.flatMap(page => page.items).length ? query.data.pages.flatMap(page => page.items).map(item => <section className="notification-row" key={item.id}>
       <div className="notification-main">
