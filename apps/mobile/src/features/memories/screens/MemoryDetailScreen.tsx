@@ -1,3 +1,4 @@
+import * as Haptics from 'expo-haptics';
 import { useRef, useState } from 'react';
 import { Alert, Text, View } from 'react-native';
 import { useQuery } from '@tanstack/react-query';
@@ -63,7 +64,7 @@ export function MemoryDetailScreen({ memoryId }: { memoryId: string }) {
       {memory.createdBy === account.id && <>
         <Button label="Edit memory" disabled={busy || !online} onPress={() => router.push({ pathname: '/memories/[memoryId]/edit', params: { memoryId } })} />
         <Button label="Delete memory" variant="danger" loading={busy} disabled={!online} onPress={() => Alert.alert('Delete this memory?',
-          'Both partners will lose access. Library copies remain.', [{ text: 'Cancel', style: 'cancel' }, { text: 'Delete memory', style: 'destructive', onPress: () => { void remove(); } }])} />
+          'Both partners will lose access. Library copies remain.', [{ text: 'Cancel', style: 'cancel' }, { text: 'Delete memory', style: 'destructive', onPress: () => { void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning); void remove(); } }])} />
       </>}
     </>}
   </Screen>;

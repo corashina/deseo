@@ -65,7 +65,7 @@ export function ReminderControl(props: Props) {
   if (props.eventId && !current && preferences.isError && !draft) return <><Status error>We could not load your reminder preferences.</Status><Button onClick={() => void preferences.refetch()}>Retry</Button></>;
   return <section className="event-reminder"><h2>Your reminder</h2>
     <p>{props.allDay ? `All-day reminders use 09:00 in ${props.timezone}.` : props.eventId ? 'Choose how early you want a reminder.' : `Choose a date and time in ${props.timezone}.`}</p>
-    <p className="muted">Reminders use native push. This browser receives no push alerts.</p>
+    <p className="muted">Deseo sends this reminder to your phone.</p>
     {current?.state === 'past' && <p>The reminder time has passed. No push was queued.</p>}
     {current?.nextDueAt && <p>Next reminder: {DateTime.fromISO(current.nextDueAt).setZone(props.timezone).toFormat('d LLL yyyy, HH:mm')} ({props.timezone})</p>}
     <fieldset className="field-group" disabled={busy || Boolean(draft?.attempt) || props.completed}>

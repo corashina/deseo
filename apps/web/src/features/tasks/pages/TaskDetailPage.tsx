@@ -67,7 +67,7 @@ export function TaskDetailPage() {
       {error && <Status error>{error}
       </Status>}</RouteErrorPage>;
   return <>
-    <PageHeader
+    <PageHeader back={{ to: '/tasks', label: 'Tasks' }}
       title={task.title}
       action={<Link className="button secondary" to={'/tasks/' + task.id + '/edit'}>Edit task</Link>} />
     <section className="card task-detail">
@@ -80,7 +80,6 @@ export function TaskDetailPage() {
         assignee={pair.members.find(member => member.userId === task.assigneeId)?.displayName ?? 'Unassigned'} />
       <ReminderControl taskId={task.id} sourceVersion={task.version} timezone={pair.timezone} completed={Boolean(task.completedAt)} dueDate={task.dueDate} />
       <div className="actions">
-        <Link to="/tasks">Return to tasks</Link>
         <Button variant="danger" disabled={!online || saving} onClick={() => setConfirm(true)}>Delete task</Button>
       </div>
       {error && <Status error>{error}

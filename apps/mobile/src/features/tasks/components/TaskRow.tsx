@@ -1,3 +1,4 @@
+import * as Haptics from 'expo-haptics';
 import { useEffect, useRef, useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { DateTime } from 'luxon';
@@ -51,7 +52,7 @@ export function TaskRow({ task, accountId, assignee, online, onOpen, onCompleted
     finally { busy.current = false; try { scope.assertCurrent(); setOptimistic(null); setPending(false); } catch { /* Guard removed the row. */ } }
   };
   const completed = optimistic ?? current.completedAt !== null;
-  const change = (desired: boolean) => { void submit({ kind: 'complete', id: task.id, completed: desired, expectedVersion: current.version, commandId: randomUUID() }); };
+  const change = (desired: boolean) => { if (desired) void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success); void submit({ kind: 'complete', id: task.id, completed: desired, expectedVersion: current.version, commandId: randomUUID() }); };
   const locked = !online || pending || !ready || !!action;
   return <View style={styles.row}>
     <View style={styles.line}>

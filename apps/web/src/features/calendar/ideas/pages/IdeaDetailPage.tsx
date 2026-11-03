@@ -63,12 +63,11 @@ export function IdeaDetailPage() {
   if (!idea)
     return <RouteErrorPage title="Idea" returnTo="/ideas" returnLabel="Return to ideas" />;
   return <>
-    <PageHeader
+    <PageHeader back={{ to: '/ideas', label: 'Date ideas' }}
       title={idea.title}
       action={<Link className="button secondary" to={'/ideas/' + idea.id + '/edit'}>Edit idea</Link>} />
     <section className="card">
-      <p>{idea.state[0].toUpperCase() + idea.state.slice(1)}
-      </p>
+      <p className="muted">{{ saved: 'Not planned yet', planned: 'Planned', archived: 'Archived' }[idea.state]}</p>
       {idea.note && <p className="preserve-lines">{idea.note}
       </p>}
       {idea.link && <p>
@@ -77,7 +76,6 @@ export function IdeaDetailPage() {
       <div className="actions">{idea.state === 'saved' && <Link className="button primary" to={'/events/new?idea=' + idea.id}>Plan date</Link>}
         {idea.linkedEventId && <Link to={'/events/' + idea.linkedEventId}>View planned event</Link>}
         {idea.state !== 'archived' && <Button variant="secondary" disabled={!online || saving} onClick={() => setConfirm(true)}>Archive idea</Button>}
-        <Link to="/ideas">Return to ideas</Link>
       </div>
       {error && <Status error>{error}
       </Status>}

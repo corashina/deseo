@@ -38,7 +38,7 @@ export function TodayPage() {
     {query.isPending ? <Status>Loading Today…</Status> : query.isError ? <>
       <Status error>We could not load Today.</Status>
       <Button onClick={() => void query.refetch()}>Retry</Button>
-    </> : <div className="today-layout">
+    </> : <div className="today-layout"><div className="today-main">
         <section className="card" data-testid="today-events">
           <div className="section-heading">
             <h2>Upcoming plans</h2>
@@ -51,9 +51,6 @@ export function TodayPage() {
             showDate
             timezone={zone} />) : <p>Nothing planned for the next seven days.</p>}
         </section>
-      {query.data.memory && <section data-testid="today-memory"><h2>Latest memory</h2><MemoryCard memory={query.data.memory} author={pair.members.find(member => member.userId === query.data.memory!.createdBy)!.displayName} /></section>}
-      {note && <div data-testid="today-note"><NoteCard message={note} name={pair.members.find(member => member.userId === note.authorId)!.displayName} /></div>}
-      {!query.data.memory && !note && <section className="card today-intro" data-testid="today-intro"><h2>Keep a moment together</h2><p>Add a photo, or pin a message to keep a note here.</p><div className="today-intro-actions"><Link to="/memories/new">Add memory</Link><Link to="/messages">Send a message</Link></div></section>}
         <section className="card" data-testid="today-tasks">
           <div className="section-heading">
             <h2>Due tasks</h2>
@@ -65,7 +62,10 @@ export function TodayPage() {
              accountId={account!.id}
              timezone={zone}
             assignee={pair.members.find(member => member.userId === task.assigneeId)?.displayName ?? 'Unassigned'} />) : <p>No unfinished tasks due today.</p>}
-        </section>
+        </section></div><div className="today-side">
+      {query.data.memory && <section data-testid="today-memory"><h2>Latest memory</h2><MemoryCard memory={query.data.memory} author={pair.members.find(member => member.userId === query.data.memory!.createdBy)!.displayName} /></section>}
+      {note && <div data-testid="today-note"><NoteCard message={note} name={pair.members.find(member => member.userId === note.authorId)!.displayName} /></div>}
+      {!query.data.memory && !note && <section className="card today-intro" data-testid="today-intro"><h2>Keep a moment together</h2><p>Add a photo, or pin a message to keep a note here.</p><div className="today-intro-actions"><Link to="/memories/new">Add memory</Link><Link to="/messages">Send a message</Link></div></section>}
       {important && <section className="card important-card" data-testid="today-important-date">
         <h2>Next important date</h2>
         <h3>{important.title}
@@ -77,6 +77,6 @@ export function TodayPage() {
         </time></p>}
         <Link to={'/events/' + important.id}>View date</Link>
       </section>}
-    </div>}
+    </div></div>}
   </>;
 }

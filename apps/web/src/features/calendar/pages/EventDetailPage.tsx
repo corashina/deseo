@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { DateTime } from 'luxon';
 import { ReminderControl } from '../../notifications';
-import { inclusiveEndDate } from '@deseo/domain/calendar';
+import { formatInstantRange, inclusiveEndDate } from '@deseo/domain/calendar';
 import { useSession } from '../../../app/SessionProvider';
 import { useNetworkStatus } from '../../../lib/network';
 import { PageHeader } from '../../../components/ui/PageHeader';
@@ -90,13 +90,11 @@ export function EventDetailPage() {
       ? 'Every year on ' + DateTime.fromISO(event.temporal.startDate).setLocale('en').toFormat('d LLLL') + ' · All day'
       : `${event.temporal.startDate} to ${inclusiveEndDate(event.temporal.endDateExclusive)} · All day`;
   } else {
-    const start = DateTime.fromISO(event.temporal.startsAt).setZone(event.timezone).setLocale('en');
-    const end = DateTime.fromISO(event.temporal.endsAt).setZone(event.timezone).setLocale('en');
-    time = `${start.toFormat('d LLL yyyy, HH:mm')} to ${end.toFormat('d LLL yyyy, HH:mm')}`;
+    time = formatInstantRange(event.temporal.startsAt, event.temporal.endsAt, event.timezone);
   }
   const editable = event.visibility === 'shared' || event.authorId === account!.id;
   return <>
-    <PageHeader
+    <PageHeader back={{ to: '/calendar', label: 'Calendar' }}
       title={event.title}
       description={names[event.owner]}
       action={editable && <Link className="button secondary" to={'/events/' + event.id + '/edit'}>Edit event</Link>}
@@ -116,7 +114,6 @@ export function EventDetailPage() {
         allDay={event.temporal.kind === 'allDay'} timezone={event.timezone}
       />
       <div className="actions">
-        <Link to="/calendar">Return to calendar</Link>
         {editable && <Button variant="danger" disabled={!online} onClick={() => setConfirm(true)}>Delete event</Button>}
       </div>
       {error && <Status error>{error}</Status>}

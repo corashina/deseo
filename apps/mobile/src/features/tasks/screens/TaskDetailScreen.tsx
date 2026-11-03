@@ -1,3 +1,4 @@
+import * as Haptics from 'expo-haptics';
 import { useEffect, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
@@ -76,7 +77,7 @@ function Detail({ taskId, pairId }: { taskId: string; pairId: string }) {
     {retry}
     <Button label="Edit task" disabled={saving || !!action} onPress={() => router.push({ pathname: '/tasks/[taskId]/edit', params: { taskId } })} />
     <Button label="Delete task" variant="danger" loading={saving} disabled={!core.online || !ready || !!action || error?.code === 'CONFLICT'} onPress={() => Alert.alert(`Delete ${task.title}?`, 'Your partner will also lose this task.', [
-      { text: 'Cancel', style: 'cancel' }, { text: 'Delete task', style: 'destructive', onPress: () => { void submit({ kind: 'deleteTask', id: taskId, commandId: randomUUID(), expectedVersion: task.version }); } },
+      { text: 'Cancel', style: 'cancel' }, { text: 'Delete task', style: 'destructive', onPress: () => { void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning); void submit({ kind: 'deleteTask', id: taskId, commandId: randomUUID(), expectedVersion: task.version }); } },
     ])} />
   </Screen>;
 }

@@ -1,3 +1,4 @@
+import * as Haptics from 'expo-haptics';
 import { useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { randomUUID } from 'expo-crypto';
@@ -77,7 +78,7 @@ function ActiveDetail({ eventId, account, pair, online, refresh }: { eventId: st
     <ReminderControl eventId={event.id} sourceVersion={event.version} timezone={event.timezone} allDay={event.temporal.kind === 'allDay'} />
     <Button label={event.repeat === 'yearly' ? 'Edit series' : 'Edit event'} disabled={!online || deleting} onPress={() => router.push({ pathname: '/events/[eventId]/edit', params: { eventId } })} />
     <Button label="Delete event" variant="danger" disabled={!online || deleting} loading={deleting} onPress={() => Alert.alert(`Delete “${event.title}”?`, 'You will remove this event.', [
-      { text: 'Cancel', style: 'cancel' }, { text: 'Delete event', style: 'destructive', onPress: () => { void remove(); } },
+      { text: 'Cancel', style: 'cancel' }, { text: 'Delete event', style: 'destructive', onPress: () => { void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning); void remove(); } },
     ])} />
   </Screen>;
 }

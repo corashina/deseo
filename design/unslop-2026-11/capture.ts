@@ -4,7 +4,7 @@ import { FIXED_IDS, ANNA_EMAIL } from '../../supabase/dev/web-fixtures.ts';
 
 // Run after `npm run seed:web` with the preview on 4174. The display clock matches the seeded week.
 const base = 'http://127.0.0.1:4174';
-const out = new URL('./before/', import.meta.url).pathname;
+const out = new URL('./' + (process.env.SET ?? 'before') + '/', import.meta.url).pathname;
 const ids = { ...FIXED_IDS, groceriesListId: process.env.GROCERIES_LIST_ID ?? '' };
 const signedOut = ['/welcome', '/sign-in'];
 const signedIn = [

@@ -10,6 +10,7 @@
 .owner-filters button[aria-pressed=true] { background:var(--shared-soft); border-color:var(--shared); }
 .owner-filters button.owner-a { color:var(--rose); background:var(--rose-soft); }
 .owner-filters button.owner-b { color:var(--teal); background:var(--teal-soft); }
+.owner-filters button.owner-together { background:var(--shared-soft); }
 .owner-filters button[aria-pressed=true].owner-a { border-color:var(--rose); }
 .owner-filters button:hover { border-color:var(--control); }
 .owner-filters button[aria-pressed=true].owner-b { border-color:var(--teal); }
