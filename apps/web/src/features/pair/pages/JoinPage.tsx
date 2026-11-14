@@ -59,7 +59,7 @@ export function JoinPage() {
       generation.current++; setPending(false); setToken(event.target.value); writeDraft(accountId, pairId, 'join-pair', { token: event.target.value }); setReviewed(null); setError(''); entryIntent.invite = null;
     }} autoComplete="off" />
     {!preview && <Button type="submit" disabled={pending || accepting || !online}>Review invitation</Button>}</form>
-    {reviewed && <><p className="muted">Pair timezone: {reviewed.details.timezone}</p><p className="muted">Expires {formatDate(DateTime.fromISO(reviewed.details.expiresAt).setZone(account!.timezone), 'dateTime', account!.locale)}</p><Button disabled={accepting || !online} onClick={async () => {
+    {reviewed && <><p className="muted">Pair timezone: <span translate="no">{reviewed.details.timezone}</span></p><p className="muted">Expires {formatDate(DateTime.fromISO(reviewed.details.expiresAt).setZone(account!.timezone), 'dateTime', account!.locale)}</p><Button disabled={accepting || !online} onClick={async () => {
       if (!isOnline() || accepting) return;
       const scope = beginScope();
       const next = attempt.current ?? reviewed;

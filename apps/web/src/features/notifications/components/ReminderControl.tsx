@@ -68,7 +68,7 @@ export function ReminderControl(props: Props) {
     <p>{props.allDay ? `All-day reminders use 09:00 in ${props.timezone}.` : props.eventId ? 'Choose how early you want a reminder.' : `Choose a date and time in ${props.timezone}.`}</p>
     <p className="muted">Reminders use native push. This browser receives no push alerts.</p>
     {current?.state === 'past' && <p>The reminder time has passed. No push was queued.</p>}
-    {current?.nextDueAt && <p>Next reminder: {formatDate(DateTime.fromISO(current.nextDueAt).setZone(props.timezone), 'dateTime', account!.locale)} ({props.timezone})</p>}
+    {current?.nextDueAt && <p>Next reminder: {formatDate(DateTime.fromISO(current.nextDueAt).setZone(props.timezone), 'dateTime', account!.locale)} (<span translate="no">{props.timezone}</span>)</p>}
     <fieldset className="field-group" disabled={busy || Boolean(draft?.attempt) || props.completed}>
     {props.eventId ? <label className="field"><span>Remind me</span><select name="reminderChoice" value={values.choice} onChange={event => change({ choice: event.target.value })}>
       <option value="none">None</option><option value="15">15 minutes before</option><option value="60">One hour before</option><option value="1440">One day before</option>
