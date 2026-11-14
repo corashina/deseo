@@ -2,17 +2,18 @@ import { z } from 'zod';
 import { getSupabase } from '../../lib/supabase';
 import { taskRowSchema, listRowSchema } from '@deseo/domain/tasks';
 import type { Task, TaskList } from '@deseo/domain/tasks';
+import type { QueryKeys } from '../../lib/query-keys';
+const all = (accountId: string, pairId: string) => ['tasks', accountId, pairId] as const;
 export const taskKeys = {
+  all,
 
-  all: (accountId: string, pairId: string) => ['tasks', accountId, pairId] as const,
+  lists: (accountId: string, pairId: string) => [...all(accountId, pairId), 'lists'] as const,
 
-  lists: (accountId: string, pairId: string) => [...taskKeys.all(accountId, pairId), 'lists'] as const,
+  list: (accountId: string, pairId: string, listId: string) => [...all(accountId, pairId), 'list', listId] as const,
 
-  list: (accountId: string, pairId: string, listId: string) => [...taskKeys.all(accountId, pairId), 'list', listId] as const,
+  task: (accountId: string, pairId: string, id: string) => [...all(accountId, pairId), 'task', id] as const,
 
-  task: (accountId: string, pairId: string, id: string) => [...taskKeys.all(accountId, pairId), 'task', id] as const,
-
-};
+} satisfies QueryKeys;
 export async function listTaskLists(pairId: string): Promise<TaskList[]> {
   z.string().uuid().parse(pairId);
   const client = await getSupabase();

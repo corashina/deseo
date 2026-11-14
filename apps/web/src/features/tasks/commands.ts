@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { callRpc } from '../../lib/rpc';
-import { queryClient } from '../../lib/query-client';
+import { invalidate } from '../../lib/query-keys';
 import { listNameSchema, listRowSchema, taskInputSchema, taskPayload, taskRowSchema } from '@deseo/domain/tasks';
 import type { Task, TaskInput, TaskList } from '@deseo/domain/tasks';
 import type { RpcName } from '../../lib/supabase';
@@ -13,7 +13,7 @@ const idRow = z.object({ id: uuid });
 // A removal does not wait for the refresh, so its page can leave at once.
 async function command<T extends z.ZodTypeAny>(name: RpcName, parameters: Record<string, unknown>, schema: T, removal = false): Promise<z.infer<T>> {
   const data = await callRpc(name, { p_command_id: crypto.randomUUID(), ...parameters }, schema);
-  const refresh = Promise.all([queryClient.invalidateQueries({ queryKey: ['tasks'] }), queryClient.invalidateQueries({ queryKey: ['today'] })]);
+  const refresh = invalidate(['tasks'], ['today']);
   if (!removal) await refresh;
   return data;
 }
