@@ -2,19 +2,18 @@ import { useEffect } from 'react';
 import type { PairContext } from '@deseo/domain/pair';
 import { useSession } from '../../app/SessionProvider';
 import { z } from 'zod';
-import { AppError, errorResult, type Page, type Result } from '@deseo/domain/result';
+import { AppError, type Page } from '@deseo/domain/result';
 import { captureQueryScope, queryClient } from '../../lib/query-client';
 import { getSupabase } from '../../lib/supabase';
 import { cursorSchema, memorySchema, uuid } from '@deseo/domain/memories';
-import { memoryFunction, memoryRpc } from './transport';
-import type { Memory, MemoryMedia } from '@deseo/domain/memories';
+import { memoryRpc } from './transport';
+import type { Memory } from '@deseo/domain/memories';
 
 export const memoryKeys = {
   all: (accountId: string, pairId: string) => ['memories', accountId, pairId] as const,
   feed: (accountId: string, pairId: string) => [...memoryKeys.all(accountId, pairId), 'feed'] as const,
   latest: (accountId: string, pairId: string) => [...memoryKeys.all(accountId, pairId), 'latest'] as const,
   detail: (accountId: string, pairId: string, id: string) => [...memoryKeys.all(accountId, pairId), 'detail', id] as const,
-  media: (accountId: string, pairId: string, photoId: string, variant: string) => [...memoryKeys.all(accountId, pairId), 'media', photoId, variant] as const,
 };
 export async function listMemories(pairId: string, cursor: string | null = null): Promise<Page<Memory>> {
   const parsed = cursor === null ? null : cursorSchema.parse(JSON.parse(cursor));
@@ -31,12 +30,16 @@ export async function getMemory(pairId: string, id: string): Promise<Memory> {
   if (memory.pairId !== pairId) throw new AppError({ code: 'FORBIDDEN' });
   return memory;
 }
-export async function getMemoryMedia(photoId: string, variant: 'full' | 'thumb' = 'full'): Promise<Result<MemoryMedia>> {
-  try {
-    const media = await memoryFunction('get-memory-media', { photoId: uuid.parse(photoId), variant },
-      z.object({ url: z.string().url(), expiresAt: z.string().datetime() }));
-    return { ok: true, data: media };
-  } catch (error) { return errorResult(error); }
+// Storage RLS lets current members read validated photos of published memories. Links expire after 60 seconds.
+export async function signMemoryPhoto(path: string): Promise<string> {
+  const scope = captureQueryScope();
+  const { data, error } = await getSupabase().storage.from('memory-photos').createSignedUrl(path, 60);
+  scope.assertCurrent();
+  // Storage answers a denied read with a 4xx status. Other failures can succeed on retry.
+  const status = (error as { status?: number } | null)?.status;
+  if (status && status < 500) throw new AppError({ code: 'FORBIDDEN', message: 'This photo is unavailable. Open the memory again.' });
+  if (error || !data?.signedUrl) throw new AppError({ code: 'RETRYABLE' });
+  return data.signedUrl;
 }
 export function useMemorySignals(accountId: string, pair: PairContext | null) {
   const { revalidate } = useSession();

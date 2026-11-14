@@ -41,11 +41,11 @@ export function MemoryDetailPage() {
     setError(result.error.code === 'CONFLICT' ? 'This memory changed. Open it again before deleting.' : 'Deletion failed. Try again.');
     if (result.error.code !== 'RETRYABLE') { attempt.current = undefined; removeDraft(account!.id, pairId, key); }
   }
-  async function download(photoId: string, index: number) {
+  async function download(path: string, index: number) {
     if (!online || busy.current) return;
     const scope = beginScope(); busy.current = true; setSaving(true); setError('');
     try {
-      const blob = await loadMemoryPhoto(photoId, 'full', scope.signal);
+      const blob = await loadMemoryPhoto(path, scope.signal);
       scope.assertCurrent(); if (!mounted.current) return;
       const url = URL.createObjectURL(blob);
       try { const anchor = document.createElement('a'); anchor.href = url; anchor.download = 'deseo-memory-' + memoryId + '-' + (index + 1) + '.jpg'; anchor.click(); }
@@ -58,7 +58,7 @@ export function MemoryDetailPage() {
   if (!query.data || query.data.state !== 'published') return <RouteErrorPage title="Memory" returnTo="/memories" returnLabel="Return to memories">{attempt.current && <Button disabled={!online || saving} onClick={() => void remove()}>Retry deletion</Button>}{error && <Status error>{error}</Status>}</RouteErrorPage>;
   const memory = query.data; const author = memory.createdBy === account!.id;
   return <><PageHeader title={memory.caption || 'Our memory'} description={DateTime.fromISO(memory.memoryDate).setLocale('en').toFormat('d LLLL yyyy') + ' · ' + (pair?.status === 'active' ? pair.members.find(member => member.userId === memory.createdBy)!.displayName : '')} action={author ? <Link className="button secondary" to={'/memories/' + memoryId + '/edit'}>Edit memory</Link> : undefined} />
-    <section className="card memory-detail">{memory.photos.map((photo, index) => <figure key={photo.id}><MemoryImage photoId={photo.id} variant="full" alt={(memory.caption || 'Shared memory') + ' · Photo ' + (index + 1)} /><figcaption><Button variant="secondary" disabled={!online || saving} onClick={() => void download(photo.id, index)}>Download photo {index + 1}</Button></figcaption></figure>)}
+    <section className="card memory-detail">{memory.photos.map((photo, index) => <figure key={photo.id}><MemoryImage path={photo.fullPath} alt={(memory.caption || 'Shared memory') + ' · Photo ' + (index + 1)} /><figcaption><Button variant="secondary" disabled={!online || saving} onClick={() => void download(photo.fullPath, index)}>Download photo {index + 1}</Button></figcaption></figure>)}
       <div className="actions"><Link to="/memories">Return to memories</Link>{author && <Button variant="danger" disabled={!online || saving} onClick={() => setConfirm(true)}>Delete memory</Button>}</div>{error && <Status error>{error}</Status>}
     </section><Dialog busy={saving} open={confirm} title="Delete this memory?" onClose={() => setConfirm(false)}><p>Both partners will lose this memory and its photos.</p><Button variant="danger" disabled={!online || saving} onClick={() => void remove()}>Confirm deletion</Button></Dialog>
   </>;

@@ -94,7 +94,6 @@ Playwright starts and stops its own preview. Run Windows browser checks elevated
 | Server variable | Use |
 |---|---|
 | `WEB_APP_ORIGIN` | One exact browser origin selected by mode |
-| `PUBLIC_SUPABASE_URL` | Reachable public API address for signed media links |
 | `SUPABASE_URL` | Runtime-injected internal address for server calls |
 
 Keep injected internal configuration intact. A deployed public API address must also be reachable by mobile devices.

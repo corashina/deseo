@@ -12,7 +12,7 @@ select ok(not has_table_privilege('authenticated','public.memories','INSERT'),'C
 select ok(not has_table_privilege('authenticated','public.memory_photos','UPDATE'),'Clients cannot claim validation');
 select ok(not has_function_privilege('authenticated','public.publish_memory(uuid,uuid,uuid,uuid)','EXECUTE'),'Only service publishes');
 select ok(not has_function_privilege('authenticated','public.validate_memory_photo(uuid,uuid,uuid,uuid,jsonb)','EXECUTE'),'Only service validates');
-select ok(not exists(select 1 from pg_policies where schemaname='storage' and tablename='objects' and cmd in('SELECT','UPDATE','DELETE')),'No public download or overwrite policy');
+select ok(not exists(select 1 from pg_policies where schemaname='storage' and tablename='objects' and cmd in('UPDATE','DELETE')),'No client overwrite or delete policy');
 select is((select public from storage.buckets where id='memory-photos'),false,'Private bucket');
 create temporary table draft as select '{"id":"40000000-0000-4000-8000-000000000101","pairId":"30000000-0000-4000-8000-000000000001","memoryDate":"2026-10-04","caption":"Synthetic memory","photos":[{"id":"60000000-0000-4000-8000-000000000101","fullBytes":100,"thumbBytes":30,"width":20,"height":10,"thumbWidth":10,"thumbHeight":5}]}'::jsonb value;
 grant select on draft to authenticated;
@@ -26,7 +26,6 @@ select is(public.reserve_memory((select value||'{"id":"40000000-0000-4000-8000-0
 select is(public.reserve_memory((select value||jsonb_build_object('id','40000000-0000-4000-8000-000000000102','photos',jsonb_build_array(value->'photos'->0,value->'photos'->0)) from draft),'50000000-0000-4000-8000-000000000102')->'error'->>'code','CONFLICT','Duplicate photo IDs roll back reservation');
 select is((select count(*)::integer from public.memories where pair_id='30000000-0000-4000-8000-000000000001'),1,'Rejected duplicate leaves no memory');
 select is(jsonb_array_length(public.list_memories('30000000-0000-4000-8000-000000000001')->'data'->'items'),0,'Feed hides pending memory');
-select is(public.get_memory_media('60000000-0000-4000-8000-000000000101')->'error'->>'code','FORBIDDEN','Pending photos cannot get links');
 select ok((public.get_memory('40000000-0000-4000-8000-000000000101')->>'ok')::boolean,'Author can resume pending upload');
 select pg_temp.as_user(2);
 select is((select count(*)::integer from public.memories where pair_id='30000000-0000-4000-8000-000000000001'),0,'Partner cannot read pending memory');
@@ -53,6 +52,11 @@ select 'memory-photos',full_path,gen_random_uuid()::text,uploaded_by::text,'{"se
 union all select 'memory-photos',thumb_path,gen_random_uuid()::text,uploaded_by::text,'{"sessionId":"20000000-0000-4000-8000-000000000001"}'::jsonb,jsonb_build_object('size',thumb_bytes,'mimetype','image/jpeg') from public.memory_photos where pair_id='30000000-0000-4000-8000-000000000001'$$,
  'Final Storage service insert rechecks reserved owner and original live session');
 select throws_ok($$update storage.objects set metadata='{"size":999}' where bucket_id='memory-photos' and name like '30000000-0000-4000-8000-000000000001/%'$$,'P0001','FORBIDDEN','Uploaded objects stay immutable');
+reset role;
+select pg_temp.as_user(1);
+set local role authenticated;
+select is((select count(*)::integer from storage.objects where bucket_id='memory-photos' and name like '30000000-0000-4000-8000-000000000001/%'),0,'Pending photos cannot be read or signed');
+reset role;
 select set_config('request.jwt.claims','{"role":"service_role"}',true);
 set local role service_role;
 select is(public.publish_memory('40000000-0000-4000-8000-000000000101','10000000-0000-4000-8000-000000000001','20000000-0000-4000-8000-000000000001','50000000-0000-4000-8000-000000000103')->'error'->>'code','RETRYABLE','Unvalidated files cannot publish');
@@ -67,11 +71,11 @@ select is(public.publish_memory('40000000-0000-4000-8000-000000000101','10000000
 select pg_temp.as_user(2);
 set local role authenticated;
 select is((select count(*)::integer from public.memories where pair_id='30000000-0000-4000-8000-000000000001'),1,'Partner sees published memory');
-select is(public.get_memory_media('60000000-0000-4000-8000-000000000101')->'data'->>'expiresIn','60','Media link maximum is 60 seconds');
+select is((select count(*)::integer from storage.objects where bucket_id='memory-photos' and name like '30000000-0000-4000-8000-000000000001/%'),2,'Partner can read and sign published photos');
 select is(public.update_memory('40000000-0000-4000-8000-000000000101','{"memoryDate":"2026-10-05","caption":"Probe"}',2,'50000000-0000-4000-8000-000000000104')->'error'->>'code','FORBIDDEN','Partner cannot edit');
 select is(public.delete_memory('40000000-0000-4000-8000-000000000101',2,'50000000-0000-4000-8000-000000000104')->'error'->>'code','FORBIDDEN','Partner cannot delete');
 select pg_temp.as_user(3);
-select is(public.get_memory_media('60000000-0000-4000-8000-000000000101')->'error'->>'code','FORBIDDEN','Unrelated media ID probe denied');
+select is((select count(*)::integer from storage.objects where bucket_id='memory-photos' and name like '30000000-0000-4000-8000-000000000001/%'),0,'Unrelated account cannot read or sign photos');
 select pg_temp.as_user(1);
 select is(public.update_memory('40000000-0000-4000-8000-000000000101','{"memoryDate":"2026-10-05","caption":"Edited"}',99,'50000000-0000-4000-8000-000000000104')->'error'->>'code','CONFLICT','Stale author edit denied');
 select ok((public.update_memory('40000000-0000-4000-8000-000000000101','{"memoryDate":"2026-10-05","caption":"Edited"}',2,'50000000-0000-4000-8000-000000000104')->>'ok')::boolean,'Author edits caption and date');
@@ -79,7 +83,7 @@ select is(public.latest_memory('30000000-0000-4000-8000-000000000001')->'data'->
 select is(public.list_memories('30000000-0000-4000-8000-000000000001',null,51)->'error'->>'code','VALIDATION','Feed limit capped at 50');
 select ok((public.delete_memory('40000000-0000-4000-8000-000000000101',3,'50000000-0000-4000-8000-000000000105')->>'ok')::boolean,'Author deletes metadata visibility');
 select ok((public.delete_memory('40000000-0000-4000-8000-000000000101',3,gen_random_uuid())->>'ok')::boolean,'Already deleting author retry succeeds after restart');
-select is(public.get_memory_media('60000000-0000-4000-8000-000000000101')->'error'->>'code','FORBIDDEN','Deletion revokes new links');
+select is((select count(*)::integer from storage.objects where bucket_id='memory-photos' and name like '30000000-0000-4000-8000-000000000001/%'),0,'Deletion revokes new links');
 select pg_temp.as_user(2);
 select is((select count(*)::integer from public.memory_access_revocations where pair_id='30000000-0000-4000-8000-000000000001'),1,'Partner receives opaque memory deletion signal');
 select pg_temp.as_user(3);

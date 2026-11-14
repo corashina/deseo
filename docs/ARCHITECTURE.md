@@ -151,7 +151,6 @@ Server `WEB_APP_ORIGIN` lists permitted browser origins, separated by commas. Na
 The local Supabase gateway uses wildcard CORS headers and intercepts OPTIONS.
 The function still rejects unknown and null origins before Auth or action work.
 Direct helper tests prove handler policy; they do not prove external gateway headers.
-Server `PUBLIC_SUPABASE_URL` supplies reachable signed links. Injected `SUPABASE_URL` remains internal.
 
 See [the data contract](#data-contract) for access, lifecycle, retention, and race rules.
 
@@ -378,16 +377,22 @@ Reserve storage against a 1 GiB pair quota, including pending uploads. Return a 
 
 Paths follow `pair_id/memory_id/photo_id/{full,thumb}.jpg`. Check all IDs against authorized database rows.
 
-Upload with no overwrite. Finalize only when every declared file exists and passes validation.
+Upload with no overwrite. Storage RLS permits the insert only for the author's live reservation.
+A database trigger checks that the stored size equals the reserved size.
+On retry, the client treats an existing file (409) as uploaded and sends only missing files.
 
-The finalization transaction checks current membership and marks the memory published once. Retries return that same result.
+The `finalize-memory` Edge function takes `{memoryId, commandId}`. It downloads each unvalidated file and checks its bytes with `validate-jpeg.ts`.
+Bucket `allowed_mime_types` and `file_size_limit` check only declared type and size, so this byte check stays on the server.
+The function then calls `publish_memory`. That transaction checks current membership and marks the memory published once.
+A retry skips validated photos and returns the same publish result.
 
 An object uploaded after disconnect cannot publish. Cleanup removes abandoned reservations and files after 24 hours.
 
-Issue media links for at most 60 seconds. Clear app image caches on disconnect and sign-out.
+Policy `memory_photos_readable` lets current pair members read validated photos of published memories.
+The client signs its own links with `createSignedUrl(path, 60)`. Pending, deleted, and foreign photos return 400.
+Clear app image caches on disconnect and sign-out.
 
 Browser media uses no-store requests and memory-scoped blobs. Release object URLs on removal, scope change, and sign-out.
-Server `PUBLIC_SUPABASE_URL` supplies reachable media links. Injected `SUPABASE_URL` remains the internal service address.
 
 An already issued link may work until expiry. Explain this technical limit in the privacy design; never claim instant copy revocation.
 

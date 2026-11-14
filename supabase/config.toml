@@ -426,9 +426,6 @@ enabled = true
 [functions.finalize-memory]
 verify_jwt = false
 
-[functions.get-memory-media]
-verify_jwt = false
-
 [functions.cleanup]
 verify_jwt = false
 # Directory under `supabase/` where declarative files are written.

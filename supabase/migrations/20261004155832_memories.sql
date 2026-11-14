@@ -191,7 +191,7 @@ exception when sqlstate 'P0001' then return private.error(sqlerrm);
  when unique_violation then return private.error('CONFLICT');
 end; $$;
 
--- INSERT takes the same locks as publication, closure, and cleanup. No client SELECT, UPDATE, or DELETE policy exists.
+-- INSERT takes the same locks as publication, closure, and cleanup. No client UPDATE or DELETE policy exists.
 insert into storage.buckets(id,name,public,file_size_limit,allowed_mime_types)
 values('memory-photos','memory-photos',false,5242880,array['image/jpeg']);
 create function private.memory_upload_allowed(p_path text) returns boolean
@@ -210,6 +210,16 @@ exception when sqlstate 'P0001' then return false;
 end; $$;
 create policy memory_upload_reserved on storage.objects for insert to authenticated
 with check(bucket_id='memory-photos' and private.memory_upload_allowed(name));
+-- Current members read validated photos of published memories. Clients sign 60-second links with this policy.
+create function private.memory_object_readable(p_name text) returns boolean
+language sql stable security definer set search_path='' as $$
+ select exists(select 1 from public.memory_photos ph join public.memories m on m.id=ph.memory_id
+  where ph.id=case when split_part(p_name,'/',3) ~* '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
+   then split_part(p_name,'/',3)::uuid end
+  and p_name in(ph.full_path,ph.thumb_path) and ph.validated and m.state='published' and private.is_member(m.pair_id));
+$$;
+create policy memory_photos_readable on storage.objects for select to authenticated
+using(bucket_id='memory-photos' and private.memory_object_readable(name));
 -- Storage computes metadata.size from uploaded bytes. Check exact reservations before accepting object metadata.
 create function private.memory_object_size() returns trigger language plpgsql security definer set search_path='' as $$
 declare expected integer; actor uuid; session uuid; ph public.memory_photos; m public.memories;
@@ -432,18 +442,6 @@ begin
  page:=public.list_memories(p_pair_id,null,1); if page->>'ok'<>'true' then return page; end if;
  return jsonb_build_object('ok',true,'data',page->'data'->'items'->0);
 end; $$;
-create function public.get_memory_media(p_photo_id uuid,p_variant text default 'full') returns jsonb
-language plpgsql stable security invoker set search_path='' as $$
-declare ph public.memory_photos;
-begin
- if private.active_actor() is null then return private.error('UNAUTHENTICATED'); end if;
- if p_variant is null or p_variant not in('full','thumb') then return private.error('VALIDATION','variant'); end if;
- select ph0.* into ph from public.memory_photos ph0 join public.memories m on m.id=ph0.memory_id
- where ph0.id=p_photo_id and m.state='published' and ph0.validated;
- if not found then return private.error('FORBIDDEN'); end if;
- return jsonb_build_object('ok',true,'data',jsonb_build_object('bucket','memory-photos','path',case when p_variant='full' then ph.full_path else ph.thumb_path end,'expiresIn',60,'photoId',ph.id));
-end; $$;
-
 create function private.claim_memory_cleanup(p_limit integer) returns jsonb language plpgsql security definer set search_path='' as $$
 declare candidate record; job private.memory_cleanup_jobs; jobs jsonb:='[]'; token uuid;
  candidate_pairs uuid[]; expired_memories uuid[];
@@ -516,16 +514,16 @@ create function public.complete_memory_cleanup(p_job_id uuid,p_lease_token uuid,
 
 -- Revoke every newly created function explicitly, including non-definer helpers.
 revoke all on function private.memory_identity(),private.photo_identity(),private.memory_object_size(),private.memory_photo_json(public.memory_photos),private.memory_json(public.memories),
- private.reserve_memory(jsonb,uuid),private.memory_upload_allowed(text),private.memory_command(text,uuid,jsonb,integer,uuid),private.schedule_memory_cleanup(),private.close_pending_memories(),
+ private.reserve_memory(jsonb,uuid),private.memory_upload_allowed(text),private.memory_object_readable(text),private.memory_command(text,uuid,jsonb,integer,uuid),private.schedule_memory_cleanup(),private.close_pending_memories(),
  private.memory_service_lock(uuid,uuid,uuid),private.verify_memory_reservation(uuid,uuid,uuid),private.validate_memory_photo(uuid,uuid,uuid,uuid,jsonb),private.publish_memory(uuid,uuid,uuid,uuid),
  private.claim_memory_cleanup(integer),private.complete_memory_cleanup(uuid,uuid,text) from public,anon,authenticated;
 revoke all on function public.reserve_memory(jsonb,uuid),public.update_memory(uuid,jsonb,integer,uuid),public.delete_memory(uuid,integer,uuid),
  public.verify_memory_reservation(uuid,uuid,uuid),public.validate_memory_photo(uuid,uuid,uuid,uuid,jsonb),public.publish_memory(uuid,uuid,uuid,uuid),
- public.get_memory(uuid),public.list_memories(uuid,jsonb,integer),public.latest_memory(uuid),public.get_memory_media(uuid,text),
+ public.get_memory(uuid),public.list_memories(uuid,jsonb,integer),public.latest_memory(uuid),
  public.claim_memory_cleanup(integer),public.complete_memory_cleanup(uuid,uuid,text) from public,anon,authenticated;
 grant execute on function private.error(text,text),private.memory_json(public.memories),private.memory_photo_json(public.memory_photos),private.reserve_memory(jsonb,uuid),
  private.memory_command(text,uuid,jsonb,integer,uuid),private.memory_upload_allowed(text),public.reserve_memory(jsonb,uuid),public.update_memory(uuid,jsonb,integer,uuid),
- public.delete_memory(uuid,integer,uuid),public.get_memory(uuid),public.list_memories(uuid,jsonb,integer),public.latest_memory(uuid),public.get_memory_media(uuid,text) to authenticated;
+ public.delete_memory(uuid,integer,uuid),public.get_memory(uuid),public.list_memories(uuid,jsonb,integer),public.latest_memory(uuid),private.memory_object_readable(text) to authenticated;
 grant execute on function private.verify_memory_reservation(uuid,uuid,uuid),private.validate_memory_photo(uuid,uuid,uuid,uuid,jsonb),private.publish_memory(uuid,uuid,uuid,uuid),
  private.claim_memory_cleanup(integer),private.complete_memory_cleanup(uuid,uuid,text),
  public.verify_memory_reservation(uuid,uuid,uuid),public.validate_memory_photo(uuid,uuid,uuid,uuid,jsonb),public.publish_memory(uuid,uuid,uuid,uuid),

@@ -1,13 +1,13 @@
 import { z } from 'zod';
+import { useMutation } from '@tanstack/react-query';
 import { assertOnline } from '../../lib/network';
 import type { PreparedBrowserPhoto, MemoryReservationInput } from './prepare';
 import { captureQueryScope, queryClient } from '../../lib/query-client';
 import { getSupabase } from '../../lib/supabase';
-import { AppError, errorResult, type Result } from '@deseo/domain/result';
+import { AppError, errorResult, resultSchema, type Result } from '@deseo/domain/result';
 import { memoryInputSchema, memorySchema, photoSchema, uuid } from '@deseo/domain/memories';
-import { memoryFunction, memoryRpc } from './transport';
-import type { Memory, MemoryInput, MemoryPhoto, MemoryInspection } from '@deseo/domain/memories';
-
+import { memoryRpc } from './transport';
+import type { Memory, MemoryInput } from '@deseo/domain/memories';
 
 export async function reserveMemory(input: MemoryReservationInput, commandId: string): Promise<Result<Memory>> {
   try {
@@ -18,57 +18,50 @@ export async function reserveMemory(input: MemoryReservationInput, commandId: st
     return { ok: true, data: await memoryRpc('reserve_memory', { p_input: parsed, p_command_id: uuid.parse(commandId) }, memorySchema) };
   } catch (error) { return errorResult(error); }
 }
-export function inspectMemory(memoryId: string): Promise<MemoryInspection> {
-  return memoryFunction('finalize-memory', { action: 'inspect', memoryId: uuid.parse(memoryId) },
-    z.object({ memory: memorySchema, photos: z.array(z.object({ id: uuid, full: z.boolean(), thumb: z.boolean(), validated: z.boolean() })) }));
+async function invalidateMemories() {
+  await queryClient.invalidateQueries({ predicate: query => query.queryKey[0] === 'memories' || query.queryKey[0] === 'today' });
 }
-export async function uploadMemoryPhoto(reservation: Memory, localFile: PreparedBrowserPhoto): Promise<Result<MemoryPhoto>> {
+type PublishInput = { reservation: Memory; photos: PreparedBrowserPhoto[]; commandId: string; onProgress(message: string): void };
+// Upload each reserved file to private Storage, then let finalize-memory check the bytes and publish.
+// Storage never overwrites a file. On retry, an existing file is the same prepared upload, so it counts as done.
+async function publishMemory({ reservation, photos, commandId, onProgress }: PublishInput): Promise<Result<Memory>> {
   try {
     assertOnline();
     const scope = captureQueryScope();
     const client = getSupabase();
-    scope.assertCurrent();
     const claims = await client.auth.getClaims();
     scope.assertCurrent();
     if (claims.error) throw claims.error;
     const sessionId = uuid.parse(claims.data?.claims.session_id);
-    const inspection = await inspectMemory(reservation.id);
-    scope.assertCurrent();
-    const photo = inspection.memory.photos.find(item => item.id === localFile.id);
-    const state = inspection.photos.find(item => item.id === localFile.id);
-    if (!photo || !state) throw new AppError({ code: 'VALIDATION', message: 'Select this photo again.' });
-    if (state.validated) return { ok: true, data: photo };
-    for (const variant of ['full', 'thumb'] as const) {
-      if (state[variant]) continue;
-      const bytes = localFile[variant];
-      scope.assertCurrent();
-      const { error } = await client.storage.from('memory-photos').upload(photo[`${variant}Path`], bytes,
-        { contentType: 'image/jpeg', cacheControl: '0', upsert: false, metadata: { sessionId } });
-      scope.assertCurrent();
-      if (error) {
-        // Only inspection plus validation can resolve an uncertain immutable upload.
-        const after = await inspectMemory(reservation.id);
+    for (const [index, local] of photos.entries()) {
+      onProgress('Uploading photo ' + (index + 1) + ' of ' + photos.length + '…');
+      const photo = reservation.photos.find(item => item.id === local.id);
+      if (!photo) throw new AppError({ code: 'VALIDATION', message: 'Select this photo again.' });
+      if (photo.validated) continue;
+      for (const variant of ['full', 'thumb'] as const) {
+        const { error } = await client.storage.from('memory-photos').upload(photo[`${variant}Path`], local[variant],
+          { contentType: 'image/jpeg', cacheControl: '0', upsert: false, metadata: { sessionId } });
         scope.assertCurrent();
-        if (!after.photos.find(item => item.id === photo.id)?.[variant]) throw error;
+        if (error && (error as { statusCode?: string }).statusCode !== '409') throw error;
       }
     }
+    onProgress('Publishing memory…');
+    const { data, error } = await client.functions.invoke('finalize-memory',
+      { body: { memoryId: uuid.parse(reservation.id), commandId: uuid.parse(commandId) }, method: 'POST', signal: scope.signal });
     scope.assertCurrent();
-    return { ok: true, data: await memoryFunction('finalize-memory', { action: 'validate', memoryId: reservation.id, photoId: photo.id }, photoSchema) };
+    if (error) {
+      const response = error.context as Response | undefined;
+      const body: unknown = response && typeof response.json === 'function' ? await response.json().catch(() => null) : null;
+      scope.assertCurrent();
+      const parsed = resultSchema(memorySchema).safeParse(body);
+      if (parsed.success && !parsed.data.ok) return parsed.data;
+      throw new AppError({ code: 'RETRYABLE', message: 'Check your connection and retry.' });
+    }
+    return resultSchema(memorySchema).parse(data);
   } catch (error) { return errorResult(error); }
 }
-async function invalidateMemories() {
-  await queryClient.invalidateQueries({ predicate: query => query.queryKey[0] === 'memories' || query.queryKey[0] === 'today' });
-}
-export async function finalizeMemory(memoryId: string, commandId: string): Promise<Result<Memory>> {
-  try {
-    assertOnline();
-    const scope = captureQueryScope();
-    const memory = await memoryFunction('finalize-memory', { action: 'publish', memoryId: uuid.parse(memoryId), commandId: uuid.parse(commandId) }, memorySchema);
-    scope.assertCurrent();
-    await invalidateMemories();
-    scope.assertCurrent();
-    return { ok: true, data: memory };
-  } catch (error) { return errorResult(error); }
+export function usePublishMemory() {
+  return useMutation({ mutationFn: publishMemory, onSuccess: result => { if (result.ok) void invalidateMemories(); } });
 }
 export async function updateMemory(id: string, input: MemoryInput, expectedVersion: number, commandId: string): Promise<Result<Memory>> {
   try {

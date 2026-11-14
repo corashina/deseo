@@ -489,9 +489,6 @@ isOneToOne: false
 "get_memory":
 { Args: { "p_memory_id": string }; Returns: Json
                            },
-"get_memory_media":
-{ Args: { "p_photo_id": string,"p_variant"?: string }; Returns: Json
-                           },
 "get_notification_preferences":
 { Args: Record<PropertyKey, never>; Returns: Json
                            },
