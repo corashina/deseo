@@ -250,6 +250,7 @@ Yearly important dates use a one-day all-day event with `repeat = yearly` and a 
 Other events use `repeat = none`. Yearly edits affect the series; there are no occurrence overrides.
 
 Calendar queries expand yearly dates only inside the requested range, limited to 366 days per request.
+A yearly date has no occurrence before its start date. Agenda reads, reminder state, and reminder jobs follow this rule.
 
 Include events that overlap the requested range, even when they start before it. Treat the query end as exclusive.
 
@@ -519,9 +520,13 @@ Domain owns the Result schema and `TodaySummary` type. Each application owns its
 | Stored field | Shared field | Rule |
 |---|---|---|
 | `agenda` | `agenda` | Complete Event agenda |
-| `important_dates` | `importantDates` | Event rows within the existing 366-day range |
+| `important_dates` | `importantDates` | Important Event rows within the existing 366-day range |
 | `due_tasks` | `dueTasks` | At most three Task rows |
 | `notes` | `notes` | At most two Message rows |
+
+`list_agenda` and `get_today` use the same query, `private.list_agenda`.
+For `important_dates`, the query reads only important Events. Yearly Events are always important.
+It removes other Events before it expands and converts rows. Range, overlap, leap-day, and private Event rules do not change.
 
 The shared schema reuses Event, Task, Message, and Result schemas.
 Queries validate the Pair UUID and calendar date before requesting data.
