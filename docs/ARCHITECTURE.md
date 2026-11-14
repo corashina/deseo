@@ -226,9 +226,8 @@ Generate database types from the actual schema. Keep database checks authoritati
 | `notifications` | Recipient, pair, source reference, generic kind, created time, read time |
 | `notification_jobs` | Notification, device, due time, source version, attempt count, lease, provider ticket, state |
 | `command_receipts` | Actor, pair, command UUID, command type, result ID, result version, expiry |
-| `verification_proofs` | Account, action, hashed random proof, expiry, consumed time; private server-only record |
 
-Keep invites, proofs, delivery jobs, and command receipts outside the exposed schema.
+Keep invites, delivery jobs, and command receipts outside the exposed schema.
 
 Store avatars privately. Only their owner and current partner can retrieve them.
 
@@ -445,11 +444,13 @@ No worker purges ended-pair records yet. `purge_after` records the 30-day deadli
 
 #### Fresh verification
 
-A server function verifies a fresh email code against the authenticated account's actual email.
+The browser sends an email code with Supabase Auth `signInWithOtp`. It verifies the code with `verifyOtp` in a separate in-memory client.
+That client sends the sensitive command, then signs out its session. The saved browser session does not change.
 
-It returns a random, single-use proof bound to that account and the requested action, valid for ten minutes.
+`private.recently_signed_in()` accepts only a session with an `auth.mfa_amr_claims` row from the last ten minutes.
+Auth writes that row at sign-in. Token refresh does not change it, and the client cannot set it.
 
-Store only the proof hash. Consume it atomically with the sensitive command. Do not trust client timestamps or JWT refresh times.
+`supabase.auth.reauthenticate()` cannot replace this check. Its nonce works only with a password change in `updateUser`.
 
 Check the JWT session ID against the current Auth session for protected reads and commands, including global sign-out enforcement.
 
@@ -540,8 +541,7 @@ An unchanged-origin source reload permits those listeners only with an owned, ru
 The guard does not classify Vite processes or inspect foreign project files.
 Local source verification preserves persistent database identity and current origin policy.
 
-All six Edge entrypoints use `supabase/functions/deno.json`, its frozen lockfile, and Deno 2.9.6.
-Sensitive verification uses the shared pinned Supabase import.
+All Edge entrypoints use `supabase/functions/deno.json`, its frozen lockfile, and Deno 2.9.6.
 Run `npm run typecheck:functions` and both function test commands for local checks.
 Hosted bundling and runtime remain unverified.
 

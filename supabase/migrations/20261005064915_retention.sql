@@ -2,7 +2,6 @@
 create function private.expire_records() returns void language plpgsql security definer set search_path='' as $$
 begin
  delete from private.memory_cleanup_jobs where id in(select id from private.memory_cleanup_jobs where state='completed' and completed_at<=now()-interval '30 days' and cardinality(paths)=0 order by completed_at limit 50);
- delete from private.verification_proofs where proof_hash in(select proof_hash from private.verification_proofs where expires_at<=now() order by expires_at limit 50);
  delete from private.pair_invites where id in(select id from private.pair_invites where expires_at<=now() order by expires_at limit 50);
  delete from private.command_receipts where ctid in(select ctid from private.command_receipts where expires_at<=now() order by expires_at limit 50);
  delete from public.devices where id in(select d.id from public.devices d where d.revoked_at<now()-interval '30 days' and not exists(select 1 from private.notification_jobs j where j.device_id=d.id) order by d.revoked_at limit 50);

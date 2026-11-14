@@ -141,8 +141,8 @@ npm run typecheck:functions
 npm run test:functions
 ```
 
-The single typecheck covers all six Edge entrypoints with Deno 2.9.6 and the shared frozen configuration.
-Use `supabase/functions/deno.json` and its lockfile. Sensitive verification has no separate configuration.
+The single typecheck covers all Edge entrypoints with Deno 2.9.6 and the shared frozen configuration.
+Use `supabase/functions/deno.json` and its lockfile.
 Discover CLI options through the installed help before changing commands.
 
 After you change a migration, regenerate the shared database types from a running local stack:
@@ -293,7 +293,7 @@ The following priorities cover product acceptance. They do not describe the reta
 | Pair transaction | 100 | Simultaneous joins, self-join, one account joining two pairs, regeneration race |
 | Account disable/delete | 100 | Valid old JWT, session revocation, partial cleanup, deleted account restore |
 | Disconnect | 100 | Open screens, app resume, writes, export, upload, and push races |
-| Sensitive verification | 100 | Forged, expired, wrong-account, wrong-action, and replayed proof |
+| Sensitive verification | 100 | Old sign-in, other pair, and receipt replay (`supabase/tests/end-pair.test.sql`) |
 | Message durability | 100 | Lost acknowledgement, duplicate UUID, reconnect, paging while new rows arrive |
 | Photo access | 100 | Pending access, forged file type, metadata, quota race, stale media links |
 | Event changes | 98 | Conflicts, duplicate creates, changing visibility, deleted sources |

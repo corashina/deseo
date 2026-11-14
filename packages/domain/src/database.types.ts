@@ -417,9 +417,6 @@ isOneToOne: false
 "archive_date_idea":
 { Args: { "p_command_id": string,"p_expected_version": number,"p_idea_id": string }; Returns: Json
                            },
-"authorize_email_change":
-{ Args: { "p_proof": string }; Returns: Json
-                           },
 "cancel_pending_pair":
 { Args: { "p_command_id": string,"p_pair_id": string }; Returns: Json
                            },
@@ -481,7 +478,7 @@ isOneToOne: false
 { Args: { "p_command_id": string,"p_expected_version": number,"p_task_id": string }; Returns: Json
                            },
 "end_pair":
-{ Args: { "p_command_id": string,"p_pair_id": string,"p_verification_proof": string }; Returns: Json
+{ Args: { "p_command_id": string,"p_pair_id": string }; Returns: Json
                            },
 "get_account_settings":
 { Args: Record<PropertyKey, never>; Returns: Json
@@ -512,9 +509,6 @@ isOneToOne: false
                            },
 "get_unread_count":
 { Args: { "p_pair_id": string }; Returns: Json
-                           },
-"issue_verification_proof":
-{ Args: { "p_action": string,"p_proof_hash": string,"p_session_id": string,"p_user_id": string }; Returns: Json
                            },
 "latest_memory":
 { Args: { "p_pair_id": string }; Returns: Json

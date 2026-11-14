@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useSession } from '../../../app/SessionProvider';
-import { requestSensitiveActionCode, verifySensitiveAction } from '../../auth';
+import { requestVerificationCode, withFreshSignIn } from '../../auth';
 import { endPair } from '../../pair';
 import { useCommandScope } from '../../../lib/use-command-scope';
 import { readDraft, writeDraft, removeDraft, useUnsavedChanges } from '../../../lib/drafts';
@@ -13,7 +13,7 @@ import { Status } from '../../../components/ui/Status';
 import { PageHeader } from '../../../components/ui/PageHeader';
 import { Dialog } from '../../../components/ui/Dialog';
 import '../../../styles/settings.css';
-type Attempt = { proof: string; expiresAt: string; commandId: string; pairId: string };
+type Attempt = { commandId: string; pairId: string };
 export function PairSettingsPage() {
   const { account, pair, revalidate } = useSession(); const online = useNetworkStatus();
   const pairId = pair && 'pairId' in pair ? pair.pairId : null;
@@ -32,7 +32,7 @@ export function PairSettingsPage() {
   async function send() {
     if (!online || pending.current || uncertain) return;
     const scope = beginScope(); pending.current = true; setBusy(true); setError('');
-    const result = await requestSensitiveActionCode('end_pair');
+    const result = await requestVerificationCode();
     if (!mounted.current || scope.signal.aborted) return;
     pending.current = false; setBusy(false);
     if (result.ok) { setSent(true); setCode(''); } else setError(result.error.message ?? 'We could not send a code. Try again.');
@@ -41,15 +41,20 @@ export function PairSettingsPage() {
     if (!online || pending.current || pair?.status !== 'active') return;
     const scope = beginScope(); pending.current = true; setBusy(true); setError('');
     try {
-      if (!attempt.current) {
-        const verified = await verifySensitiveAction('end_pair', code); scope.assertCurrent();
-        if (!mounted.current) return;
-        if (!verified.ok) { setError(verified.error.message ?? 'The code is invalid or expired. Request a new code.'); return; }
-        attempt.current = { ...verified.data, pairId: pair.pairId, commandId: crypto.randomUUID() };
-        writeDraft(account!.id, pairId, 'end-pair', attempt.current); setCode('');
-      }
-      const result = await endPair(attempt.current.pairId, attempt.current.proof, attempt.current.commandId);
+      const result = attempt.current
+        ? await endPair(attempt.current.pairId, attempt.current.commandId)
+        : await withFreshSignIn(code, client => {
+          // Keep the command ID once the code is accepted. A retry must reuse it.
+          attempt.current = { pairId: pair.pairId, commandId: crypto.randomUUID() };
+          writeDraft(account!.id, pairId, 'end-pair', attempt.current); setCode('');
+          return endPair(attempt.current.pairId, attempt.current.commandId, client);
+        });
       if (!mounted.current) return;
+      if (!attempt.current) {
+        scope.assertCurrent();
+        if (!result.ok) setError(result.error.message ?? 'The code is invalid or expired. Request a new code.');
+        return;
+      }
       // The successful end command clears the query scope itself.
       if (result.ok) { removeDraft(account!.id, pairId, 'end-pair'); attempt.current = undefined; setConfirm(false); setUncertain(false); await revalidate(); return; }
       scope.assertCurrent();

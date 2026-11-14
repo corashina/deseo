@@ -1,49 +1,3 @@
-alter table private.verification_proofs drop constraint verification_proofs_action_check;
-alter table private.verification_proofs add constraint verification_proofs_action_check
-check(action in ('end_pair','change_email'));
-create or replace function private.issue_verification_proof(p_user_id uuid,p_session_id uuid,p_action text,p_proof_hash text) returns jsonb
-language plpgsql security definer set search_path='' as $$
-declare expiry timestamptz:=now()+interval '10 minutes';
-begin
- if auth.jwt()->>'role' is distinct from 'service_role' then return private.error('FORBIDDEN'); end if;
- if p_action is null or p_action not in('end_pair','change_email') or p_proof_hash is null or p_proof_hash !~ '^[0-9a-f]{64}$' then return private.error('VALIDATION'); end if;
- perform 1 from public.profiles where user_id=p_user_id and account_status='active' for update;
- if not found or not exists(select 1 from auth.sessions where id=p_session_id and user_id=p_user_id and (not_after is null or not_after>now())) then return private.error('UNAUTHENTICATED'); end if;
- insert into private.verification_proofs(proof_hash,user_id,action,expires_at) values(decode(p_proof_hash,'hex'),p_user_id,p_action,expiry);
- return jsonb_build_object('ok',true,'data',jsonb_build_object('expiresAt',expiry));
-end; $$;
--- Caller must lock the actor before consuming a proof.
-create function private.consume_verification_proof(actor uuid,action text,proof text) returns boolean
-language plpgsql set search_path='' as $$
-begin
- if proof is null or proof !~ '^[0-9a-f]{64}$' then return false; end if;
- update private.verification_proofs v set consumed_at=now() where v.proof_hash=extensions.digest(proof,'sha256')
- and v.user_id=actor and v.action=consume_verification_proof.action and v.consumed_at is null and v.expires_at>now();
- return found;
-end; $$;
-create or replace function private.end_pair(p_pair_id uuid,p_verification_proof text,p_command_id uuid) returns jsonb
-language plpgsql security definer set search_path='' as $$
-declare actor uuid; replay jsonb; ended timestamptz:=now(); request jsonb:=jsonb_build_object('pairId',p_pair_id);
-begin
- actor:=private.require_actor(); perform private.lock_pair(p_pair_id,actor);
- replay:=private.receipt(actor,p_command_id,'end_pair',request); if replay is not null then return replay; end if;
- if not private.is_member(p_pair_id) or not private.consume_verification_proof(actor,'end_pair',p_verification_proof) then return private.error('FORBIDDEN'); end if;
- update public.pairs set state='ended',ended_at=ended,purge_after=ended+interval '30 days' where id=p_pair_id;
- update public.pair_members set left_at=ended where pair_id=p_pair_id and left_at is null;
- update private.pair_invites set revoked_at=ended where pair_id=p_pair_id and accepted_at is null and revoked_at is null;
- update public.profiles set version=version+1,updated_at=now() where user_id in(select user_id from public.pair_members where pair_id=p_pair_id);
- return private.save_receipt(actor,p_command_id,'end_pair',p_pair_id,request,jsonb_build_object('endedAt',ended));
-exception when sqlstate 'P0001' then return private.error(sqlerrm);
-end; $$;
-create function private.authorize_email_change(p_proof text) returns jsonb language plpgsql security definer set search_path='' as $$
-declare actor uuid;
-begin
- actor:=private.require_actor(); perform 1 from public.profiles where user_id=actor for update;
- actor:=private.require_actor();
- if not private.consume_verification_proof(actor,'change_email',p_proof) then return private.error('FORBIDDEN'); end if;
- return jsonb_build_object('ok',true,'data',jsonb_build_object('userId',actor));
-exception when sqlstate 'P0001' then return private.error(sqlerrm);
-end; $$;
 create function private.get_account_settings() returns jsonb language plpgsql stable security definer set search_path='' as $$
 declare actor uuid; profile public.profiles; email text; pending text;
 begin
@@ -189,14 +143,13 @@ end; $$;
 create trigger profiles_avatar_cleanup before delete on public.profiles for each row execute function private.queue_account_avatars();
 
 create function public.get_account_settings() returns jsonb language sql security invoker set search_path='' as $$select private.get_account_settings();$$;
-create function public.authorize_email_change(p_proof text) returns jsonb language sql security invoker set search_path='' as $$select private.authorize_email_change(p_proof);$$;
 create function public.update_pair_timezone(p_pair_id uuid,p_timezone text,p_expected_timezone text) returns jsonb language sql security invoker set search_path='' as $$select private.update_pair_timezone(p_pair_id,p_timezone,p_expected_timezone);$$;
 create function public.reserve_avatar(p_id uuid,p_bytes integer,p_width integer,p_height integer,p_expected_version integer) returns jsonb language sql security invoker set search_path='' as $$select private.reserve_avatar(p_id,p_bytes,p_width,p_height,p_expected_version);$$;
 create function public.get_avatar_media(p_user_id uuid) returns jsonb language sql security invoker set search_path='' as $$select private.get_avatar_media(p_user_id);$$;
 create function public.verify_avatar(p_id uuid,p_actor uuid,p_session uuid,p_evidence jsonb default null) returns jsonb language sql security invoker set search_path='' as $$select private.verify_avatar(p_id,p_actor,p_session,p_evidence);$$;
 create function public.claim_avatar_cleanup(p_limit integer default 2) returns jsonb language sql security invoker set search_path='' as $$select private.claim_avatar_cleanup(p_limit);$$;
 create function public.complete_avatar_cleanup(p_id uuid,p_lease_token uuid,p_error_code text default null) returns jsonb language sql security invoker set search_path='' as $$select private.complete_avatar_cleanup(p_id,p_lease_token,p_error_code);$$;
-revoke all on function private.consume_verification_proof(uuid,text,text),private.avatar_service_lock(uuid,uuid),private.avatar_object_size(),private.queue_account_avatars() from public,anon,authenticated;
-revoke all on function private.get_account_settings(),public.get_account_settings(),private.authorize_email_change(text),public.authorize_email_change(text),private.update_pair_timezone(uuid,text,text),public.update_pair_timezone(uuid,text,text),private.reserve_avatar(uuid,integer,integer,integer,integer),public.reserve_avatar(uuid,integer,integer,integer,integer),private.get_avatar_media(uuid),public.get_avatar_media(uuid),private.avatar_upload_allowed(text),private.verify_avatar(uuid,uuid,uuid,jsonb),public.verify_avatar(uuid,uuid,uuid,jsonb),private.claim_avatar_cleanup(integer),public.claim_avatar_cleanup(integer),private.complete_avatar_cleanup(uuid,uuid,text),public.complete_avatar_cleanup(uuid,uuid,text) from public,anon,authenticated;
-grant execute on function private.get_account_settings(),public.get_account_settings(),private.authorize_email_change(text),public.authorize_email_change(text),private.update_pair_timezone(uuid,text,text),public.update_pair_timezone(uuid,text,text),private.reserve_avatar(uuid,integer,integer,integer,integer),public.reserve_avatar(uuid,integer,integer,integer,integer),private.get_avatar_media(uuid),public.get_avatar_media(uuid),private.avatar_upload_allowed(text) to authenticated;
+revoke all on function private.avatar_service_lock(uuid,uuid),private.avatar_object_size(),private.queue_account_avatars() from public,anon,authenticated;
+revoke all on function private.get_account_settings(),public.get_account_settings(),private.update_pair_timezone(uuid,text,text),public.update_pair_timezone(uuid,text,text),private.reserve_avatar(uuid,integer,integer,integer,integer),public.reserve_avatar(uuid,integer,integer,integer,integer),private.get_avatar_media(uuid),public.get_avatar_media(uuid),private.avatar_upload_allowed(text),private.verify_avatar(uuid,uuid,uuid,jsonb),public.verify_avatar(uuid,uuid,uuid,jsonb),private.claim_avatar_cleanup(integer),public.claim_avatar_cleanup(integer),private.complete_avatar_cleanup(uuid,uuid,text),public.complete_avatar_cleanup(uuid,uuid,text) from public,anon,authenticated;
+grant execute on function private.get_account_settings(),public.get_account_settings(),private.update_pair_timezone(uuid,text,text),public.update_pair_timezone(uuid,text,text),private.reserve_avatar(uuid,integer,integer,integer,integer),public.reserve_avatar(uuid,integer,integer,integer,integer),private.get_avatar_media(uuid),public.get_avatar_media(uuid),private.avatar_upload_allowed(text) to authenticated;
 grant execute on function private.verify_avatar(uuid,uuid,uuid,jsonb),public.verify_avatar(uuid,uuid,uuid,jsonb),private.claim_avatar_cleanup(integer),public.claim_avatar_cleanup(integer),private.complete_avatar_cleanup(uuid,uuid,text),public.complete_avatar_cleanup(uuid,uuid,text) to service_role;

@@ -423,9 +423,6 @@ s3_secret_key = "env(S3_SECRET_KEY)"
 [experimental.pgdelta]
 enabled = true
 
-[functions.verify-sensitive-action]
-verify_jwt = false
-
 [functions.finalize-memory]
 verify_jwt = false
 

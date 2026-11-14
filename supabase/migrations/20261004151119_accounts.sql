@@ -35,16 +35,6 @@ create table private.command_receipts (
 create index command_receipts_expiry on private.command_receipts(expires_at);
 alter table private.command_receipts enable row level security;
 
-create table private.verification_proofs (
-  proof_hash bytea primary key,
-  user_id uuid not null references auth.users(id) on delete cascade,
-  action text not null check (action = 'end_pair'),
-  created_at timestamptz not null default now(),
-  expires_at timestamptz not null check (expires_at > created_at and expires_at <= created_at + interval '10 minutes'),
-  consumed_at timestamptz
-);
-create index verification_proofs_account on private.verification_proofs(user_id, expires_at);
-alter table private.verification_proofs enable row level security;
 revoke all on all tables in schema private from public, anon, authenticated;
 
 -- Check the actual Auth session. Editable metadata does not grant access.
@@ -171,34 +161,12 @@ begin
 end;
 $$;
 
--- Only the Edge function can issue a proof after real email verification.
-create function private.issue_verification_proof(p_user_id uuid,p_session_id uuid,p_action text,p_proof_hash text) returns jsonb
-language plpgsql security definer set search_path = '' as $$
-declare expiry timestamptz := now()+interval '10 minutes';
-begin
-  if auth.jwt()->>'role' is distinct from 'service_role' then return private.error('FORBIDDEN'); end if;
-  if p_action is distinct from 'end_pair' or p_proof_hash is null or p_proof_hash !~ '^[0-9a-f]{64}$' then return private.error('VALIDATION'); end if;
-  perform 1 from public.profiles where user_id=p_user_id and account_status='active' for update;
-  if not found or not exists(select 1 from auth.sessions where id=p_session_id and user_id=p_user_id
-    and (not_after is null or not_after > now())) then return private.error('UNAUTHENTICATED'); end if;
-  insert into private.verification_proofs(proof_hash,user_id,action,expires_at)
-  values(decode(p_proof_hash,'hex'),p_user_id,p_action,expiry);
-  return jsonb_build_object('ok',true,'data',jsonb_build_object('expiresAt',expiry));
-end;
-$$;
-
 create function public.get_session_context() returns jsonb language sql security invoker set search_path = ''
 as $$ select private.get_session_context(); $$;
 create function public.save_profile(p_display_name text,p_timezone text,p_locale text,p_expected_version integer default null)
 returns jsonb language sql security invoker set search_path = ''
 as $$ select private.save_profile(p_display_name,p_timezone,p_locale,p_expected_version); $$;
-create function public.issue_verification_proof(p_user_id uuid,p_session_id uuid,p_action text,p_proof_hash text)
-returns jsonb language sql security invoker set search_path = ''
-as $$ select private.issue_verification_proof(p_user_id,p_session_id,p_action,p_proof_hash); $$;
-
 revoke all on all functions in schema private from public, anon, authenticated;
-revoke all on function public.get_session_context(),public.save_profile(text,text,text,integer),
-public.issue_verification_proof(uuid,uuid,text,text) from public,anon,authenticated;
+revoke all on function public.get_session_context(),public.save_profile(text,text,text,integer) from public,anon,authenticated;
 grant execute on function private.active_actor(),private.get_session_context(),private.save_profile(text,text,text,integer) to authenticated;
 grant execute on function public.get_session_context(),public.save_profile(text,text,text,integer) to authenticated;
-grant execute on function private.issue_verification_proof(uuid,uuid,text,text),public.issue_verification_proof(uuid,uuid,text,text) to service_role;
