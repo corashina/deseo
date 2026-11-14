@@ -489,6 +489,7 @@ For schema rollback, protect existing data. Prefer a reviewed corrective change 
 - [ ] Check privacy disclosures against actual SDKs, processors, storage, and retention.
 - [ ] Replace prototype landing imagery with screenshots of the release candidate.
 - [ ] Verify support links and support handling.
+- [ ] Configure web hosting: Brotli compression, `Cache-Control: public, max-age=31536000, immutable` for `/assets/*`, and `no-cache` for `index.html`.
 - [ ] Verify backups, restoration, queue alerts, and deletion alerts.
 - [ ] Review the release candidate with the owner before publishing.
 
