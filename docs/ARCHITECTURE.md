@@ -65,7 +65,7 @@ apps/web/src/
 apps/web/tests/             Real-browser account isolation and revocation checks
 packages/domain/src/       Shared schemas, date rules, message merging, payloads, results
 supabase/
-  migrations/              Authoritative schema and transactions
+  migrations/              One baseline schema with feature sections
   functions/               Narrow server operations and workers
   tests/                   SQL, access, and race checks
   dev/                     Guarded local stack and synthetic pair fixtures
@@ -556,4 +556,5 @@ The owner approved the design and implementation plan on 9 October 2026.
 Git retains the design at `761553e:docs/ARCHITECTURE.md` and the plan at `19421cd:docs/DEVELOPMENT.md`.
 Read [the dated evidence](DEVELOPMENT.md#architecture-optimization-evidence-9-october-2026) for source revisions, results, and measurement limits.
 Measured Important date and realtime costs justify separate designs. This change adds neither capability.
-Keep migration history, fixture ownership, gallery assets, and the native and deployment acceptance limits.
+Keep fixture ownership, gallery assets, and the native and deployment acceptance limits.
+Nothing runs in production. Edit the baseline migration in place until the first release, then add new migrations.

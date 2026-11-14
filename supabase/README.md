@@ -2,7 +2,7 @@
 
 Chat 01 adds accounts, pairing, one-off events, and pair closure.
 
-The CLI generated migration names in dependency order. Use Supabase CLI 2.119.0.
+One baseline migration holds the schema. Its sections follow feature order. Use Supabase CLI 2.119.0.
 
 ## Commands
 
@@ -116,4 +116,3 @@ Production network invitation limits require a trusted gateway and a spoofing te
 Client-supplied `X-Forwarded-For` cannot prove a client's network address.
 This deployment check remains open. Auth provides its separate network limits for email verification.
 
-Later migrations must attach reminder and export cancellation to pair closure after those tables exist.
