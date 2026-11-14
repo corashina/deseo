@@ -4,7 +4,7 @@ Use [Development](DEVELOPMENT.md) for setup and checks, and [Screens](README.md#
 Read [modules](#module-structure), [access rules](#server-authorization), and the [data contract](#data-contract) before changing product code.
 
 Data sections: [records](#records), [access](#access-matrix), [pairing](#pair-transactions), [commands](#content-commands-and-conflicts),
-[messages](#messages-and-realtime), [photos](#photos), [reminders](#reminders-and-push), and [export and deletion](#export-disconnect-and-deletion).
+[messages](#messages-and-realtime), [photos](#photos), [reminders](#reminders-and-push), and [end pair](#end-pair).
 
 ## Applications
 
@@ -190,8 +190,7 @@ Both applications call the same authenticated reads, transactions, and Edge func
 PostgreSQL remains authoritative for membership, permissions, versions, and lifecycle changes.
 Shared schemas and payloads live in `packages/domain`; each application owns its client and private state.
 
-Export, account deletion, avatar storage, and public deletion pages remain separate delivery work.
-Their lifecycle rules below remain requirements; this portal does not claim those endpoints exist.
+Account export, account deletion, and public deletion pages have no backend. Design them again when they enter scope.
 
 ### Shared conventions
 
@@ -226,12 +225,10 @@ Generate database types from the actual schema. Keep database checks authoritati
 | `devices` | User, installation ID, Expo token, platform, permission state, last seen, revoked time |
 | `notifications` | Recipient, pair, source reference, generic kind, created time, read time |
 | `notification_jobs` | Notification, device, due time, source version, attempt count, lease, provider ticket, state |
-| `export_jobs` | Requester, pair scope, access mode, request/expiry time, progress cursor, result parts, state |
-| `deletion_jobs` | Account or ended pair, phase, cursor, attempts, state, error code |
 | `command_receipts` | Actor, pair, command UUID, command type, result ID, result version, expiry |
 | `verification_proofs` | Account, action, hashed random proof, expiry, consumed time; private server-only record |
 
-Keep invites, proofs, delivery jobs, command receipts, and deletion internals outside the exposed schema.
+Keep invites, proofs, delivery jobs, and command receipts outside the exposed schema.
 
 Store avatars privately. Only their owner and current partner can retrieve them.
 
@@ -275,8 +272,7 @@ Task due dates are dates in the pair timezone. A task reminder stores an explici
 | Pending photo/memory | Author only | Author with reserved upload | Author or validated job |
 | Reminder | Owner only | Owner for visible source | Owner; source changes invalidate jobs |
 | Notification/device/preference | Owner only | Owner or verified job | Owner or verified job |
-| Export job | Requester only | Verified requester | Worker changes progress; requester downloads |
-| Ended-pair content | No normal reads | None | Author export endpoint only, within retention window |
+| Ended-pair content | No normal reads | None | None |
 
 Moving content to another pair is forbidden. Changes to author, pair, and membership slot are server-controlled.
 
@@ -437,7 +433,15 @@ Quiet hours use the recipient's timezone. Defer messages until quiet hours end; 
 
 Persist notifications for 30 days. Do not maintain a second calendar inside the notification system.
 
-### Export, disconnect, and deletion
+### End pair
+
+Require fresh verification within ten minutes and explicit confirmation.
+
+Atomically mark the pair ended, close memberships, revoke invitations, and cancel unsent jobs.
+
+Allow a new pair immediately after termination. Never copy the former pair's records into it.
+
+No worker purges ended-pair records yet. `purge_after` records the 30-day deadline.
 
 #### Fresh verification
 
@@ -448,48 +452,6 @@ It returns a random, single-use proof bound to that account and the requested ac
 Store only the proof hash. Consume it atomically with the sensitive command. Do not trust client timestamps or JWT refresh times.
 
 Check the JWT session ID against the current Auth session for protected reads and commands, including global sign-out enforcement.
-
-A deletion-page user completes the same sign-in and action verification. No proof grants access to another account.
-
-#### Export while paired
-
-Fresh email verification permits export of records the requester can currently read, including shared content and their private events.
-
-Produce UTF-8 JSON plus media files. Preserve record dates and authorship. Exclude tokens, device secrets, and the partner's private events.
-
-Use bounded parts of at most 100 MiB. Persist progress between worker invocations to stay within platform execution limits.
-
-Store export parts privately for 24 hours. Authorize each download and issue at most 60-second links.
-
-Recheck access during each export step and download. Cancel shared export parts if the pair ends before download.
-
-#### End pair
-
-Require fresh verification within ten minutes and explicit confirmation.
-
-Atomically mark the pair ended, close memberships, revoke invitations, cancel unsent jobs, and invalidate shared export jobs.
-
-Former members can request a new author-only export for 30 days. Filter every record and photo by original author.
-
-Allow a new pair immediately after termination. Never copy the former pair's records into it.
-
-Purge ended-pair records and media after 30 days. Completed external downloads cannot be recalled.
-
-#### Delete account
-
-Use the same verified command from the native app and the public deletion page.
-
-Mark the account disabled first. RLS and jobs check this state even if an old JWT remains valid.
-
-Revoke Auth sessions and end the active pair. Deny content requests immediately after the disabling transaction.
-
-Purge the deleting person's authored content and private files within 24 hours. Retry partial failures through `deletion_jobs`.
-
-The former partner retains only their own 30-day export access. Purge the Auth account after dependent cleanup succeeds.
-
-Keep content-free job status under an opaque receipt for seven days so the deletion page can show progress.
-
-Backups follow the selected hosting retention. Verify and disclose that retention before launch; do not promise immediate backup erasure.
 
 ### Indexes and limits
 
@@ -507,7 +469,7 @@ Inspect query plans with realistic synthetic pair data. Avoid indexing every fie
 
 Simultaneous invitation joins, one user joining two pairs, stale tokens, cross-pair IDs, private-event probes, duplicate sends, and stale edits.
 
-Also test uploads after disconnect, old media links, disabled accounts with valid JWTs, duplicate workers, and exports racing with deletion.
+Also test uploads after disconnect, old media links, disabled accounts with valid JWTs, and duplicate workers.
 
 See [verification](DEVELOPMENT.md#verification) for importance ratings and required evidence.
 

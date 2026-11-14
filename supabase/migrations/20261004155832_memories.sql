@@ -64,8 +64,8 @@ create table private.memory_cleanup_jobs (
   memory_id uuid not null unique,
   pair_id uuid not null references public.pairs(id) on delete cascade,
   paths text[] not null,
-  state text not null default 'queued' check(state in('queued','leased','failed','completed')),
-  attempts integer not null default 0 check(attempts between 0 and 5),
+  state text not null default 'queued' check(state in('queued','leased','completed')),
+  attempts integer not null default 0 check(attempts>=0),
   due_at timestamptz not null default now(),
   lease_token uuid,
   lease_until timestamptz,
@@ -449,7 +449,7 @@ declare candidate record; job private.memory_cleanup_jobs; jobs jsonb:='[]'; tok
  candidate_pairs uuid[]; expired_memories uuid[];
 begin
  if auth.jwt()->>'role' is distinct from 'service_role' then return private.error('FORBIDDEN'); end if;
- if p_limit is null or p_limit not between 1 and 50 then return private.error('VALIDATION','limit'); end if;
+ if p_limit is null or p_limit not between 1 and 2 then return private.error('VALIDATION','limit'); end if;
  -- Serialize batch claims without waiting. Individual workers keep independent durable leases.
  if not pg_try_advisory_xact_lock(hashtextextended('deseo.memory_cleanup_claim',0)) then
   return jsonb_build_object('ok',true,'data','[]'::jsonb);
@@ -474,10 +474,6 @@ begin
   select * into job from private.memory_cleanup_jobs where id=candidate.id and
    ((state='queued' and due_at<=now()) or(state='leased' and lease_until<=now())) for update skip locked;
   if not found then continue; end if;
-  if job.attempts>=5 then
-   update private.memory_cleanup_jobs set state='failed',lease_token=null,lease_until=null,error_code='LEASE_EXPIRED' where id=job.id;
-   continue;
-  end if;
   token:=gen_random_uuid();
   update private.memory_cleanup_jobs set state='leased',attempts=attempts+1,lease_token=token,lease_until=now()+interval '5 minutes' where id=job.id returning * into job;
   jobs:=jobs||jsonb_build_array(jsonb_build_object('id',job.id,'memoryId',job.memory_id,'bucket','memory-photos','paths',job.paths,'leaseToken',token,'attempt',job.attempts));
@@ -507,7 +503,7 @@ begin
    and result->'data'->>'id'=job.memory_id::text;
   delete from public.memories where id=job.memory_id;
   new_state:='completed';
- else new_state:=case when job.attempts>=5 then 'failed' else 'queued' end;
+ else new_state:='queued';
  end if;
  update private.memory_cleanup_jobs set state=new_state,lease_token=null,lease_until=null,error_code=p_error_code,
  due_at=now()+case job.attempts when 1 then interval '1 minute' when 2 then interval '5 minutes' else interval '15 minutes' end,
@@ -515,31 +511,23 @@ begin
  paths=case when new_state='completed' then '{}'::text[] else paths end where id=job.id;
  return jsonb_build_object('ok',true,'data',jsonb_build_object('id',job.id,'state',new_state));
 end; $$;
-create function private.retry_memory_cleanup(p_job_id uuid) returns jsonb language plpgsql security definer set search_path='' as $$
-begin
- if auth.jwt()->>'role' is distinct from 'service_role' then return private.error('FORBIDDEN'); end if;
- update private.memory_cleanup_jobs set state='queued',attempts=0,due_at=now(),error_code=null where id=p_job_id and state='failed';
- if not found then return private.error('CONFLICT'); end if;
- return jsonb_build_object('ok',true,'data',jsonb_build_object('id',p_job_id,'state','queued'));
-end; $$;
-create function public.claim_memory_cleanup(p_limit integer default 20) returns jsonb language sql security invoker set search_path='' as $$select private.claim_memory_cleanup(p_limit);$$;
+create function public.claim_memory_cleanup(p_limit integer default 2) returns jsonb language sql security invoker set search_path='' as $$select private.claim_memory_cleanup(p_limit);$$;
 create function public.complete_memory_cleanup(p_job_id uuid,p_lease_token uuid,p_error_code text default null) returns jsonb language sql security invoker set search_path='' as $$select private.complete_memory_cleanup(p_job_id,p_lease_token,p_error_code);$$;
-create function public.retry_memory_cleanup(p_job_id uuid) returns jsonb language sql security invoker set search_path='' as $$select private.retry_memory_cleanup(p_job_id);$$;
 
 -- Revoke every newly created function explicitly, including non-definer helpers.
 revoke all on function private.memory_identity(),private.photo_identity(),private.memory_object_size(),private.memory_photo_json(public.memory_photos),private.memory_json(public.memories),
  private.reserve_memory(jsonb,uuid),private.memory_upload_allowed(text),private.memory_command(text,uuid,jsonb,integer,uuid),private.schedule_memory_cleanup(),private.close_pending_memories(),
  private.memory_service_lock(uuid,uuid,uuid),private.verify_memory_reservation(uuid,uuid,uuid),private.validate_memory_photo(uuid,uuid,uuid,uuid,jsonb),private.publish_memory(uuid,uuid,uuid,uuid),
- private.claim_memory_cleanup(integer),private.complete_memory_cleanup(uuid,uuid,text),private.retry_memory_cleanup(uuid) from public,anon,authenticated;
+ private.claim_memory_cleanup(integer),private.complete_memory_cleanup(uuid,uuid,text) from public,anon,authenticated;
 revoke all on function public.reserve_memory(jsonb,uuid),public.update_memory(uuid,jsonb,integer,uuid),public.delete_memory(uuid,integer,uuid),
  public.verify_memory_reservation(uuid,uuid,uuid),public.validate_memory_photo(uuid,uuid,uuid,uuid,jsonb),public.publish_memory(uuid,uuid,uuid,uuid),
  public.get_memory(uuid),public.list_memories(uuid,jsonb,integer),public.latest_memory(uuid),public.get_memory_media(uuid,text),
- public.claim_memory_cleanup(integer),public.complete_memory_cleanup(uuid,uuid,text),public.retry_memory_cleanup(uuid) from public,anon,authenticated;
+ public.claim_memory_cleanup(integer),public.complete_memory_cleanup(uuid,uuid,text) from public,anon,authenticated;
 grant execute on function private.error(text,text),private.memory_json(public.memories),private.memory_photo_json(public.memory_photos),private.reserve_memory(jsonb,uuid),
  private.memory_command(text,uuid,jsonb,integer,uuid),private.memory_upload_allowed(text),public.reserve_memory(jsonb,uuid),public.update_memory(uuid,jsonb,integer,uuid),
  public.delete_memory(uuid,integer,uuid),public.get_memory(uuid),public.list_memories(uuid,jsonb,integer),public.latest_memory(uuid),public.get_memory_media(uuid,text) to authenticated;
 grant execute on function private.verify_memory_reservation(uuid,uuid,uuid),private.validate_memory_photo(uuid,uuid,uuid,uuid,jsonb),private.publish_memory(uuid,uuid,uuid,uuid),
- private.claim_memory_cleanup(integer),private.complete_memory_cleanup(uuid,uuid,text),private.retry_memory_cleanup(uuid),
+ private.claim_memory_cleanup(integer),private.complete_memory_cleanup(uuid,uuid,text),
  public.verify_memory_reservation(uuid,uuid,uuid),public.validate_memory_photo(uuid,uuid,uuid,uuid,jsonb),public.publish_memory(uuid,uuid,uuid,uuid),
- public.claim_memory_cleanup(integer),public.complete_memory_cleanup(uuid,uuid,text),public.retry_memory_cleanup(uuid) to service_role;
+ public.claim_memory_cleanup(integer),public.complete_memory_cleanup(uuid,uuid,text) to service_role;
 alter publication supabase_realtime add table public.memories,public.memory_access_revocations;

@@ -1,12 +1,12 @@
 alter table private.verification_proofs drop constraint verification_proofs_action_check;
 alter table private.verification_proofs add constraint verification_proofs_action_check
-check(action in ('end_pair','change_email','export','delete_account'));
+check(action in ('end_pair','change_email'));
 create or replace function private.issue_verification_proof(p_user_id uuid,p_session_id uuid,p_action text,p_proof_hash text) returns jsonb
 language plpgsql security definer set search_path='' as $$
 declare expiry timestamptz:=now()+interval '10 minutes';
 begin
  if auth.jwt()->>'role' is distinct from 'service_role' then return private.error('FORBIDDEN'); end if;
- if p_action is null or p_action not in('end_pair','change_email','export','delete_account') or p_proof_hash is null or p_proof_hash !~ '^[0-9a-f]{64}$' then return private.error('VALIDATION'); end if;
+ if p_action is null or p_action not in('end_pair','change_email') or p_proof_hash is null or p_proof_hash !~ '^[0-9a-f]{64}$' then return private.error('VALIDATION'); end if;
  perform 1 from public.profiles where user_id=p_user_id and account_status='active' for update;
  if not found or not exists(select 1 from auth.sessions where id=p_session_id and user_id=p_user_id and (not_after is null or not_after>now())) then return private.error('UNAUTHENTICATED'); end if;
  insert into private.verification_proofs(proof_hash,user_id,action,expires_at) values(decode(p_proof_hash,'hex'),p_user_id,p_action,expiry);
@@ -161,7 +161,7 @@ declare candidate record; upload private.avatar_uploads; jobs jsonb:='[]'; token
 begin
  if auth.jwt()->>'role' is distinct from 'service_role' then return private.error('FORBIDDEN'); end if;
  if p_limit is null or p_limit not between 1 and 20 then return private.error('VALIDATION'); end if;
- for candidate in select id,user_id from private.avatar_uploads where state in('pending','cleanup') and due_at<=now() and (lease_until is null or lease_until<=now()) order by due_at,id limit p_limit loop
+ for candidate in select id,user_id from private.avatar_uploads where state in('pending','cleanup') and due_at<=now() and (lease_until is null or lease_until<=now()) order by due_at,id limit 1 loop
   perform 1 from public.profiles where user_id=candidate.user_id for update;
   select * into upload from private.avatar_uploads where id=candidate.id and state in('pending','cleanup') and due_at<=now() and (lease_until is null or lease_until<=now()) for update skip locked;
   if not found then continue; end if;
