@@ -4,12 +4,14 @@ import { getSupabase } from '../../lib/supabase';
 import { AppError, resultSchema } from '@deseo/domain/result';
 import { dateSchema, eventRowSchema } from '@deseo/domain/calendar';
 import type { AgendaItem, AgendaRange, Event } from '@deseo/domain/calendar';
+import type { QueryKeys } from '../../lib/query-keys';
 
+const all = (accountId: string, pairId: string) => ['calendar', accountId, pairId] as const;
 export const calendarKeys = {
-  all: (accountId: string, pairId: string) => ['calendar', accountId, pairId] as const,
-  agenda: (accountId: string, range: AgendaRange) => [...calendarKeys.all(accountId, range.pairId), 'agenda', range.from, range.to] as const,
-  event: (accountId: string, pairId: string, id: string) => [...calendarKeys.all(accountId, pairId), 'event', id] as const,
-};
+  all,
+  agenda: (accountId: string, range: AgendaRange) => [...all(accountId, range.pairId), 'agenda', range.from, range.to] as const,
+  event: (accountId: string, pairId: string, id: string) => [...all(accountId, pairId), 'event', id] as const,
+} satisfies QueryKeys;
 
 export async function listAgenda(range: AgendaRange): Promise<AgendaItem[]> {
   const pairId = z.string().uuid().parse(range.pairId);

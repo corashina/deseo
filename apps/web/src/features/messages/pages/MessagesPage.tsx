@@ -91,7 +91,7 @@ export function MessagesPage() {
       const newest = visible.sort(compareMessageCursors).at(-1);
       if (!newest || lastRead.current && compareMessageCursors(newest, lastRead.current) <= 0) return;
       lastRead.current = newest;
-      setReadCursor(pairId, { id: newest.id, createdAt: newest.createdAt }).then(
+      setReadCursor(accountId, pairId, { id: newest.id, createdAt: newest.createdAt }).then(
         () => { if (active) setReadError(false); },
         () => { if (active) { lastRead.current = null; setReadError(true); } });
     }, { threshold: 0.1, rootMargin: '0px 0px -80px 0px' });
@@ -104,7 +104,7 @@ export function MessagesPage() {
     document.addEventListener('visibilitychange', observe);
     return () => { active = false; observer.disconnect(); lastRead.current = null; document.removeEventListener('visibilitychange', observe); };
     // Use each authenticated data result to observe its rendered message rows.
-  }, [conversation.data, messagesById, notesView, pairId, readAttempt]);
+  }, [accountId, conversation.data, messagesById, notesView, pairId, readAttempt]);
 
   const pin = (message: Message) => action.mutate({ kind: message.pinnedAt ? 'unpin' : 'pin', id: message.id });
   if (pair?.status !== 'active') return null;

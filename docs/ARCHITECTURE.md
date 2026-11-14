@@ -97,6 +97,7 @@ Use the installed Supabase query builder without a generic repository layer.
 - **Read.** A page or screen calls a feature query. The query sends an authenticated request, RLS filters the rows, and the typed result goes into the Query cache.
 - **Write.** A form runs a TanStack Query mutation. The command runs one transaction and invalidates the affected queries. On error, the form keeps its input and shows a retry button.
 - **Refresh.** Any authorized Realtime signal invalidates the matching feature queries. The app then reads them again with authentication.
+- **Keys.** Every query key starts with a `QueryRoot` from `lib/query-keys.ts`. Invalidate only through its `invalidate` function.
 - **Photo.** The app prepares the selected photo, reserves an upload, and uploads it to private storage. The server validates the photo before it publishes the memory.
 - **Push.** A scheduled worker claims a durable job and checks current access. It sends the job to Expo and then processes the receipt.
 

@@ -1,19 +1,18 @@
 import { useEffect } from 'react';
 import type { PairContext } from '@deseo/domain/pair';
 import { getSupabase } from './supabase';
-import { queryClient } from './query-client';
+import { invalidate, type QueryRoot } from './query-keys';
 type Channel = { topic: string; private: boolean; table?: string };
 // Signals carry no content. Any authorized signal invalidates the feature queries and Today.
 // Authenticated reads then supply the data.
-export function usePairSignals(feature: string, accountId: string, pair: PairContext | null, channel: Channel) {
+export function usePairSignals(feature: QueryRoot, accountId: string, pair: PairContext | null, channel: Channel) {
   const pairId = pair?.status === 'active' ? pair.pairId : null;
   const { topic, private: isPrivate, table } = channel;
   useEffect(() => {
     if (!pairId) return;
     const client = getSupabase();
     const refresh = () => {
-      void queryClient.invalidateQueries({ queryKey: [feature, accountId, pairId] });
-      void queryClient.invalidateQueries({ queryKey: ['today', accountId, pairId] });
+      void invalidate([feature, accountId, pairId], ['today', accountId, pairId]);
     };
     const subscription = client.channel(topic, { config: { private: isPrivate } });
     if (isPrivate) subscription.on('broadcast', { event: 'changed' }, refresh);

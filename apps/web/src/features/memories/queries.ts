@@ -3,15 +3,17 @@ import { AppError, type Page } from '@deseo/domain/result';
 import { cursorSchema, memorySchema, uuid, type Memory } from '@deseo/domain/memories';
 import { callRpc } from '../../lib/rpc';
 import { getSupabase } from '../../lib/supabase';
+import type { QueryKeys } from '../../lib/query-keys';
 
+const all = (accountId: string, pairId: string) => ['memories', accountId, pairId] as const;
 export const memoryKeys = {
-  all: (accountId: string, pairId: string) => ['memories', accountId, pairId] as const,
-  feed: (accountId: string, pairId: string) => [...memoryKeys.all(accountId, pairId), 'feed'] as const,
-  latest: (accountId: string, pairId: string) => [...memoryKeys.all(accountId, pairId), 'latest'] as const,
-  detail: (accountId: string, pairId: string, id: string) => [...memoryKeys.all(accountId, pairId), 'detail', id] as const,
+  all,
+  feed: (accountId: string, pairId: string) => [...all(accountId, pairId), 'feed'] as const,
+  latest: (accountId: string, pairId: string) => [...all(accountId, pairId), 'latest'] as const,
+  detail: (accountId: string, pairId: string, id: string) => [...all(accountId, pairId), 'detail', id] as const,
   // Photo paths never change. Keep photos outside 'memories', so a signal does not download them again.
   photo: (accountId: string, pairId: string, path: string) => ['memory-photo', accountId, pairId, path] as const,
-};
+} satisfies QueryKeys;
 export async function listMemories(pairId: string, cursor: string | null = null): Promise<Page<Memory>> {
   const parsed = cursor === null ? null : cursorSchema.parse(JSON.parse(cursor));
   const page = await callRpc('list_memories', { p_pair_id: uuid.parse(pairId), p_cursor: parsed, p_limit: 50 },

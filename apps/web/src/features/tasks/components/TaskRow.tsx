@@ -4,7 +4,7 @@ import { DateTime } from 'luxon';
 import type { Task } from '@deseo/domain/tasks';
 import { toAppError } from '@deseo/domain/result';
 import { setTaskCompleted } from '../commands';
-import { queryClient } from '../../../lib/query-client';
+import { invalidate } from '../../../lib/query-keys';
 import { Button } from '../../../components/ui/Button';
 import { Status } from '../../../components/ui/Status';
 export function TaskRow({ task, assignee, timezone }: {
@@ -14,7 +14,7 @@ export function TaskRow({ task, assignee, timezone }: {
 }) {
   // A failure refreshes the task, so a retry uses its current version.
   const completion = useMutation({ mutationFn: (completed: boolean) => setTaskCompleted(task.id, completed, task.version),
-    onError: () => void queryClient.invalidateQueries({ predicate: query => query.queryKey[0] === 'tasks' || query.queryKey[0] === 'today' }) });
+    onError: () => void invalidate(['tasks'], ['today']) });
   const completed = completion.isPending ? completion.variables : task.completedAt !== null;
   const due = task.dueDate ? DateTime.fromISO(task.dueDate, { zone: timezone }).setLocale('en') : null;
   const today = DateTime.now().setZone(timezone).startOf('day');

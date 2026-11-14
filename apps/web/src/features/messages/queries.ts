@@ -6,15 +6,17 @@ import type { PairContext } from '@deseo/domain/pair';
 import { AppError, resultSchema, type Page } from '@deseo/domain/result';
 import { decodeMessageCursor, encodeMessageCursor, messageIdSchema, messageRowSchema } from '@deseo/domain/messages';
 import type { Message } from '@deseo/domain/messages';
+import type { QueryKeys } from '../../lib/query-keys';
 
 export const MESSAGE_PAGE_SIZE = 50;
 export const MESSAGE_COLUMNS = 'id,pair_id,author_id,client_id,body,created_at,pinned_at,version';
+const all = (accountId: string, pairId: string) => ['messages', accountId, pairId] as const;
 export const messageKeys = {
-  all: (accountId: string, pairId: string) => ['messages', accountId, pairId] as const,
-  conversation: (accountId: string, pairId: string) => [...messageKeys.all(accountId, pairId), 'conversation'] as const,
-  unread: (accountId: string, pairId: string) => [...messageKeys.all(accountId, pairId), 'unread'] as const,
-  notes: (accountId: string, pairId: string) => [...messageKeys.all(accountId, pairId), 'notes'] as const,
-};
+  all,
+  conversation: (accountId: string, pairId: string) => [...all(accountId, pairId), 'conversation'] as const,
+  unread: (accountId: string, pairId: string) => [...all(accountId, pairId), 'unread'] as const,
+  notes: (accountId: string, pairId: string) => [...all(accountId, pairId), 'notes'] as const,
+} satisfies QueryKeys;
 
 export function useMessageSignals(accountId: string, pair: PairContext | null) {
   const pairId = pair?.status === 'active' ? pair.pairId : '';
