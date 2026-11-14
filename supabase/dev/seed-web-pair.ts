@@ -1,17 +1,14 @@
-import { readFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+import { localStatus } from './local-status.ts';
 import { FIXED_IDS, fixtureContentCommandId, ANNA_EMAIL, MAREK_EMAIL, type FixtureIds } from './web-fixtures.ts';
-export function assertLoopback(url: string) {
-  const target = new URL(url);
-  if (target.protocol !== 'http:' || !['127.0.0.1', 'localhost', '[::1]'].includes(target.hostname) || target.username || target.password) throw new Error('Fixtures require a loopback backend.');
-}
+let backend: { url: string; publicKey: string; admin: SupabaseClient } | undefined;
 export function localFixtureBackend() {
-  const config = JSON.parse(readFileSync(new URL('../../.superpowers/backend/status.local.json', import.meta.url), 'utf8'));
-  assertLoopback(config.API_URL);
-  if (new URL(config.API_URL).port !== '55721') throw new Error('Use the dedicated deseo backend.');
-  return { url: config.API_URL as string, publicKey: config.PUBLISHABLE_KEY as string,
+  if (backend) return backend;
+  const config = localStatus();
+  backend = { url: config.API_URL, publicKey: config.PUBLISHABLE_KEY,
     admin: createClient(config.API_URL, config.SERVICE_ROLE_KEY, { auth: { persistSession: false, autoRefreshToken: false } }) };
+  return backend;
 }
 export async function fixtureCommand(client: SupabaseClient, name: string, args: Record<string, unknown>) {
   const response = await client.rpc(name, args);
