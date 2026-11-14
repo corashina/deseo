@@ -147,7 +147,7 @@ Revoke default execution, grant required roles, set an empty search path, and ch
 Keep internal tables outside exposed schemas. Do not accept client-supplied trusted actor IDs.
 Keep server keys inside verified server jobs and test processes.
 
-Server `WEB_APP_ORIGIN` permits one browser origin. Native requests can omit Origin.
+Server `WEB_APP_ORIGIN` lists permitted browser origins, separated by commas. Native requests can omit Origin.
 The local Supabase gateway uses wildcard CORS headers and intercepts OPTIONS.
 The function still rejects unknown and null origins before Auth or action work.
 Direct helper tests prove handler policy; they do not prove external gateway headers.
