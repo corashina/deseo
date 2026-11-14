@@ -7,6 +7,7 @@ import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { taskInputSchema, type Task } from '@deseo/domain/tasks';
 import { useSession } from '../../../app/SessionProvider';
 import { useUnsavedChanges } from '../../../lib/unsaved-changes';
+import { useCommandId } from '../../../lib/command-id';
 import { PageHeader } from '../../../components/ui/PageHeader';
 import { Button } from '../../../components/ui/Button';
 import { Status } from '../../../components/ui/Status';
@@ -46,14 +47,16 @@ function TaskEditor({ task, lists }: {
   const [id] = useState(() => task?.id ?? crypto.randomUUID());
   // Keep the version the draft started from. A concurrent edit then fails with CONFLICT.
   const [version, setVersion] = useState(task?.version);
+  const command = useCommandId();
   const form = useForm<Fields>({
     defaultValues: task ? fields(task) : { title: '', listId: lists.find(list => list.id === params.get('list'))?.id ?? lists.find(list => list.isGeneral)!.id, assigneeId: '', dueDate: '' }
   });
   const save = useMutation({ mutationFn: (values: Fields) => {
     const parsed = taskInputSchema.safeParse({ ...values, id, pairId: pair.pairId, assigneeId: values.assigneeId || null, dueDate: values.dueDate || null });
     if (!parsed.success) throw new AppError({ code: 'VALIDATION', message: parsed.error.issues[0].message });
-    return task ? updateTask(parsed.data, version!) : createTask(parsed.data);
-  } });
+    const commandId = command.idFor({ input: parsed.data, version });
+    return task ? updateTask(parsed.data, version!, commandId) : createTask(parsed.data, commandId);
+  }, onSuccess: () => command.reset() });
   const reload = useMutation({
     mutationFn: async () => {
       const current = await getTask(pair.pairId, task!.id);

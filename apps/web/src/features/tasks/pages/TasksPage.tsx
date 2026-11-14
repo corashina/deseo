@@ -1,5 +1,6 @@
 import { createTask } from '../commands';
 import { useUnsavedChanges } from '../../../lib/unsaved-changes';
+import { useCommandId } from '../../../lib/command-id';
 import { toAppError } from '@deseo/domain/result';
 import { useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
@@ -57,9 +58,15 @@ function QuickAdd({ pairId, listId }: {
   listId: string;
 }) {
   const [title, setTitle] = useState('');
+  // The task ID belongs to the input, so a retry of the same title sends the same request.
+  const [taskId, setTaskId] = useState(() => crypto.randomUUID());
+  const command = useCommandId();
   const add = useMutation({
-    mutationFn: () => createTask({ id: crypto.randomUUID(), pairId, listId, title, assigneeId: null, dueDate: null }),
-    onSuccess: () => setTitle(''),
+    mutationFn: () => {
+      const input = { id: taskId, pairId, listId, title, assigneeId: null, dueDate: null };
+      return createTask(input, command.idFor(input));
+    },
+    onSuccess: () => { setTitle(''); setTaskId(crypto.randomUUID()); command.reset(); },
   });
   useUnsavedChanges(Boolean(title));
   return <form className="quick-add" onSubmit={event => { event.preventDefault(); if (!add.isPending) add.mutate(); }}>

@@ -10,6 +10,7 @@ import { eventFormSchema, eventToForm, toEventInput, type Event, type EventFormV
 import { AppError, toAppError } from '@deseo/domain/result';
 import { useSession } from '../../../app/SessionProvider';
 import { useUnsavedChanges } from '../../../lib/unsaved-changes';
+import { useCommandId } from '../../../lib/command-id';
 import { PageHeader } from '../../../components/ui/PageHeader';
 import { Button } from '../../../components/ui/Button';
 import { Status } from '../../../components/ui/Status';
@@ -54,6 +55,7 @@ function EventEditor({ event, idea }: { event?: Event; idea?: DateIdea }) {
   const [id] = useState(() => event?.id ?? crypto.randomUUID());
   // Keep the version the draft started from. A concurrent edit then fails with CONFLICT.
   const [version, setVersion] = useState(idea?.version ?? event?.version);
+  const command = useCommandId();
   const [sharing, setSharing] = useState<EventFormValues | null>(null);
   const [now] = useState(() => DateTime.now().setZone(account.timezone));
   const date = DateTime.fromISO(params.get('date') ?? '');
@@ -70,8 +72,10 @@ function EventEditor({ event, idea }: { event?: Event; idea?: DateIdea }) {
   const save = useMutation({
     mutationFn: ({ values, confirmShared }: { values: EventFormValues; confirmShared: boolean }) => {
       const input = toEventInput({ ...values, id, pairId: pair.pairId, confirmShared });
-      return idea ? planDateIdea(idea.id, input, version!) : event ? updateEvent(input, version!) : createEvent(input);
+      const commandId = command.idFor({ input, version });
+      return idea ? planDateIdea(idea.id, input, version!, commandId) : event ? updateEvent(input, version!, commandId) : createEvent(input, commandId);
     },
+    onSuccess: () => command.reset(),
   });
   const reload = useMutation({
     mutationFn: async () => {

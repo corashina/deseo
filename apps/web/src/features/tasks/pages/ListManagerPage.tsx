@@ -5,6 +5,7 @@ import { toAppError } from '@deseo/domain/result';
 import { Link } from 'react-router-dom';
 import { useSession } from '../../../app/SessionProvider';
 import { useUnsavedChanges } from '../../../lib/unsaved-changes';
+import { useCommandId } from '../../../lib/command-id';
 import { PageHeader } from '../../../components/ui/PageHeader';
 import { Status } from '../../../components/ui/Status';
 import { Button } from '../../../components/ui/Button';
@@ -17,7 +18,8 @@ export function ListManagerPage() {
   const [name, setName] = useState('');
   useTaskSignals(account!.id, pair);
   const query = useQuery({ queryKey: taskKeys.lists(account!.id, pairId), queryFn: () => listTaskLists(pairId) });
-  const add = useMutation({ mutationFn: () => createList(pairId, name), onSuccess: () => setName('') });
+  const command = useCommandId();
+  const add = useMutation({ mutationFn: () => createList(pairId, name, command.idFor({ pairId, name })), onSuccess: () => { setName(''); command.reset(); } });
   useUnsavedChanges(Boolean(name));
   return <>
     <PageHeader title="Task lists" description="General stays available for shared tasks." />

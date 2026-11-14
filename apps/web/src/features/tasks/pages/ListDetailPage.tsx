@@ -6,6 +6,7 @@ import { toAppError } from '@deseo/domain/result';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useSession } from '../../../app/SessionProvider';
 import { useUnsavedChanges } from '../../../lib/unsaved-changes';
+import { useCommandId } from '../../../lib/command-id';
 import { PageHeader } from '../../../components/ui/PageHeader';
 import { Status } from '../../../components/ui/Status';
 import { Button } from '../../../components/ui/Button';
@@ -25,9 +26,10 @@ export function ListDetailPage() {
   const lists = useQuery({ queryKey: taskKeys.lists(account!.id, pairId), queryFn: () => listTaskLists(pairId) });
   const tasks = useQuery({ queryKey: taskKeys.list(account!.id, pairId, listId), queryFn: () => listTasks(pairId, listId) });
   const list = lists.data?.find(list => list.id === listId);
+  const command = useCommandId();
   const change = useMutation({
-    mutationFn: (kind: 'rename' | 'move' | 'remove') => kind === 'rename' ? renameList(listId, name, list!.version) : kind === 'move' ? moveListTasksToGeneral(listId) : deleteEmptyList(listId),
-    onSuccess: () => setName(''),
+    mutationFn: (kind: 'rename' | 'move' | 'remove') => kind === 'rename' ? renameList(listId, name, list!.version, command.idFor({ name, version: list!.version })) : kind === 'move' ? moveListTasksToGeneral(listId) : deleteEmptyList(listId),
+    onSuccess: () => { setName(''); command.reset(); },
     onSettled: () => setConfirm(null),
   });
   const saving = change.isPending;

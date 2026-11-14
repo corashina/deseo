@@ -104,7 +104,7 @@ On web focus and reconnect, refetch the session context. A membership or profile
 Ignore an older session check when a newer check or a sign-out starts after it.
 On native resume, cover the mounted screens and keep the cache until the account and pair checks pass.
 Events, tasks, ideas, lists, reminders, preferences, and profiles send an expected version. A concurrent edit fails with CONFLICT and keeps the draft.
-Web commands send a new command ID on each attempt. A message retry keeps its client ID, so the server stores it once.
+Web forms keep one command ID per submitted input. A retry of the same input reuses it, so the server receipt stores the write once. Changed input or a success gets a new ID. A message retry keeps its client ID.
 
 ## Platform storage
 

@@ -5,6 +5,7 @@ import { DateTime } from 'luxon';
 import { resolveWallTime } from '@deseo/domain/calendar';
 import { useSession } from '../../../app/SessionProvider';
 import { useUnsavedChanges } from '../../../lib/unsaved-changes';
+import { useCommandId } from '../../../lib/command-id';
 import { Button } from '../../../components/ui/Button';
 import { Field } from '../../../components/ui/Field';
 import { Status } from '../../../components/ui/Status';
@@ -24,19 +25,23 @@ export function ReminderControl(props: Props) {
   const initial = current?.remindAt ? DateTime.fromISO(current.remindAt).setZone(props.timezone) : DateTime.now().setZone(props.timezone);
   const values: Draft = draft ?? { choice: String(current ? current.active ? current.minutesBefore : 'none' : preferences.data?.defaultEventReminderMinutes ?? 'none'),
     date: current?.remindAt ? initial.toISODate()! : props.dueDate ?? initial.toISODate()!, time: current?.remindAt ? initial.toFormat('HH:mm') : '09:00', active: current?.active ?? false };
+  // A new reminder keeps one ID, so a retry of the same input sends the same request.
+  const [newId] = useState(() => crypto.randomUUID());
+  const command = useCommandId();
   const save = useMutation({
     mutationFn: () => {
       const active = props.eventId ? values.choice !== 'none' : values.active;
       let remindAt: string | null = null;
       try { if (props.taskId && active) remindAt = resolveWallTime(values.date, values.time, props.timezone); }
       catch { throw new AppError({ code: 'VALIDATION', message: 'Choose a valid reminder date and time.' }); }
-      return setReminder({
-        id: current?.id ?? crypto.randomUUID(), pairId, eventId: props.eventId ?? null, taskId: props.taskId ?? null,
+      const input = {
+        id: current?.id ?? newId, pairId, eventId: props.eventId ?? null, taskId: props.taskId ?? null,
         active, minutesBefore: props.eventId && active ? Number(values.choice) : null,
         remindAt, expectedVersion: current?.version ?? null,
-      });
+      };
+      return setReminder(input, command.idFor(input));
     },
-    onSuccess: async () => { setDraft(undefined); await query.refetch(); },
+    onSuccess: async () => { setDraft(undefined); command.reset(); await query.refetch(); },
   });
   const discard = useMutation({ mutationFn: () => query.refetch({ throwOnError: true }), onSuccess: () => { setDraft(undefined); save.reset(); } });
   useUnsavedChanges(Boolean(draft));

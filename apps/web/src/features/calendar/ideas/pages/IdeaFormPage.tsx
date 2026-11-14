@@ -8,6 +8,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { ideaFieldsSchema, type DateIdea, type IdeaInput } from '@deseo/domain/calendar';
 import { useSession } from '../../../../app/SessionProvider';
 import { useUnsavedChanges } from '../../../../lib/unsaved-changes';
+import { useCommandId } from '../../../../lib/command-id';
 import { PageHeader } from '../../../../components/ui/PageHeader';
 import { Button } from '../../../../components/ui/Button';
 import { Status } from '../../../../components/ui/Status';
@@ -43,11 +44,13 @@ function IdeaEditor({ idea }: {
   const [id] = useState(() => idea?.id ?? crypto.randomUUID());
   // Keep the version the draft started from. A concurrent edit then fails with CONFLICT.
   const [version, setVersion] = useState(idea?.version);
+  const command = useCommandId();
   const form = useForm<Fields>({ resolver: zodResolver(ideaFieldsSchema), defaultValues: idea ? fields(idea) : { title: '', note: '', link: '' } });
   const save = useMutation({ mutationFn: (values: Fields) => {
     const input: IdeaInput = { ...values, id, pairId: pair.pairId };
-    return idea ? updateIdea(input, version!) : createIdea(input);
-  } });
+    const commandId = command.idFor({ input, version });
+    return idea ? updateIdea(input, version!, commandId) : createIdea(input, commandId);
+  }, onSuccess: () => command.reset() });
   const reload = useMutation({
     mutationFn: async () => {
       const current = await getDateIdea(pair.pairId, idea!.id);

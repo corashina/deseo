@@ -8,16 +8,16 @@ const ideaPayload = (input: IdeaInput) => {
   const parsed = ideaInputSchema.parse(input);
   return { id: parsed.id, pair_id: parsed.pairId, title: parsed.title, note: parsed.note || null, link: parsed.link || null };
 };
-// The idea RPCs take a command ID. Each attempt sends a new one.
-export async function createIdea(input: IdeaInput): Promise<DateIdea> {
-  const idea = await callRpc('create_date_idea', { p_input: ideaPayload(input), p_command_id: crypto.randomUUID() }, ideaRowSchema);
+// A retry of the same input passes the same command ID, so the server stores the write once.
+export async function createIdea(input: IdeaInput, commandId: string): Promise<DateIdea> {
+  const idea = await callRpc('create_date_idea', { p_input: ideaPayload(input), p_command_id: commandId }, ideaRowSchema);
   await invalidateCalendar();
   return idea;
 }
 // The expected version makes a concurrent edit fail with CONFLICT.
-export async function updateIdea(input: IdeaInput, expectedVersion: number): Promise<DateIdea> {
+export async function updateIdea(input: IdeaInput, expectedVersion: number, commandId: string): Promise<DateIdea> {
   const idea = await callRpc('update_date_idea', {
-    p_input: ideaPayload(input), p_command_id: crypto.randomUUID(), p_idea_id: input.id, p_expected_version: version.parse(expectedVersion),
+    p_input: ideaPayload(input), p_command_id: commandId, p_idea_id: input.id, p_expected_version: version.parse(expectedVersion),
   }, ideaRowSchema);
   await invalidateCalendar();
   return idea;
@@ -27,11 +27,11 @@ export async function archiveIdea(id: string, expectedVersion: number): Promise<
   await invalidateCalendar();
   return idea;
 }
-export async function planDateIdea(ideaId: string, eventInput: EventInput, expectedVersion: number): Promise<Event> {
+export async function planDateIdea(ideaId: string, eventInput: EventInput, expectedVersion: number, commandId: string): Promise<Event> {
   const input = eventInputSchema.parse(eventInput);
   if (input.visibility !== 'shared' || input.repeat === 'yearly')
     throw new AppError({ code: 'VALIDATION', message: 'Plan a shared event for this idea.' });
-  const event = await callRpc('plan_date_idea', { p_idea_id: z.string().uuid().parse(ideaId), p_event_input: eventPayload(input), p_expected_version: version.parse(expectedVersion), p_command_id: crypto.randomUUID() }, eventRowSchema);
+  const event = await callRpc('plan_date_idea', { p_idea_id: z.string().uuid().parse(ideaId), p_event_input: eventPayload(input), p_expected_version: version.parse(expectedVersion), p_command_id: commandId }, eventRowSchema);
   await invalidateCalendar();
   return event;
 }
