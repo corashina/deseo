@@ -1,83 +1,45 @@
 import { RouteErrorPage } from '../../../app/RouteErrorPage';
-import { useEffect, useRef, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { DateTime } from 'luxon';
+import { toAppError } from '@deseo/domain/result';
 import { ReminderControl } from '../../notifications';
 import { inclusiveEndDate } from '@deseo/domain/calendar';
 import { useSession } from '../../../app/SessionProvider';
-import { useNetworkStatus } from '../../../lib/network';
 import { PageHeader } from '../../../components/ui/PageHeader';
 import { Status } from '../../../components/ui/Status';
 import { Button } from '../../../components/ui/Button';
 import { Dialog } from '../../../components/ui/Dialog';
 import { calendarKeys, getEvent } from '../queries';
 import { deleteEvent } from '../commands';
-import { readDraft, writeDraft, removeDraft } from '../../../lib/drafts';
-import { useCommandScope } from '../../../lib/use-command-scope';
-import { getSupabase } from '../../../lib/supabase';
+import { useCalendarSignals } from '../realtime';
 import '../../../styles/calendar.css';
 
 export function EventDetailPage() {
   const { eventId = '' } = useParams();
   const { account, pair } = useSession();
   const navigate = useNavigate();
-  const online = useNetworkStatus();
   const [confirm, setConfirm] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState('');
-  const beginScope = useCommandScope(() => { setSaving(false); });
   const pairId = pair?.status === 'active' ? pair.pairId : '';
-  const key = 'event-delete:' + eventId;
-  const deleteAttempt = useRef(readDraft<{ version: number; commandId: string }>(account!.id, pairId, key));
   const query = useQuery({
     queryKey: calendarKeys.event(account!.id, pairId, eventId),
     queryFn: () => getEvent(pairId, eventId),
     enabled: Boolean(pairId),
   });
-  useEffect(() => {
-    if (!pairId) return;
-    const client = getSupabase();
-    const channel = client.channel('event:' + eventId)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'events', filter: 'id=eq.' + eventId }, () => {
-        void query.refetch();
-      }).subscribe();
-    return () => { void client.removeChannel(channel); };
-  }, [pairId, eventId, query.refetch]);
-
-  async function confirmDeletion() {
-    const event = query.data;
-    if (!online || saving || (!event && !deleteAttempt.current)) return;
-    const scope = beginScope();
-    setSaving(true);
-    deleteAttempt.current ??= { version: event!.version, commandId: crypto.randomUUID() };
-    writeDraft(account!.id, pairId, key, deleteAttempt.current);
-    const result = await deleteEvent(eventId, deleteAttempt.current.version, deleteAttempt.current.commandId);
-    if (!scope.isCurrent()) return;
-    setSaving(false);
-    if (result.ok) {
-      removeDraft(account!.id, pairId, key);
-      deleteAttempt.current = undefined;
-      navigate('/calendar');
-      return;
-    }
-    setError(result.error.code === 'CONFLICT'
-      ? 'This event changed. Open it again before deleting.'
-      : result.error.message ?? 'Deletion failed. Try again.');
-    if (result.error.code !== 'RETRYABLE') {
-      deleteAttempt.current = undefined;
-      removeDraft(account!.id, pairId, key);
-    }
-    setConfirm(false);
-  }
+  useCalendarSignals(account!.id, pair);
+  const remove = useMutation({ mutationFn: (version: number) => deleteEvent(eventId, version), onSuccess: () => navigate('/calendar'), onError: () => void query.refetch(), onSettled: () => setConfirm(false) });
+  const error = remove.isError ? toAppError(remove.error).code === 'CONFLICT'
+    ? 'This event changed. Review it before deleting.'
+    : toAppError(remove.error).message : '';
 
   if (query.isPending) return <Status>Loading event…</Status>;
   if (query.isError) {
-    return <RouteErrorPage title="Event" returnTo="/calendar" returnLabel="Return to calendar" error={query.error} onRetry={() => void query.refetch()}>{deleteAttempt.current && <Button disabled={!online || saving} onClick={() => void confirmDeletion()}>Retry deletion</Button>}{error && <Status error>{error}</Status>}</RouteErrorPage>;
+    return <RouteErrorPage title="Event" returnTo="/calendar" returnLabel="Return to calendar" error={query.error} onRetry={() => void query.refetch()} />;
   }
   const event = query.data;
   if (!event || pair?.status !== 'active') {
-    return <RouteErrorPage title="Event" returnTo="/calendar" returnLabel="Return to calendar">{deleteAttempt.current && <Button disabled={!online || saving} onClick={() => void confirmDeletion()}>Retry deletion</Button>}{error && <Status error>{error}</Status>}</RouteErrorPage>;
+    return <RouteErrorPage title="Event" returnTo="/calendar" returnLabel="Return to calendar" />;
   }
   const names = {
     a: pair.members.find(member => member.slot === 'a')!.displayName,
@@ -117,14 +79,13 @@ export function EventDetailPage() {
       />
       <div className="actions">
         <Link to="/calendar">Return to calendar</Link>
-        {editable && <Button variant="danger" disabled={!online} onClick={() => setConfirm(true)}>Delete event</Button>}
+        {editable && <Button variant="danger" disabled={remove.isPending} onClick={() => setConfirm(true)}>{remove.isError ? 'Retry deletion' : 'Delete event'}</Button>}
       </div>
       {error && <Status error>{error}</Status>}
-      {deleteAttempt.current && !saving && <Button disabled={!online} onClick={() => void confirmDeletion()}>Retry deletion</Button>}
     </section>
-    <Dialog busy={saving} title="Delete this event?" open={confirm} onClose={() => setConfirm(false)}>
+    <Dialog busy={remove.isPending} title="Delete this event?" open={confirm} onClose={() => setConfirm(false)}>
       <p>{event.visibility === 'private' ? 'You will lose access to this event.' : 'Both partners will lose access to this event.'}</p>
-      <Button variant="danger" disabled={!online || saving} onClick={() => void confirmDeletion()}>Confirm deletion</Button>
+      <Button variant="danger" disabled={remove.isPending} onClick={() => remove.mutate(event.version)}>Confirm deletion</Button>
     </Dialog>
   </>;
 }

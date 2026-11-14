@@ -62,7 +62,6 @@ export function TodayPage() {
           {query.data.dueTasks.length ? query.data.dueTasks.map(task => <TaskRow
             key={task.id}
              task={task}
-             accountId={account!.id}
              timezone={zone}
             assignee={pair.members.find(member => member.userId === task.assigneeId)?.displayName ?? 'Unassigned'} />) : <p>No unfinished tasks due today.</p>}
         </section>

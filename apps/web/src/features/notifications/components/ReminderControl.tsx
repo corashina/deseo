@@ -1,12 +1,11 @@
-import { useEffect, useRef, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { AppError, toAppError } from '@deseo/domain/result';
 import { DateTime } from 'luxon';
 import { resolveWallTime } from '@deseo/domain/calendar';
-import type { ReminderInput } from '@deseo/domain/notifications';
 import { useSession } from '../../../app/SessionProvider';
-import { useCommandScope } from '../../../lib/use-command-scope';
-import { readDraft, writeDraft, removeDraft, useUnsavedChanges } from '../../../lib/drafts';
-import { useNetworkStatus } from '../../../lib/network';
+import { useUnsavedChanges } from '../../../lib/unsaved-changes';
+import { useCommandId } from '../../../lib/command-id';
 import { Button } from '../../../components/ui/Button';
 import { Field } from '../../../components/ui/Field';
 import { Status } from '../../../components/ui/Status';
@@ -14,51 +13,42 @@ import { getReminder, getNotificationPreferences, notificationKeys } from '../qu
 import { setReminder } from '../commands';
 import '../../../styles/reminders.css';
 type Props = { eventId?: string; taskId?: string; sourceVersion: number; timezone: string; allDay?: boolean; completed?: boolean; dueDate?: string | null };
-type Draft = { choice: string; date: string; time: string; active: boolean; attempt: { input: ReminderInput; commandId: string } | null };
+type Draft = { choice: string; date: string; time: string; active: boolean };
 export function ReminderControl(props: Props) {
-  const { account, pair } = useSession(); const online = useNetworkStatus();
+  const { account, pair } = useSession();
   const pairId = pair?.status === 'active' ? pair.pairId : '';
-  const sourceId = props.eventId ?? props.taskId!; const key = 'reminder:' + sourceId;
-  const mounted = useRef(false); const pending = useRef(false);
-  const [draft, setDraft] = useState(() => readDraft<Draft>(account!.id, pairId, key));
-  const [busy, setBusy] = useState(false); const [message, setMessage] = useState(''); const [conflict, setConflict] = useState(false);
+  const sourceId = props.eventId ?? props.taskId!;
+  const [draft, setDraft] = useState<Draft>();
   const query = useQuery({ queryKey: [...notificationKeys.reminder(account!.id, pairId, sourceId), props.sourceVersion], queryFn: () => getReminder(props.eventId ?? null, props.taskId ?? null), enabled: Boolean(pairId) });
   const preferences = useQuery({ queryKey: notificationKeys.preferences(account!.id), queryFn: getNotificationPreferences, enabled: Boolean(props.eventId) });
-  useEffect(() => { mounted.current = true; return () => { mounted.current = false; }; }, []);
-  const beginScope = useCommandScope(() => { pending.current = false; setBusy(false); });
-  useUnsavedChanges(Boolean(draft));
   const current = query.data;
   const initial = current?.remindAt ? DateTime.fromISO(current.remindAt).setZone(props.timezone) : DateTime.now().setZone(props.timezone);
   const values: Draft = draft ?? { choice: String(current ? current.active ? current.minutesBefore : 'none' : preferences.data?.defaultEventReminderMinutes ?? 'none'),
-    date: current?.remindAt ? initial.toISODate()! : props.dueDate ?? initial.toISODate()!, time: current?.remindAt ? initial.toFormat('HH:mm') : '09:00', active: current?.active ?? false, attempt: null };
-  function change(input: Partial<Draft>) { const next = { ...values, ...input, attempt: null }; writeDraft(account!.id, pairId, key, next); setDraft(next); setMessage(''); }
-  async function save() {
-    if (!online || pending.current || conflict || props.completed) return;
-    const scope = beginScope(); pending.current = true; setBusy(true); setMessage('');
-    let next: Draft | undefined;
-    try {
+    date: current?.remindAt ? initial.toISODate()! : props.dueDate ?? initial.toISODate()!, time: current?.remindAt ? initial.toFormat('HH:mm') : '09:00', active: current?.active ?? false };
+  // A new reminder keeps one ID, so a retry of the same input sends the same request.
+  const [newId] = useState(() => crypto.randomUUID());
+  const command = useCommandId();
+  const save = useMutation({
+    mutationFn: () => {
       const active = props.eventId ? values.choice !== 'none' : values.active;
-      const attempt = values.attempt ?? { commandId: crypto.randomUUID(), input: {
-        id: current?.id ?? crypto.randomUUID(), pairId, eventId: props.eventId ?? null, taskId: props.taskId ?? null,
+      let remindAt: string | null = null;
+      try { if (props.taskId && active) remindAt = resolveWallTime(values.date, values.time, props.timezone); }
+      catch { throw new AppError({ code: 'VALIDATION', message: 'Choose a valid reminder date and time.' }); }
+      const input = {
+        id: current?.id ?? newId, pairId, eventId: props.eventId ?? null, taskId: props.taskId ?? null,
         active, minutesBefore: props.eventId && active ? Number(values.choice) : null,
-        remindAt: props.taskId && active ? resolveWallTime(values.date, values.time, props.timezone) : null, expectedVersion: current?.version ?? null,
-      } };
-      next = { ...values, attempt };
-      writeDraft(account!.id, pairId, key, next); setDraft(next);
-      const result = await setReminder(attempt.input, attempt.commandId); scope.assertCurrent();
-      if (!mounted.current) return;
-      if (result.ok) {
-        removeDraft(account!.id, pairId, key); setDraft(undefined);
-        setMessage('Reminder saved.'); await query.refetch();
-      } else {
-        setMessage(result.error.code === 'CONFLICT' ? 'Your reminder changed. Your draft is kept.' : result.error.message ?? 'Reminder save failed. Try again.');
-        if (result.error.code !== 'RETRYABLE') { const rejected = { ...next, attempt: null }; writeDraft(account!.id, pairId, key, rejected); setDraft(rejected); }
-        setConflict(result.error.code === 'CONFLICT');
-      }
-    } catch {
-      if (mounted.current && !scope.signal.aborted) setMessage(next ? 'Reminder save is unconfirmed. Retry the same choice.' : 'Choose a valid reminder date and time.');
-    } finally { if (mounted.current && !scope.signal.aborted) { pending.current = false; setBusy(false); } }
-  }
+        remindAt, expectedVersion: current?.version ?? null,
+      };
+      return setReminder(input, command.idFor(input));
+    },
+    onSuccess: async () => { setDraft(undefined); command.reset(); await query.refetch(); },
+  });
+  const discard = useMutation({ mutationFn: () => query.refetch({ throwOnError: true }), onSuccess: () => { setDraft(undefined); save.reset(); } });
+  useUnsavedChanges(Boolean(draft));
+  function change(input: Partial<Draft>) { setDraft({ ...values, ...input }); save.reset(); }
+  const conflict = save.isError && toAppError(save.error).code === 'CONFLICT';
+  const busy = save.isPending || discard.isPending;
+  const message = save.isSuccess ? 'Reminder saved.' : conflict ? 'Your reminder changed. Your draft is kept.' : save.isError ? toAppError(save.error).message : '';
   if (!pairId) return null;
   if ((query.isPending || props.eventId && preferences.isPending) && !draft) return <Status>Loading reminder…</Status>;
   if (query.isError && !draft) return <><Status error>We could not load your reminder.</Status><Button onClick={() => void query.refetch()}>Retry</Button></>;
@@ -68,14 +58,14 @@ export function ReminderControl(props: Props) {
     <p className="muted">Reminders use native push. This browser receives no push alerts.</p>
     {current?.state === 'past' && <p>The reminder time has passed. No push was queued.</p>}
     {current?.nextDueAt && <p>Next reminder: {DateTime.fromISO(current.nextDueAt).setZone(props.timezone).toFormat('d LLL yyyy, HH:mm')} ({props.timezone})</p>}
-    <fieldset className="field-group" disabled={busy || Boolean(draft?.attempt) || props.completed}>
+    <fieldset className="field-group" disabled={busy || props.completed}>
     {props.eventId ? <label className="field"><span>Remind me</span><select value={values.choice} onChange={event => change({ choice: event.target.value })}>
       <option value="none">None</option><option value="15">15 minutes before</option><option value="60">One hour before</option><option value="1440">One day before</option>
     </select></label> : <><label className="field field-check"><span><input type="checkbox" checked={values.active} onChange={event => change({ active: event.target.checked })} /> Task reminder</span></label>
     {values.active && <><Field label="Reminder date" type="date" value={values.date} onChange={event => change({ date: event.target.value })} /><Field label="Reminder time" type="time" value={values.time} onChange={event => change({ time: event.target.value })} /></>}</>}
     </fieldset>{props.completed && <p>Completed tasks do not send reminders.</p>}
-    {message && <Status error={conflict}>{message}</Status>}
-    {conflict && <Button disabled={!online || busy} variant="secondary" onClick={async () => { const scope = beginScope(); const fresh = await query.refetch(); if (!mounted.current || scope.signal.aborted || fresh.isError) return; removeDraft(account!.id, pairId, key); setDraft(undefined); setConflict(false); setMessage(''); }}>Discard changes and reload</Button>}
-    <Button variant="secondary" disabled={!online || busy || conflict || props.completed} onClick={() => void save()}>{draft?.attempt ? 'Retry reminder' : 'Save reminder'}</Button>
+    {message && <Status error={save.isError}>{message}</Status>}
+    {conflict && <Button disabled={busy} variant="secondary" onClick={() => discard.mutate()}>Discard changes and reload</Button>}
+    <Button variant="secondary" disabled={busy || conflict || props.completed} onClick={() => save.mutate()}>{save.isError ? 'Retry reminder' : 'Save reminder'}</Button>
   </section>;
 }

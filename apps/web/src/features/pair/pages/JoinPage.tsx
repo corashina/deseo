@@ -1,72 +1,42 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useMutation } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { acceptInvite, previewInvite, inviteTokenSchema, type InvitePreview } from '..';
+import { toAppError } from '@deseo/domain/result';
+import { acceptInvite, previewInvite, inviteTokenSchema } from '..';
 import { entryIntent } from '../../auth';
 import { useSession } from '../../../app/SessionProvider';
-import { readDraft, writeDraft, removeDraft, useUnsavedChanges } from '../../../lib/drafts';
-import { useCommandScope } from '../../../lib/use-command-scope';
+import { useUnsavedChanges } from '../../../lib/unsaved-changes';
 import { Field } from '../../../components/ui/Field';
 import { Button } from '../../../components/ui/Button';
 import { Status } from '../../../components/ui/Status';
 import { PageHeader } from '../../../components/ui/PageHeader';
-import { isOnline, useNetworkStatus } from '../../../lib/network';
-type ReviewedInvite = { token: string; details: InvitePreview; commandId: string };
 export function JoinPage() {
-  const online = useNetworkStatus();
-  const { account, pair, revalidate } = useSession();
-  const accountId = account!.id;
-  const pairId = pair && 'pairId' in pair ? pair.pairId : null;
-  const [saved] = useState(() => readDraft<{ token: string; attempt?: ReviewedInvite }>(accountId, pairId, 'join-pair'));
-  const [initialToken] = useState(saved?.token ?? entryIntent.invite);
+  const { revalidate } = useSession();
+  const [initialToken] = useState(entryIntent.invite);
   const [token, setToken] = useState(initialToken ?? '');
-  const [reviewed, setReviewed] = useState<ReviewedInvite | null>(saved?.attempt ?? null);
-  const attempt = useRef(saved?.attempt);
-  const generation = useRef(0);
-  const [pending, setPending] = useState(false);
-  const [accepting, setAccepting] = useState(false);
-  const [error, setError] = useState('');
-  const [confirmed, setConfirmed] = useState(false);
-  const [uncertain, setUncertain] = useState(Boolean(attempt.current));
-  const beginScope = useCommandScope(() => { setPending(false); setAccepting(false); });
-  useUnsavedChanges(!confirmed && (Boolean(token) || uncertain));
-  const review = useCallback(async (value: string) => {
-    if (!isOnline()) return;
-    const scope = beginScope();
-    const request = ++generation.current;
+  const [invalid, setInvalid] = useState(false);
+  const review = useMutation({ mutationFn: async (value: string) => ({ token: value, details: await previewInvite(value) }),
+    onSuccess: result => { entryIntent.invite = result.token; } });
+  const accept = useMutation({ mutationFn: acceptInvite, onSuccess: () => revalidate() });
+  useUnsavedChanges(!accept.isSuccess && Boolean(token));
+  const start = (value: string) => {
     const parsed = inviteTokenSchema.safeParse(value);
-    setReviewed(null); setError('');
-    if (!parsed.success) { setError('Enter the 12-character invitation code.'); return; }
-    setPending(true);
-    const result = await previewInvite(parsed.data);
-    if (request !== generation.current || !scope.isCurrent()) return;
-    setPending(false);
-    if (result.ok) {
-      entryIntent.invite = parsed.data;
-      writeDraft(accountId, pairId, 'join-pair', { token: parsed.data });
-      setReviewed({ token: parsed.data, details: result.data, commandId: crypto.randomUUID() });
-    } else setError(result.error.message ?? 'This invitation is unavailable.');
-  }, [beginScope, accountId, pairId]);
-  useEffect(() => {
-    if (initialToken && !attempt.current) void review(initialToken);
-    return () => { generation.current++; };
-  }, [initialToken, review]);
+    setInvalid(!parsed.success);
+    if (parsed.success) review.mutate(parsed.data);
+  };
+  const { mutate } = review;
+  useEffect(() => { if (initialToken) mutate(initialToken); }, [initialToken, mutate]);
+  const reviewed = review.data;
   const preview = reviewed?.details;
+  const busy = review.isPending || accept.isPending;
+  const error = invalid ? 'Enter the 12-character invitation code.' : review.isError ? toAppError(review.error).message : accept.isError ? toAppError(accept.error).message : '';
   return <section className="card form-page"><PageHeader title={preview ? 'Join ' + preview.inviterName : 'Join your partner'} description={preview ? 'Share plans, messages, and memories. Private events stay private.' : 'Enter the invitation code from your partner.'} />
-    <form onSubmit={event => { event.preventDefault(); if (!isOnline() || pending || accepting || uncertain) return; void review(token); }}>
-    <Field label="Invitation code" value={token} disabled={accepting || uncertain} onChange={event => {
-      generation.current++; setPending(false); setToken(event.target.value); writeDraft(accountId, pairId, 'join-pair', { token: event.target.value }); setReviewed(null); setError(''); entryIntent.invite = null;
+    <form onSubmit={event => { event.preventDefault(); if (!busy) start(token); }}>
+    <Field label="Invitation code" value={token} disabled={accept.isPending} onChange={event => {
+      setToken(event.target.value); review.reset(); accept.reset(); setInvalid(false); entryIntent.invite = null;
     }} autoComplete="off" />
-    {!preview && <Button type="submit" disabled={pending || accepting || !online}>Review invitation</Button>}</form>
-    {reviewed && <><p className="muted">Pair timezone: {reviewed.details.timezone}</p><p className="muted">Expires {new Date(reviewed.details.expiresAt).toLocaleString()}</p><Button disabled={accepting || !online} onClick={async () => {
-      if (!isOnline() || accepting) return;
-      const scope = beginScope();
-      const next = attempt.current ?? reviewed;
-      attempt.current = next; writeDraft(accountId, pairId, 'join-pair', { token: next.token, attempt: next });
-      setUncertain(true); setAccepting(true); setError('');
-      const result = await acceptInvite(next.token, next.commandId);
-      if (!scope.isCurrent()) return;
-      if (result.ok) { removeDraft(accountId, pairId, 'join-pair'); setConfirmed(true); await revalidate(); }
-      else { setError(result.error.message ?? 'This invitation is unavailable.'); setAccepting(false); if (result.error.code !== 'RETRYABLE') { attempt.current = undefined; setUncertain(false); writeDraft(accountId, pairId, 'join-pair', { token }); } }
-    }}>{uncertain ? 'Retry joining pair' : 'Join pair'}</Button></>}
+    {!preview && <Button type="submit" disabled={busy}>Review invitation</Button>}</form>
+    {reviewed && preview && <><p className="muted">Pair timezone: {preview.timezone}</p><p className="muted">Expires {new Date(preview.expiresAt).toLocaleString()}</p>
+      <Button disabled={accept.isPending} onClick={() => accept.mutate(reviewed.token)}>{accept.isError ? 'Retry joining pair' : 'Join pair'}</Button></>}
     {error && <Status error>{error}</Status>}<Link to="/pair/start" onClick={() => { entryIntent.invite = null; }}>Back</Link></section>;
 }

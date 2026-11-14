@@ -1,7 +1,6 @@
 import { z } from 'zod';
 import { latestMemory } from '../memories';
 import type { Memory } from '@deseo/domain/memories';
-import { captureQueryScope } from '../../lib/query-client';
 import { getSupabase } from '../../lib/supabase';
 import { dateSchema } from '@deseo/domain/calendar';
 import { AppError } from '@deseo/domain/result';
@@ -11,13 +10,10 @@ export const todayKeys = { day: (accountId: string, pairId: string, date: string
 export async function getToday(pairId: string, date: string): Promise<TodaySummary & { memory: Memory | null }> {
   const pair = z.string().uuid().parse(pairId);
   if (!dateSchema.safeParse(date).success) throw new AppError({ code: 'VALIDATION', field: 'date' });
-  const scope = captureQueryScope();
   const client = getSupabase();
-  scope.assertCurrent();
   const [response, memory] = await Promise.all([
-    client.rpc('get_today', { p_pair_id: pair, p_date: date }).abortSignal(scope.signal), latestMemory(pair),
+    client.rpc('get_today', { p_pair_id: pair, p_date: date }), latestMemory(pair),
   ]);
-  scope.assertCurrent();
   if (response.error) throw response.error;
   const parsed = todayResultSchema.safeParse(response.data);
   if (!parsed.success) throw new AppError({ code: 'RETRYABLE' });
