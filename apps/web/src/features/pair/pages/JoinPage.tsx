@@ -1,3 +1,4 @@
+import { DateTime } from 'luxon';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { acceptInvite, previewInvite, inviteTokenSchema, type InvitePreview } from '..';
@@ -8,6 +9,7 @@ import { useCommandScope } from '../../../lib/use-command-scope';
 import { Field } from '../../../components/ui/Field';
 import { Button } from '../../../components/ui/Button';
 import { Status } from '../../../components/ui/Status';
+import { formatDate } from '../../../lib/format';
 import { PageHeader } from '../../../components/ui/PageHeader';
 import { isOnline, useNetworkStatus } from '../../../lib/network';
 type ReviewedInvite = { token: string; details: InvitePreview; commandId: string };
@@ -53,11 +55,11 @@ export function JoinPage() {
   const preview = reviewed?.details;
   return <section className="card form-page"><PageHeader title={preview ? 'Join ' + preview.inviterName : 'Join your partner'} description={preview ? 'Share plans, messages, and memories. Private events stay private.' : 'Enter the invitation code from your partner.'} />
     <form onSubmit={event => { event.preventDefault(); if (!isOnline() || pending || accepting || uncertain) return; void review(token); }}>
-    <Field label="Invitation code" value={token} disabled={accepting || uncertain} onChange={event => {
+    <Field label="Invitation code" name="invitationCode" spellCheck={false} value={token} disabled={accepting || uncertain} onChange={event => {
       generation.current++; setPending(false); setToken(event.target.value); writeDraft(accountId, pairId, 'join-pair', { token: event.target.value }); setReviewed(null); setError(''); entryIntent.invite = null;
     }} autoComplete="off" />
     {!preview && <Button type="submit" disabled={pending || accepting || !online}>Review invitation</Button>}</form>
-    {reviewed && <><p className="muted">Pair timezone: {reviewed.details.timezone}</p><p className="muted">Expires {new Date(reviewed.details.expiresAt).toLocaleString()}</p><Button disabled={accepting || !online} onClick={async () => {
+    {reviewed && <><p className="muted">Pair timezone: <span translate="no">{reviewed.details.timezone}</span></p><p className="muted">Expires {formatDate(DateTime.fromISO(reviewed.details.expiresAt).setZone(account!.timezone), 'dateTime', account!.locale)}</p><Button disabled={accepting || !online} onClick={async () => {
       if (!isOnline() || accepting) return;
       const scope = beginScope();
       const next = attempt.current ?? reviewed;

@@ -51,7 +51,7 @@ export function ProfileSettingsPage() {
   }
   return <section className="card form-page"><PageHeader title="Profile" description="Your timezone changes display times. Stored events keep their dates and instants." />
     <form onSubmit={event => { event.preventDefault(); void save(); }}><fieldset className="field-group" disabled={busy || Boolean(draft?.uncertain)}>
-      <Field label="Your name" required maxLength={40} value={input.displayName} onChange={event => change({ displayName: event.target.value })} />
+      <Field label="Your name" name="displayName" required maxLength={40} value={input.displayName} onChange={event => change({ displayName: event.target.value })} />
       <TimezoneField required value={input.timezone} onChange={event => change({ timezone: event.target.value })} />
     </fieldset>{message && <Status error={conflict}>{message}</Status>}
     <div className="actions">{conflict && <Button disabled={!online || busy} variant="secondary" onClick={async () => { await revalidate(); if (!mounted.current) return; removeDraft(account!.id, pairId, 'profile-settings'); setDraft(undefined); setConflict(false); setMessage(''); }}>Discard changes and reload</Button>}

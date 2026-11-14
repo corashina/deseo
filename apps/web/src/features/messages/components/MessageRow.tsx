@@ -1,9 +1,10 @@
 import type { Message } from '@deseo/domain/messages';
 import { useId, useRef, useState } from 'react';
 import { Button } from '../../../components/ui/Button';
-const timestamp = new Intl.DateTimeFormat('en', { dateStyle: 'medium', timeStyle: 'short' });
-export function MessageRow({ message, name, slot, own, disabled, onPin, onDelete }: {
-  message: Message; name: string; slot: 'a' | 'b'; own: boolean; disabled: boolean;
+import { DateTime } from 'luxon';
+import { formatDate } from '../../../lib/format';
+export function MessageRow({ message, name, slot, own, disabled, timezone, locale, onPin, onDelete }: {
+  message: Message; name: string; slot: 'a' | 'b'; own: boolean; disabled: boolean; timezone: string; locale: string;
   onPin(message: Message): void; onDelete(message: Message): void;
 }) {
   const actions = useRef<HTMLDetailsElement>(null);
@@ -14,7 +15,7 @@ export function MessageRow({ message, name, slot, own, disabled, onPin, onDelete
     if (actions.current) actions.current.open = false;
   }
   return <article className={'message-row partner-' + slot + (own ? ' own-message' : '')} data-testid="message-row" data-message-id={message.id}>
-    <div className="message-meta"><strong>{name}</strong><time dateTime={message.createdAt}>{timestamp.format(new Date(message.createdAt))}</time></div>
+    <div className="message-meta"><strong>{name}</strong><time dateTime={message.createdAt}>{formatDate(DateTime.fromISO(message.createdAt).setZone(timezone), 'dateTime', locale)}</time></div>
     <p className="preserve-lines">{message.body}</p>
     <span className="message-state">Sent{message.pinnedAt ? ' · Pinned note' : ''}</span>
     {own && <details className="message-actions" ref={actions} onToggle={event => setExpanded(event.currentTarget.open)} onKeyDown={event => { if (event.key === 'Escape') { event.preventDefault(); closeActions(); } }}>

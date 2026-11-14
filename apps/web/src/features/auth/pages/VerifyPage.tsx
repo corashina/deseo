@@ -24,7 +24,7 @@ export function VerifyPage() {
       if (!/^\d{6}$/.test(code)) { setError('Enter six digits from your email.'); return; }
       const scope = beginScope(); setPending(true); setError(''); const result = await verifyEmailCode(entryIntent.email, code);
       if (!scope.isCurrent()) return; setPending(false); if (!result.ok) setError(result.error.message ?? 'Request a new code.');
-    }}><Field label="Sign-in code" inputMode="numeric" autoComplete="one-time-code" maxLength={6} disabled={pending} value={code} onChange={event => { entryIntent.codeDraft = event.target.value; setCode(event.target.value); }} />
+    }}><Field label="Sign-in code" name="code" spellCheck={false} inputMode="numeric" autoComplete="one-time-code" maxLength={6} disabled={pending} value={code} onChange={event => { entryIntent.codeDraft = event.target.value; setCode(event.target.value); }} />
     {error && <Status error>{error}</Status>}<Button type="submit" disabled={pending || !online}>{pending ? 'Checking…' : 'Sign in'}</Button></form>
     <Button variant="secondary" disabled={pending || !online || seconds > 0} onClick={async () => { if (!isOnline() || pending) return; const scope = beginScope(); setPending(true); const result = await requestEmailCode(entryIntent.email); if (!scope.isCurrent()) return; setPending(false); setNow(Date.now()); if (!result.ok) setError(result.error.message ?? 'Try again.'); }}>{seconds ? 'Resend code in ' + seconds + 's' : 'Resend code'}</Button><Link to="/sign-in">Use another email</Link></section>;
 }

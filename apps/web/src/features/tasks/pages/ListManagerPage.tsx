@@ -8,6 +8,7 @@ import { useCommandScope } from '../../../lib/use-command-scope';
 import { readDraft, writeDraft, removeDraft, useUnsavedChanges } from '../../../lib/drafts';
 import { PageHeader } from '../../../components/ui/PageHeader';
 import { Status } from '../../../components/ui/Status';
+import { Field } from '../../../components/ui/Field';
 import { Button } from '../../../components/ui/Button';
 import { listTaskLists, taskKeys } from '../queries';
 import { createList } from '../commands';
@@ -75,18 +76,17 @@ export function ListManagerPage() {
       </ul>}
       <h2>Add list</h2>
       <form className="list-name-form" onSubmit={event => { event.preventDefault(); void add(); }}>
-        <label className="field">
-          <span>List name</span>
-          <input
-            value={name}
-            maxLength={40}
-            required
-            disabled={saving || frozen}
-            onChange={event => {
-              setName(event.target.value);
-              writeDraft(account!.id, pairId, 'list-new', { name: event.target.value });
-            }} />
-        </label>
+        <Field
+          label="List name"
+          name="listName"
+          value={name}
+          maxLength={40}
+          required
+          disabled={saving || frozen}
+          onChange={event => {
+            setName(event.target.value);
+            writeDraft(account!.id, pairId, 'list-new', { name: event.target.value });
+          }} />
         {error && <Status error>{error}
         </Status>}
         <Button disabled={!online || saving} type="submit">{saving ? 'Saving…' : frozen ? 'Retry list' : 'Create list'}

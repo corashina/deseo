@@ -10,8 +10,9 @@
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
+    "test:unit": "node --experimental-strip-types --test src/lib/format.test.ts",
     "test": "playwright test",
-    "verify": "npm run typecheck && npm run lint && npm run build && npm run size && npm run test"
+    "verify": "npm run typecheck && npm run lint && npm run test:unit && npm run build && npm run size && npm run test"
   },
   "dependencies": {
     "@deseo/domain": "0.1.0",

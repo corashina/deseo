@@ -9,6 +9,7 @@ import { useSession } from '../../../../app/SessionProvider';
 import { readDraft, writeDraft, removeDraft, useUnsavedChanges } from '../../../../lib/drafts';
 import { useCommandScope } from '../../../../lib/use-command-scope';
 import { useNetworkStatus } from '../../../../lib/network';
+import { finePointer } from '../../../../lib/pointer';
 import { PageHeader } from '../../../../components/ui/PageHeader';
 import { Button } from '../../../../components/ui/Button';
 import { Status } from '../../../../components/ui/Status';
@@ -143,15 +144,15 @@ function IdeaEditor({ idea }: {
         <fieldset disabled={saving || frozen}>
           <label className="field">
             <span>Title</span>
-            <input {...form.register('title')} maxLength={120} required autoFocus />
+            <input {...form.register('title')} autoComplete="off" maxLength={120} required autoFocus={finePointer} />
           </label>
           <label className="field">
             <span>Note</span>
-            <textarea {...form.register('note')} maxLength={1000} rows={4} />
+            <textarea {...form.register('note')} autoComplete="off" maxLength={1000} rows={4} />
           </label>
           <label className="field">
             <span>Link</span>
-            <input {...form.register('link')} type="text" inputMode="url" maxLength={2048} />
+            <input {...form.register('link')} type="text" inputMode="url" autoComplete="off" spellCheck={false} maxLength={2048} />
           </label>
           {Object.entries(form.formState.errors).map(([field, error]) => <p role="alert" key={field}>{error.message}
           </p>)}

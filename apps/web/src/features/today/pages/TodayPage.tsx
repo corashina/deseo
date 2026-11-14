@@ -8,6 +8,7 @@ import { useSession } from '../../../app/SessionProvider';
 import { PageHeader } from '../../../components/ui/PageHeader';
 import { Button } from '../../../components/ui/Button';
 import { Status } from '../../../components/ui/Status';
+import { formatDate } from '../../../lib/format';
 import { EventRow, nextImportantDate, useCalendarSignals } from '../../calendar';
 import { TaskRow, useTaskSignals } from '../../tasks';
 import { NoteCard } from '../../messages';
@@ -33,7 +34,7 @@ export function TodayPage() {
   return <>
     <PageHeader
       title="Today"
-      description={DateTime.fromISO(date).setLocale('en').toFormat('cccc, d LLLL') + ' · ' + zone}
+      description={<>{formatDate(DateTime.fromISO(date), 'weekday', account!.locale)} · <span translate="no">{zone}</span></>}
       action={<Link className="button primary" to="/events/new">Add event</Link>} />
     {query.isPending ? <Status>Loading Today…</Status> : query.isError ? <>
       <Status error>We could not load Today.</Status>
@@ -49,10 +50,11 @@ export function TodayPage() {
             event={event}
             names={names}
             showDate
-            timezone={zone} />) : <p>Nothing planned for the next seven days.</p>}
+            timezone={zone}
+            locale={account!.locale} />) : <p>Nothing planned for the next seven days.</p>}
         </section>
-      {query.data.memory && <section data-testid="today-memory"><h2>Latest memory</h2><MemoryCard memory={query.data.memory} author={pair.members.find(member => member.userId === query.data.memory!.createdBy)!.displayName} /></section>}
-      {note && <div data-testid="today-note"><NoteCard message={note} name={pair.members.find(member => member.userId === note.authorId)!.displayName} /></div>}
+      {query.data.memory && <section data-testid="today-memory"><h2>Latest memory</h2><MemoryCard memory={query.data.memory} author={pair.members.find(member => member.userId === query.data.memory!.createdBy)!.displayName} locale={account!.locale} /></section>}
+      {note && <div data-testid="today-note"><NoteCard message={note} name={pair.members.find(member => member.userId === note.authorId)!.displayName} timezone={account!.timezone} locale={account!.locale} /></div>}
       {!query.data.memory && !note && <section className="card today-intro" data-testid="today-intro"><h2>Keep a moment together</h2><p>Add a photo, or pin a message to keep a note here.</p><div className="today-intro-actions"><Link to="/memories/new">Add memory</Link><Link to="/messages">Send a message</Link></div></section>}
         <section className="card" data-testid="today-tasks">
           <div className="section-heading">
@@ -64,6 +66,7 @@ export function TodayPage() {
              task={task}
              accountId={account!.id}
              timezone={zone}
+             locale={account!.locale}
             assignee={pair.members.find(member => member.userId === task.assigneeId)?.displayName ?? 'Unassigned'} />) : <p>No unfinished tasks due today.</p>}
         </section>
       {important && <section className="card important-card" data-testid="today-important-date">
@@ -73,7 +76,7 @@ export function TodayPage() {
         <p>{days === 0 ? 'Today' : days === 1 ? 'Tomorrow' : 'In ' + days + ' days'}
         </p>
         {important.temporal.kind === 'allDay' && <p><time dateTime={important.temporal.startDate}>
-          {DateTime.fromISO(important.temporal.startDate, { zone }).setLocale('en').toFormat('d LLLL yyyy')}
+          {formatDate(DateTime.fromISO(important.temporal.startDate, { zone }), 'date', account!.locale)}
         </time></p>}
         <Link to={'/events/' + important.id}>View date</Link>
       </section>}

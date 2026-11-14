@@ -8,17 +8,19 @@ import { useCommandScope } from '../../../lib/use-command-scope';
 import { readDraft, writeDraft, removeDraft } from '../../../lib/drafts';
 import { Button } from '../../../components/ui/Button';
 import { Status } from '../../../components/ui/Status';
+import { formatDate } from '../../../lib/format';
 type Attempt = {
   id: string;
   completed: boolean;
   expectedVersion: number;
   commandId: string;
 };
-export function TaskRow({ task, accountId, assignee, timezone }: {
+export function TaskRow({ task, accountId, assignee, timezone, locale }: {
   task: Task;
   accountId: string;
   assignee: string;
   timezone: string;
+  locale: string;
 }) {
   const online = useNetworkStatus();
   const key = 'task-completion:' + task.id;
@@ -60,9 +62,9 @@ export function TaskRow({ task, accountId, assignee, timezone }: {
     }
   }
   const completed = optimistic ?? current.completedAt !== null;
-  const due = current.dueDate ? DateTime.fromISO(current.dueDate, { zone: timezone }).setLocale('en') : null;
+  const due = current.dueDate ? DateTime.fromISO(current.dueDate, { zone: timezone }) : null;
   const today = DateTime.now().setZone(timezone).startOf('day');
-  const dueLabel = due ? (due.hasSame(today, 'day') ? 'Due today' : due.hasSame(today.plus({ days: 1 }), 'day') ? 'Due tomorrow' : !completed && due < today ? 'Overdue' : 'Due') + ' · ' + due.toFormat(due.year === today.year ? 'd LLL' : 'd LLL yyyy') : '';
+  const dueLabel = due ? (due.hasSame(today, 'day') ? 'Due today' : due.hasSame(today.plus({ days: 1 }), 'day') ? 'Due tomorrow' : !completed && due < today ? 'Overdue' : 'Due') + ' · ' + formatDate(due, due.year === today.year ? 'day' : 'dayYear', locale) : '';
   function change(completed: boolean) { void submit({ id: task.id, completed, expectedVersion: current.version, commandId: crypto.randomUUID() }); }
   return <article className={'task-row' + (completed ? ' task-completed' : '')}>
     <div className="task-row-main">
