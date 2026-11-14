@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import { randomUUID, randomBytes } from 'node:crypto';
 import test from 'node:test';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+import { localStatus } from '../dev/local-status.ts';
 
 type Result<T> = { ok: true; data: T } | { ok: false; error: { code: string } };
 type Account = { id: string; client: SupabaseClient };
@@ -11,13 +12,7 @@ type Task = { id: string; list_id: string; version: number; completed_at: string
 type Idea = { id: string; state: string; linked_event_id: string | null; version: number };
 type Event = { id: string; version: number };
 type TaskList = { id: string; name: string; version: number };
-const base = process.env.SUPABASE_TEST_URL ?? 'http://127.0.0.1:55721';
-const publicKey = process.env.SUPABASE_TEST_PUBLISHABLE_KEY;
-const serverKey = process.env.SUPABASE_TEST_SERVICE_ROLE_KEY;
-const url = new URL(base);
-assert.ok(url.protocol === 'http:' && ['127.0.0.1', 'localhost', '[::1]'].includes(url.hostname),
-  'Use a local disposable Supabase stack.');
-assert.ok(publicKey && serverKey, 'Set local test keys. Keep the server key outside the repository.');
+const { API_URL: base, PUBLISHABLE_KEY: publicKey, SERVICE_ROLE_KEY: serverKey } = localStatus();
 const options = { auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false } };
 const admin = createClient(base, serverKey, options);
 const users: string[] = [];
