@@ -28,9 +28,9 @@ Entry routes cover Welcome, email codes, profile setup, invitations, joining, wa
 Product routes cover Today, Calendar, events, ideas, tasks, lists, Messages, Memories, notifications, and Settings.
 Record URLs support reload and browser Back. Changed forms and unsent drafts warn before leaving.
 
-Browser shared rows, private images, and drafts stay in memory. A reload discards browser drafts.
+Browser shared rows, private images, and drafts stay in memory. Leaving the form or a reload discards a browser draft.
 Supabase stores browser Auth sessions through its supported browser storage.
-Failed writes keep their immutable command and input until the user resolves them.
+A failed write keeps its input. A retry of the same input reuses its command ID.
 Settings stays available to unpaired accounts and former pair members.
 
 ### Main journey
@@ -153,7 +153,7 @@ Show both pins above the conversation. Today shows the latest pin.
 Use a feed grouped by month. Each entry shows date, photo, caption, and author.
 Add memory opens a file input. Select one to five photos. The date is required; the caption is optional, up to 1,000 characters.
 Show each photo's upload state. Publish only after every photo completes.
-Allow removing a failed photo before submission. Browser drafts last while the tab stays open.
+Allow removing a failed photo before submission. Browser drafts last while the form stays open.
 The detail view shows full images. Downloads need an explicit action.
 The author can change the caption or delete the memory. Saved copies stay outside Deseo after deletion.
 
@@ -178,7 +178,7 @@ End pair explains access loss. It needs a fresh email code.
 |---|---|
 | Loading | Keep the layout stable; show a short progress state |
 | Empty | Explain the missing content and offer one action |
-| Offline | Keep drafts; label unsent content; do not queue writes |
+| Offline | Keep drafts; show Retry on failed writes; do not queue writes |
 | Failed read | Keep the screen structure and show Retry |
 | Failed write | Keep input; name the affected item; reuse its command ID |
 | Conflict | Say that someone changed the record; keep saved data and the draft |

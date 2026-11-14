@@ -61,16 +61,17 @@ apps/web/src/
   features/                 Browser pages, queries, commands, controls
   components/ui/            Browser controls
   styles/                   Browser tokens and feature styles
-  lib/                      Browser client, media, drafts, lifecycle
+  lib/                      Browser client, RPC calls, command IDs, signals, unsaved changes
 apps/web/tests/             Real-browser account isolation and revocation checks
 packages/domain/src/       Shared schemas, date rules, message merging, payloads, results
 supabase/
   migrations/              One baseline schema with feature sections
   functions/               Narrow server operations and workers
   tests/                   SQL, access, and race checks
-  dev/                     Guarded local stack and synthetic pair fixtures
+  dev/                     Local stack keys, env, and synthetic pair fixtures
 brand/                     Shared tokens and icon
-design/web-portal/          Gallery, records, and JPEG evidence
+design/frontend-2026-10-07/ Browser gallery and capture records
+design/shared/             Gallery images named by hash
 ```
 
 Keep native UI and browser UI separate. Extract only contracts both applications use.
@@ -113,7 +114,7 @@ Handle storage failure by explaining the failure and requiring sign-in. Do not a
 Native photos use private temporary files. Purge them on discard, scope change, and sign-out.
 
 Browser Auth uses Supabase's supported browser session storage.
-Shared rows, private images, and drafts stay in memory. Browser drafts do not survive reload.
+Shared rows and private images stay in memory. Form input stays in its page. Leaving the page or a reload discards it.
 Use no-store media requests and scoped blobs. Release object URLs after use and on authority loss.
 Warn before navigation or reload discards changed input. Explicit or forced sign-out clears private state immediately.
 A failed global Auth sign-out remains visible after local session removal.
@@ -145,6 +146,7 @@ Keep internal tables outside exposed schemas. Do not accept client-supplied trus
 Keep server keys inside verified server jobs and test processes.
 
 Server `WEB_APP_ORIGIN` lists permitted browser origins, separated by commas. Native requests can omit Origin.
+Local values are in `supabase/dev/functions.env`.
 The local Supabase gateway uses wildcard CORS headers and intercepts OPTIONS.
 The function still rejects unknown and null origins before Auth or action work.
 Direct helper tests prove handler policy; they do not prove external gateway headers.
@@ -377,6 +379,8 @@ Paths follow `pair_id/memory_id/photo_id/{full,thumb}.jpg`. Check all IDs agains
 Upload with no overwrite. Storage RLS permits the insert only for the author's live reservation.
 A database trigger checks that the stored size equals the reserved size.
 On retry, the client treats an existing file (409) as uploaded and sends only missing files.
+A browser retry of the same input reuses its memory, photo, and command IDs.
+Changed input reserves again with new IDs. The old reservation expires.
 
 The `finalize-memory` Edge function takes `{memoryId, commandId}`. It downloads each unvalidated file and checks its bytes with `validate-jpeg.ts`.
 Bucket `allowed_mime_types` and `file_size_limit` check only declared type and size, so this byte check stays on the server.
@@ -389,7 +393,7 @@ Policy `memory_photos_readable` lets current pair members read validated photos 
 The client signs its own links with `createSignedUrl(path, 60)`. Pending, deleted, and foreign photos return 400.
 Clear app image caches on disconnect and sign-out.
 
-Browser media uses no-store requests and memory-scoped blobs. Release object URLs on removal, scope change, and sign-out.
+Browser media uses no-store requests and in-memory blobs in the query cache. Release object URLs on removal, scope change, and sign-out.
 
 An already issued link may work until expiry. Explain this technical limit in the privacy design; never claim instant copy revocation.
 
@@ -493,7 +497,7 @@ Queries validate the Pair UUID and calendar date before requesting data.
 Invalid dates raise `AppError` with code `VALIDATION` and field `date`.
 Malformed responses raise `AppError` with code `RETRYABLE`. Server Result errors retain their typed codes.
 Queries check all four arrays for foreign Pair rows before filtering ended timed Events.
-Foreign rows raise `FORBIDDEN`; old scopes abort reads and reject stale results.
+Foreign rows raise `FORBIDDEN`. Sign-out and pair change cancel reads and clear the cache.
 
 Browser Today makes two scoped data reads together: `get_today` and the Memories `latestMemory` query.
 It keeps one error state if either read fails. Calendar, Tasks, Notes, and Pair aggregation stay outside this query.
@@ -529,29 +533,8 @@ Domain platform restrictions and browser native-code restrictions remain active.
 
 ## Local backend and Edge
 
-The workspace helper verifies canonical Git registration, the shared Git directory, and matching Supabase configuration.
-Persistent services belong to the primary checkout under project `deseo`, API 55721, and database 55722.
-Edge source can belong to the primary checkout or a verified registered worktree.
-Missing, prunable, unregistered, and unrelated paths fail ownership checks.
-Linked worktrees cannot run Start or Reset. Test uses source SQL; Status reads the primary backend.
-Status records remain under the source checkout's ignored backend folder.
-Serving checks Kong, database, existing Edge ownership, and foreign Docker ports before selecting source.
-
-Each origin mode permits one exact `WEB_APP_ORIGIN` entry.
-Origin changes reject listeners on the other mode's port.
-An unchanged-origin source reload permits those listeners only with an owned, running Edge and one matching origin entry.
-The guard does not classify Vite processes or inspect foreign project files.
-Local source verification preserves persistent database identity and current origin policy.
-
+Use plain Supabase CLI commands through the [root scripts](DEVELOPMENT.md#scripts).
+One Edge process serves all functions. `supabase/dev/functions.env` lists the permitted browser origins.
 All Edge entrypoints use `supabase/functions/deno.json`, its frozen lockfile, and Deno 2.9.6.
-Run `npm run typecheck:functions` and both function test commands for local checks.
-Hosted bundling and runtime remain unverified.
-
-## Optimization record
-
-The owner approved the design and implementation plan on 9 October 2026.
-Git retains the design at `761553e:docs/ARCHITECTURE.md` and the plan at `19421cd:docs/DEVELOPMENT.md`.
-Read [the dated evidence](DEVELOPMENT.md#architecture-optimization-evidence-9-october-2026) for source revisions, results, and measurement limits.
-Measured Important date and realtime costs justify separate designs. This change adds neither capability.
-Keep fixture ownership, gallery assets, and the native and deployment acceptance limits.
+Run `npm run typecheck:functions` and `npm run test:functions` for local checks. Hosted bundling and runtime remain unverified.
 Nothing runs in production. Edit the baseline migration in place until the first release, then add new migrations.

@@ -26,7 +26,7 @@ Run all scripts from the repository root.
 | `npm run lint` | ESLint for mobile, web, and domain source |
 | `npm run typecheck` | TypeScript for each workspace |
 | `npm run test` | Workspace tests, SQL tests, and the planning race test |
-| `npm run typecheck:functions` | Deno check of all six Edge entrypoints |
+| `npm run typecheck:functions` | Deno check of all four Edge entrypoints |
 | `npm run test:functions` | Deno tests for Edge functions |
 
 Use the Supabase CLI for other commands, for example `npx supabase status`.

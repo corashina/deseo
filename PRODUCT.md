@@ -34,7 +34,7 @@ Today combines upcoming plans, due tasks, a memory, a pinned note, and an import
 Calendar, Memories, Messages, Tasks, and Settings provide the main workflows.
 The current portal uses English text. Date rules use event, profile, or pair timezones in the data contract.
 Users can reload record URLs and use browser Back.
-Browser drafts remain in memory and disappear after reload. Users receive a warning before leaving changed input.
+Browser drafts remain in memory and disappear when the user leaves the form or reloads. Users receive a warning first.
 
 ## Capabilities and Constraints
 
@@ -46,7 +46,7 @@ Browser drafts remain in memory and disappear after reload. Users receive a warn
 - Users control their own reminders. The portal does not request browser push permission or register native devices.
 - The server checks current account status and pair membership before granting shared access.
 - Private event authors control access. Memory authors control edits and deletion.
-- Users retain failed input and resolve edit conflicts. Clients reuse pending commands for retries.
+- Users retain failed input and resolve edit conflicts. A retry of the same input reuses its command ID.
 - Clients clear private content when account or pair authority changes.
 - Browser scope excludes service workers, offline content storage, and installation prompts.
 - Account export, deletion, avatar backend work, pair-timezone writes, and public pages remain separate delivery scope.
