@@ -6,7 +6,6 @@ import { restoreSession, clearGlobalSignOutFailure, clearEntryIntent } from '../
 import { getPairContext } from '../features/pair';
 import { getSupabase } from '../lib/supabase';
 import { resetPrivateQueries } from '../lib/query-client';
-import { clearDrafts } from '../lib/drafts';
 type State = { status: 'loading' | 'signedOut' | 'authenticated' | 'error'; account: Account | null; pair: PairContext | null; userId?: string; error?: string };
 type SessionValue = State & { revalidate(): Promise<void> };
 const loading: State = { status: 'loading', account: null, pair: null };
@@ -14,10 +13,6 @@ const signedOut: State = { status: 'signedOut', account: null, pair: null };
 const Context = createContext<SessionValue | null>(null);
 const scopeOf = (userId: string, account: Account | null, pair: PairContext | null) =>
   userId + ':' + Boolean(account) + ':' + pair?.status + ':' + (pair && 'pairId' in pair ? pair.pairId : '');
-function clearPrivateState() {
-  clearDrafts();
-  void resetPrivateQueries();
-}
 export function SessionProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<State>(loading);
   const accountId = state.account?.id;
@@ -32,7 +27,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       if (request !== generation.current) return;
       const nextScope = session ? scopeOf(session.userId, session.account, pair) : null;
       // Privacy rule: clear private caches before another account or pair can show.
-      if (scope.current !== nextScope) { scope.current = nextScope; clearPrivateState(); }
+      if (scope.current !== nextScope) { scope.current = nextScope; void resetPrivateQueries(); }
       const nextState: State = session ? { status: 'authenticated', userId: session.userId, account: session.account, pair } : signedOut;
       // Keep the same objects when nothing changed. Then a focus check does not re-run effects or rejoin channels.
       setState(current => JSON.stringify(current) === JSON.stringify(nextState) ? current : nextState);
@@ -41,7 +36,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       const failure = toAppError(error);
       const rejected = failure.code === 'FORBIDDEN' || failure.code === 'UNAUTHENTICATED';
       scope.current = null;
-      clearPrivateState();
+      void resetPrivateQueries();
       setState({ ...loading, status: rejected ? 'signedOut' : 'error', error: failure.message });
       if (rejected) void getSupabase().auth.signOut({ scope: 'local' });
     }
@@ -52,7 +47,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       generation.current++;
       scope.current = null;
       clearEntryIntent();
-      clearPrivateState();
+      void resetPrivateQueries();
       setState(signedOut);
     };
     const refresh = () => { if (scope.current) void revalidate(); };
@@ -62,7 +57,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       if (event === 'SIGNED_OUT') { reset(); return; }
       if (event === 'SIGNED_IN') clearGlobalSignOutFailure();
       if (!scope.current?.startsWith(session?.user.id + ':')) {
-        generation.current++; scope.current = null; clearPrivateState(); setState(loading);
+        generation.current++; scope.current = null; void resetPrivateQueries(); setState(loading);
       }
       // Leave the Auth callback before the next request takes its session lock.
       timer = setTimeout(() => void revalidate(), 0);
