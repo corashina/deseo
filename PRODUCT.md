@@ -49,7 +49,7 @@ Browser drafts remain in memory and disappear after reload. Users receive a warn
 - Users retain failed input and resolve edit conflicts. Clients reuse pending commands for retries.
 - Clients clear private content when account or pair authority changes.
 - Browser scope excludes service workers, offline content storage, and installation prompts.
-- Account export, deletion, avatar backend work, pair-timezone writes, and public pages remain separate delivery scope.
+- Account export, deletion, avatar backend work, and pair-timezone writes remain separate delivery scope. The public site ships without account deletion.
 - Product scope excludes relationship scores, streaks, coaching, profiling, public feeds, advertising, and partner surveillance.
 
 Use [Architecture](docs/ARCHITECTURE.md) for module rules.

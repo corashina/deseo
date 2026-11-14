@@ -4,7 +4,7 @@ A private app for two people to plan days, share messages, and keep memories.
 
 Deseo has a React browser portal and an Expo application for Android and iOS.
 Both applications use shared domain contracts and the same Supabase access rules.
-The public information site remains a separate delivery task.
+The public information site in `apps/site` builds static pages. Store links, policies, and account deletion are pending.
 
 ## Product
 
@@ -48,7 +48,7 @@ apps/web/          React DOM screens and browser capabilities
 packages/domain/   Shared schemas, payloads, types, date rules, and results
 supabase/          Migrations, transactions, Edge functions, and fixtures
 brand/             Shared tokens and icon
-apps/site/         Planned public information site
+apps/site/         Static public information site
 ```
 
 ## Screenshots
