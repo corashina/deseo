@@ -94,20 +94,17 @@ Use the installed Supabase query builder without a generic repository layer.
 ## Reads, writes, and refresh
 
 - **Read.** A page or screen calls a feature query. The query sends an authenticated request, RLS filters the rows, and the typed result goes into the Query cache.
-- **Write.** A form calls a feature command. The command runs one transaction, returns the confirmed result, and invalidates the affected queries.
-- **Refresh.** An authorized Realtime signal invalidates queries. The app then reads them again with authentication.
+- **Write.** A form runs a TanStack Query mutation. The command runs one transaction and invalidates the affected queries. On error, the form keeps its input and shows a retry button.
+- **Refresh.** Any authorized Realtime signal invalidates the matching feature queries. The app then reads them again with authentication.
 - **Photo.** The app prepares the selected photo, reserves an upload, and uploads it to private storage. The server validates the photo before it publishes the memory.
 - **Push.** A scheduled worker claims a durable job and checks current access. It sends the job to Expo and then processes the receipt.
 
-Scope keys to account and pair. Abort old reads and clear private caches before account or pair changes.
-Revalidate server authority after focus and reconnect. Reset queries again if verified authority changes.
+Scope keys to account and pair. Clear private caches on sign-out and on account or pair change.
+On web focus and reconnect, refetch the session context. A membership or profile signal also refetches it.
+Ignore an older session check when a newer check or a sign-out starts after it.
 On native resume, cover the mounted screens and keep the cache until the account and pair checks pass.
-Keep each Realtime authority channel owned by a stable verified account ID.
-Ignore only signals represented by the latest fully server-verified snapshot, with exact identity, state, version, and slot checks.
-Revalidate incomplete signals and genuine changes. Never skip account disable or membership departure.
-Reject removed prior-user callbacks before they can interrupt a new account's requests.
-Keep stable command IDs and immutable input while an outcome remains unknown.
-Offer explicit retry or reconciliation. Confirm success only after a durable server result.
+Events, tasks, ideas, lists, reminders, preferences, and profiles send an expected version. A concurrent edit fails with CONFLICT and keeps the draft.
+Web commands send a new command ID on each attempt. A message retry keeps its client ID, so the server stores it once.
 
 ## Platform storage
 
