@@ -34,7 +34,7 @@
     "start:backend": "supabase start",
     "reset:backend": "supabase db reset --local",
     "stop:backend": "supabase stop",
-    "start:functions": "powershell -NoProfile -File supabase/dev/serve-web-functions.ps1",
+    "start:functions": "supabase functions serve --env-file supabase/dev/functions.env",
     "test:functions": "npm exec --yes --package deno@2.9.6 -- deno test --frozen --config supabase/functions/deno.json supabase/functions/finalize-memory/validate-jpeg.test.ts"
   },
   "devDependencies": {
