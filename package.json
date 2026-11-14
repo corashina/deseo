@@ -29,6 +29,8 @@
     "dev:web": "npm run dev --workspace @deseo/web",
     "preview:web": "npm run preview --workspace @deseo/web",
     "build:web": "npm run build --workspace @deseo/web",
+    "dev:site": "npm run dev --workspace @deseo/site",
+    "build:site": "npm run build --workspace @deseo/site",
     "test:domain": "npm run test --workspace @deseo/domain",
     "seed:web": "node --experimental-strip-types supabase/dev/seed-web-pair.ts",
     "start:backend": "powershell -NoProfile -File supabase/dev/backend.ps1 -Action Start",

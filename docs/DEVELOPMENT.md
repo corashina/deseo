@@ -23,6 +23,18 @@ Mobile verification runs native TypeScript, lint, and Jest. It does not require 
 The domain suite checks shared schemas, payloads, and results.
 Keep exact pins. Add packages only when a feature needs them.
 
+### Public site
+
+```powershell
+npm run dev:site
+npm run build:site
+npm run preview --workspace @deseo/site
+```
+
+The build writes static HTML to `apps/site/dist`. Preview serves it at `http://127.0.0.1:4175`.
+Vite preview does not add trailing slashes. Site links use `/support/`, not `/support`.
+Images in `apps/site/public/images` are WebP copies of `design` previews. Mark each one as a preview.
+
 ### Local browser backend
 
 Run Docker Desktop. Start the single `deseo` backend from the primary checkout.
@@ -381,7 +393,7 @@ The [historical visual review](README.md#visual-review) covers only the static r
 
 ## Remaining work
 
-Account export, account deletion, avatar backend work, pair-timezone writes, and public pages remain separate delivery work.
+Account export, account deletion, avatar backend work, pair-timezone writes, and the public deletion page remain separate delivery work.
 Inspect current code and verified interfaces before starting each item.
 
 | Work | Requirements |
@@ -389,7 +401,7 @@ Inspect current code and verified interfaces before starting each item.
 | Account controls | Complete profile, private avatars, verified email changes, and timezone changes without shifting saved instants |
 | Export | Cover all content types; verify paired scope, author-only scope, resumable parts, expiry, and file integrity |
 | Deletion | Disable access, revoke sessions, finish retention cleanup, and verify authored records and objects are gone |
-| Public pages | Build landing, support, policies, invitations, and independent deletion using the same verified backend |
+| Public pages | Done: static landing, invitation, support, policy status, and 404 pages in `apps/site`. Pending: independent deletion page, approved policies, support address, store links, app links, canonical URLs, sitemap, and `robots.txt` |
 | Native acceptance | Test signed Android and iOS builds, storage, photos, push, permissions, and lifecycle changes on devices |
 | Release | Complete CI, access and recovery checks, monitoring, store materials, and the five-pair usability review |
 
@@ -501,6 +513,56 @@ Describe only working features. Do not claim therapy, guaranteed reminders, comp
 Provide review access to a synthetic pair without exposing real users.
 
 Check that the store privacy labels match the exact build and enabled SDK configuration.
+
+#### Listing text
+
+Use this draft for both stores. Before submission, confirm each feature on the signed build.
+
+| Field | Limit | Text |
+|---|---|---|
+| App Store name | 30 | `Deseo: Plan Together` |
+| App Store subtitle | 30 | `Shared calendar for couples` |
+| App Store keywords | 100 | `couple,partner,relationship,schedule,agenda,tasks,todo,photo,memories,chat,notes,date,anniversary` |
+| Google Play title | 30 | `Deseo: Plan Together` |
+| Google Play short description | 80 | `Plan your days together. Share a calendar, tasks, messages, and photo memories.` |
+
+Keywords do not repeat words from the name or subtitle. Apple indexes those words separately.
+
+Full description:
+
+```text
+Plan your days together.
+
+Deseo is a private space for two partners. Plan your days, share a note, and keep the moments you want to remember.
+
+Calendar
+- Add shared events and private events.
+- Add all-day plans and yearly important dates.
+- Save date ideas for later.
+
+Tasks
+- Make named lists.
+- Assign a task, set a due date, and mark it done.
+
+Messages
+- Write to each other in one conversation.
+- Pin a message to keep it as a note.
+
+Memories
+- Save one to five photos with a date and a caption.
+
+Today
+- See your next plans, due tasks, the latest memory, the latest note, and the next important date.
+
+Privacy and control
+- Sign in with an email code.
+- Join your partner with an invitation.
+- Private events stay private.
+- Either partner can end the pair at any time.
+- No ads, no public feed, and no relationship scores.
+```
+
+Add a reminder line only after push reminders pass on signed Android and iOS builds.
 
 Review current [Apple deletion guidance](https://developer.apple.com/support/offering-account-deletion-in-your-app/) and [Google deletion requirements](https://support.google.com/googleplay/android-developer/answer/13327111).
 

@@ -1,7 +1,7 @@
 # Documentation
 
 Deseo has a React browser portal and an Expo app for Android and iOS.
-Both use shared domain contracts and one backend. Public pages remain separate delivery work.
+Both use shared domain contracts and one backend. `apps/site` builds the static public pages.
 
 | Read | Use |
 |---|---|
@@ -93,6 +93,11 @@ Invitation links carry an opaque token in the query string. The public page does
 Set `Referrer-Policy: no-referrer`. Exclude invitation URLs from analytics and scrub their queries from access logs.
 
 After installation, tell users to reopen the original invitation. Do not promise automatic transfer through an app store.
+
+`apps/site` builds `/`, `/invite`, `/support`, `/privacy`, `/terms`, and a 404 page as static HTML without JavaScript.
+The policy pages state that no policy is published. The support page states that no support address exists.
+`/delete-account` waits for the backend deletion flow.
+Add store links, app links, canonical URLs, a sitemap, `robots.txt`, and absolute Open Graph URLs at launch.
 
 ### Authentication and entry
 

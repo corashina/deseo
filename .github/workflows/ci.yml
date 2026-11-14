@@ -25,6 +25,7 @@ jobs:
       - run: npm run typecheck --workspace @deseo/web
       - run: npx eslint apps/web packages/domain/src
       - run: npm run build:web
+      - run: npm run build:site
 
   backend:
     name: Database, races and functions
