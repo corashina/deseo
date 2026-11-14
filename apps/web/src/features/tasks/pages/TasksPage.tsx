@@ -11,6 +11,7 @@ import { useTaskSignals } from '../realtime';
 import { PageHeader } from '../../../components/ui/PageHeader';
 import { Button } from '../../../components/ui/Button';
 import { Status } from '../../../components/ui/Status';
+import { Field } from '../../../components/ui/Field';
 import { listTaskLists, listTasks, taskKeys } from '../queries';
 import { TaskRow } from '../components/TaskRow';
 import '../../../styles/planning.css';
@@ -107,18 +108,17 @@ function QuickAdd({ accountId, pairId, listId }: {
     }
   }
   return <form className="quick-add" onSubmit={event => { event.preventDefault(); void add(); }}>
-    <label className="field">
-      <span>Quick add task</span>
-      <input
-        value={title}
-        required
-        maxLength={200}
-        disabled={busy || frozen}
-        onChange={event => {
-          setTitle(event.target.value);
-          writeDraft(accountId, pairId, key, { title: event.target.value });
-        }} />
-    </label>
+    <Field
+      label="Quick add task"
+      name="title"
+      value={title}
+      required
+      maxLength={200}
+      disabled={busy || frozen}
+      onChange={event => {
+        setTitle(event.target.value);
+        writeDraft(accountId, pairId, key, { title: event.target.value });
+      }} />
     <Button type="submit" disabled={!online || busy}>{busy ? 'Saving…' : frozen ? 'Retry task' : 'Add to list'}
     </Button>
     {error && <Status error>{error}

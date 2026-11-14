@@ -9,6 +9,7 @@ import { useCommandScope } from '../../../lib/use-command-scope';
 import { readDraft, writeDraft, removeDraft, useUnsavedChanges } from '../../../lib/drafts';
 import { PageHeader } from '../../../components/ui/PageHeader';
 import { Status } from '../../../components/ui/Status';
+import { Field } from '../../../components/ui/Field';
 import { Button } from '../../../components/ui/Button';
 import { Dialog } from '../../../components/ui/Dialog';
 import { listTaskLists, listTasks, taskKeys } from '../queries';
@@ -103,18 +104,17 @@ export function ListDetailPage() {
       {!list.isGeneral && <div className="task-list-actions">
         <h2>List settings</h2>
         <form className="list-name-form" onSubmit={event => { event.preventDefault(); void run('rename'); }}>
-          <label className="field">
-            <span>New list name</span>
-            <input
-              value={name}
-              maxLength={40}
-              required
-              disabled={saving || frozen}
-              onChange={event => {
-                setName(event.target.value);
-                writeDraft(account!.id, pairId, key, { name: event.target.value });
-              }} />
-          </label>
+          <Field
+            label="New list name"
+            name="listName"
+            value={name}
+            maxLength={40}
+            required
+            disabled={saving || frozen}
+            onChange={event => {
+              setName(event.target.value);
+              writeDraft(account!.id, pairId, key, { name: event.target.value });
+            }} />
           <Button disabled={!online || saving || frozen} type="submit">Rename list</Button>
         </form>
         <div className="actions">

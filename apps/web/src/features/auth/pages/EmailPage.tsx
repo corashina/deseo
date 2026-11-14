@@ -22,6 +22,6 @@ export function EmailPage() {
     <form onSubmit={async event => { event.preventDefault(); if (!isOnline() || pending) return; const scope = beginScope(); setPending(true); setError('');
       const result = await requestEmailCode(email); if (!scope.isCurrent()) return; setPending(false);
       if (result.ok) setSent(true); else setError(result.error.message ?? 'Check your email address.');
-    }}><Field label="Email address" type="email" autoComplete="email" required value={email} disabled={pending} onChange={event => { entryIntent.emailDraft = event.target.value; setEmail(event.target.value); }} />
+    }}><Field label="Email address" name="email" spellCheck={false} type="email" autoComplete="email" required value={email} disabled={pending} onChange={event => { entryIntent.emailDraft = event.target.value; setEmail(event.target.value); }} />
     {error && <Status error>{error}</Status>}<Button type="submit" disabled={pending || !online}>{pending ? 'Sending…' : 'Send code'}</Button></form><Link to="/welcome">Back</Link></section>;
 }

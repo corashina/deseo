@@ -29,7 +29,7 @@ export function ProfilePage() {
       if (!scope.isCurrent()) return;
       if (result.ok) { removeDraft(userId!, null, 'profile'); setConfirmed(true); await revalidate(); }
       else { setError(result.error.message ?? 'Check your profile.'); setPending(false); if (result.error.code !== 'RETRYABLE') { setAttempt(undefined); writeDraft(userId!, null, 'profile', { name, timezone }); } }
-    }}><fieldset disabled={pending || Boolean(attempt)}><Field label="Your name" required maxLength={40} autoComplete="given-name" value={name} onChange={event => { setName(event.target.value); writeDraft(userId!, null, 'profile', { name: event.target.value, timezone }); }} />
-    <Field label="Timezone" required value={timezone} onChange={event => { setTimezone(event.target.value); writeDraft(userId!, null, 'profile', { name, timezone: event.target.value }); }} /></fieldset>
+    }}><fieldset disabled={pending || Boolean(attempt)}><Field label="Your name" name="displayName" required maxLength={40} autoComplete="given-name" value={name} onChange={event => { setName(event.target.value); writeDraft(userId!, null, 'profile', { name: event.target.value, timezone }); }} />
+    <Field label="Timezone" name="timezone" required value={timezone} onChange={event => { setTimezone(event.target.value); writeDraft(userId!, null, 'profile', { name, timezone: event.target.value }); }} /></fieldset>
     {error && <Status error>{error}</Status>}<Button type="submit" disabled={pending || !online}>{attempt ? 'Retry profile' : 'Save profile'}</Button></form></section>;
 }
