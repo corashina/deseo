@@ -95,6 +95,8 @@ npm run verify:web
 ```
 
 Run each second command in another terminal while Edge remains active.
+After the build, web verification runs `npm run size --workspace @deseo/web`.
+It fails when the gzip JS and CSS that `index.html` loads is more than the budget in `apps/web/scripts/check-size.mjs`.
 `npm run dev` starts the browser portal. Use `npm run dev:mobile` for Expo.
 Development uses `http://127.0.0.1:5174`. Tests use `http://127.0.0.1:4174`.
 An origin change requires no listener on the other mode's port.
@@ -501,6 +503,7 @@ For schema rollback, protect existing data. Prefer a reviewed corrective change 
 - [ ] Check privacy disclosures against actual SDKs, processors, storage, and retention.
 - [ ] Replace prototype landing imagery with screenshots of the release candidate.
 - [ ] Verify support links and support handling.
+- [ ] Configure web hosting: Brotli compression, `Cache-Control: public, max-age=31536000, immutable` for `/assets/*`, and `no-cache` for `index.html`.
 - [ ] Verify backups, restoration, queue alerts, and deletion alerts.
 - [ ] Review the release candidate with the owner before publishing.
 
