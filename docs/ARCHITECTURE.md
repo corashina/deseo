@@ -519,9 +519,13 @@ Domain owns the Result schema and `TodaySummary` type. Each application owns its
 | Stored field | Shared field | Rule |
 |---|---|---|
 | `agenda` | `agenda` | Complete Event agenda |
-| `important_dates` | `importantDates` | Event rows within the existing 366-day range |
+| `important_dates` | `importantDates` | Important Event rows within the existing 366-day range |
 | `due_tasks` | `dueTasks` | At most three Task rows |
 | `notes` | `notes` | At most two Message rows |
+
+`list_agenda` and `get_today` use the same query, `private.list_agenda`.
+For `important_dates`, the query reads only important Events. Yearly Events are always important.
+It removes other Events before it expands and converts rows. Range, overlap, leap-day, and private Event rules do not change.
 
 The shared schema reuses Event, Task, Message, and Result schemas.
 Queries validate the Pair UUID and calendar date before requesting data.
