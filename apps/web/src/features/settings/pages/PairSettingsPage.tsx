@@ -19,7 +19,7 @@ export function PairSettingsPage() {
   const pairId = pair && 'pairId' in pair ? pair.pairId : null;
   const attempt = useRef(readDraft<Attempt>(account!.id, pairId, 'end-pair'));
   const mounted = useRef(false); const pending = useRef(false);
-  const [code, setCode] = useState(''); const [sent, setSent] = useState(false); const [busy, setBusy] = useState(false);
+  const [code, setCode] = useState(''); const [codeError, setCodeError] = useState(''); const [sent, setSent] = useState(false); const [busy, setBusy] = useState(false);
   const [confirm, setConfirm] = useState(false); const [error, setError] = useState(''); const [uncertain, setUncertain] = useState(Boolean(attempt.current));
   useUnsavedChanges(Boolean(code) || uncertain);
   useEffect(() => { mounted.current = true; return () => { mounted.current = false; }; }, []);
@@ -61,10 +61,10 @@ export function PairSettingsPage() {
   }
   return <section className="card form-page settings-detail"><PageHeader title="Your pair" description="Manage your shared access." />
     {pair?.status === 'active' ? <><div className="paired-members">{pair.members.map(member => <div key={member.userId}><Avatar name={member.displayName} slot={member.slot} /><h2>{member.displayName}</h2><p>{member.userId === account!.id ? 'You' : 'Your partner'}</p></div>)}</div>
-      <p>Pair timezone: {pair.timezone}</p>
+      <p>Pair timezone: <span translate="no">{pair.timezone}</span></p>
       <section className="settings-section"><h2>End this pair</h2><p>Either person can end this pair. Both people lose shared access. Your next pair starts empty.</p>
       {uncertain ? <Button variant="danger" disabled={!online || busy} onClick={() => void disconnect()}>Retry ending pair</Button> : <><Button variant="secondary" disabled={!online || busy} onClick={() => void send()}>{sent ? 'Send a new code' : 'Send code to end pair'}</Button>
-      {sent && <><Field label="Email verification code" name="code" spellCheck={false} disabled={busy} inputMode="numeric" autoComplete="one-time-code" value={code} maxLength={6} onChange={event => setCode(event.target.value)} /><Button variant="danger" disabled={!online || busy || !/^\d{6}$/.test(code)} onClick={() => setConfirm(true)}>End pair</Button></>}</>}</section>
+      {sent && <><Field label="Email verification code" name="code" spellCheck={false} disabled={busy} inputMode="numeric" autoComplete="one-time-code" value={code} maxLength={6} error={codeError} onChange={event => { setCodeError(''); setCode(event.target.value); }} /><Button variant="danger" disabled={!online || busy} onClick={() => { if (/^\d{6}$/.test(code)) setConfirm(true); else setCodeError('Enter the 6-digit code from your email.'); }}>End pair</Button></>}</>}</section>
     </> : <><p>{pair?.status === 'ended' ? 'Your pair has ended. Shared content is unavailable.' : 'You have no active pair.'}</p><Link to="/pair/start">Set up your pair</Link></>}
     {error && !confirm && <Status error>{error}</Status>}<Link to="/settings">Return to settings</Link>
     <Dialog busy={busy} title="End this pair?" open={confirm} onClose={() => { if (!busy) setConfirm(false); }}><p>Both people lose shared access. This cannot be undone.</p>{confirm && error && <Status error>{error}</Status>}<Button variant="danger" disabled={!online || busy} onClick={() => void disconnect()}>Confirm ending pair</Button></Dialog>

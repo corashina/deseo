@@ -105,7 +105,7 @@ export function EventDetailPage() {
     <section className="card event-detail">
       <dl>
         <dt>When</dt><dd>{time}</dd>
-        <dt>Timezone</dt><dd>{event.timezone}</dd>
+        <dt>Timezone</dt><dd translate="no">{event.timezone}</dd>
         <dt>Visibility</dt><dd>{event.visibility === 'private' ? 'Private to you' : 'Shared with your partner'}</dd>
         <dt>Repeat</dt><dd>{event.repeat === 'yearly' ? 'Every year' : 'Does not repeat'}</dd>
         {event.importantDate && <><dt>Important date</dt><dd>Yes</dd></>}
