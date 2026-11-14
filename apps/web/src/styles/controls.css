@@ -27,7 +27,7 @@
 .avatar { display: inline-flex; width: 32px; height: 32px; border-radius: 50%; align-items: center; justify-content: center; flex-shrink: 0; font-size: 14px; font-weight: 600; }
 .slot-a { background: var(--rose-soft); color: var(--rose); }
 .slot-b { background: var(--teal-soft); color: var(--teal); }
-dialog { border: 1px solid var(--line); border-radius: 20px; padding: 24px; color: var(--ink); background: var(--surface); box-shadow: var(--shadow-popover); width: min(480px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); overflow: auto; }
+dialog { border: 1px solid var(--line); border-radius: 20px; padding: 24px; color: var(--ink); background: var(--surface); box-shadow: var(--shadow-popover); width: min(480px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); overflow: auto; overscroll-behavior: contain; }
 dialog::backdrop { background: rgb(56 53 71 / .35); }
 .dialog-heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 24px; }
 .dialog-heading h2 { margin: 0; }

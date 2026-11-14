@@ -8,6 +8,7 @@ import { useCommandScope } from '../../../lib/use-command-scope';
 import { useNetworkStatus } from '../../../lib/network';
 import { PageHeader } from '../../../components/ui/PageHeader';
 import { Status } from '../../../components/ui/Status';
+import { formatDate } from '../../../lib/format';
 import { Button } from '../../../components/ui/Button';
 import { listNotifications, notificationKeys } from '../queries';
 import { resolveNotification, markNotificationRead } from '../commands';
@@ -46,7 +47,7 @@ export function NotificationsPage() {
       <div className="notification-main">
         <div className="notification-content">
           <div className="notification-heading"><h2>{item.kind === 'message' ? 'Message alert' : item.kind === 'event' ? 'Event reminder' : 'Task reminder'}</h2>{!item.readAt && <span className="notification-unread">Unread</span>}</div>
-          <time className="muted" dateTime={item.createdAt}>{DateTime.fromISO(item.createdAt).setZone(account!.timezone).toLocaleString(DateTime.DATETIME_MED)}</time>
+          <time className="muted" dateTime={item.createdAt}>{formatDate(DateTime.fromISO(item.createdAt).setZone(account!.timezone), 'dateTime', account!.locale)}</time>
           <p className="muted">{states[item.state]}</p>
         </div>
         <Button variant="secondary" disabled={!online || Boolean(opening)} onClick={() => void open(item.id)}>{opening === item.id ? 'Opening…' : 'Open'}</Button>

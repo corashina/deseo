@@ -80,7 +80,7 @@ export function EventFields({ form, names, slot, author, locked, planning = fals
           <span className="field-hint" id={prefix + 'repeat-hint'}>Yearly dates require a one-day, all-day event.</span>{fieldError('repeat')}
         </label>
         <Field label="Location" {...register('location')} maxLength={200} error={error('location')} />
-        <label className="field" htmlFor={prefix + 'description'}><span id={prefix + 'description-label'}>Description</span><textarea {...register('description')} {...fieldProps('description')} aria-labelledby={prefix + 'description-label'} maxLength={2000} rows={4} />{fieldError('description')}</label>
+        <label className="field" htmlFor={prefix + 'description'}><span id={prefix + 'description-label'}>Description</span><textarea autoComplete="off" {...register('description')} {...fieldProps('description')} aria-labelledby={prefix + 'description-label'} maxLength={2000} rows={4} />{fieldError('description')}</label>
       </div>
     </details>
   </fieldset></div>;

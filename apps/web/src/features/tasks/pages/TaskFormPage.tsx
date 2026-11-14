@@ -8,6 +8,7 @@ import { useSession } from '../../../app/SessionProvider';
 import { readDraft, writeDraft, removeDraft, useUnsavedChanges } from '../../../lib/drafts';
 import { useCommandScope } from '../../../lib/use-command-scope';
 import { useNetworkStatus } from '../../../lib/network';
+import { finePointer } from '../../../lib/pointer';
 import { PageHeader } from '../../../components/ui/PageHeader';
 import { Button } from '../../../components/ui/Button';
 import { Status } from '../../../components/ui/Status';
@@ -149,7 +150,7 @@ function TaskEditor({ task, lists }: {
         <fieldset disabled={saving || frozen}>
           <label className="field">
             <span>Title</span>
-            <input {...form.register('title')} maxLength={200} required autoFocus />
+            <input {...form.register('title')} autoComplete="off" maxLength={200} required autoFocus={finePointer} />
           </label>
           <div className="task-form-group">
           <h2>Assignment and due date</h2>
@@ -169,7 +170,7 @@ function TaskEditor({ task, lists }: {
           </label>
           <label className="field">
             <span>Due date (optional)</span>
-            <input type="date" {...form.register('dueDate')} />
+            <input type="date" autoComplete="off" {...form.register('dueDate')} />
           </label>
           </div>
         </fieldset>
