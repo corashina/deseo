@@ -170,7 +170,7 @@ The author can change the caption or delete the memory. Saved copies stay outsid
 Partner colors are blush and mint. Names identify people without color.
 Timezone changes affect future display and quiet hours. They never move stored event instants.
 Quiet hours are off by default. Each person sets them in their own timezone.
-End pair explains access loss and the 30-day own-contribution export window. It needs fresh email verification.
+End pair explains access loss. It needs a fresh email code.
 
 ### Common states
 

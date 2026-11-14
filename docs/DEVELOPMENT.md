@@ -70,7 +70,6 @@ One Edge process serves the dev server (`http://127.0.0.1:5174`) and the test pr
 | Server variable | Use |
 |---|---|
 | `WEB_APP_ORIGIN` | Browser origins that Edge functions accept |
-| `PUBLIC_SUPABASE_URL` | Reachable public API address for signed media links |
 | `SUPABASE_URL` | Internal address that the runtime injects |
 
 Local Kong intercepts OPTIONS and adds wildcard CORS headers.
@@ -128,7 +127,7 @@ The race test creates real accounts and removes its own fixtures. Run it apart f
 Valid-user requests with unknown or null origins must fail before action work.
 
 Check 320px, 768px, and 1024px layouts, keyboard controls, drawer focus, and 200% text size.
-Mask invitation tokens, verification codes, and proofs in screenshots and logs.
+Mask invitation tokens and verification codes in screenshots and logs.
 
 ### Retained tests
 
@@ -156,7 +155,7 @@ Check these areas manually until a defect needs a focused regression test.
 | Pair transaction | 100 | Simultaneous joins, self-join, one account in two pairs, regeneration race |
 | Account disable/delete | 100 | Valid old JWT, session revocation, partial cleanup |
 | Disconnect | 100 | Open screens, resume, writes, export, upload, and push races |
-| Sensitive verification | 100 | Forged, expired, wrong-account, wrong-action, and replayed proof |
+| Sensitive verification | 100 | Old sign-in, other pair, and receipt replay (`supabase/tests/end-pair.test.sql`) |
 | Message durability | 100 | Lost acknowledgement, duplicate UUID, reconnect, paging during inserts |
 | Photo access | 100 | Pending access, forged type, metadata, quota race, stale links |
 | Reminder delivery | 100 | Duplicate workers, crashes, quiet hours, stale versions, bad tokens |
@@ -223,9 +222,6 @@ Apply migrations to staging first. Replay a fresh local database and run access 
 | Reminder claims | Every minute; alert when due jobs wait five minutes |
 | Message persistence | Show Sent only after database acknowledgement |
 | Orphan uploads | Remove abandoned reservations after 24 hours |
-| Account deletion | Revoke access at once; alert if purge exceeds 24 hours |
-| Ended pair | Author-only export for 30 days, then purge |
-| Export files | Private, bounded parts, expire after 24 hours |
 | Media links | At most 60 seconds; never log them |
 | Backup restore | Test in an isolated environment before release |
 

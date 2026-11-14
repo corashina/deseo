@@ -1,16 +1,15 @@
 import { AppError } from '@deseo/domain/result';
 import { captureQueryScope } from '../../lib/query-client';
-import { getMemoryMedia } from './queries';
+import { signMemoryPhoto } from './queries';
 // Signed links and decoded image bytes stay outside persistent browser storage.
-export async function loadMemoryPhoto(photoId: string, variant: 'full' | 'thumb', signal: AbortSignal): Promise<Blob> {
+export async function loadMemoryPhoto(path: string, signal: AbortSignal): Promise<Blob> {
   const scope = captureQueryScope();
   const combined = AbortSignal.any([signal, scope.signal]);
   for (let attempt = 0; attempt < 2; attempt++) {
     combined.throwIfAborted();
-    const media = await getMemoryMedia(photoId, variant);
+    const url = await signMemoryPhoto(path);
     scope.assertCurrent(); combined.throwIfAborted();
-    if (!media.ok) throw new AppError(media.error);
-    const response = await fetch(media.data.url, { cache: 'no-store', signal: combined, credentials: 'omit' });
+    const response = await fetch(url, { cache: 'no-store', signal: combined, credentials: 'omit' });
     scope.assertCurrent(); combined.throwIfAborted();
     if (response.ok) {
       const blob = await response.blob();

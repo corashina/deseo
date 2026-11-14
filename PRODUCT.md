@@ -120,7 +120,7 @@ Use these terms in code, documentation, and UI text.
 | Draft | Unsubmitted content stored on its author's device |
 | Active pair | A pair whose two members can use shared features |
 | Pending pair | A pair with one member awaiting a partner |
-| Ended pair | A pair with revoked shared access and a limited author export period |
+| Ended pair | A pair with revoked shared access |
 | Command | A named write operation with validation and authorization |
 | Module | Code with one public interface and internal implementation |
 | Interface | What a caller must know, including inputs, outputs, errors, and access rules |

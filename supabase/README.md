@@ -40,7 +40,7 @@ Reads from exposed tables use current-session RLS checks.
 | `create_event` | `p_input,p_command_id` | Event row |
 | `update_event` | `p_event_id,p_input,p_expected_version,p_command_id` | Event row |
 | `delete_event` | `p_event_id,p_expected_version,p_command_id` | `{id}` |
-| `end_pair` | `p_pair_id,p_verification_proof,p_command_id` | `{endedAt}` |
+| `end_pair` | `p_pair_id,p_command_id` | `{endedAt}` |
 
 `Account` has `id,displayName,timezone,locale,status,version`.
 
@@ -63,13 +63,10 @@ Use a new command UUID to generate another invitation.
 
 ## Fresh verification
 
-Send `POST /functions/v1/verify-sensitive-action` with the original account Bearer token.
-Send `{action:'end_pair'}` to request a fresh code. The result contains `retryAt`.
-Send `{action:'end_pair',code:'123456'}` to verify that code. The result contains `proof,expiresAt`.
-
-The server verifies the account's actual Auth email. It checks the original live session again before issuing a proof.
-The server revokes the unused session created by email verification.
-The database stores only the random proof hash. Pair closure consumes the proof within the closure transaction.
+Call `end_pair` from a session that signed in during the last ten minutes. Other sessions get `FORBIDDEN`.
+Send a code with `signInWithOtp({email,options:{shouldCreateUser:false}})`.
+Verify it with `verifyOtp` in a separate client without saved sessions. Send `end_pair` with that client, then sign it out.
+A retry with the same command UUID replays the receipt from any session of the same account.
 
 ## Refresh signals
 
@@ -90,4 +87,3 @@ Production network invitation limits need a trusted gateway and a spoofing test.
 Client-supplied `X-Forwarded-For` cannot prove a client's network address.
 Auth provides its own network limits for email verification.
 
-Later migrations must attach reminder and export cancellation to pair closure after those tables exist.

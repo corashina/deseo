@@ -1,7 +1,7 @@
 import { z } from 'zod';
-import { accountSchema, emailCodeSchema, emailSchema, profileSchema, sensitiveActionSchema, type Account, type ProfileInput, type SensitiveAction } from '@deseo/domain/auth';
-import { AppError, resultSchema, toAppError } from '@deseo/domain/result';
-import { getSupabase } from '../../lib/supabase';
+import { accountSchema, emailCodeSchema, emailSchema, profileSchema, type Account, type ProfileInput } from '@deseo/domain/auth';
+import { AppError, toAppError } from '@deseo/domain/result';
+import { createFreshClient, getSupabase, type DeseoClient } from '../../lib/supabase';
 import { callRpc } from '../../lib/rpc';
 import { resetPrivateQueries } from '../../lib/query-client';
 import { startSignOutNotice } from './sign-out-notice';
@@ -52,20 +52,25 @@ export async function signOut(scope: 'local' | 'global' = 'local') {
     throw error;
   }
 }
-async function sensitiveRequest<T extends z.ZodTypeAny>(action: SensitiveAction, schema: T, code?: string): Promise<z.infer<T>> {
-  sensitiveActionSchema.parse(action);
-  if (code !== undefined) emailCodeSchema.parse(code);
-  const { data, error } = await getSupabase().functions.invoke('verify-sensitive-action', { body: { action, ...(code === undefined ? {} : { code }) }, method: 'POST' });
-  if (error) {
-    const response = error.context as Response | undefined;
-    const payload = response && typeof response.json === 'function' ? await response.json().catch(() => null) : null;
-    const parsed = resultSchema(schema).safeParse(payload);
-    if (parsed.success && !parsed.data.ok) throw new AppError(parsed.data.error);
-    throw new AppError({ code: 'RETRYABLE' });
-  }
-  const result = resultSchema(schema).parse(data);
-  if (!result.ok) throw new AppError(result.error);
-  return result.data;
+async function sessionUser() {
+  const { data } = await getSupabase().auth.getSession();
+  const user = data.session?.user;
+  if (!user?.email) throw new AppError({ code: 'UNAUTHENTICATED' });
+  return { id: user.id, email: user.email };
 }
-export const requestSensitiveActionCode = (action: SensitiveAction) => sensitiveRequest(action, z.object({ retryAt: z.string().datetime({ offset: true }) }));
-export const verifySensitiveAction = (action: SensitiveAction, code: string) => sensitiveRequest(action, z.object({ proof: z.string().min(40).max(200), expiresAt: z.string().datetime({ offset: true }) }), code);
+export async function requestVerificationCode(): Promise<{ retryAt: string }> {
+  const { email } = await sessionUser();
+  const { error } = await getSupabase().auth.signInWithOtp({ email, options: { shouldCreateUser: false } });
+  if (error) throw toAppError(error);
+  return { retryAt: new Date(Date.now() + 60_000).toISOString() };
+}
+// Sign in again with the email code in a separate session. Run one command with it, then end that session.
+// The database accepts a sensitive command only from a session that signed in during the last ten minutes.
+export async function withFreshSignIn<T>(code: string, run: (client: DeseoClient) => Promise<T>): Promise<T> {
+  const user = await sessionUser();
+  const fresh = createFreshClient();
+  const { data, error } = await fresh.auth.verifyOtp({ email: user.email, token: emailCodeSchema.parse(code), type: 'email' });
+  if (error) throw toAppError(error);
+  if (data.user?.id !== user.id) throw new AppError({ code: 'UNAUTHENTICATED' });
+  try { return await run(fresh); } finally { void fresh.auth.signOut({ scope: 'local' }); }
+}

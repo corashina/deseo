@@ -64,13 +64,8 @@ test('verification error remains accessible in the confirmation dialog', async (
   try {
     await loginWithLocalEmailCode(page, fixture.email);
     await page.goto('/settings/pair');
-    // Inject only the sensitive-action error state; sign-in uses the normal email-code UI.
-    await page.route('**/functions/v1/verify-sensitive-action', route => {
-      const body = route.request().postDataJSON();
-      return body.code === undefined
-        ? route.fulfill({ json: { ok: true, data: { retryAt: new Date(Date.now() + 60_000).toISOString() } } })
-        : route.fulfill({ status: 400, json: { ok: false, error: { code: 'VALIDATION' } } });
-    });
+    // Skip the second email during the Auth send limit. Local Auth rejects the wrong code.
+    await page.route('**/auth/v1/otp*', route => route.fulfill({ json: {} }));
     await page.getByRole('button', { name: 'Send code to end pair', exact: true }).click();
     await page.getByLabel('Email verification code').fill('000000');
     await page.getByRole('button', { name: 'End pair', exact: true }).click();

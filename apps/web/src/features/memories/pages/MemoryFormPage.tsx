@@ -13,7 +13,7 @@ import { PageHeader } from '../../../components/ui/PageHeader';
 import { Button } from '../../../components/ui/Button';
 import { Status } from '../../../components/ui/Status';
 import { getMemory, memoryKeys } from '../queries';
-import { reserveMemory, uploadMemoryPhoto, finalizeMemory, updateMemory, deleteMemory } from '../commands';
+import { reserveMemory, usePublishMemory, updateMemory, deleteMemory } from '../commands';
 import { preparePhoto, reservationInput, type PreparedBrowserPhoto, type MemoryReservationInput } from '../prepare';
 import { PhotoSelection } from '../components/PhotoSelection';
 import '../../../styles/memories.css';
@@ -38,7 +38,7 @@ function MemoryEditor({ memory }: { memory?: Memory }) {
   const [saving, setSaving] = useState(false); const [preparing, setPreparing] = useState(false);
   const [frozen, setFrozen] = useState(Boolean(attempt.current)); const [error, setError] = useState('');
   const [conflict, setConflict] = useState(false); const [confirmed, setConfirmed] = useState(false); const [progress, setProgress] = useState('');
-  const online = useNetworkStatus(); const navigate = useNavigate();
+  const online = useNetworkStatus(); const navigate = useNavigate(); const publish = usePublishMemory();
   const form = useForm<MemoryInput>({ defaultValues: stored.current?.values ?? (memory ? { caption: memory.caption, memoryDate: memory.memoryDate } : { caption: '', memoryDate: DateTime.now().setZone(pair.timezone).toISODate()! }) });
   const keep = (values = form.getValues(), currentPhotos = photos) => writeDraft(accountId, pairId, key, { values, photos: currentPhotos, id: id.current, version: version.current, attempt: attempt.current, dirty: true } satisfies Draft);
   useUnsavedChanges(!confirmed && (form.formState.isDirty || photos.length > 0 || stored.current?.dirty === true || frozen));
@@ -71,21 +71,15 @@ function MemoryEditor({ memory }: { memory?: Memory }) {
     if (!mounted.current || scope.signal.aborted) return;
     if (result.ok && !memory && result.data.state !== 'published') {
       next.reserved = true; keep(values);
-      const reservation = result.data;
-      for (let index = 0; index < photos.length; index++) {
-        setProgress('Uploading photo ' + (index + 1) + ' of ' + photos.length + '…');
-        const uploaded = await uploadMemoryPhoto(reservation, photos[index]);
-        if (!mounted.current || scope.signal.aborted) return;
-        if (!uploaded.ok) { result = uploaded; break; }
-      }
-      if (result.ok) { setProgress('Publishing memory…'); result = await finalizeMemory(next.input.id, next.publishId); }
+      result = await publish.mutateAsync({ reservation: result.data, photos, commandId: next.publishId,
+        onProgress: message => { if (mounted.current && !scope.signal.aborted) setProgress(message); } });
     }
     if (!mounted.current || scope.signal.aborted) return;
     busy.current = false; setSaving(false); setProgress('');
     if (result.ok) { removeDraft(accountId, pairId, key); setConfirmed(true); return; }
     setConflict(result.error.code === 'CONFLICT');
     setError(result.error.code === 'CONFLICT' ? 'This memory changed. Your draft is kept.' : result.error.message ?? 'Upload failed. Your photos, date, and caption are kept.');
-    // A failed upload retains its reservation. Retry inspects immutable files before sending them again.
+    // A failed upload retains its reservation. Retry sends missing files again and skips existing ones.
     const rejectedReservation = !memory && !next.reserved
       && ['QUOTA_EXCEEDED', 'VALIDATION'].includes(result.error.code);
     if (rejectedReservation || memory && result.error.code !== 'RETRYABLE') {

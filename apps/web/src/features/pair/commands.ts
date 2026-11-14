@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { createdInviteSchema, invitePreviewSchema } from '@deseo/domain/pair';
 import { timezoneSchema } from '@deseo/domain/auth';
+import type { DeseoClient } from '../../lib/supabase';
 import { callRpc } from '../../lib/rpc';
 import { entryIntent } from '../auth';
 export const inviteTokenSchema = z.string().transform(value => value.replace(/[\s-]/g, '').toUpperCase()).pipe(z.string().regex(/^[0-9A-HJKMNP-TV-Z]{12}$/));
@@ -25,6 +26,7 @@ export async function acceptInvite(token: string) {
 export function cancelPendingPair(pairId: string) {
   return callRpc('cancel_pending_pair', { p_pair_id: id.parse(pairId), p_command_id: crypto.randomUUID() }, endedResult);
 }
-export function endPair(pairId: string, verificationProof: string) {
-  return callRpc('end_pair', { p_pair_id: id.parse(pairId), p_verification_proof: verificationProof, p_command_id: crypto.randomUUID() }, endedResult);
+// Pass a freshly signed-in client for the first attempt. A retry with the saved session replays the receipt.
+export function endPair(pairId: string, commandId: string, client?: DeseoClient) {
+  return callRpc('end_pair', { p_pair_id: id.parse(pairId), p_command_id: id.parse(commandId) }, endedResult, client);
 }
