@@ -1,11 +1,10 @@
-import { useEffect, useRef, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { toAppError } from '@deseo/domain/result';
 import { Link } from 'react-router-dom';
 import type { NotificationPreferences } from '@deseo/domain/notifications';
 import { useSession } from '../../../app/SessionProvider';
-import { useCommandScope } from '../../../lib/use-command-scope';
-import { readDraft, writeDraft, removeDraft, useUnsavedChanges } from '../../../lib/drafts';
-import { useNetworkStatus } from '../../../lib/network';
+import { useUnsavedChanges } from '../../../lib/unsaved-changes';
 import { PageHeader } from '../../../components/ui/PageHeader';
 import { Button } from '../../../components/ui/Button';
 import { Field } from '../../../components/ui/Field';
@@ -13,54 +12,24 @@ import { Status } from '../../../components/ui/Status';
 import { getNotificationPreferences, notificationKeys } from '../queries';
 import { saveNotificationPreferences } from '../commands';
 import '../../../styles/notifications.css';
-type Draft = { input: NotificationPreferences; attempt: NotificationPreferences | null };
 export function PreferencesPage() {
-  const { account, pair } = useSession();
-  const pairId = pair && 'pairId' in pair ? pair.pairId : null;
+  const { account } = useSession();
   const query = useQuery({ queryKey: notificationKeys.preferences(account!.id), queryFn: getNotificationPreferences });
-  const online = useNetworkStatus(); const mounted = useRef(false);
-  const pending = useRef(false);
-  const [draft, setDraft] = useState(() => readDraft<Draft>(account!.id, pairId, 'preferences'));
-  const [busy, setBusy] = useState(false); const [message, setMessage] = useState(''); const [conflict, setConflict] = useState(false);
-  useEffect(() => { mounted.current = true; return () => { mounted.current = false; }; }, []);
-  const beginScope = useCommandScope(() => { pending.current = false; setBusy(false); });
+  const [draft, setDraft] = useState<NotificationPreferences>();
+  const input = draft ?? query.data;
+  const save = useMutation({ mutationFn: saveNotificationPreferences, onSuccess: async () => { setDraft(undefined); await query.refetch(); } });
+  const discard = useMutation({ mutationFn: () => query.refetch({ throwOnError: true }), onSuccess: () => { setDraft(undefined); save.reset(); } });
   useUnsavedChanges(Boolean(draft));
-  const input = draft?.input ?? query.data;
   function change(values: Partial<NotificationPreferences>) {
     if (!input) return;
-    const next = { input: { ...input, ...values }, attempt: null };
-    writeDraft(account!.id, pairId, 'preferences', next); setDraft(next); setMessage('');
+    setDraft({ ...input, ...values }); save.reset();
   }
-  async function save() {
-    if (!input || !online || pending.current || conflict) return;
-    const scope = beginScope(); pending.current = true;
-    const attempt = draft?.attempt ?? { ...input };
-    const next = { input: { ...input }, attempt };
-    writeDraft(account!.id, pairId, 'preferences', next); setDraft(next); setBusy(true); setMessage('');
-    // The versioned command has no receipt. Reconcile a lost response before resending.
-    try {
-      if (draft?.attempt) {
-        const current = await getNotificationPreferences(); scope.assertCurrent();
-        if (!mounted.current) return;
-        const expected = { ...attempt, version: current.version };
-        if (current.version > attempt.version && JSON.stringify(current) === JSON.stringify(expected)) {
-          removeDraft(account!.id, pairId, 'preferences'); setDraft(undefined); setMessage('Preferences saved.'); await query.refetch(); return;
-        }
-      }
-      const result = await saveNotificationPreferences(attempt); scope.assertCurrent();
-      if (!mounted.current) return;
-      if (result.ok) { removeDraft(account!.id, pairId, 'preferences'); setDraft(undefined); setMessage('Preferences saved.'); await query.refetch(); }
-      else {
-        setMessage(result.error.code === 'CONFLICT' ? 'Your preferences changed. Your draft is kept.' : result.error.message ?? 'Preferences save failed. Try again.');
-        if (result.error.code !== 'RETRYABLE') { const rejected = { input: next.input, attempt: null }; writeDraft(account!.id, pairId, 'preferences', rejected); setDraft(rejected); }
-        setConflict(result.error.code === 'CONFLICT');
-      }
-    } catch { if (mounted.current && !scope.signal.aborted) setMessage('Preferences save is unconfirmed. Retry the same changes.'); }
-    finally { if (mounted.current && !scope.signal.aborted) { pending.current = false; setBusy(false); } }
-  }
+  const conflict = save.isError && toAppError(save.error).code === 'CONFLICT';
+  const busy = save.isPending || discard.isPending;
+  const message = save.isSuccess ? 'Preferences saved.' : conflict ? 'Your preferences changed. Your draft is kept.' : save.isError ? toAppError(save.error).message : '';
   return <><PageHeader title="Notification preferences" description="Choose your alerts and quiet hours." /><section className="card form-page">
-    {query.isPending && !input ? <Status>Loading preferences…</Status> : query.isError && !input ? <><Status error>We could not load preferences.</Status><Button onClick={() => void query.refetch()}>Retry</Button></> : input && <form onSubmit={event => { event.preventDefault(); void save(); }}>
-      <fieldset className="field-group" disabled={busy || Boolean(draft?.attempt)}>
+    {query.isPending && !input ? <Status>Loading preferences…</Status> : query.isError && !input ? <><Status error>We could not load preferences.</Status><Button onClick={() => void query.refetch()}>Retry</Button></> : input && <form onSubmit={event => { event.preventDefault(); if (input && !busy) save.mutate(input); }}>
+      <fieldset className="field-group" disabled={busy}>
       <h2>Alerts</h2>
       <label className="field field-check"><span><input type="checkbox" checked={input.messageAlerts} onChange={event => change({ messageAlerts: event.target.checked })} /> Message alerts</span></label>
       <label className="field"><span>Default event reminder</span><select value={input.defaultEventReminderMinutes ?? 'none'} onChange={event => change({ defaultEventReminderMinutes: event.target.value === 'none' ? null : Number(event.target.value) })}>
@@ -72,8 +41,8 @@ export function PreferencesPage() {
       <Field label="Notification timezone" required value={input.timezone} onChange={event => change({ timezone: event.target.value })} />
       <p className="muted">Quiet hours defer native push alerts. Event alerts expire when the event starts.</p></div></fieldset>
       <div className="preferences-group"><h2>Device permission</h2><p>Manage device permission in the Deseo Android or iOS app.</p><p className="muted">This browser receives no push alerts.</p></div>
-      {message && <Status error={conflict}>{message}</Status>}
-      {conflict && <Button disabled={!online || busy} variant="secondary" onClick={async () => { const fresh = await query.refetch(); if (!mounted.current || fresh.isError) return; removeDraft(account!.id, pairId, 'preferences'); setDraft(undefined); setConflict(false); setMessage(''); }}>Discard changes and reload</Button>}
-      <Button type="submit" disabled={!online || busy || conflict}>{draft?.attempt ? 'Retry preferences' : 'Save preferences'}</Button>
+      {message && <Status error={save.isError}>{message}</Status>}
+      {conflict && <Button disabled={busy} variant="secondary" onClick={() => discard.mutate()}>Discard changes and reload</Button>}
+      <Button type="submit" disabled={busy || conflict}>{save.isError ? 'Retry preferences' : 'Save preferences'}</Button>
     </form>}<Link to="/settings">Return to settings</Link></section></>;
 }

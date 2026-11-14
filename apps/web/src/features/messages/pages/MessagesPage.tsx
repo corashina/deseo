@@ -1,34 +1,29 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
+import { useInfiniteQuery, useMutation, useQuery } from '@tanstack/react-query';
 import { Link, useSearchParams } from 'react-router-dom';
-import { compareMessageCursors, type Message, type MessageCursor } from '@deseo/domain/messages';
+import { compareMessageCursors, messageBodySchema, type Message, type MessageCursor } from '@deseo/domain/messages';
+import { toAppError } from '@deseo/domain/result';
 import { useSession } from '../../../app/SessionProvider';
 import { PageHeader } from '../../../components/ui/PageHeader';
 import { Button } from '../../../components/ui/Button';
 import { Status } from '../../../components/ui/Status';
 import { Dialog } from '../../../components/ui/Dialog';
-import { readDraft, writeDraft, removeDraft } from '../../../lib/drafts';
-import { useCommandScope } from '../../../lib/use-command-scope';
-import { captureQueryScope } from '../../../lib/query-client';
-import { useNetworkStatus } from '../../../lib/network';
+import { useUnsavedChanges } from '../../../lib/unsaved-changes';
 import { listMessages, messageKeys } from '../queries';
-import { deleteMessage, setReadCursor } from '../commands';
-import { listPinnedNotes, pinMessage, unpinMessage } from '../notes';
-import { usePendingSends } from '../pending-sends';
+import { deleteMessage, pinMessage, sendMessage, setReadCursor, unpinMessage } from '../commands';
+import { listPinnedNotes } from '../notes';
 import { MessageRow } from '../components/MessageRow';
 import { NoteCard } from '../components/NoteCard';
 import { Composer } from '../components/Composer';
 import '../../../styles/messages.css';
 
-type Attempt = Readonly<{ kind: 'pin' | 'unpin' | 'delete'; messageId: string; commandId: string }>;
+type Unsent = { clientId: string; body: string; failed: boolean };
 export function MessagesPage() {
   const { account, pair } = useSession();
   const pairId = pair?.status === 'active' ? pair.pairId : '';
   const accountId = account!.id;
-  const online = useNetworkStatus();
   const [search] = useSearchParams();
   const notesView = search.get('view') === 'notes';
-  const draft = usePendingSends(accountId, pairId);
   const conversation = useInfiniteQuery({ queryKey: messageKeys.conversation(accountId, pairId),
     queryFn: ({ pageParam }) => listMessages(pairId, pageParam), initialPageParam: undefined as string | undefined,
     getNextPageParam: page => page.nextCursor ?? undefined, enabled: !notesView });
@@ -47,15 +42,33 @@ export function MessagesPage() {
   const lastRead = useRef<MessageCursor | null>(null);
   const [readError, setReadError] = useState(false);
   const [readAttempt, setReadAttempt] = useState(0);
-  const [attempt, setAttempt] = useState<Attempt | null>(() => readDraft<Attempt>(accountId, pairId, 'message-action') ?? null);
-  const currentAttempt = useRef(attempt);
-  const pendingAction = useRef(false);
+  const [body, setBody] = useState('');
+  const [unsent, setUnsent] = useState<readonly Unsent[]>([]);
   const [deleting, setDeleting] = useState<Message | null>(null);
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState(attempt ? 'We could not confirm this change. Try again.' : '');
-  const beginScope = useCommandScope(() => { pendingAction.current = false; setBusy(false); });
-  const alive = useRef(true);
-  useEffect(() => { alive.current = true; return () => { alive.current = false; }; }, []);
+  useUnsavedChanges(Boolean(body) || unsent.length > 0);
+  const action = useMutation({
+    mutationFn: ({ kind, id }: { kind: 'pin' | 'unpin' | 'delete'; id: string }) => (kind === 'delete' ? deleteMessage : kind === 'pin' ? pinMessage : unpinMessage)(id),
+    onSuccess: () => setDeleting(null),
+  });
+  const busy = action.isPending;
+  const error = action.isError ? toAppError(action.error).message : '';
+  // A send keeps its client ID. A retry then cannot store the message twice.
+  async function deliver(item: Unsent) {
+    setUnsent(rows => rows.map(row => row.clientId === item.clientId ? { ...row, failed: false } : row));
+    try {
+      await sendMessage({ pairId, clientId: item.clientId, body: item.body });
+      setUnsent(rows => rows.filter(row => row.clientId !== item.clientId));
+    } catch {
+      setUnsent(rows => rows.map(row => row.clientId === item.clientId ? { ...row, failed: true } : row));
+    }
+  }
+  function send() {
+    if (!messageBodySchema.safeParse(body).success) return;
+    const item = { clientId: crypto.randomUUID(), body, failed: false };
+    setUnsent(rows => [...rows, item]);
+    setBody('');
+    void deliver(item);
+  }
 
   useEffect(() => {
     const element = list.current;
@@ -69,9 +82,7 @@ export function MessagesPage() {
   }, [conversation.data, notesView]);
 
   useEffect(() => {
-    if (notesView || !online || !conversation.data || !list.current) return;
-    const scope = captureQueryScope();
-    if (scope.signal.aborted) return;
+    if (notesView || !conversation.data || !list.current) return;
     let active = true;
     const observer = new IntersectionObserver(entries => {
       if (!active || document.visibilityState === 'hidden') return;
@@ -80,12 +91,9 @@ export function MessagesPage() {
       const newest = visible.sort(compareMessageCursors).at(-1);
       if (!newest || lastRead.current && compareMessageCursors(newest, lastRead.current) <= 0) return;
       lastRead.current = newest;
-      void setReadCursor(pairId, { id: newest.id, createdAt: newest.createdAt }).then(result => {
-        try { scope.assertCurrent(); } catch { return; }
-        if (!active || !alive.current) return;
-        if (!result.ok) { lastRead.current = null; setReadError(true); }
-        else setReadError(false);
-      });
+      setReadCursor(pairId, { id: newest.id, createdAt: newest.createdAt }).then(
+        () => { if (active) setReadError(false); },
+        () => { if (active) { lastRead.current = null; setReadError(true); } });
     }, { threshold: 0.1, rootMargin: '0px 0px -80px 0px' });
     const observe = () => {
       if (!active || document.visibilityState === 'hidden') return;
@@ -94,48 +102,29 @@ export function MessagesPage() {
     };
     observe();
     document.addEventListener('visibilitychange', observe);
-    const close = () => { active = false; observer.disconnect(); lastRead.current = null; };
-    scope.signal.addEventListener('abort', close, { once: true });
-    return () => { scope.signal.removeEventListener('abort', close); document.removeEventListener('visibilitychange', observe); close(); };
+    return () => { active = false; observer.disconnect(); lastRead.current = null; document.removeEventListener('visibilitychange', observe); };
     // Use each authenticated data result to observe its rendered message rows.
-  }, [conversation.data, messagesById, notesView, online, pairId, readAttempt]);
+  }, [conversation.data, messagesById, notesView, pairId, readAttempt]);
 
-  async function execute(next: Attempt) {
-    if (!online || pendingAction.current || currentAttempt.current && currentAttempt.current.commandId !== next.commandId) return;
-    const scope = beginScope();
-    pendingAction.current = true; currentAttempt.current = next;
-    writeDraft(accountId, pairId, 'message-action', next);
-    setAttempt(next); setBusy(true); setError('');
-    const result = await (next.kind === 'delete' ? deleteMessage : next.kind === 'pin' ? pinMessage : unpinMessage)(next.messageId, next.commandId);
-    if (!scope.isCurrent()) return;
-    pendingAction.current = false; setBusy(false);
-    if (result.ok) { removeDraft(accountId, pairId, 'message-action'); currentAttempt.current = null; setAttempt(null); setDeleting(null); }
-    else {
-      setError(result.error.message ?? 'We could not save this change. Try again.');
-      if (result.error.code !== 'RETRYABLE') { removeDraft(accountId, pairId, 'message-action'); currentAttempt.current = null; setAttempt(null); setDeleting(null); }
-    }
-  }
-  const pin = (message: Message) => void execute({ kind: message.pinnedAt ? 'unpin' : 'pin', messageId: message.id, commandId: crypto.randomUUID() });
+  const pin = (message: Message) => action.mutate({ kind: message.pinnedAt ? 'unpin' : 'pin', id: message.id });
   if (pair?.status !== 'active') return null;
   const member = (message: Message) => pair.members.find(person => person.userId === message.authorId)!;
   const query = notesView ? notes : conversation;
   return <section className={'messages-page' + (notesView ? '' : ' conversation-page')}>
     <PageHeader title="Messages" description={pair.members.map(person => person.displayName).join(' + ')} />
     <div className="message-views" aria-label="Message views"><Link to="/messages" aria-current={!notesView ? 'page' : undefined}>Conversation</Link><Link to="/messages?view=notes" aria-current={notesView ? 'page' : undefined}>Pinned notes</Link></div>
-    {error && <Status error>{error}</Status>}
-    {attempt && !busy && <Button disabled={!online} onClick={() => void execute(attempt)}>Retry change</Button>}
-    {query.isPending ? <Status>Loading messages…</Status> : query.isError ? <><Status error>We could not load messages.</Status><Button disabled={!online} onClick={() => void query.refetch()}>Retry</Button></> : notesView ?
-      <div className="notes-grid">{notes.data?.length ? notes.data.map(message => <NoteCard key={message.id} message={message} name={member(message).displayName} own={message.authorId === accountId} disabled={!online || busy || Boolean(attempt)} onUnpin={pin} />) : <section className="card"><h2>No pinned notes</h2><p>Pin one of your messages to keep it on Today.</p><Link to="/messages">Open conversation</Link></section>}</div> : <>
-        {conversation.hasNextPage && <Button variant="secondary" disabled={!online || conversation.isFetchingNextPage} onClick={() => void conversation.fetchNextPage()}>{conversation.isFetchingNextPage ? 'Loading older messages…' : 'Load older messages'}</Button>}
+    {error && !deleting && <><Status error>{error}</Status><Button onClick={() => action.mutate(action.variables!)}>Retry change</Button></>}
+    {query.isPending ? <Status>Loading messages…</Status> : query.isError ? <><Status error>We could not load messages.</Status><Button onClick={() => void query.refetch()}>Retry</Button></> : notesView ?
+      <div className="notes-grid">{notes.data?.length ? notes.data.map(message => <NoteCard key={message.id} message={message} name={member(message).displayName} own={message.authorId === accountId} disabled={busy} onUnpin={pin} />) : <section className="card"><h2>No pinned notes</h2><p>Pin one of your messages to keep it on Today.</p><Link to="/messages">Open conversation</Link></section>}</div> : <>
+        {conversation.hasNextPage && <Button variant="secondary" disabled={conversation.isFetchingNextPage} onClick={() => void conversation.fetchNextPage()}>{conversation.isFetchingNextPage ? 'Loading older messages…' : 'Load older messages'}</Button>}
         {!atLatest && <Button variant="secondary" onClick={() => { if (list.current) list.current.scrollTop = list.current.scrollHeight; }}>Latest messages</Button>}
-        {readError && <><Status error>We could not update your unread count.</Status><Button disabled={!online} onClick={() => { lastRead.current = null; setReadAttempt(value => value + 1); }}>Retry unread count</Button></>}
-        <div className="conversation" ref={list} onScroll={event => { const element = event.currentTarget; scrollPosition.current = element.scrollTop; setAtLatest(element.scrollHeight - element.scrollTop - element.clientHeight <= 24); }} aria-label="Conversation messages">{messages.length ? messages.map(message => <MessageRow key={message.id} message={message} name={member(message).displayName} slot={member(message).slot} own={message.authorId === accountId} disabled={!online || busy || Boolean(attempt)} onPin={pin} onDelete={setDeleting} />) : <section className="card"><h2>Start your conversation</h2><p>Send a message to your partner.</p></section>}</div>
+        {readError && <><Status error>We could not update your unread count.</Status><Button onClick={() => { lastRead.current = null; setReadAttempt(value => value + 1); }}>Retry unread count</Button></>}
+        <div className="conversation" ref={list} onScroll={event => { const element = event.currentTarget; scrollPosition.current = element.scrollTop; setAtLatest(element.scrollHeight - element.scrollTop - element.clientHeight <= 24); }} aria-label="Conversation messages">{messages.length ? messages.map(message => <MessageRow key={message.id} message={message} name={member(message).displayName} slot={member(message).slot} own={message.authorId === accountId} disabled={busy} onPin={pin} onDelete={setDeleting} />) : <section className="card"><h2>Start your conversation</h2><p>Send a message to your partner.</p></section>}</div>
       </>}
     {!notesView && <>
-      {draft.error && <Status error>{draft.error}</Status>}
-      {draft.pending.map(item => <article className="card pending-send" key={item.clientId} data-testid="pending-send"><p className="preserve-lines">{item.body}</p><Status>{draft.busy.includes(item.clientId) ? 'Sending…' : item.failed ? 'Delivery not confirmed' : 'Check delivery before retrying'}</Status><Button variant="secondary" disabled={!online || draft.busy.includes(item.clientId)} onClick={() => draft.retry(item.clientId)}>Retry message</Button></article>)}
-      <Composer body={draft.body} onChange={draft.changeBody} onSend={draft.send} disabled={!online || draft.pending.length >= 100} />
+      {unsent.map(item => <article className="card pending-send" key={item.clientId} data-testid="pending-send"><p className="preserve-lines">{item.body}</p>{item.failed ? <><Status error>Not sent</Status><Button variant="secondary" onClick={() => void deliver(item)}>Retry</Button></> : <Status>Sending…</Status>}</article>)}
+      <Composer body={body} onChange={setBody} onSend={send} disabled={false} />
     </>}
-    <Dialog busy={busy} title="Delete message?" open={Boolean(deleting)} onClose={() => { if (!busy) setDeleting(null); }}><p>Delete your message from this conversation and pinned notes.</p>{error && <Status error>{error}</Status>}<Button variant="danger" disabled={!online || busy} onClick={() => deleting && void execute(attempt?.kind === 'delete' && attempt.messageId === deleting.id ? attempt : { kind: 'delete', messageId: deleting.id, commandId: crypto.randomUUID() })}>Confirm deletion</Button><Button variant="secondary" disabled={busy} onClick={() => setDeleting(null)}>Cancel</Button></Dialog>
+    <Dialog busy={busy} title="Delete message?" open={Boolean(deleting)} onClose={() => { if (!busy) setDeleting(null); }}><p>Delete your message from this conversation and pinned notes.</p>{error && deleting && <Status error>{error}</Status>}<Button variant="danger" disabled={busy} onClick={() => deleting && action.mutate({ kind: 'delete', id: deleting.id })}>Confirm deletion</Button><Button variant="secondary" disabled={busy} onClick={() => setDeleting(null)}>Cancel</Button></Dialog>
   </section>;
 }

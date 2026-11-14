@@ -1,10 +1,8 @@
 import { createTask } from '../commands';
-import { readDraft, writeDraft, removeDraft, useUnsavedChanges } from '../../../lib/drafts';
-import { useCommandScope } from '../../../lib/use-command-scope';
-import { useNetworkStatus } from '../../../lib/network';
-import type { TaskInput } from '@deseo/domain/tasks';
-import { useRef, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useUnsavedChanges } from '../../../lib/unsaved-changes';
+import { toAppError } from '@deseo/domain/result';
+import { useState } from 'react';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useSession } from '../../../app/SessionProvider';
 import { useTaskSignals } from '../realtime';
@@ -41,86 +39,42 @@ export function TasksPage() {
         <div className="view-tabs">{lists.data.map(list => <button key={list.id} aria-pressed={list.id === listId} onClick={() => setParams({ list: list.id })}>{list.name}
         </button>)}
         </div>
-        <QuickAdd key={listId} accountId={account!.id} pairId={pairId} listId={listId} />
+        <QuickAdd key={listId} pairId={pairId} listId={listId} />
         {tasks.isPending ? <Status>Loading tasks…</Status> : tasks.isError ? <>
           <Status error>We could not load tasks.</Status>
           <Button onClick={() => void tasks.refetch()}>Retry</Button>
         </> : tasks.data.length ? tasks.data.map(task => <TaskRow
           key={task.id}
           task={task}
-          accountId={account!.id}
           timezone={pair.timezone}
           assignee={pair.members.find(member => member.userId === task.assigneeId)?.displayName ?? 'Unassigned'} />) : <p>No tasks in this list.</p>}
       </>}
     </section>
   </>;
 }
-type QuickDraft = {
-  title: string;
-  attempt?: {
-    input: TaskInput;
-    commandId: string;
-  };
-};
-function QuickAdd({ accountId, pairId, listId }: {
-  accountId: string;
+function QuickAdd({ pairId, listId }: {
   pairId: string;
   listId: string;
 }) {
-  const online = useNetworkStatus();
-  const key = 'task-quick-add:' + listId;
-  const saved = useRef(readDraft<QuickDraft>(accountId, pairId, key));
-  const attempt = useRef(saved.current?.attempt);
-  const [title, setTitle] = useState(saved.current?.title ?? '');
-  const [busy, setBusy] = useState(false);
-  const [frozen, setFrozen] = useState(Boolean(attempt.current));
-  const [error, setError] = useState('');
+  const [title, setTitle] = useState('');
+  const add = useMutation({
+    mutationFn: () => createTask({ id: crypto.randomUUID(), pairId, listId, title, assigneeId: null, dueDate: null }),
+    onSuccess: () => setTitle(''),
+  });
   useUnsavedChanges(Boolean(title));
-  const beginScope = useCommandScope(() => { setBusy(false); });
-  async function add() {
-    if (!online || busy)
-      return;
-    const next = attempt.current ?? { input: { id: crypto.randomUUID(), pairId, listId, title, assigneeId: null, dueDate: null }, commandId: crypto.randomUUID() };
-    const scope = beginScope();
-    attempt.current = next;
-    writeDraft(accountId, pairId, key, { title, attempt: next });
-    setBusy(true);
-    setFrozen(true);
-    const result = await createTask(next.input, next.commandId);
-    if (!scope.isCurrent()) return;
-    setBusy(false);
-    if (result.ok) {
-      attempt.current = undefined;
-      removeDraft(accountId, pairId, key);
-      setTitle('');
-      setError('');
-      setFrozen(false);
-    }
-    else {
-      setError(result.error.message ?? 'Task save failed. Try again.');
-      if (result.error.code !== 'RETRYABLE') {
-        attempt.current = undefined;
-        setFrozen(false);
-        writeDraft(accountId, pairId, key, { title });
-      }
-    }
-  }
-  return <form className="quick-add" onSubmit={event => { event.preventDefault(); void add(); }}>
+  return <form className="quick-add" onSubmit={event => { event.preventDefault(); if (!add.isPending) add.mutate(); }}>
     <label className="field">
       <span>Quick add task</span>
       <input
         value={title}
         required
         maxLength={200}
-        disabled={busy || frozen}
-        onChange={event => {
-          setTitle(event.target.value);
-          writeDraft(accountId, pairId, key, { title: event.target.value });
-        }} />
+        disabled={add.isPending}
+        onChange={event => setTitle(event.target.value)} />
     </label>
-    <Button type="submit" disabled={!online || busy}>{busy ? 'Saving…' : frozen ? 'Retry task' : 'Add to list'}
+    <Button type="submit" disabled={add.isPending}>{add.isPending ? 'Saving…' : add.isError ? 'Retry task' : 'Add to list'}
     </Button>
-    {error && <Status error>{error}
+    {add.isError && <Status error>{toAppError(add.error).message}
     </Status>}
   </form>;
 }

@@ -1,16 +1,15 @@
 import { RouteErrorPage } from '../../../app/RouteErrorPage';
 import { getDateIdea, ideaKeys, planDateIdea, type DateIdea } from '../ideas';
-import { useEffect, useRef, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useEffect, useState } from 'react';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { DateTime } from 'luxon';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { eventFormSchema, eventToForm, toEventInput, type Event, type EventFormValues, type EventInput } from '@deseo/domain/calendar';
+import { eventFormSchema, eventToForm, toEventInput, type Event, type EventFormValues } from '@deseo/domain/calendar';
+import { AppError, toAppError } from '@deseo/domain/result';
 import { useSession } from '../../../app/SessionProvider';
-import { readDraft, writeDraft, removeDraft, useUnsavedChanges } from '../../../lib/drafts';
-import { useCommandScope } from '../../../lib/use-command-scope';
-import { useNetworkStatus } from '../../../lib/network';
+import { useUnsavedChanges } from '../../../lib/unsaved-changes';
 import { PageHeader } from '../../../components/ui/PageHeader';
 import { Button } from '../../../components/ui/Button';
 import { Status } from '../../../components/ui/Status';
@@ -19,11 +18,6 @@ import { calendarKeys, getEvent } from '../queries';
 import { createEvent, updateEvent } from '../commands';
 import { EventFields } from '../components/EventFields';
 import '../../../styles/calendar.css';
-
-type Draft = {
-  values: EventFormValues; id: string; commandId: string; expectedVersion?: number; ideaVersion?: number;
-  frozen: boolean; dirty: boolean; submission?: EventInput;
-};
 
 export function EventFormPage() {
   const { account, pair } = useSession();
@@ -55,146 +49,66 @@ function EventEditor({ event, idea }: { event?: Event; idea?: DateIdea }) {
   const { account, pair } = useSession();
   const navigate = useNavigate();
   const [params] = useSearchParams();
-  const online = useNetworkStatus();
 
   if (!account || pair?.status !== 'active') throw new Error('Active pair required');
-  const key = 'event:' + (event?.id ?? (idea ? 'idea:' + idea.id : 'new'));
-  const initial = useRef(readDraft<Draft>(account.id, pair.pairId, key));
-  const identity = useRef({
-    id: initial.current?.id ?? event?.id ?? crypto.randomUUID(),
-    commandId: initial.current?.commandId ?? crypto.randomUUID(),
-    expectedVersion: initial.current?.expectedVersion ?? event?.version, ideaVersion: initial.current?.ideaVersion ?? idea?.version,
-  });
-  const submission = useRef(initial.current?.submission);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState('');
-  const [conflict, setConflict] = useState(false);
-  const [confirmed, setConfirmed] = useState(false);
-  const beginScope = useCommandScope(() => { setSaving(false); });
-  const [frozen, setFrozen] = useState(initial.current?.frozen ?? false);
+  const [id] = useState(() => event?.id ?? crypto.randomUUID());
+  // Keep the version the draft started from. A concurrent edit then fails with CONFLICT.
+  const [version, setVersion] = useState(idea?.version ?? event?.version);
   const [sharing, setSharing] = useState<EventFormValues | null>(null);
-  const now = useRef(DateTime.now().setZone(account.timezone));
+  const [now] = useState(() => DateTime.now().setZone(account.timezone));
   const date = DateTime.fromISO(params.get('date') ?? '');
   const form = useForm<EventFormValues>({
     resolver: zodResolver(eventFormSchema),
-    defaultValues: initial.current?.values ?? (event ? eventToForm(event) : {
+    defaultValues: event ? eventToForm(event) : {
       title: idea?.title ?? '', allDay: false,
-      startDate: date.isValid ? date.toISODate()! : now.current.toISODate()!,
-      endDate: date.isValid ? date.toISODate()! : now.current.toISODate()!,
+      startDate: date.isValid ? date.toISODate()! : now.toISODate()!,
+      endDate: date.isValid ? date.toISODate()! : now.toISODate()!,
       startTime: '18:00', endTime: '19:00', timezone: account.timezone,
       owner: 'together', visibility: 'shared', location: '', description: idea?.note ?? '', repeat: 'none', importantDate: false,
-    }),
+    },
   });
-  const dirty = !confirmed && (form.formState.isDirty || initial.current?.dirty === true || frozen);
-  useUnsavedChanges(dirty);
-  useEffect(() => {
-    const subscription = form.watch(values => writeDraft(account.id, pair.pairId, key, {
-      ...identity.current, values, frozen, dirty: true, submission: submission.current,
-    }));
-    return () => subscription.unsubscribe();
-  }, [form, account.id, pair.pairId, key, frozen]);
-  useEffect(() => {
-    if (confirmed) navigate('/events/' + identity.current.id, { replace: true });
-  }, [confirmed, navigate]);
-
-  async function save(values: EventFormValues, confirmShared = false) {
-    if (!online || saving) return;
-    const scope = beginScope();
-    setSaving(true);
-    setError('');
-    const input = submission.current ?? toEventInput({
-      ...values, id: identity.current.id, pairId: pair!.status === 'active' ? pair!.pairId : '', confirmShared,
-    });
-    submission.current = input;
-    setFrozen(true);
-    writeDraft(account!.id, input.pairId, key, {
-      ...identity.current, values, frozen: true, dirty: true, submission: input,
-    });
-    const captured = { ...identity.current };
-    const result = idea
-      ? await planDateIdea(idea.id, input, captured.ideaVersion!, captured.commandId)
-      : event
-      ? await updateEvent(event.id, input, captured.expectedVersion!, captured.commandId)
-      : await createEvent(input, captured.commandId);
-    if (!scope.isCurrent()) return;
-    setSaving(false);
-    if (result.ok) {
-      removeDraft(account!.id, input.pairId, key);
-      setConfirmed(true);
-      return;
-    }
-    if (result.error.code === 'CONFLICT') {
-      setError(idea ? 'This idea changed. Your draft is kept.' : 'This event changed. Your draft is kept.');
-      setConflict(true);
-      setFrozen(false);
-      submission.current = undefined;
-      identity.current.commandId = crypto.randomUUID();
-    } else {
-      setError(result.error.message ?? 'Save failed. Try again.');
-      setFrozen(result.error.code === 'RETRYABLE');
-      if (result.error.code !== 'RETRYABLE') {
-        identity.current.commandId = crypto.randomUUID();
-        submission.current = undefined;
+  const save = useMutation({
+    mutationFn: ({ values, confirmShared }: { values: EventFormValues; confirmShared: boolean }) => {
+      const input = toEventInput({ ...values, id, pairId: pair.pairId, confirmShared });
+      return idea ? planDateIdea(idea.id, input, version!) : event ? updateEvent(input, version!) : createEvent(input);
+    },
+  });
+  const reload = useMutation({
+    mutationFn: async () => {
+      if (idea) {
+        const current = await getDateIdea(pair.pairId, idea.id);
+        if (!current) throw new AppError({ code: 'FORBIDDEN', message: 'Idea unavailable.' });
+        form.reset({ ...form.getValues(), title: current.title, description: current.note });
+        setVersion(current.version);
+        return;
       }
-    }
-    writeDraft(account!.id, input.pairId, key, {
-      ...identity.current, values, frozen: result.error.code === 'RETRYABLE', dirty: true, submission: submission.current,
-    });
-  }
+      const current = await getEvent(pair.pairId, event!.id);
+      if (!current) throw new AppError({ code: 'FORBIDDEN', message: 'Event unavailable.' });
+      form.reset(eventToForm(current));
+      setVersion(current.version);
+    },
+    onSuccess: () => save.reset(),
+  });
+  const failure = save.isError ? toAppError(save.error) : null;
+  const conflict = failure?.code === 'CONFLICT';
+  const error = reload.isError ? toAppError(reload.error).message
+    : conflict ? (idea ? 'This idea changed. Your draft is kept.' : 'This event changed. Your draft is kept.')
+    : failure?.message ?? '';
+  const saving = save.isPending || reload.isPending;
+  useUnsavedChanges(!save.isSuccess && form.formState.isDirty);
+  useEffect(() => {
+    if (save.isSuccess) navigate('/events/' + id, { replace: true });
+  }, [save.isSuccess, navigate, id]);
 
   function submitValues(values: EventFormValues) {
     if (event?.visibility === 'private' && values.visibility === 'shared') setSharing(values);
-    else void save(values);
-  }
-
-  async function reloadEvent() {
-    if (saving) return;
-    const scope = beginScope();
-    setSaving(true);
-    try {
-      if (idea) {
-        const currentIdea = await getDateIdea(pair!.status === 'active' ? pair!.pairId : '', idea.id);
-        if (!scope.isCurrent()) return;
-        if (!currentIdea) {
-          setError('Idea unavailable.');
-          return;
-        }
-        identity.current.ideaVersion = currentIdea.version;
-        identity.current.commandId = crypto.randomUUID();
-        submission.current = undefined;
-        initial.current = undefined;
-        form.reset({ ...form.getValues(), title: currentIdea.title, description: currentIdea.note });
-        setConflict(false);
-        setError('');
-        removeDraft(account!.id, currentIdea.pairId, key);
-        return;
-      }
-      const current = await getEvent(pair!.status === 'active' ? pair!.pairId : '', event!.id);
-      if (!scope.isCurrent()) return;
-      if (!current) {
-        setError('Event unavailable.');
-        return;
-      }
-      form.reset(eventToForm(current));
-      submission.current = undefined;
-      identity.current.expectedVersion = current.version;
-      identity.current.commandId = crypto.randomUUID();
-      initial.current = undefined;
-      setConflict(false);
-      setError('');
-      removeDraft(account!.id, current.pairId, key);
-    } catch {
-      if (!scope.isCurrent()) return;
-      setError(idea ? 'We could not reload this idea. Try again.' : 'We could not reload this event. Try again.');
-    } finally {
-      if (scope.isCurrent()) setSaving(false);
-    }
+    else save.mutate({ values, confirmShared: false });
   }
 
   function confirmSharing() {
     const values = sharing!;
     setSharing(null);
-    void save(values, true);
+    save.mutate({ values, confirmShared: true });
   }
 
   const names = {
@@ -210,22 +124,21 @@ function EventEditor({ event, idea }: { event?: Event; idea?: DateIdea }) {
     />
     <section className="card form-page">
       <form onSubmit={form.handleSubmit(submitValues)}>
-        <EventFields form={form} names={names} slot={slot} author={!event || event.authorId === account.id} locked={saving || frozen} planning={Boolean(idea)} />
+        <EventFields form={form} names={names} slot={slot} author={!event || event.authorId === account.id} locked={saving} planning={Boolean(idea)} />
         {error && <Status error>{error}</Status>}
-        {frozen && <p>Your save is unconfirmed. Retry with the same details.</p>}
         {conflict && (
           <Button
             type="button"
             variant="secondary"
-            disabled={!online || saving}
-            onClick={() => void reloadEvent()}
+            disabled={saving}
+            onClick={() => reload.mutate()}
           >
             Reload event and discard draft
           </Button>
         )}
         <div className="actions">
-          <Button disabled={!online || saving || conflict} type="submit">
-            {saving ? 'Saving…' : frozen ? 'Retry save' : event ? 'Save changes' : 'Save event'}
+          <Button disabled={saving || conflict} type="submit">
+            {saving ? 'Saving…' : failure ? 'Retry save' : event ? 'Save changes' : 'Save event'}
           </Button>
           <Link to="/calendar">Cancel</Link>
         </div>
