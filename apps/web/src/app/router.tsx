@@ -1,5 +1,5 @@
-import { Fragment, lazy, Suspense, useEffect, type ReactNode } from 'react';
-import { createBrowserRouter, Navigate, Outlet, useLocation, useParams, useSearchParams } from 'react-router-dom';
+import { Fragment, lazy, Suspense, useEffect, type ComponentType, type LazyExoticComponent, type ReactNode } from 'react';
+import { createBrowserRouter, matchRoutes, Navigate, Outlet, type RouteObject, useLocation, useParams, useSearchParams } from 'react-router-dom';
 import { SessionProvider, useSession } from './SessionProvider';
 import { AppShell } from './AppShell';
 import { entryIntent, signOut } from '../features/auth';
@@ -11,38 +11,43 @@ import { RouteErrorPage, RouteFailureBoundary } from './RouteErrorPage';
 import { NotFoundPage } from './NotFoundPage';
 import { UnsavedChangesGuard } from '../lib/drafts';
 import { useNetworkStatus } from '../lib/network';
-const SettingsPage = lazy(() => import('../features/settings').then(module => ({ default: module.SettingsPage })));
-const ProfileSettingsPage = lazy(() => import('../features/settings').then(module => ({ default: module.ProfileSettingsPage })));
-const PairSettingsPage = lazy(() => import('../features/settings').then(module => ({ default: module.PairSettingsPage })));
-const AccountSettingsPage = lazy(() => import('../features/settings').then(module => ({ default: module.AccountSettingsPage })));
-const NotificationsPage = lazy(() => import('../features/notifications').then(module => ({ default: module.NotificationsPage })));
-const PreferencesPage = lazy(() => import('../features/notifications').then(module => ({ default: module.PreferencesPage })));
-const MemoriesPage = lazy(() => import('../features/memories/pages/MemoriesPage').then(module => ({ default: module.MemoriesPage })));
-const MemoryDetailPage = lazy(() => import('../features/memories/pages/MemoryDetailPage').then(module => ({ default: module.MemoryDetailPage })));
-const MemoryFormPage = lazy(() => import('../features/memories/pages/MemoryFormPage').then(module => ({ default: module.MemoryFormPage })));
-const TasksPage = lazy(() => import('../features/tasks/pages/TasksPage').then(module => ({ default: module.TasksPage })));
-const MessagesPage = lazy(() => import('../features/messages/pages/MessagesPage').then(module => ({ default: module.MessagesPage })));
-const TaskDetailPage = lazy(() => import('../features/tasks/pages/TaskDetailPage').then(module => ({ default: module.TaskDetailPage })));
-const TaskFormPage = lazy(() => import('../features/tasks/pages/TaskFormPage').then(module => ({ default: module.TaskFormPage })));
-const ListManagerPage = lazy(() => import('../features/tasks/pages/ListManagerPage').then(module => ({ default: module.ListManagerPage })));
-const ListDetailPage = lazy(() => import('../features/tasks/pages/ListDetailPage').then(module => ({ default: module.ListDetailPage })));
-const IdeasPage = lazy(() => import('../features/calendar/ideas/pages/IdeasPage').then(module => ({ default: module.IdeasPage })));
-const IdeaDetailPage = lazy(() => import('../features/calendar/ideas/pages/IdeaDetailPage').then(module => ({ default: module.IdeaDetailPage })));
-const IdeaFormPage = lazy(() => import('../features/calendar/ideas/pages/IdeaFormPage').then(module => ({ default: module.IdeaFormPage })));
-const TodayPage = lazy(() => import('../features/today/pages/TodayPage').then(module => ({ default: module.TodayPage })));
-const CalendarPage = lazy(() => import('../features/calendar/pages/CalendarPage').then(module => ({ default: module.CalendarPage })));
-const EventDetailPage = lazy(() => import('../features/calendar/pages/EventDetailPage').then(module => ({ default: module.EventDetailPage })));
-const EventFormPage = lazy(() => import('../features/calendar/pages/EventFormPage').then(module => ({ default: module.EventFormPage })));
-const WelcomePage = lazy(() => import('../features/auth/pages/WelcomePage').then(module => ({ default: module.WelcomePage })));
-const EmailPage = lazy(() => import('../features/auth/pages/EmailPage').then(module => ({ default: module.EmailPage })));
-const VerifyPage = lazy(() => import('../features/auth/pages/VerifyPage').then(module => ({ default: module.VerifyPage })));
-const ProfilePage = lazy(() => import('../features/auth/pages/ProfilePage').then(module => ({ default: module.ProfilePage })));
-const StartPage = lazy(() => import('../features/pair/pages/StartPage').then(module => ({ default: module.StartPage })));
-const InvitePage = lazy(() => import('../features/pair/pages/InvitePage').then(module => ({ default: module.InvitePage })));
-const JoinPage = lazy(() => import('../features/pair/pages/JoinPage').then(module => ({ default: module.JoinPage })));
-const WaitingPage = lazy(() => import('../features/pair/pages/WaitingPage').then(module => ({ default: module.WaitingPage })));
-const PairWelcomePage = lazy(() => import('../features/pair/pages/WelcomePage').then(module => ({ default: module.PairWelcomePage })));
-const EndedPage = lazy(() => import('../features/pair/pages/EndedPage').then(module => ({ default: module.EndedPage })));
+// The load function also starts the page chunk download early. See the end of this file.
+function lazyPage<T extends Record<K, ComponentType>, K extends keyof T>(load: () => Promise<T>, name: K) {
+  return Object.assign(lazy(() => load().then(module => ({ default: module[name] }))), { load });
+}
+type LazyPage = LazyExoticComponent<ComponentType> & { load: () => Promise<unknown> };
+const SettingsPage = lazyPage(() => import('../features/settings'), 'SettingsPage');
+const ProfileSettingsPage = lazyPage(() => import('../features/settings'), 'ProfileSettingsPage');
+const PairSettingsPage = lazyPage(() => import('../features/settings'), 'PairSettingsPage');
+const AccountSettingsPage = lazyPage(() => import('../features/settings'), 'AccountSettingsPage');
+const NotificationsPage = lazyPage(() => import('../features/notifications'), 'NotificationsPage');
+const PreferencesPage = lazyPage(() => import('../features/notifications'), 'PreferencesPage');
+const MemoriesPage = lazyPage(() => import('../features/memories/pages/MemoriesPage'), 'MemoriesPage');
+const MemoryDetailPage = lazyPage(() => import('../features/memories/pages/MemoryDetailPage'), 'MemoryDetailPage');
+const MemoryFormPage = lazyPage(() => import('../features/memories/pages/MemoryFormPage'), 'MemoryFormPage');
+const TasksPage = lazyPage(() => import('../features/tasks/pages/TasksPage'), 'TasksPage');
+const MessagesPage = lazyPage(() => import('../features/messages/pages/MessagesPage'), 'MessagesPage');
+const TaskDetailPage = lazyPage(() => import('../features/tasks/pages/TaskDetailPage'), 'TaskDetailPage');
+const TaskFormPage = lazyPage(() => import('../features/tasks/pages/TaskFormPage'), 'TaskFormPage');
+const ListManagerPage = lazyPage(() => import('../features/tasks/pages/ListManagerPage'), 'ListManagerPage');
+const ListDetailPage = lazyPage(() => import('../features/tasks/pages/ListDetailPage'), 'ListDetailPage');
+const IdeasPage = lazyPage(() => import('../features/calendar/ideas/pages/IdeasPage'), 'IdeasPage');
+const IdeaDetailPage = lazyPage(() => import('../features/calendar/ideas/pages/IdeaDetailPage'), 'IdeaDetailPage');
+const IdeaFormPage = lazyPage(() => import('../features/calendar/ideas/pages/IdeaFormPage'), 'IdeaFormPage');
+const TodayPage = lazyPage(() => import('../features/today/pages/TodayPage'), 'TodayPage');
+const CalendarPage = lazyPage(() => import('../features/calendar/pages/CalendarPage'), 'CalendarPage');
+const EventDetailPage = lazyPage(() => import('../features/calendar/pages/EventDetailPage'), 'EventDetailPage');
+const EventFormPage = lazyPage(() => import('../features/calendar/pages/EventFormPage'), 'EventFormPage');
+const WelcomePage = lazyPage(() => import('../features/auth/pages/WelcomePage'), 'WelcomePage');
+const EmailPage = lazyPage(() => import('../features/auth/pages/EmailPage'), 'EmailPage');
+const VerifyPage = lazyPage(() => import('../features/auth/pages/VerifyPage'), 'VerifyPage');
+const ProfilePage = lazyPage(() => import('../features/auth/pages/ProfilePage'), 'ProfilePage');
+const StartPage = lazyPage(() => import('../features/pair/pages/StartPage'), 'StartPage');
+const InvitePage = lazyPage(() => import('../features/pair/pages/InvitePage'), 'InvitePage');
+const JoinPage = lazyPage(() => import('../features/pair/pages/JoinPage'), 'JoinPage');
+const WaitingPage = lazyPage(() => import('../features/pair/pages/WaitingPage'), 'WaitingPage');
+const PairWelcomePage = lazyPage(() => import('../features/pair/pages/WelcomePage'), 'PairWelcomePage');
+const EndedPage = lazyPage(() => import('../features/pair/pages/EndedPage'), 'EndedPage');
 function destination(session: ReturnType<typeof useSession>) {
   if (session.status !== 'authenticated') return '/welcome';
   if (!session.account) return '/profile/setup';
@@ -87,8 +92,8 @@ if (location.pathname === '/invite') {
   entryIntent.invalidInvite = !token?.success;
   history.replaceState(null, '', '/invite');
 }
-const publicPage = (title: string, element: ReactNode) => <Page title={title}><Gate kind="public">{element}</Gate></Page>;
-const accountPage = (title: string, element: ReactNode) => <Page title={title}><Gate kind='account'>{element}</Gate></Page>;
+const publicPage = (title: string, Component: LazyPage) => ({ element: <Page title={title}><Gate kind="public"><Component /></Gate></Page>, handle: Component.load });
+const accountPage = (title: string, Component: LazyPage) => ({ element: <Page title={title}><Gate kind="account"><Component /></Gate></Page>, handle: Component.load });
 function RecordRoute({ children }: { children: ReactNode }) {
   const { pathname } = useLocation();
   const params = useParams();
@@ -108,45 +113,50 @@ function RecordRoute({ children }: { children: ReactNode }) {
     return <RouteErrorPage title="Idea" returnTo="/ideas" returnLabel="Return to ideas" />;
   return <Fragment key={pathname}>{children}</Fragment>;
 }
-const pairPage = (title: string, element: ReactNode) => <Page title={title}><Gate><RecordRoute>{element}</RecordRoute></Gate></Page>;
-export const router = createBrowserRouter([{ element: <Root />, errorElement: <RouteFailureBoundary />, children: [
+const pairPage = (title: string, Component: LazyPage) => ({ element: <Page title={title}><Gate><RecordRoute><Component /></RecordRoute></Gate></Page>, handle: Component.load });
+const routes: RouteObject[] = [{ element: <Root />, errorElement: <RouteFailureBoundary />, children: [
   { path: '/', element: <Page title="Welcome"><Entry /></Page> },
-  { path: '/welcome', element: publicPage('Welcome', <WelcomePage />) },
-  { path: '/sign-in', element: publicPage('Sign in', <EmailPage />) },
-  { path: '/verify', element: publicPage('Check your email', <VerifyPage />) },
-  { path: '/profile/setup', element: <Page title="Set up your profile"><Gate kind="profile"><ProfilePage /></Gate></Page> },
-  { path: '/pair/start', element: pairPage('Set up your pair', <StartPage />) },
-  { path: '/pair/invite', element: pairPage('Invite your partner', <InvitePage />) },
-  { path: '/pair/join', element: pairPage('Join your partner', <JoinPage />) },
-  { path: '/pair/waiting', element: pairPage('Waiting for your partner', <WaitingPage />) },
-  { path: '/pair/welcome', element: pairPage('Your pair', <PairWelcomePage />) },
-  { path: '/pair/ended', element: pairPage('Your pair has ended', <EndedPage />) },
-  { path: '/settings', element: accountPage('Settings', <SettingsPage />) },
-  { path: '/settings/profile', element: accountPage('Profile', <ProfileSettingsPage />) },
-  { path: '/settings/pair', element: accountPage('Your pair', <PairSettingsPage />) },
-  { path: '/settings/account', element: accountPage('Account', <AccountSettingsPage />) },
-  { path: '/settings/notifications', element: accountPage('Notification preferences', <PreferencesPage />) },
-  { path: '/notifications', element: accountPage('Notifications', <NotificationsPage />) },
-  { path: '/today', element: pairPage('Today', <TodayPage />) },
-  { path: '/memories', element: pairPage('Memories', <MemoriesPage />) },
-  { path: '/memories/new', element: pairPage('Add memory', <MemoryFormPage />) },
-  { path: '/memories/:memoryId', element: pairPage('Memory', <MemoryDetailPage />) },
-  { path: '/memories/:memoryId/edit', element: pairPage('Edit memory', <MemoryFormPage />) },
-  { path: '/messages', element: pairPage('Messages', <MessagesPage />) },
-  { path: '/tasks', element: pairPage('Tasks', <TasksPage />) },
-  { path: '/tasks/new', element: pairPage('Add task', <TaskFormPage />) },
-  { path: '/tasks/lists', element: pairPage('Task lists', <ListManagerPage />) },
-  { path: '/tasks/lists/:listId', element: pairPage('Task list', <ListDetailPage />) },
-  { path: '/tasks/:taskId', element: pairPage('Task', <TaskDetailPage />) },
-  { path: '/tasks/:taskId/edit', element: pairPage('Edit task', <TaskFormPage />) },
-  { path: '/ideas', element: pairPage('Date ideas', <IdeasPage />) },
-  { path: '/ideas/new', element: pairPage('Add idea', <IdeaFormPage />) },
-  { path: '/ideas/:ideaId', element: pairPage('Date idea', <IdeaDetailPage />) },
-  { path: '/ideas/:ideaId/edit', element: pairPage('Edit idea', <IdeaFormPage />) },
-  { path: '/calendar', element: pairPage('Calendar', <CalendarPage />) },
-  { path: '/events/new', element: pairPage('Add event', <EventFormPage />) },
-  { path: '/events/:eventId', element: pairPage('Event', <EventDetailPage />) },
-  { path: '/events/:eventId/edit', element: pairPage('Edit event', <EventFormPage />) },
+  { path: '/welcome', ...publicPage('Welcome', WelcomePage) },
+  { path: '/sign-in', ...publicPage('Sign in', EmailPage) },
+  { path: '/verify', ...publicPage('Check your email', VerifyPage) },
+  { path: '/profile/setup', element: <Page title="Set up your profile"><Gate kind="profile"><ProfilePage /></Gate></Page>, handle: ProfilePage.load },
+  { path: '/pair/start', ...pairPage('Set up your pair', StartPage) },
+  { path: '/pair/invite', ...pairPage('Invite your partner', InvitePage) },
+  { path: '/pair/join', ...pairPage('Join your partner', JoinPage) },
+  { path: '/pair/waiting', ...pairPage('Waiting for your partner', WaitingPage) },
+  { path: '/pair/welcome', ...pairPage('Your pair', PairWelcomePage) },
+  { path: '/pair/ended', ...pairPage('Your pair has ended', EndedPage) },
+  { path: '/settings', ...accountPage('Settings', SettingsPage) },
+  { path: '/settings/profile', ...accountPage('Profile', ProfileSettingsPage) },
+  { path: '/settings/pair', ...accountPage('Your pair', PairSettingsPage) },
+  { path: '/settings/account', ...accountPage('Account', AccountSettingsPage) },
+  { path: '/settings/notifications', ...accountPage('Notification preferences', PreferencesPage) },
+  { path: '/notifications', ...accountPage('Notifications', NotificationsPage) },
+  { path: '/today', ...pairPage('Today', TodayPage) },
+  { path: '/memories', ...pairPage('Memories', MemoriesPage) },
+  { path: '/memories/new', ...pairPage('Add memory', MemoryFormPage) },
+  { path: '/memories/:memoryId', ...pairPage('Memory', MemoryDetailPage) },
+  { path: '/memories/:memoryId/edit', ...pairPage('Edit memory', MemoryFormPage) },
+  { path: '/messages', ...pairPage('Messages', MessagesPage) },
+  { path: '/tasks', ...pairPage('Tasks', TasksPage) },
+  { path: '/tasks/new', ...pairPage('Add task', TaskFormPage) },
+  { path: '/tasks/lists', ...pairPage('Task lists', ListManagerPage) },
+  { path: '/tasks/lists/:listId', ...pairPage('Task list', ListDetailPage) },
+  { path: '/tasks/:taskId', ...pairPage('Task', TaskDetailPage) },
+  { path: '/tasks/:taskId/edit', ...pairPage('Edit task', TaskFormPage) },
+  { path: '/ideas', ...pairPage('Date ideas', IdeasPage) },
+  { path: '/ideas/new', ...pairPage('Add idea', IdeaFormPage) },
+  { path: '/ideas/:ideaId', ...pairPage('Date idea', IdeaDetailPage) },
+  { path: '/ideas/:ideaId/edit', ...pairPage('Edit idea', IdeaFormPage) },
+  { path: '/calendar', ...pairPage('Calendar', CalendarPage) },
+  { path: '/events/new', ...pairPage('Add event', EventFormPage) },
+  { path: '/events/:eventId', ...pairPage('Event', EventDetailPage) },
+  { path: '/events/:eventId/edit', ...pairPage('Edit event', EventFormPage) },
   { path: '/invite', element: <Page title="Your invitation"><InviteEntry /></Page> },
   { path: '*', element: <Page title="Page not found"><NotFoundPage /></Page> },
-] }]);
+] }];
+export const router = createBrowserRouter(routes);
+// Fetch the page chunk for the first URL while the session check runs.
+// The lazy page reports a failed fetch, so ignore it here.
+const initialPage: LazyPage['load'] | undefined = matchRoutes(routes, location)?.at(-1)?.route.handle;
+initialPage?.().catch(() => undefined);
