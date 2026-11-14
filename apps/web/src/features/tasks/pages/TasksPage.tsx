@@ -50,6 +50,7 @@ export function TasksPage() {
           task={task}
           accountId={account!.id}
           timezone={pair.timezone}
+          locale={account!.locale}
           assignee={pair.members.find(member => member.userId === task.assigneeId)?.displayName ?? 'Unassigned'} />) : <p>No tasks in this list.</p>}
       </>}
     </section>

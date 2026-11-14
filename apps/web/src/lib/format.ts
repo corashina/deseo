@@ -7,6 +7,7 @@ const styles = {
   date: { day: 'numeric', month: 'long', year: 'numeric' },
   weekday: { weekday: 'long', day: 'numeric', month: 'long' },
   weekdayShort: { weekday: 'short', day: 'numeric' },
+  weekdayName: { weekday: 'short' },
   month: { month: 'long', year: 'numeric' },
   time: { hour: '2-digit', minute: '2-digit' },
   dateTime: { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' },

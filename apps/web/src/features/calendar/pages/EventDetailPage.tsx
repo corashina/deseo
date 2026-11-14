@@ -9,6 +9,7 @@ import { useSession } from '../../../app/SessionProvider';
 import { useNetworkStatus } from '../../../lib/network';
 import { PageHeader } from '../../../components/ui/PageHeader';
 import { Status } from '../../../components/ui/Status';
+import { formatDate, formatRange } from '../../../lib/format';
 import { Button } from '../../../components/ui/Button';
 import { Dialog } from '../../../components/ui/Dialog';
 import { calendarKeys, getEvent } from '../queries';
@@ -87,12 +88,12 @@ export function EventDetailPage() {
   let time: string;
   if (event.temporal.kind === 'allDay') {
     time = event.repeat === 'yearly'
-      ? 'Every year on ' + DateTime.fromISO(event.temporal.startDate).setLocale('en').toFormat('d LLLL') + ' · All day'
-      : `${event.temporal.startDate} to ${inclusiveEndDate(event.temporal.endDateExclusive)} · All day`;
+      ? 'Every year on ' + formatDate(DateTime.fromISO(event.temporal.startDate), 'dayMonth', account!.locale) + ' · All day'
+      : formatRange(DateTime.fromISO(event.temporal.startDate), DateTime.fromISO(inclusiveEndDate(event.temporal.endDateExclusive)), 'date', account!.locale) + ' · All day';
   } else {
-    const start = DateTime.fromISO(event.temporal.startsAt).setZone(event.timezone).setLocale('en');
-    const end = DateTime.fromISO(event.temporal.endsAt).setZone(event.timezone).setLocale('en');
-    time = `${start.toFormat('d LLL yyyy, HH:mm')} to ${end.toFormat('d LLL yyyy, HH:mm')}`;
+    const start = DateTime.fromISO(event.temporal.startsAt).setZone(event.timezone);
+    const end = DateTime.fromISO(event.temporal.endsAt).setZone(event.timezone);
+    time = formatRange(start, end, 'dateTime', account!.locale);
   }
   const editable = event.visibility === 'shared' || event.authorId === account!.id;
   return <>

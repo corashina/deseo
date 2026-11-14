@@ -98,6 +98,7 @@ export function ListDetailPage() {
       task={task}
       accountId={account!.id}
       timezone={pair.timezone}
+      locale={account!.locale}
       assignee={pair.members.find(member => member.userId === task.assigneeId)?.displayName ?? 'Unassigned'} />) : <p>No tasks in this list.</p>}
       {!list.isGeneral && <div className="task-list-actions">
         <h2>List settings</h2>

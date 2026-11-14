@@ -1,3 +1,4 @@
+import { DateTime } from 'luxon';
 import { isOnline, useNetworkStatus } from '../../../lib/network';
 import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -7,6 +8,7 @@ import { readDraft, writeDraft, removeDraft } from '../../../lib/drafts';
 import { useCommandScope } from '../../../lib/use-command-scope';
 import { Button } from '../../../components/ui/Button';
 import { Status } from '../../../components/ui/Status';
+import { formatDate } from '../../../lib/format';
 import { PageHeader } from '../../../components/ui/PageHeader';
 
 type Attempt = Readonly<{ pairId: string; commandId: string }>;
@@ -58,7 +60,7 @@ export function InvitePage() {
     <PageHeader title="Invite your partner" description="Only your partner should use this code. New codes replace earlier invitations." />
     {token && !attempt && !pending && <>
       <p className="invite-code" aria-label="Your invitation code">{token}</p>
-      <p className="muted">Expires {new Date(expires).toLocaleString()}</p>
+      <p className="muted">Expires {formatDate(DateTime.fromISO(expires).setZone(account!.timezone), 'dateTime', account!.locale)}</p>
       <Button onClick={() => void copy()}>Copy invitation link</Button>
     </>}
     {attempt && !pending && <Status>Invitation delivery is unconfirmed. Retry the same request.</Status>}
