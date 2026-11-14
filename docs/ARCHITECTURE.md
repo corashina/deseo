@@ -520,7 +520,7 @@ Both retain current query ranges, filters, selected dates, and viewer timezone r
 Browser Messages caches one ID Map and cursor-ordered rows per query-page change.
 It keeps the highest Message version and the first encountered row on a version tie.
 Read tracking uses the same Map. Paging, scroll position, retries, and pending sends keep their existing behavior.
-The browser uses `brand/icon-web.png`, a 288-pixel derivative of the retained Two voices source.
+The browser uses `brand/icon-web.webp`, a 192-pixel derivative of the retained Two voices source.
 Native assets and recorded galleries retain their source image.
 
 ## Feature interfaces

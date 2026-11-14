@@ -10,6 +10,7 @@ import { useTaskSignals } from '../realtime';
 import { PageHeader } from '../../../components/ui/PageHeader';
 import { Button } from '../../../components/ui/Button';
 import { Status } from '../../../components/ui/Status';
+import { Field } from '../../../components/ui/Field';
 import { listTaskLists, listTasks, taskKeys } from '../queries';
 import { TaskRow } from '../components/TaskRow';
 import '../../../styles/planning.css';
@@ -48,6 +49,7 @@ export function TasksPage() {
           key={task.id}
           task={task}
           timezone={pair.timezone}
+          locale={account!.locale}
           assignee={pair.members.find(member => member.userId === task.assigneeId)?.displayName ?? 'Unassigned'} />) : <p>No tasks in this list.</p>}
       </>}
     </section>
@@ -70,15 +72,14 @@ function QuickAdd({ pairId, listId }: {
   });
   useUnsavedChanges(Boolean(title));
   return <form className="quick-add" onSubmit={event => { event.preventDefault(); if (!add.isPending) add.mutate(); }}>
-    <label className="field">
-      <span>Quick add task</span>
-      <input
-        value={title}
-        required
-        maxLength={200}
-        disabled={add.isPending}
-        onChange={event => setTitle(event.target.value)} />
-    </label>
+    <Field
+      label="Quick add task"
+      name="title"
+      value={title}
+      required
+      maxLength={200}
+      disabled={add.isPending}
+      onChange={event => setTitle(event.target.value)} />
     <Button type="submit" disabled={add.isPending}>{add.isPending ? 'Saving…' : add.isError ? 'Retry task' : 'Add to list'}
     </Button>
     {add.isError && <Status error>{toAppError(add.error).message}

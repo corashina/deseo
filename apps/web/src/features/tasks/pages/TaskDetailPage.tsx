@@ -42,6 +42,7 @@ export function TaskDetailPage() {
       <TaskRow
         task={task}
         timezone={pair.timezone}
+        locale={account!.locale}
         assignee={pair.members.find(member => member.userId === task.assigneeId)?.displayName ?? 'Unassigned'} />
       <ReminderControl taskId={task.id} sourceVersion={task.version} timezone={pair.timezone} completed={Boolean(task.completedAt)} dueDate={task.dueDate} />
       <div className="actions">

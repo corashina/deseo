@@ -1,3 +1,4 @@
+import { DateTime } from 'luxon';
 import { useEffect, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
@@ -9,9 +10,10 @@ import { useUnsavedChanges } from '../../../lib/unsaved-changes';
 import { Field } from '../../../components/ui/Field';
 import { Button } from '../../../components/ui/Button';
 import { Status } from '../../../components/ui/Status';
+import { formatDate } from '../../../lib/format';
 import { PageHeader } from '../../../components/ui/PageHeader';
 export function JoinPage() {
-  const { revalidate } = useSession();
+  const { account, revalidate } = useSession();
   const [initialToken] = useState(entryIntent.invite);
   const [token, setToken] = useState(initialToken ?? '');
   const [invalid, setInvalid] = useState(false);
@@ -32,11 +34,11 @@ export function JoinPage() {
   const error = invalid ? 'Enter the 12-character invitation code.' : review.isError ? toAppError(review.error).message : accept.isError ? toAppError(accept.error).message : '';
   return <section className="card form-page"><PageHeader title={preview ? 'Join ' + preview.inviterName : 'Join your partner'} description={preview ? 'Share plans, messages, and memories. Private events stay private.' : 'Enter the invitation code from your partner.'} />
     <form onSubmit={event => { event.preventDefault(); if (!busy) start(token); }}>
-    <Field label="Invitation code" value={token} disabled={accept.isPending} onChange={event => {
+    <Field label="Invitation code" name="invitationCode" spellCheck={false} value={token} disabled={accept.isPending} onChange={event => {
       setToken(event.target.value); review.reset(); accept.reset(); setInvalid(false); entryIntent.invite = null;
     }} autoComplete="off" />
     {!preview && <Button type="submit" disabled={busy}>Review invitation</Button>}</form>
-    {reviewed && preview && <><p className="muted">Pair timezone: {preview.timezone}</p><p className="muted">Expires {new Date(preview.expiresAt).toLocaleString()}</p>
+    {reviewed && preview && <><p className="muted">Pair timezone: <span translate="no">{preview.timezone}</span></p><p className="muted">Expires {formatDate(DateTime.fromISO(preview.expiresAt).setZone(account!.timezone), 'dateTime', account!.locale)}</p>
       <Button disabled={accept.isPending} onClick={() => accept.mutate(reviewed.token)}>{accept.isError ? 'Retry joining pair' : 'Join pair'}</Button></>}
     {error && <Status error>{error}</Status>}<Link to="/pair/start" onClick={() => { entryIntent.invite = null; }}>Back</Link></section>;
 }

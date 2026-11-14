@@ -48,6 +48,18 @@ The API uses 55721, the database 55722, mail 55724, and the Edge inspector 55728
 Fixtures and tests read keys from `supabase status` at run time. No status file is written.
 They refuse any API address other than `http://127.0.0.1:55721`.
 
+### Public site
+
+```sh
+npm run dev --workspace @deseo/site
+npm run build --workspace @deseo/site
+npm run preview --workspace @deseo/site
+```
+
+The build writes static HTML to `apps/site/dist`. Preview serves it at `http://127.0.0.1:4175`.
+Vite preview does not add trailing slashes. Site links use `/support/`, not `/support`.
+Images in `apps/site/public/images` are WebP copies of `design` previews. Mark each one as a preview.
+
 ### Web portal
 
 Create `apps/web/.env.local` from `.env.example`. Use the publishable key from `npx supabase status`.
@@ -92,7 +104,8 @@ Use disposable fixtures for failures, end-pair actions, and destructive tests.
 
 After a migration change, run `npm run gen:types` against the running stack.
 CI fails when `packages/domain/src/database.types.ts` differs from the schema.
-`.github/workflows/ci.yml` runs typecheck, lint, unit tests, the web build, SQL tests, the race test, and Edge checks.
+`.github/workflows/ci.yml` runs typecheck, lint, unit tests, the web build and size budget, the site build, SQL tests, the race test, and Edge checks.
+`npm run size --workspace @deseo/web` fails when the gzip JS and CSS that `index.html` loads exceeds the budget in `apps/web/scripts/check-size.mjs`.
 Playwright tests need the local backend and Edge functions. Run them with `npm run test --workspace @deseo/web`.
 
 ### Expo mobile
@@ -114,6 +127,18 @@ Rate tests before writing them. Implement only tests scoring at least 90.
 Use feature public interfaces and shared domain contracts. Keep database calls out of screens.
 Run focused checks during a fix, then one full check on final source.
 Generate database types after schema changes. Keep account, pair, and private-state cleanup contracts intact.
+
+### Web interface rules
+
+The portal follows the [Web Interface Guidelines](https://github.com/vercel-labs/web-interface-guidelines) where AGENTS.md and STYLE.md allow.
+
+- Format dates and times with `lib/format.ts`. It uses `Intl`, the account locale, and an explicit timezone.
+- Give each controlled input a `name`. `Field` sets `autocomplete="off"` unless the caller sets a value.
+- Turn spellcheck off on email and code inputs.
+- Keep submit enabled until the request starts. Validate on submit and show the error next to the field.
+- Give images `width` and `height`. Contain scroll in dialogs.
+
+`npm run test:unit --workspace @deseo/web` checks `lib/format.ts`.
 
 ## Verification
 
@@ -185,7 +210,7 @@ Record the commit, platform, device, command, and result for each check.
 | Account controls | Profile, private avatars, verified email changes, timezone changes without shifting saved instants |
 | Export | All content types; paired and author-only scope, resumable parts, expiry, file integrity |
 | Deletion | Disable access, revoke sessions, finish cleanup, verify records and objects are gone |
-| Public site | Landing, support, policies, invitations, and independent deletion on the same backend |
+| Public site | Done: static landing, invitation, support, policy status, and 404 pages. Pending: deletion page, approved policies, support address, store, app, and canonical links, sitemap, `robots.txt` |
 | Native acceptance | Signed Android and iOS builds, storage, photos, push, permissions, lifecycle |
 | Release | Access and recovery checks, monitoring, store materials, five-pair usability review |
 
@@ -242,6 +267,8 @@ For partial deletion, keep the account disabled and continue the stored cleanup 
 - [ ] Complete the five-pair usability review.
 - [ ] Confirm no sample content or inactive controls reach production.
 - [ ] Verify app links, install handoff, and web account deletion.
+- [ ] Replace prototype site imagery with screenshots of the release candidate.
+- [ ] Configure web hosting: Brotli, `Cache-Control: public, max-age=31536000, immutable` for `/assets/*`, and `no-cache` for `index.html`.
 - [ ] Check privacy disclosures against SDKs, processors, storage, and retention.
 - [ ] Verify backups, restore, and queue and deletion alerts.
 - [ ] Review the candidate with the owner before publishing.
@@ -251,4 +278,54 @@ For partial deletion, keep the account disabled and continue the stored cleanup 
 Prepare name, description, screenshots, icon exports, content rating, support URL, and privacy URL.
 Describe only working features. Do not claim therapy, guaranteed reminders, or end-to-end encryption.
 Give reviewers a synthetic pair. Match privacy labels to the exact build.
+#### Listing text
+
+Use this draft for both stores. Before submission, confirm each feature on the signed build.
+
+| Field | Limit | Text |
+|---|---|---|
+| App Store name | 30 | `Deseo: Plan Together` |
+| App Store subtitle | 30 | `Shared calendar for couples` |
+| App Store keywords | 100 | `couple,partner,relationship,schedule,agenda,tasks,todo,photo,memories,chat,notes,date,anniversary` |
+| Google Play title | 30 | `Deseo: Plan Together` |
+| Google Play short description | 80 | `Plan your days together. Share a calendar, tasks, messages, and photo memories.` |
+
+Keywords do not repeat words from the name or subtitle. Apple indexes those words separately.
+
+Full description:
+
+```text
+Plan your days together.
+
+Deseo is a private space for two partners. Plan your days, share a note, and keep the moments you want to remember.
+
+Calendar
+- Add shared events and private events.
+- Add all-day plans and yearly important dates.
+- Save date ideas for later.
+
+Tasks
+- Make named lists.
+- Assign a task, set a due date, and mark it done.
+
+Messages
+- Write to each other in one conversation.
+- Pin a message to keep it as a note.
+
+Memories
+- Save one to five photos with a date and a caption.
+
+Today
+- See your next plans, due tasks, the latest memory, the latest note, and the next important date.
+
+Privacy and control
+- Sign in with an email code.
+- Join your partner with an invitation.
+- Private events stay private.
+- Either partner can end the pair at any time.
+- No ads, no public feed, and no relationship scores.
+```
+
+Add a reminder line only after push reminders pass on signed Android and iOS builds.
+
 Read the current [Apple deletion guidance](https://developer.apple.com/support/offering-account-deletion-in-your-app/) and [Google deletion requirements](https://support.google.com/googleplay/android-developer/answer/13327111).

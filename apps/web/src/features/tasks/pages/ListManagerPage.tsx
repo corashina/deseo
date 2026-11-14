@@ -8,6 +8,7 @@ import { useUnsavedChanges } from '../../../lib/unsaved-changes';
 import { useCommandId } from '../../../lib/command-id';
 import { PageHeader } from '../../../components/ui/PageHeader';
 import { Status } from '../../../components/ui/Status';
+import { Field } from '../../../components/ui/Field';
 import { Button } from '../../../components/ui/Button';
 import { listTaskLists, taskKeys } from '../queries';
 import { createList } from '../commands';
@@ -35,15 +36,14 @@ export function ListManagerPage() {
       </ul>}
       <h2>Add list</h2>
       <form className="list-name-form" onSubmit={event => { event.preventDefault(); if (!add.isPending) add.mutate(); }}>
-        <label className="field">
-          <span>List name</span>
-          <input
-            value={name}
-            maxLength={40}
-            required
-            disabled={add.isPending}
-            onChange={event => setName(event.target.value)} />
-        </label>
+        <Field
+          label="List name"
+          name="listName"
+          value={name}
+          maxLength={40}
+          required
+          disabled={add.isPending}
+          onChange={event => setName(event.target.value)} />
         {add.isError && <Status error>{toAppError(add.error).message}
         </Status>}
         <Button disabled={add.isPending} type="submit">{add.isPending ? 'Saving…' : add.isError ? 'Retry list' : 'Create list'}

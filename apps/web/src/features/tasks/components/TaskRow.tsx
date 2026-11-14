@@ -7,18 +7,20 @@ import { setTaskCompleted } from '../commands';
 import { invalidate } from '../../../lib/query-keys';
 import { Button } from '../../../components/ui/Button';
 import { Status } from '../../../components/ui/Status';
-export function TaskRow({ task, assignee, timezone }: {
+import { formatDate } from '../../../lib/format';
+export function TaskRow({ task, assignee, timezone, locale }: {
   task: Task;
   assignee: string;
   timezone: string;
+  locale: string;
 }) {
   // A failure refreshes the task, so a retry uses its current version.
   const completion = useMutation({ mutationFn: (completed: boolean) => setTaskCompleted(task.id, completed, task.version),
     onError: () => void invalidate(['tasks'], ['today']) });
   const completed = completion.isPending ? completion.variables : task.completedAt !== null;
-  const due = task.dueDate ? DateTime.fromISO(task.dueDate, { zone: timezone }).setLocale('en') : null;
+  const due = task.dueDate ? DateTime.fromISO(task.dueDate, { zone: timezone }) : null;
   const today = DateTime.now().setZone(timezone).startOf('day');
-  const dueLabel = due ? (due.hasSame(today, 'day') ? 'Due today' : due.hasSame(today.plus({ days: 1 }), 'day') ? 'Due tomorrow' : !completed && due < today ? 'Overdue' : 'Due') + ' · ' + due.toFormat(due.year === today.year ? 'd LLL' : 'd LLL yyyy') : '';
+  const dueLabel = due ? (due.hasSame(today, 'day') ? 'Due today' : due.hasSame(today.plus({ days: 1 }), 'day') ? 'Due tomorrow' : !completed && due < today ? 'Overdue' : 'Due') + ' · ' + formatDate(due, due.year === today.year ? 'day' : 'dayYear', locale) : '';
   const error = completion.isError ? toAppError(completion.error).code === 'CONFLICT' ? 'This task changed. Review it and try again.' : 'Completion failed. Try again.' : '';
   return <article className={'task-row' + (completed ? ' task-completed' : '')}>
     <div className="task-row-main">

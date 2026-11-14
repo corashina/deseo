@@ -9,6 +9,7 @@ import { useUnsavedChanges } from '../../../lib/unsaved-changes';
 import { useCommandId } from '../../../lib/command-id';
 import { PageHeader } from '../../../components/ui/PageHeader';
 import { Status } from '../../../components/ui/Status';
+import { Field } from '../../../components/ui/Field';
 import { Button } from '../../../components/ui/Button';
 import { Dialog } from '../../../components/ui/Dialog';
 import { listTaskLists, listTasks, taskKeys } from '../queries';
@@ -51,19 +52,19 @@ export function ListDetailPage() {
       key={task.id}
       task={task}
       timezone={pair.timezone}
+      locale={account!.locale}
       assignee={pair.members.find(member => member.userId === task.assigneeId)?.displayName ?? 'Unassigned'} />) : <p>No tasks in this list.</p>}
       {!list.isGeneral && <div className="task-list-actions">
         <h2>List settings</h2>
         <form className="list-name-form" onSubmit={event => { event.preventDefault(); if (!saving) change.mutate('rename'); }}>
-          <label className="field">
-            <span>New list name</span>
-            <input
-              value={name}
-              maxLength={40}
-              required
-              disabled={saving}
-              onChange={event => setName(event.target.value)} />
-          </label>
+          <Field
+            label="New list name"
+            name="listName"
+            value={name}
+            maxLength={40}
+            required
+            disabled={saving}
+            onChange={event => setName(event.target.value)} />
           <Button disabled={saving} type="submit">Rename list</Button>
         </form>
         <div className="actions">

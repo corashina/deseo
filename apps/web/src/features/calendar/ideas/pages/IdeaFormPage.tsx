@@ -9,6 +9,7 @@ import { ideaFieldsSchema, type DateIdea, type IdeaInput } from '@deseo/domain/c
 import { useSession } from '../../../../app/SessionProvider';
 import { useUnsavedChanges } from '../../../../lib/unsaved-changes';
 import { useCommandId } from '../../../../lib/command-id';
+import { finePointer } from '../../../../lib/pointer';
 import { PageHeader } from '../../../../components/ui/PageHeader';
 import { Button } from '../../../../components/ui/Button';
 import { Status } from '../../../../components/ui/Status';
@@ -76,15 +77,15 @@ function IdeaEditor({ idea }: {
         <fieldset disabled={saving}>
           <label className="field">
             <span>Title</span>
-            <input {...form.register('title')} maxLength={120} required autoFocus />
+            <input {...form.register('title')} autoComplete="off" maxLength={120} required autoFocus={finePointer} />
           </label>
           <label className="field">
             <span>Note</span>
-            <textarea {...form.register('note')} maxLength={1000} rows={4} />
+            <textarea {...form.register('note')} autoComplete="off" maxLength={1000} rows={4} />
           </label>
           <label className="field">
             <span>Link</span>
-            <input {...form.register('link')} type="text" inputMode="url" maxLength={2048} />
+            <input {...form.register('link')} type="text" inputMode="url" autoComplete="off" spellCheck={false} maxLength={2048} />
           </label>
           {Object.entries(form.formState.errors).map(([field, error]) => <p role="alert" key={field}>{error.message}
           </p>)}

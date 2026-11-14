@@ -84,8 +84,8 @@ function MemoryEditor({ memory }: { memory?: Memory }) {
   }, [save.data, navigate]);
   return <><PageHeader title={memory ? 'Edit memory' : 'Add memory'} description={memory ? 'Change the date or caption.' : 'Keep a moment with photos, a date, and a caption.'} />
     <section className="card form-page memory-form"><form onSubmit={form.handleSubmit(values => save.mutate(values))}><fieldset disabled={saving || prepare.isPending}>
-      <label className="field"><span>Memory date</span><input type="date" required {...form.register('memoryDate')} /></label>
-      <label className="field"><span>Caption</span><textarea rows={4} maxLength={1000} {...form.register('caption')} /></label>
+      <label className="field"><span>Memory date</span><input type="date" autoComplete="off" required {...form.register('memoryDate')} /></label>
+      <label className="field"><span>Caption</span><textarea rows={4} maxLength={1000} autoComplete="off" {...form.register('caption')} /></label>
     </fieldset>{!memory && <PhotoSelection photos={photos} disabled={saving} preparing={prepare.isPending} onSelect={files => { if (files.length) prepare.mutate(files); }} onRemove={photoId => setPhotos(current => current.filter(photo => photo.id !== photoId))} progress={progress} />}
       {memory && <p role="status">{progress}</p>}{error && <Status error>{error}</Status>}
       {conflict && <Button variant="secondary" disabled={saving} onClick={() => reload.mutate()}>Reload memory and discard draft</Button>}

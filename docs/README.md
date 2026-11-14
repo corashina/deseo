@@ -17,7 +17,7 @@ Update the relevant section for new decisions, requirements, or check results.
 ## Screens
 
 Check [remaining work](DEVELOPMENT.md#remaining-work) before you treat a requirement as an available feature.
-A public site is planned. It has no specification yet.
+[Public site](#public-site) lists the static public pages.
 
 ### Browser portal
 
@@ -51,6 +51,13 @@ flowchart TD
 ```
 
 Resume the original invitation after sign-in. Do not restart onboarding after an email code expires.
+
+### Public site
+
+`apps/site` builds `/`, `/invite`, `/support`, `/privacy`, `/terms`, and a 404 page as static HTML without JavaScript.
+The policy pages state that no policy is published. The support page states that no support address exists.
+`/delete-account` waits for the backend deletion flow.
+Add store links, app links, canonical URLs, a sitemap, `robots.txt`, and absolute Open Graph URLs at launch.
 
 ### Authentication and entry
 

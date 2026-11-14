@@ -8,6 +8,7 @@ import { taskInputSchema, type Task } from '@deseo/domain/tasks';
 import { useSession } from '../../../app/SessionProvider';
 import { useUnsavedChanges } from '../../../lib/unsaved-changes';
 import { useCommandId } from '../../../lib/command-id';
+import { finePointer } from '../../../lib/pointer';
 import { PageHeader } from '../../../components/ui/PageHeader';
 import { Button } from '../../../components/ui/Button';
 import { Status } from '../../../components/ui/Status';
@@ -82,7 +83,7 @@ function TaskEditor({ task, lists }: {
         <fieldset disabled={saving}>
           <label className="field">
             <span>Title</span>
-            <input {...form.register('title')} maxLength={200} required autoFocus />
+            <input {...form.register('title')} autoComplete="off" maxLength={200} required autoFocus={finePointer} />
           </label>
           <div className="task-form-group">
           <h2>Assignment and due date</h2>
@@ -102,7 +103,7 @@ function TaskEditor({ task, lists }: {
           </label>
           <label className="field">
             <span>Due date (optional)</span>
-            <input type="date" {...form.register('dueDate')} />
+            <input type="date" autoComplete="off" {...form.register('dueDate')} />
           </label>
           </div>
         </fieldset>

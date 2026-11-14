@@ -6,7 +6,7 @@ The owner approved pastel styling, the [Two voices icon](brand/icon-source.png),
 ## 1. Platforms
 
 React DOM serves the browser portal. Expo serves Android and iOS; the Expo app is frozen.
-A public site is planned. It has no style rules yet.
+`apps/site` serves static public pages. `apps/site/src/site.css` holds their styles; it copies the shared colors.
 
 Shared colors live in `brand/tokens.json`. The browser maps them to CSS variables in `apps/web/src/main.tsx`.
 Native code reads colors through `useTheme()` or `makeStyles()` in `apps/mobile/src/theme`. Do not import `tokens.json` in components.

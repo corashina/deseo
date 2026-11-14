@@ -28,7 +28,7 @@ export function ProfileSettingsPage() {
   const message = save.isSuccess ? 'Profile saved.' : conflict ? 'Your profile changed. Your draft is kept.' : save.isError ? toAppError(save.error).message : '';
   return <section className="card form-page"><PageHeader title="Profile" description="Your timezone changes display times. Stored events keep their dates and instants." />
     <form onSubmit={event => { event.preventDefault(); if (!busy) save.mutate(draft ?? { input, version: account!.version }); }}><fieldset className="field-group" disabled={busy}>
-      <Field label="Your name" required maxLength={40} value={input.displayName} onChange={event => change({ displayName: event.target.value })} />
+      <Field label="Your name" name="displayName" required maxLength={40} value={input.displayName} onChange={event => change({ displayName: event.target.value })} />
       <TimezoneField required value={input.timezone} onChange={event => change({ timezone: event.target.value })} />
     </fieldset>{message && <Status error={save.isError}>{message}</Status>}
     <div className="actions">{conflict && <Button disabled={busy} variant="secondary" onClick={() => discard.mutate()}>Discard changes and reload</Button>}
