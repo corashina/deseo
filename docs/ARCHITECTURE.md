@@ -250,6 +250,7 @@ Yearly important dates use a one-day all-day event with `repeat = yearly` and a 
 Other events use `repeat = none`. Yearly edits affect the series; there are no occurrence overrides.
 
 Calendar queries expand yearly dates only inside the requested range, limited to 366 days per request.
+A yearly date has no occurrence before its start date. Agenda reads, reminder state, and reminder jobs follow this rule.
 
 Include events that overlap the requested range, even when they start before it. Treat the query end as exclusive.
 

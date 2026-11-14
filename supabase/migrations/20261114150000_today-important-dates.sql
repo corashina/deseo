@@ -19,7 +19,7 @@ begin
     from public.events e
     cross join lateral generate_series(extract(year from p_from)::integer,extract(year from p_to-1)::integer) y(year)
     cross join lateral (select private.yearly_date(y.year,e.repeat_month,e.repeat_day) as occurrence_day) d
-    where e.pair_id=p_pair_id and e.repeat='yearly' and d.occurrence_day>=p_from and d.occurrence_day<p_to
+    where e.pair_id=p_pair_id and e.repeat='yearly' and d.occurrence_day>=greatest(p_from,e.start_date) and d.occurrence_day<p_to
   ) select coalesce(jsonb_agg(item order by sort_time,id),'[]'::jsonb) into items from occurrences;
   return jsonb_build_object('ok',true,'data',items);
 end;
