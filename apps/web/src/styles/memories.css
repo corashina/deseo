@@ -37,7 +37,7 @@
 .photo-picker input:disabled { cursor: default; }
 .photo-selection-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
 .photo-selection-grid > div { min-width: 0; }
-.photo-selection-grid img { display: block; width: 100%; aspect-ratio: 3 / 2; object-fit: cover; border-radius: var(--radius-control); }
+.photo-selection-grid img { display: block; width: 100%; height: auto; aspect-ratio: 3 / 2; object-fit: cover; border-radius: var(--radius-control); }
 .photo-selection-grid .button { margin-top: 8px; width: 100%; }
 .photo-selection > [role='status']:empty { display: none; }
 @media (min-width: 1500px) { .memory-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }

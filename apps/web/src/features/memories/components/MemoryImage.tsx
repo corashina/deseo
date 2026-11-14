@@ -5,7 +5,9 @@ import { captureQueryScope } from '../../../lib/query-client';
 import { Button } from '../../../components/ui/Button';
 import { Status } from '../../../components/ui/Status';
 import { loadMemoryPhoto } from '../media';
-export function MemoryImage({ photoId, variant = 'thumb', alt }: { photoId: string; variant?: 'full' | 'thumb'; alt: string }) {
+import type { MemoryPhoto } from '@deseo/domain/memories';
+export function MemoryImage({ photo, variant = 'thumb', alt }: { photo: MemoryPhoto; variant?: 'full' | 'thumb'; alt: string }) {
+  const photoId = photo.id;
   const { pair } = useSession();
   const [url, setUrl] = useState('');
   const [error, setError] = useState('');
@@ -27,5 +29,5 @@ export function MemoryImage({ photoId, variant = 'thumb', alt }: { photoId: stri
     });
     return () => { scope.signal.removeEventListener('abort', clear); clear(); };
   }, [photoId, variant, generation, pair]);
-  return url ? <img src={url} alt={alt} /> : <div className="memory-image-state">{error ? <><Status error>{error}</Status><Button variant="secondary" onClick={() => setGeneration(value => value + 1)}>Retry photo</Button></> : <Status>Loading photo…</Status>}</div>;
+  return url ? <img src={url} alt={alt} width={variant === 'full' ? photo.width : photo.thumbWidth} height={variant === 'full' ? photo.height : photo.thumbHeight} /> : <div className="memory-image-state">{error ? <><Status error>{error}</Status><Button variant="secondary" onClick={() => setGeneration(value => value + 1)}>Retry photo</Button></> : <Status>Loading photo…</Status>}</div>;
 }

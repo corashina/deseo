@@ -4,7 +4,7 @@ import type { PreparedBrowserPhoto } from '../prepare';
 function Preview({ photo }: { photo: PreparedBrowserPhoto }) {
   const [url, setUrl] = useState('');
   useEffect(() => { const value = URL.createObjectURL(photo.thumb); setUrl(value); return () => URL.revokeObjectURL(value); }, [photo]);
-  return url ? <img src={url} alt="Selected photo" /> : null;
+  return url ? <img src={url} alt="Selected photo" width={photo.thumbWidth} height={photo.thumbHeight} /> : null;
 }
 export function PhotoSelection({ photos, disabled, preparing, onSelect, onRemove, progress }: { photos: PreparedBrowserPhoto[]; disabled: boolean; preparing: boolean; onSelect(files: File[]): void; onRemove(id: string): void; progress: string }) {
   const selectionStatusId = useId();
