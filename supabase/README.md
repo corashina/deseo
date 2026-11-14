@@ -1,43 +1,25 @@
 # Local backend
 
-Chat 01 adds accounts, pairing, one-off events, and pair closure.
-
-The CLI generated migration names in dependency order. Use Supabase CLI 2.119.0.
+Migrations, Edge functions, SQL tests, and local fixtures. Use Supabase CLI 2.119.0.
 
 ## Commands
 
-Run these commands from the repository root after you install and start Docker.
+Use the root scripts in [Development](../docs/DEVELOPMENT.md#scripts). Start Docker first.
 
-```powershell
-npx supabase start
-npx supabase db reset --local
-npx supabase functions serve --env-file supabase/functions/.env.local
-npx supabase test db --local
-node --experimental-strip-types supabase/tests/pairing-races.test.ts
+```sh
+npm run backend:start
+npm run backend:reset
+npm run functions
+npm run test
 npx supabase db advisors --local --type all --fail-on warn
-npx supabase gen types --local --schema public
+npm run gen:types
 ```
 
-Use the `deseo` project on ports 55720–55729. It contains the combined development data.
-
-`db reset --local` deletes this data. Back up the database and storage before a reset.
-
-Write generated schema output to `apps/mobile/src/lib/database.types.ts` after migrations pass.
-Do not replace that file with hand-written schema types.
-
-Set `SUPABASE_PUBLISHABLE_KEY` in the ignored `supabase/functions/.env.local` file.
-The local Edge runtime supplies `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY`.
-
-Set these environment values before the race harness:
-
-| Name | Value |
-|---|---|
-| `SUPABASE_TEST_URL` | Local API URL; default `http://127.0.0.1:55721` |
-| `SUPABASE_TEST_PUBLISHABLE_KEY` | Local publishable key |
-| `SUPABASE_TEST_SERVICE_ROLE_KEY` | Local server key |
-
-The harness creates real Auth accounts and concurrent requests. It deletes only its own fixtures.
-It rejects remote URLs. It does not print account credentials.
+`supabase/config.toml` sets project `deseo` on ports 55720–55729.
+`npm run backend:reset` deletes local data. Back up the database and storage first.
+`npm run gen:types` writes `packages/domain/src/database.types.ts`. Do not edit that file by hand.
+`supabase/dev/functions.env` sets the browser origins and public API address for local Edge functions.
+The race test reads local keys from `supabase status`. It rejects other API addresses and removes its own fixtures.
 
 ## Public RPCs
 
@@ -101,22 +83,11 @@ Refetch account and pair context after each signal, foreground transition, and r
 Subscribe to `events` for the current pair. Treat changes as refresh signals and refetch through RLS.
 The publication also includes each caller's content-free membership row.
 
-## Verification status
-
-Security and concurrency tests have importance 100/100.
-
-Four SQL suites contain 67 assertions. Parsing cannot prove constraints, policies, transactions, or Realtime delivery.
-
-On 2026-10-04, PostgreSQL parsing passed for all migrations and PL/pgSQL function bodies.
-Deno 2.9.6 typechecking passed for the Edge function. TypeScript checking passed for the race harness.
-
-Database tests and advisors could not connect to `127.0.0.1:54322`.
-Type generation reported missing Docker and Podman. The owner deferred Docker setup.
-The race harness stopped because local test keys were absent. No database test has passed yet.
+## Open checks
 
 Account invitation limits allow five failed attempts per 15 minutes.
-Production network invitation limits require a trusted gateway and a spoofing test.
+Production network invitation limits need a trusted gateway and a spoofing test.
 Client-supplied `X-Forwarded-For` cannot prove a client's network address.
-This deployment check remains open. Auth provides its separate network limits for email verification.
+Auth provides its own network limits for email verification.
 
 Later migrations must attach reminder and export cancellation to pair closure after those tables exist.

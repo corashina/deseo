@@ -4,7 +4,7 @@ A private app for two people to plan days, share messages, and keep memories.
 
 Deseo has a React browser portal and an Expo application for Android and iOS.
 Both applications use shared domain contracts and the same Supabase access rules.
-The public information site remains a separate delivery task.
+Work targets the web portal first. The mobile app is frozen. A public site is planned.
 
 ## Product
 
@@ -16,20 +16,20 @@ The public information site remains a separate delivery task.
 - **Settings.** Profile, pair, preferences, fresh verification, and sign-out controls.
 
 Each account can join one active pair. Each pair has two people.
-Deseo uses pastel colors and the [Two voices icon](design/icons-round-2/icon-05-two-voices.png).
+Deseo uses pastel colors and the [Two voices icon](brand/icon-source.png).
 
 ## Start
 
-Use Node 24.18.0 and npm 11.16.0. Install the root lockfile with `npm ci`.
+Use Node 24.18.0, npm 11.16.0, and Docker. Run each long command in its own terminal.
 
-```powershell
-npm run verify:mobile
-npm run test:domain
-npm run start:backend
+```sh
+npm ci
+npm run backend:start
+npm run functions
+npm run dev
 ```
 
-Set the browser environment and start one Edge process before `npm run dev`.
-Follow [Development](docs/DEVELOPMENT.md#setup) for exact commands, local keys, and origin modes.
+Follow [Development](docs/DEVELOPMENT.md#setup) for local keys, seed data, and checks.
 
 ## Read first
 
@@ -38,6 +38,7 @@ Follow [Development](docs/DEVELOPMENT.md#setup) for exact commands, local keys, 
 | [Documentation](docs/README.md) | Screens, design references, and sources |
 | [Architecture](docs/ARCHITECTURE.md) | Modules, data, access, and lifecycle rules |
 | [Development](docs/DEVELOPMENT.md) | Setup, verification, remaining work, and release |
+| [Product](PRODUCT.md) | Purpose, scope, decisions, and glossary |
 | [Style](STYLE.md) | Colors, layout, controls, and writing |
 
 ## Workspace
@@ -48,25 +49,14 @@ apps/web/          React DOM screens and browser capabilities
 packages/domain/   Shared schemas, payloads, types, date rules, and results
 supabase/          Migrations, transactions, Edge functions, and fixtures
 brand/             Shared tokens and icon
+design/            Frontend gallery
 apps/site/         Planned public information site
 ```
 
 ## Screenshots
 
-Open [the UI/UX Pro Max comparison](design/ui-ux-pro-max-2026-10-08/index.html) for its recorded review.
-
-The [Design Taste comparison](design/design-taste-2026-10-08/index.html) shows matching before and after browser screens.
-
-Open [the reviewed frontend gallery](design/frontend-2026-10-07/web/index.html) or [the capture index](design/frontend-2026-10-07/web/README.md).
-Keep [the historical gallery](design/web-portal/index.html) as its recorded-source reference.
-The frontend capture recorded 39 routes, 119 views, 238 records, and 321 page JPEGs.
-Two extra JPEGs retain named-media failure evidence.
-Galleries reuse identical images from `design/shared`; capture records retain their revisions and timestamps.
-It uses named local accounts, owned disposable normal-media fixtures, and controlled failure states.
-The gallery records source `701f078`. The merged interface retains newer form and date controls.
-See [the merge note](docs/DEVELOPMENT.md#frontend-merge-record) for evidence limits.
-
-The [older visual reference](design/preview.html) contains sample interactions without persistence.
+Open [the frontend gallery](design/frontend-2026-10-07/web/index.html) or [its index](design/frontend-2026-10-07/web/README.md).
+It captures source `701f078`. Later forms and controls can differ.
 
 ## Delivery limits
 

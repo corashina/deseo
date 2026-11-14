@@ -58,16 +58,16 @@ Use [the data contract](docs/ARCHITECTURE.md#data-contract) for permissions, dat
 ## Brand Commitments
 
 The owner selected the Deseo name, pastel styling, and the Two voices icon.
-Use [STYLE.md](STYLE.md) for visual rules and [the selected icon](design/icons-round-2/icon-05-two-voices.png).
+Use [STYLE.md](STYLE.md) for visual rules and [the selected icon](brand/icon-source.png).
 Write short sentences, name concrete actions, and describe the actual state.
 Keep instructions within 20 words. Use [unslop](https://github.com/michael-denyer/pstack-claude/blob/main/plugins/pstack/skills/unslop/SKILL.md) for UI text and documentation.
 
 ## Evidence on Hand
 
 - [Screen guide](docs/README.md#screens): journeys, routes, forms, and states.
-- [Portal gallery](design/web-portal/index.html): local fixture captures, not customer testimonials.
+- [Portal gallery](design/frontend-2026-10-07/web/index.html): local fixture captures, not customer testimonials.
 - [Verification](docs/DEVELOPMENT.md#verification): required checks and remaining work.
-- [Development guide](docs/DEVELOPMENT.md#setup): local commands and backend ownership rules.
+- [Development guide](docs/DEVELOPMENT.md#setup): local commands.
 
 Use the pair's own photos with consent. Identify prototype and test content as such.
 The project provides no confirmed customer testimonials, usage claims, store approvals, or launch commitments in these records.
@@ -91,3 +91,40 @@ Use [STYLE.md](STYLE.md) for the full accessibility and release checks.
 
 Confirm the audience age limit, launch languages beyond the current English portal, beta terms, and pricing.
 Confirm the legal operator, jurisdiction, launch domain, support contact, and approved policies before release.
+
+## Glossary
+
+Use these terms in code, documentation, and UI text.
+
+| Term | Meaning |
+|---|---|
+| Account | One person's authenticated identity |
+| Profile | That person's display name, avatar, locale, and timezone |
+| Pair | A private space with two active members |
+| Partner | The other member of the current pair |
+| Invitation | A temporary request to join a pair |
+| Event | A dated plan, either timed or all-day |
+| Shared event | An event both partners can view and edit |
+| Private event | An event only its author can view and edit |
+| Owner label | Who an event concerns: one person or both; it does not grant access |
+| Important date | An all-day event marked for a countdown; it can repeat yearly |
+| Date idea | A saved activity the pair may schedule later |
+| Task | An item someone can complete |
+| List | A named group of shared tasks |
+| Memory | A dated entry with photos and an optional caption |
+| Message | A text entry in the pair's one conversation |
+| Note | A pinned message; not a separate record type |
+| Reminder | One person's requested notification for an event or task |
+| Notification | A durable record of a reminder or partner message |
+| Push | A device notification delivered through Expo, APNs, or FCM |
+| Draft | Unsubmitted content stored on its author's device |
+| Active pair | A pair whose two members can use shared features |
+| Pending pair | A pair with one member awaiting a partner |
+| Ended pair | A pair with revoked shared access and a limited author export period |
+| Command | A named write operation with validation and authorization |
+| Module | Code with one public interface and internal implementation |
+| Interface | What a caller must know, including inputs, outputs, errors, and access rules |
+
+Use `pairId` in TypeScript and `pair_id` in SQL. Use `userId` for an account identifier.
+
+Do not use couple, household, workspace, or room as alternate database names for Pair.
