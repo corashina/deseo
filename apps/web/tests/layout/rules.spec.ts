@@ -3,7 +3,7 @@ import { checkLayout } from './rules';
 import { focusState } from './focus-ring';
 
 // Importance: 91. A rule that never fires gives a false pass on every screen.
-const base = '<style>:root { --focus: rgb(10, 20, 30); } body { margin: 0; } button { width: 48px; height: 48px; }</style>';
+const base = '<meta name="viewport" content="width=device-width"><style>:root { --focus: rgb(10, 20, 30); } body { margin: 0; } button { width: 48px; height: 48px; }</style>';
 const shell = (sidebar: number, toggle: boolean) =>
   `<aside class="sidebar" style="position: fixed; left: 0; top: 0; height: 100px; width: ${sidebar}px; display: ${sidebar ? 'block' : 'none'}"></aside>`
   + `<button class="drawer-toggle" style="display: ${toggle ? 'inline-block' : 'none'}">Menu</button>`;
