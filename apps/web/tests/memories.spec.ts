@@ -1,6 +1,6 @@
 import { fileURLToPath } from 'node:url';
-import { test, expect, admin } from './support/test';
-import { failRequest } from './support/network';
+import { test, expect, admin, endPair } from './support/test';
+import { failRequest, holdRequest } from './support/network';
 
 const photos = ['lake.jpg', 'forest.jpg'].map(name => fileURLToPath(new URL('./support/photos/' + name, import.meta.url)));
 
@@ -31,4 +31,25 @@ test('a retry after a failed photo upload publishes one memory', async ({ page, 
     await partner.goto('/memories/' + memories.data![0].id);
     await expect(partner.getByText(caption)).toBeVisible();
   } finally { await context.close(); }
+});
+
+// Importance 100: a publish that reaches the server after the pair ends does not publish the memory.
+test('ending the pair during publish keeps the memory unpublished', async ({ page, pair, signIn }) => {
+  const { id, a, b } = await pair();
+  await signIn(page, a);
+  await page.goto('/memories/new');
+  await page.getByLabel('Photos', { exact: true }).setInputFiles(photos);
+  await expect(page.getByText('2 photos selected.')).toBeVisible();
+  await page.getByLabel('Caption').fill('Last trip together');
+  const publish = await holdRequest(page, '**/functions/v1/finalize-memory', request => request.method() === 'POST');
+  const response = page.waitForResponse(answer => answer.url().endsWith('/functions/v1/finalize-memory') && answer.request().method() === 'POST');
+  await page.getByRole('button', { name: 'Publish memory', exact: true }).click();
+  await publish.arrived;
+  await endPair(b, id);
+  publish.release();
+  expect((await response).ok()).toBe(false);
+  const memories = await admin.from('memories').select('state').eq('pair_id', id);
+  expect(memories.data).toEqual([{ state: 'deleting' }]);
+  await page.goto('/memories');
+  await expect(page).toHaveURL(/\/pair\/ended$/);
 });

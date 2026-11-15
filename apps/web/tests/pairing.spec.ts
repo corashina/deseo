@@ -1,4 +1,4 @@
-import { test, expect, admin, createEvent } from './support/test';
+import { test, expect, admin, createEvent, createIdea, createList, createMemory, createTask, endPair, formPair, pinMessage, sendMessage } from './support/test';
 import { loginWithLocalEmailCode } from './support/local-auth';
 
 // Importance 100: two people can pair through the screens, and a third account cannot read their data.
@@ -38,4 +38,46 @@ test('A invites, B joins, and C cannot read the pair', async ({ page, browser, a
     await expect(outsider.locator('body')).not.toContainText('Picnic by the river');
     expect((await other.a.client.from('events').select('id').eq('id', eventId)).data).toEqual([]);
   } finally { for (const context of contexts) await context.close(); }
+});
+
+// Importance 100: after a pair ends, a person in a new pair sees none of the old pair's content.
+test('a new pair after an ended pair shows none of the old content', async ({ page, pair, account, signIn }) => {
+  const old = await pair();
+  const start = new Date(Date.now() + 2 * 60_000).toISOString();
+  const end = new Date(Date.now() + 62 * 60_000).toISOString();
+  const before = {
+    event: await createEvent(old.a, old.id, { title: 'Old pair dinner', starts_at: start, ends_at: end }),
+    list: await createList(old.a, old.id, 'Old flat list'),
+    message: await sendMessage(old.a, old.id, 'Old pair note about the flat keys'),
+    idea: await createIdea(old.a, old.id, 'Old pair idea: a boat trip'),
+    memory: await createMemory(old.a, old.id, 'Old pair memory at the seaside'),
+  };
+  const task = await createTask(old.a, old.id, 'Old pair task: return the keys', before.list);
+  await pinMessage(old.a, before.message);
+  await endPair(old.a, old.id);
+
+  const next = await formPair(old.b, await account('Dora'));
+  await createEvent(next.a, next.id, { title: 'New pair picnic', starts_at: start, ends_at: end });
+  await createTask(next.a, next.id, 'New pair task: water the plants');
+  await sendMessage(next.b, next.id, 'New pair message about the picnic');
+  await createIdea(next.a, next.id, 'New pair idea: a museum visit');
+  await createMemory(next.b, next.id, 'New pair memory in the garden');
+
+  await signIn(page, next.a);
+  const pages: [string, string][] = [['/today', 'New pair picnic'], ['/calendar', 'New pair picnic'], ['/tasks', 'New pair task: water the plants'],
+    ['/messages', 'New pair message about the picnic'], ['/ideas', 'New pair idea: a museum visit'], ['/memories', 'New pair memory in the garden']];
+  for (const [path, current] of pages) {
+    await page.goto(path);
+    await expect(page.getByText(current).first()).toBeVisible();
+    await expect(page.locator('body')).not.toContainText('Old pair');
+    await expect(page.locator('body')).not.toContainText('Old flat list');
+  }
+  const client = next.a.client;
+  expect((await client.from('events').select('id').eq('id', before.event)).data).toEqual([]);
+  expect((await client.from('tasks').select('id').eq('id', task)).data).toEqual([]);
+  expect((await client.from('task_lists').select('id').eq('id', before.list)).data).toEqual([]);
+  expect((await client.from('messages').select('id').eq('id', before.message)).data).toEqual([]);
+  expect((await client.from('date_ideas').select('id').eq('id', before.idea)).data).toEqual([]);
+  expect((await client.from('memories').select('id').eq('id', before.memory.id)).data).toEqual([]);
+  expect((await client.storage.from('memory-photos').download(before.memory.path)).error).not.toBeNull();
 });
