@@ -100,18 +100,29 @@ test('account menu and delete dialog trap focus and return it', async ({ page, f
 });
 
 // Importance 93: the event form is the longest form in the app.
+// Page coordinates, because each Tab can scroll the page. Native date and time inputs
+// take several Tab stops inside one element; only the first stop on an element counts.
 test('event form fields follow in visual order with focus rings', async ({ page }) => {
   await open(page, '/events/new', 'Add event', 1440);
   await tabTo(page, 'Title');
-  let last = await page.evaluate(() => document.activeElement!.getBoundingClientRect().toJSON() as DOMRect);
-  for (let i = 0; i < 40; i++) {
+  const place = () => page.evaluate(() => {
+    const el = document.activeElement!;
+    const r = el.getBoundingClientRect();
+    const same = (window as { lastStop?: Element }).lastStop === el;
+    (window as { lastStop?: Element }).lastStop = el;
+    return { same, inMain: Boolean(el.closest('main')), top: r.top + scrollY, bottom: r.bottom + scrollY, left: r.left + scrollX };
+  });
+  let last = await place();
+  for (let i = 0; i < 60; i++) {
     const state = await focusState(page);
     expect.soft(state, state?.name).toMatchObject({ ring: true, inView: true });
     expect.soft(state?.size, state?.name).toBeGreaterThan(0);
-    await page.keyboard.press('Tab');
-    const inMain = await page.evaluate(() => Boolean(document.activeElement?.closest('main')));
-    if (!inMain) return;
-    const next = await page.evaluate(() => document.activeElement!.getBoundingClientRect().toJSON() as DOMRect);
+    let next = last;
+    while (next.same || next === last) {
+      await page.keyboard.press('Tab');
+      next = await place();
+      if (!next.inMain) return;
+    }
     const below = next.top >= last.bottom - 4;
     const sameRowRight = Math.abs(next.top - last.top) < 8 && next.left > last.left;
     expect.soft(below || sameRowRight, `${(await focusState(page))?.name} is out of visual order`).toBe(true);

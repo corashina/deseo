@@ -57,7 +57,9 @@ export function checkLayout(page: Page, shell: boolean): Promise<Failure[]> {
     }
 
     // Rule 4. No element hides its own overflowing content.
+    // Form fields scroll their own text natively, so long values are not clipped.
     for (const el of all) {
+      if (el.matches('input, select, textarea')) continue;
       const s = getComputedStyle(el);
       if (!['hidden', 'clip'].includes(s.overflowX) && !['hidden', 'clip'].includes(s.overflowY)) continue;
       if (el.scrollWidth <= el.clientWidth + 1 && el.scrollHeight <= el.clientHeight + 1) continue;

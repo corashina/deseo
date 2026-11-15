@@ -38,6 +38,7 @@ test('hidden overflow fails unless it is an intended ellipsis', async ({ page })
     .toEqual(['clipped div.cut']);
   const name = '<span style="display: block; width: 40px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">Anna Kowalska-Nowak</span>';
   expect(await failures(page, 1440, `<header class="topbar"><button style="width: 120px"><span>A</span>${name}</button></header>`)).toEqual([]);
+  expect(await failures(page, 1440, '<input style="width: 100px; height: 48px" value="A long value that scrolls inside its own field">')).toEqual([]);
 });
 
 test('focus ring needs a solid focus-color outline', async ({ page }) => {
