@@ -187,7 +187,7 @@ Mask invitation tokens and verification codes in screenshots and logs.
 | `supabase/tests/notification-jobs.test.sql` | 100 | Leases, cancellation, quiet hours, receipts |
 | `supabase/tests/planning-races.test.ts` | 100 | Concurrent writes, conflicts, retries, cross-pair access |
 
-The suite omits broad UI flows, native draft recovery, concurrent pairing, and full Edge handler checks.
+The suite omits mobile UI flows, native draft recovery, concurrent pairing, and full Edge handler checks.
 Check these areas manually until a defect needs a focused regression test.
 
 ### Acceptance priorities
