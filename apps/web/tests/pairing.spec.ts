@@ -1,5 +1,4 @@
-import { randomUUID } from 'node:crypto';
-import { test, expect, admin, rpc } from './support/test';
+import { test, expect, admin, createEvent } from './support/test';
 import { loginWithLocalEmailCode } from './support/local-auth';
 
 // Importance 100: two people can pair through the screens, and a third account cannot read their data.
@@ -27,12 +26,7 @@ test('A invites, B joins, and C cannot read the pair', async ({ page, browser, a
 
     const member = await admin.from('pair_members').select('pair_id').eq('user_id', a.id).is('left_at', null).single();
     if (member.error) throw member.error;
-    const eventId = randomUUID();
-    await rpc(a.client, 'create_event', {
-      p_input: { id: eventId, pair_id: member.data.pair_id, title: 'Picnic by the river', owner: 'together',
-        visibility: 'shared', timezone: 'Europe/Warsaw', repeat: 'none', starts_at: '2026-12-05T11:00:00Z', ends_at: '2026-12-05T13:00:00Z' },
-      p_command_id: randomUUID(),
-    });
+    const eventId = await createEvent(a, member.data.pair_id, { title: 'Picnic by the river' });
     await partner.goto('/events/' + eventId);
     await expect(partner.getByRole('heading', { name: 'Picnic by the river', exact: true })).toBeVisible();
 

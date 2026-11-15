@@ -1,16 +1,11 @@
 import { randomUUID } from 'node:crypto';
-import { test, expect, admin, rpc } from './support/test';
+import { test, expect, admin, createEvent } from './support/test';
 import { readLocalCode } from './support/local-auth';
 
 // Importance 100: fresh verification, pair closure, and global revocation protect both viewers.
 test('ending a pair requires a fresh code and removes both viewers access', async ({ page, browser, pair, signIn }) => {
   const { id, a, b } = await pair();
-  const eventId = randomUUID();
-  await rpc(a.client, 'create_event', {
-    p_input: { id: eventId, pair_id: id, title: 'Dinner together', owner: 'together',
-      visibility: 'shared', timezone: 'Europe/Warsaw', repeat: 'none', starts_at: '2026-10-05T17:00:00Z', ends_at: '2026-10-05T19:00:00Z' },
-    p_command_id: randomUUID(),
-  });
+  const eventId = await createEvent(a, id, { title: 'Dinner together' });
   const partner = await browser.newContext();
   try {
     const second = await partner.newPage();

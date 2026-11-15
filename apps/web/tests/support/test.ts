@@ -31,6 +31,17 @@ export async function passwordSession(account: Account): Promise<SupabaseClient>
   return client;
 }
 
+// A two-hour shared event with fixed dates. Tests override fields as needed.
+export async function createEvent(account: Account, pairId: string, input: Record<string, unknown>): Promise<string> {
+  const id = randomUUID();
+  await rpc(account.client, 'create_event', {
+    p_input: { id, pair_id: pairId, owner: 'together', visibility: 'shared', timezone: 'Europe/Warsaw', repeat: 'none',
+      starts_at: '2026-12-05T11:00:00Z', ends_at: '2026-12-05T13:00:00Z', ...input },
+    p_command_id: randomUUID(),
+  });
+  return id;
+}
+
 async function createAccount(created: Account[], name: string | null): Promise<Account> {
   const email = `entry-${randomUUID()}@example.test`;
   const password = randomUUID() + randomUUID();
