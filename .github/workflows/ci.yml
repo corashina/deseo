@@ -38,6 +38,8 @@ jobs:
       DO_NOT_TRACK: '1'
       SUPABASE_TELEMETRY_DISABLED: 'true'
     steps:
+      # The local stack uses ports 55721 to 55728. Keep outgoing connections below them.
+      - run: sudo sysctl -w net.ipv4.ip_local_port_range="32768 49999"
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
@@ -62,6 +64,8 @@ jobs:
       DO_NOT_TRACK: '1'
       SUPABASE_TELEMETRY_DISABLED: 'true'
     steps:
+      # The local stack uses ports 55721 to 55728. Keep outgoing connections below them.
+      - run: sudo sysctl -w net.ipv4.ip_local_port_range="32768 49999"
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
