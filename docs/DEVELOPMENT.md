@@ -138,8 +138,6 @@ The portal follows the [Web Interface Guidelines](https://github.com/vercel-labs
 - Keep submit enabled until the request starts. Validate on submit and show the error next to the field.
 - Give images `width` and `height`. Contain scroll in dialogs.
 
-`npm run test:unit --workspace @deseo/web` checks `lib/format.ts`.
-
 ## Verification
 
 Run `npm run typecheck`, `npm run lint`, and `npm run test` on final source.
@@ -162,8 +160,8 @@ Mask invitation tokens and verification codes in screenshots and logs.
 | `apps/mobile/src/lib/private-storage.test.ts` | 100 | Key loss, corruption, failed writes, scoped removal |
 | `apps/web/tests/session-isolation.spec.ts` | 100 | Browser account and pair isolation |
 | `apps/web/tests/pair-revocation.spec.ts` | 100 | Fresh verification, pair closure, global sign-out |
-| `packages/domain/tests/calendar-dates.test.ts` | 96 | Date boundaries, DST, pair-local selection |
 | `supabase/functions/finalize-memory/validate-jpeg.test.ts` | 100 | JPEG bytes, dimensions, embedded metadata |
+| `supabase/tests/end-pair.test.sql` | 95 | Shared access removal, fresh sign-in |
 | `supabase/tests/memories.test.sql` | 100 | Access, quota, immutable uploads, publication, cleanup |
 | `supabase/tests/messages.test.sql` | 100 | Access, retries, cursor order, revocation |
 | `supabase/tests/notification-jobs.test.sql` | 100 | Leases, cancellation, quiet hours, receipts |
