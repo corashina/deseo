@@ -204,12 +204,8 @@ Give every gesture a visible control.
 
 | Asset | Contents |
 |---|---|
-| [Frontend gallery](../design/frontend-2026-10-07/web/index.html) | Browser captures of source `701f078` at 1440×1000 and 390×844 |
-| [Capture records](../design/frontend-2026-10-07/web/coverage.json) | Routes, views, viewports, and fixtures |
 | [Selected icon](../brand/icon-source.png) | Two voices icon source |
 | [Brand tokens](../brand/tokens.json) | Light and dark palette values |
-
-The gallery shares hash-named images in `design/shared`. Later forms and controls can differ from it.
 
 ## Sources
 

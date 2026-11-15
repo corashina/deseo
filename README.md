@@ -50,14 +50,8 @@ apps/web/          React DOM screens and browser capabilities
 packages/domain/   Shared schemas, payloads, types, date rules, and results
 supabase/          Migrations, transactions, Edge functions, and fixtures
 brand/             Shared tokens and icon
-design/            Frontend gallery
 apps/site/         Static public information site
 ```
-
-## Screenshots
-
-Open [the frontend gallery](design/frontend-2026-10-07/web/index.html) or [its index](design/frontend-2026-10-07/web/README.md).
-It captures source `701f078`. Later forms and controls can differ.
 
 ## Delivery limits
 
