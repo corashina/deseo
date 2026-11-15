@@ -54,3 +54,40 @@ jobs:
       - run: node --experimental-strip-types --test supabase/tests/planning-races.test.ts
       - run: npm run typecheck:functions
       - run: npm run test:functions
+
+  web-e2e:
+    name: Web journeys
+    runs-on: ubuntu-latest
+    env:
+      DO_NOT_TRACK: '1'
+      SUPABASE_TELEMETRY_DISABLED: 'true'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+          cache: npm
+      - run: npm install --global npm@11.16.0
+      - run: npm ci
+      - run: npx supabase start --exclude studio,vector,logflare,imgproxy,supavisor
+      - name: Serve Edge functions
+        run: |
+          nohup npm run functions > "$RUNNER_TEMP/functions.log" 2>&1 &
+          timeout 120 bash -c "until grep -q 'Serving functions' '$RUNNER_TEMP/functions.log'; do sleep 1; done" || { cat "$RUNNER_TEMP/functions.log"; exit 1; }
+      - run: npx playwright install --with-deps chromium
+        working-directory: apps/web
+      - name: Run browser tests
+        run: |
+          npx supabase status -o json > "$RUNNER_TEMP/status.json"
+          export VITE_SUPABASE_URL=$(jq -r .API_URL "$RUNNER_TEMP/status.json")
+          export VITE_SUPABASE_PUBLISHABLE_KEY=$(jq -r .PUBLISHABLE_KEY "$RUNNER_TEMP/status.json")
+          npm run test --workspace @deseo/web
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-tests
+          path: |
+            .superpowers/web-tests
+            ${{ runner.temp }}/functions.log
+          include-hidden-files: true
+          retention-days: 7
