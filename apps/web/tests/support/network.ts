@@ -1,4 +1,4 @@
-import type { Page, Request, Route } from '@playwright/test';
+import type { Page, Request } from '@playwright/test';
 
 // Send the request, then drop the response. The server stores the change, and the browser sees a network error.
 export async function loseResponse(page: Page, url: string) {
@@ -16,13 +16,14 @@ export async function holdRequest(page: Page, url: string, match: (request: Requ
   let release!: () => void;
   const reached = new Promise<void>(resolve => { arrived = resolve; });
   const gate = new Promise<void>(resolve => { release = resolve; });
-  const handler = async (route: Route) => {
-    if (!match(route.request())) return route.fallback();
-    await page.unroute(url, handler);
+  // Removing the route inside its own handler ends the held request, so a flag marks the first match instead.
+  let held = false;
+  await page.route(url, async route => {
+    if (held || !match(route.request())) return route.fallback();
+    held = true;
     arrived();
     await gate;
     await route.continue();
-  };
-  await page.route(url, handler);
+  });
   return { arrived: reached, release };
 }
