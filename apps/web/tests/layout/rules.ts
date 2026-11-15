@@ -48,12 +48,14 @@ export function checkLayout(page: Page, shell: boolean): Promise<Failure[]> {
     }
 
     // Rule 3. 48px targets. Inline links in a sentence are exempt.
+    // Below 768px, STYLE.md lets month grid day buttons be narrower, but not lower.
     for (const el of document.querySelectorAll('a[href], button, input:not([type=hidden]), select, textarea, summary')) {
       if (!shown(el)) continue;
       if (el.matches('a') && getComputedStyle(el).display === 'inline') continue;
       const target = el.matches('input[type=checkbox], input[type=radio]') ? el.closest('label') ?? el : el;
       const r = box(target);
-      if (r.width < 47.5 || r.height < 47.5) out.push({ rule: 'target', selector: label(el), detail: `${Math.round(r.width)}x${Math.round(r.height)}` });
+      const narrowDay = width < 768 && el.matches('.day-number');
+      if ((!narrowDay && r.width < 47.5) || r.height < 47.5) out.push({ rule: 'target', selector: label(el), detail: `${Math.round(r.width)}x${Math.round(r.height)}` });
     }
 
     // Rule 4. No element hides its own overflowing content.
