@@ -1,2 +1,3 @@
-export { latestMemory, useMemorySignals } from './queries';
+export { latestMemory } from './queries';
+export { useMemorySignals } from './realtime';
 export { MemoryCard } from './components/MemoryCard';

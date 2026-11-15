@@ -1,17 +1,15 @@
 import { readFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+import { localStatus } from './local-status.ts';
 import { FIXED_IDS, fixtureContentCommandId, ANNA_EMAIL, MAREK_EMAIL, type FixtureIds } from './web-fixtures.ts';
-export function assertLoopback(url: string) {
-  const target = new URL(url);
-  if (target.protocol !== 'http:' || !['127.0.0.1', 'localhost', '[::1]'].includes(target.hostname) || target.username || target.password) throw new Error('Fixtures require a loopback backend.');
-}
+let backend: { url: string; publicKey: string; admin: SupabaseClient } | undefined;
 export function localFixtureBackend() {
-  const config = JSON.parse(readFileSync(new URL('../../.superpowers/backend/status.local.json', import.meta.url), 'utf8'));
-  assertLoopback(config.API_URL);
-  if (new URL(config.API_URL).port !== '55721') throw new Error('Use the dedicated deseo backend.');
-  return { url: config.API_URL as string, publicKey: config.PUBLISHABLE_KEY as string,
+  if (backend) return backend;
+  const config = localStatus();
+  backend = { url: config.API_URL, publicKey: config.PUBLISHABLE_KEY,
     admin: createClient(config.API_URL, config.SERVICE_ROLE_KEY, { auth: { persistSession: false, autoRefreshToken: false } }) };
+  return backend;
 }
 export async function fixtureCommand(client: SupabaseClient, name: string, args: Record<string, unknown>) {
   const response = await client.rpc(name, args);
@@ -94,20 +92,13 @@ export async function populatePortalPair(anna: SupabaseClient, marek: SupabaseCl
     const memory = await fixtureCommand(client, 'reserve_memory', { p_input: { id, pairId, memoryDate, caption, photos: [{ id: photoId, fullBytes: bytes.length, thumbBytes: bytes.length, width: 512, height: 384, thumbWidth: 512, thumbHeight: 384 }] }, p_command_id: commandId(asset === 'walk' ? 503 : 504) });
     const claims = await client.auth.getClaims();
     if (claims.error) throw claims.error;
-    async function finalize(body: Record<string, unknown>) {
-      const response = await client.functions.invoke('finalize-memory', { body });
-      if (response.error || !response.data?.ok) throw new Error('Memory finalization failed: ' + (response.data?.error?.code ?? response.error?.message));
-      return response.data.data;
-    }
-    const inspection = await finalize({ action: 'inspect', memoryId: id });
     for (const variant of ['full', 'thumb'] as const) {
-      if (!inspection.photos[0][variant]) {
-        const upload = await client.storage.from('memory-photos').upload(memory.photos[0][`${variant}Path`], bytes, { contentType: 'image/jpeg', upsert: false, metadata: { sessionId: claims.data!.claims.session_id } });
-        if (upload.error) throw upload.error;
-      }
+      // Storage never overwrites. An existing file is an earlier run's upload.
+      const upload = await client.storage.from('memory-photos').upload(memory.photos[0][`${variant}Path`], bytes, { contentType: 'image/jpeg', upsert: false, metadata: { sessionId: claims.data!.claims.session_id } });
+      if (upload.error && (upload.error as { statusCode?: string }).statusCode !== '409') throw upload.error;
     }
-    await finalize({ action: 'validate', memoryId: id, photoId });
-    await finalize({ action: 'publish', memoryId: id, commandId: commandId(asset === 'walk' ? 505 : 506) });
+    const response = await client.functions.invoke('finalize-memory', { body: { memoryId: id, commandId: commandId(asset === 'walk' ? 505 : 506) } });
+    if (response.error || !response.data?.ok) throw new Error('Memory finalization failed: ' + (response.data?.error?.code ?? response.error?.message));
   }
   return { ...fixed, annaId, marekId, pairId, generalListId: general.data.id, groceriesListId: groceries.id, annaMessageId: annaMessage.id, marekMessageId: marekMessage.id };
 }

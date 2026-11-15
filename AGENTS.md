@@ -11,7 +11,8 @@
 - Before implementing tests, give it a rating 0-100 in terms of importance and implement only those that score 90 or higher.
 - Use the [unslop skill](https://github.com/michael-denyer/pstack-claude/blob/main/plugins/pstack/skills/unslop/SKILL.md) when you write or edit UI text, documentation, and code comments.
 
-- Read [README.md](README.md) and [the documentation index](docs/README.md) before product work.
+- Read [README.md](README.md), [PRODUCT.md](PRODUCT.md), and [the documentation index](docs/README.md) before product work.
+- Use the terms in [the glossary](PRODUCT.md#glossary).
 - Follow [the architecture](docs/ARCHITECTURE.md) and [data contract](docs/ARCHITECTURE.md#data-contract) for module and access rules.
 - Follow [STYLE.md](STYLE.md) for frontend design, colors, layout, components, and interaction rules.
 

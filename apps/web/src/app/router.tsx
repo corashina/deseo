@@ -9,8 +9,7 @@ import { Button } from '../components/ui/Button';
 import { z } from 'zod';
 import { RouteErrorPage, RouteFailureBoundary } from './RouteErrorPage';
 import { NotFoundPage } from './NotFoundPage';
-import { UnsavedChangesGuard } from '../lib/drafts';
-import { useNetworkStatus } from '../lib/network';
+import { UnsavedChangesGuard } from '../lib/unsaved-changes';
 // The load function also starts the page chunk download early. See the end of this file.
 function lazyPage<T extends Record<K, ComponentType>, K extends keyof T>(load: () => Promise<T>, name: K) {
   return Object.assign(lazy(() => load().then(module => ({ default: module[name] }))), { load });
@@ -72,11 +71,10 @@ function Entry() { const session = useSession(); return <Navigate to={destinatio
 function InviteEntry() { const session = useSession(); return <Navigate to={destination(session)} replace />; }
 function Frame() {
   const session = useSession();
-  const online = useNetworkStatus();
   const identity = session.userId + ':' + session.pair?.status + ':' + (session.pair && 'pairId' in session.pair ? session.pair.pairId : '');
   if (session.status === 'loading') return <div className="entry-loading"><Status>Checking your account…</Status></div>;
   if (session.status === 'error') return <section className="card form-page"><h1>We could not open your account</h1><Status error>{session.error}</Status><Button onClick={() => void session.revalidate()}>Retry</Button><Button variant="secondary" onClick={() => void signOut()}>Sign out</Button></section>;
-  return session.status === 'authenticated' && session.account ? <AppShell key={identity}><Outlet /></AppShell> : <div className="entry-container" key={identity}>{!online && <Status>You are offline. Keep this tab open to retain your draft.</Status>}<Outlet /></div>;
+  return session.status === 'authenticated' && session.account ? <AppShell key={identity}><Outlet /></AppShell> : <div className="entry-container" key={identity}><Outlet /></div>;
 }
 function Root() { return <SessionProvider><UnsavedChangesGuard /><Frame /></SessionProvider>; }
 function Page({ title, children }: { title: string; children: ReactNode }) {
