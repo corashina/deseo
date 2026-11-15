@@ -149,8 +149,6 @@ The portal follows the [Web Interface Guidelines](https://github.com/vercel-labs
 - Keep submit enabled until the request starts. Validate on submit and show the error next to the field.
 - Give images `width` and `height`. Contain scroll in dialogs.
 
-`npm run test:unit --workspace @deseo/web` checks `lib/format.ts`.
-
 ## Verification
 
 Run `npm run typecheck`, `npm run lint`, and `npm run test` on final source.
@@ -179,14 +177,14 @@ Mask invitation tokens and verification codes in screenshots and logs.
 | `apps/web/tests/calendar.spec.ts` | 100, 98 | Shared and private events, edit conflicts |
 | `apps/web/tests/tasks.spec.ts` | 95 | Failed Undo and retry |
 | `apps/web/tests/notifications.spec.ts` | 92 | Saved preferences, no push permission prompt |
-| `packages/domain/tests/calendar-dates.test.ts` | 96 | Date boundaries, DST, pair-local selection |
 | `supabase/functions/finalize-memory/validate-jpeg.test.ts` | 100 | JPEG bytes, dimensions, embedded metadata |
+| `supabase/tests/end-pair.test.sql` | 95 | Shared access removal, fresh sign-in |
 | `supabase/tests/memories.test.sql` | 100 | Access, quota, immutable uploads, publication, cleanup |
 | `supabase/tests/messages.test.sql` | 100 | Access, retries, cursor order, revocation |
 | `supabase/tests/notification-jobs.test.sql` | 100 | Leases, cancellation, quiet hours, receipts |
 | `supabase/tests/planning-races.test.ts` | 100 | Concurrent writes, conflicts, retries, cross-pair access |
 
-The suite omits broad UI flows, native draft recovery, concurrent pairing, and full Edge handler checks.
+The suite omits mobile UI flows, native draft recovery, concurrent pairing, and full Edge handler checks.
 Check these areas manually until a defect needs a focused regression test.
 
 ### Acceptance priorities
