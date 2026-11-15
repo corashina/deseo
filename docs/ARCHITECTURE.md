@@ -70,8 +70,6 @@ supabase/
   tests/                   SQL, access, and race checks
   dev/                     Local stack keys, env, and synthetic pair fixtures
 brand/                     Shared tokens and icon
-design/frontend-2026-10-07/ Browser gallery and capture records
-design/shared/             Gallery images named by hash
 ```
 
 Keep native UI and browser UI separate. Extract only contracts both applications use.

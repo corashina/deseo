@@ -1,7 +1,5 @@
 # Deseo web portal
 
-<!-- impeccable:product-schema 1 -->
-
 ## Platform
 
 web
@@ -65,7 +63,6 @@ Keep instructions within 20 words. Use [unslop](https://github.com/michael-denye
 ## Evidence on Hand
 
 - [Screen guide](docs/README.md#screens): journeys, routes, forms, and states.
-- [Portal gallery](design/frontend-2026-10-07/web/index.html): local fixture captures, not customer testimonials.
 - [Verification](docs/DEVELOPMENT.md#verification): required checks and remaining work.
 - [Development guide](docs/DEVELOPMENT.md#setup): local commands.
 
