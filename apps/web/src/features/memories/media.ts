@@ -1,24 +1,23 @@
+import { queryOptions } from '@tanstack/react-query';
 import { AppError } from '@deseo/domain/result';
-import { captureQueryScope } from '../../lib/query-client';
-import { getMemoryMedia } from './queries';
+import { memoryKeys, signMemoryPhoto } from './queries';
 // Signed links and decoded image bytes stay outside persistent browser storage.
-export async function loadMemoryPhoto(photoId: string, variant: 'full' | 'thumb', signal: AbortSignal): Promise<Blob> {
-  const scope = captureQueryScope();
-  const combined = AbortSignal.any([signal, scope.signal]);
+export async function loadMemoryPhoto(path: string, signal: AbortSignal): Promise<Blob> {
   for (let attempt = 0; attempt < 2; attempt++) {
-    combined.throwIfAborted();
-    const media = await getMemoryMedia(photoId, variant);
-    scope.assertCurrent(); combined.throwIfAborted();
-    if (!media.ok) throw new AppError(media.error);
-    const response = await fetch(media.data.url, { cache: 'no-store', signal: combined, credentials: 'omit' });
-    scope.assertCurrent(); combined.throwIfAborted();
+    signal.throwIfAborted();
+    const url = await signMemoryPhoto(path);
+    const response = await fetch(url, { cache: 'no-store', signal, credentials: 'omit' });
     if (response.ok) {
       const blob = await response.blob();
-      scope.assertCurrent(); combined.throwIfAborted();
       if (blob.type !== 'image/jpeg' || blob.size > 5 * 1024 * 1024) throw new AppError({ code: 'VALIDATION' });
       return blob;
     }
     if (![400, 401, 403].includes(response.status)) throw new AppError({ code: 'RETRYABLE' });
   }
   throw new AppError({ code: 'FORBIDDEN', message: 'This photo is unavailable. Open the memory again.' });
+}
+// The query cache holds the blob only while a page shows the photo. Sign-out and pair change clear it.
+export function memoryPhotoQuery(accountId: string, pairId: string, path: string) {
+  return queryOptions({ queryKey: memoryKeys.photo(accountId, pairId, path), queryFn: ({ signal }) => loadMemoryPhoto(path, signal),
+    staleTime: Infinity, gcTime: 0, retry: false });
 }

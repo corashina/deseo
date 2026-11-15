@@ -4,7 +4,7 @@ Use [Development](DEVELOPMENT.md) for setup and checks, and [Screens](README.md#
 Read [modules](#module-structure), [access rules](#server-authorization), and the [data contract](#data-contract) before changing product code.
 
 Data sections: [records](#records), [access](#access-matrix), [pairing](#pair-transactions), [commands](#content-commands-and-conflicts),
-[messages](#messages-and-realtime), [photos](#photos), [reminders](#reminders-and-push), and [export and deletion](#export-disconnect-and-deletion).
+[messages](#messages-and-realtime), [photos](#photos), [reminders](#reminders-and-push), and [end pair](#end-pair).
 
 ## Applications
 
@@ -61,16 +61,17 @@ apps/web/src/
   features/                 Browser pages, queries, commands, controls
   components/ui/            Browser controls
   styles/                   Browser tokens and feature styles
-  lib/                      Browser client, media, drafts, lifecycle
+  lib/                      Browser client, RPC calls, command IDs, signals, unsaved changes
 apps/web/tests/             Real-browser account isolation and revocation checks
 packages/domain/src/       Shared schemas, date rules, message merging, payloads, results
 supabase/
-  migrations/              Authoritative schema and transactions
+  migrations/              One baseline schema with feature sections
   functions/               Narrow server operations and workers
   tests/                   SQL, access, and race checks
-  dev/                     Guarded local stack and synthetic pair fixtures
+  dev/                     Local stack keys, env, and synthetic pair fixtures
 brand/                     Shared tokens and icon
-design/web-portal/          Gallery, records, and JPEG evidence
+design/frontend-2026-10-07/ Browser gallery and capture records
+design/shared/             Gallery images named by hash
 ```
 
 Keep native UI and browser UI separate. Extract only contracts both applications use.
@@ -94,20 +95,18 @@ Use the installed Supabase query builder without a generic repository layer.
 ## Reads, writes, and refresh
 
 - **Read.** A page or screen calls a feature query. The query sends an authenticated request, RLS filters the rows, and the typed result goes into the Query cache.
-- **Write.** A form calls a feature command. The command runs one transaction, returns the confirmed result, and invalidates the affected queries.
-- **Refresh.** An authorized Realtime signal invalidates queries. The app then reads them again with authentication.
+- **Write.** A form runs a TanStack Query mutation. The command runs one transaction and invalidates the affected queries. On error, the form keeps its input and shows a retry button.
+- **Refresh.** Any authorized Realtime signal invalidates the matching feature queries. The app then reads them again with authentication.
+- **Keys.** Every query key starts with a `QueryRoot` from `lib/query-keys.ts`. Invalidate only through its `invalidate` function.
 - **Photo.** The app prepares the selected photo, reserves an upload, and uploads it to private storage. The server validates the photo before it publishes the memory.
 - **Push.** A scheduled worker claims a durable job and checks current access. It sends the job to Expo and then processes the receipt.
 
-Scope keys to account and pair. Abort old reads and clear private caches before account or pair changes.
-Revalidate server authority after focus and reconnect. Reset queries again if verified authority changes.
+Scope keys to account and pair. Clear private caches on sign-out and on account or pair change.
+On web focus and reconnect, refetch the session context. A membership or profile signal also refetches it.
+Ignore an older session check when a newer check or a sign-out starts after it.
 On native resume, cover the mounted screens and keep the cache until the account and pair checks pass.
-Keep each Realtime authority channel owned by a stable verified account ID.
-Ignore only signals represented by the latest fully server-verified snapshot, with exact identity, state, version, and slot checks.
-Revalidate incomplete signals and genuine changes. Never skip account disable or membership departure.
-Reject removed prior-user callbacks before they can interrupt a new account's requests.
-Keep stable command IDs and immutable input while an outcome remains unknown.
-Offer explicit retry or reconciliation. Confirm success only after a durable server result.
+Events, tasks, ideas, lists, reminders, preferences, and profiles send an expected version. A concurrent edit fails with CONFLICT and keeps the draft.
+Web forms keep one command ID per submitted input. A retry of the same input reuses it, so the server receipt stores the write once. Changed input or a success gets a new ID. A message retry keeps its client ID.
 
 ## Platform storage
 
@@ -116,7 +115,7 @@ Handle storage failure by explaining the failure and requiring sign-in. Do not a
 Native photos use private temporary files. Purge them on discard, scope change, and sign-out.
 
 Browser Auth uses Supabase's supported browser session storage.
-Shared rows, private images, and drafts stay in memory. Browser drafts do not survive reload.
+Shared rows and private images stay in memory. Form input stays in its page. Leaving the page or a reload discards it.
 Use no-store media requests and scoped blobs. Release object URLs after use and on authority loss.
 Warn before navigation or reload discards changed input. Explicit or forced sign-out clears private state immediately.
 A failed global Auth sign-out remains visible after local session removal.
@@ -147,11 +146,11 @@ Revoke default execution, grant required roles, set an empty search path, and ch
 Keep internal tables outside exposed schemas. Do not accept client-supplied trusted actor IDs.
 Keep server keys inside verified server jobs and test processes.
 
-Server `WEB_APP_ORIGIN` permits one browser origin. Native requests can omit Origin.
+Server `WEB_APP_ORIGIN` lists permitted browser origins, separated by commas. Native requests can omit Origin.
+Local values are in `supabase/dev/functions.env`.
 The local Supabase gateway uses wildcard CORS headers and intercepts OPTIONS.
 The function still rejects unknown and null origins before Auth or action work.
 Direct helper tests prove handler policy; they do not prove external gateway headers.
-Server `PUBLIC_SUPABASE_URL` supplies reachable signed links. Injected `SUPABASE_URL` remains internal.
 
 See [the data contract](#data-contract) for access, lifecycle, retention, and race rules.
 
@@ -190,8 +189,7 @@ Both applications call the same authenticated reads, transactions, and Edge func
 PostgreSQL remains authoritative for membership, permissions, versions, and lifecycle changes.
 Shared schemas and payloads live in `packages/domain`; each application owns its client and private state.
 
-Export, account deletion, avatar storage, and public deletion pages remain separate delivery work.
-Their lifecycle rules below remain requirements; this portal does not claim those endpoints exist.
+Account export, account deletion, and public deletion pages have no backend. Design them again when they enter scope.
 
 ### Shared conventions
 
@@ -226,12 +224,9 @@ Generate database types from the actual schema. Keep database checks authoritati
 | `devices` | User, installation ID, Expo token, platform, permission state, last seen, revoked time |
 | `notifications` | Recipient, pair, source reference, generic kind, created time, read time |
 | `notification_jobs` | Notification, device, due time, source version, attempt count, lease, provider ticket, state |
-| `export_jobs` | Requester, pair scope, access mode, request/expiry time, progress cursor, result parts, state |
-| `deletion_jobs` | Account or ended pair, phase, cursor, attempts, state, error code |
 | `command_receipts` | Actor, pair, command UUID, command type, result ID, result version, expiry |
-| `verification_proofs` | Account, action, hashed random proof, expiry, consumed time; private server-only record |
 
-Keep invites, proofs, delivery jobs, command receipts, and deletion internals outside the exposed schema.
+Keep invites, delivery jobs, and command receipts outside the exposed schema.
 
 Store avatars privately. Only their owner and current partner can retrieve them.
 
@@ -276,8 +271,7 @@ Task due dates are dates in the pair timezone. A task reminder stores an explici
 | Pending photo/memory | Author only | Author with reserved upload | Author or validated job |
 | Reminder | Owner only | Owner for visible source | Owner; source changes invalidate jobs |
 | Notification/device/preference | Owner only | Owner or verified job | Owner or verified job |
-| Export job | Requester only | Verified requester | Worker changes progress; requester downloads |
-| Ended-pair content | No normal reads | None | Author export endpoint only, within retention window |
+| Ended-pair content | No normal reads | None | None |
 
 Moving content to another pair is forbidden. Changes to author, pair, and membership slot are server-controlled.
 
@@ -384,16 +378,24 @@ Reserve storage against a 1 GiB pair quota, including pending uploads. Return a 
 
 Paths follow `pair_id/memory_id/photo_id/{full,thumb}.jpg`. Check all IDs against authorized database rows.
 
-Upload with no overwrite. Finalize only when every declared file exists and passes validation.
+Upload with no overwrite. Storage RLS permits the insert only for the author's live reservation.
+A database trigger checks that the stored size equals the reserved size.
+On retry, the client treats an existing file (409) as uploaded and sends only missing files.
+A browser retry of the same input reuses its memory, photo, and command IDs.
+Changed input reserves again with new IDs. The old reservation expires.
 
-The finalization transaction checks current membership and marks the memory published once. Retries return that same result.
+The `finalize-memory` Edge function takes `{memoryId, commandId}`. It downloads each unvalidated file and checks its bytes with `validate-jpeg.ts`.
+Bucket `allowed_mime_types` and `file_size_limit` check only declared type and size, so this byte check stays on the server.
+The function then calls `publish_memory`. That transaction checks current membership and marks the memory published once.
+A retry skips validated photos and returns the same publish result.
 
 An object uploaded after disconnect cannot publish. Cleanup removes abandoned reservations and files after 24 hours.
 
-Issue media links for at most 60 seconds. Clear app image caches on disconnect and sign-out.
+Policy `memory_photos_readable` lets current pair members read validated photos of published memories.
+The client signs its own links with `createSignedUrl(path, 60)`. Pending, deleted, and foreign photos return 400.
+Clear app image caches on disconnect and sign-out.
 
-Browser media uses no-store requests and memory-scoped blobs. Release object URLs on removal, scope change, and sign-out.
-Server `PUBLIC_SUPABASE_URL` supplies reachable media links. Injected `SUPABASE_URL` remains the internal service address.
+Browser media uses no-store requests and in-memory blobs in the query cache. Release object URLs on removal, scope change, and sign-out.
 
 An already issued link may work until expiry. Explain this technical limit in the privacy design; never claim instant copy revocation.
 
@@ -438,59 +440,27 @@ Quiet hours use the recipient's timezone. Defer messages until quiet hours end; 
 
 Persist notifications for 30 days. Do not maintain a second calendar inside the notification system.
 
-### Export, disconnect, and deletion
-
-#### Fresh verification
-
-A server function verifies a fresh email code against the authenticated account's actual email.
-
-It returns a random, single-use proof bound to that account and the requested action, valid for ten minutes.
-
-Store only the proof hash. Consume it atomically with the sensitive command. Do not trust client timestamps or JWT refresh times.
-
-Check the JWT session ID against the current Auth session for protected reads and commands, including global sign-out enforcement.
-
-A deletion-page user completes the same sign-in and action verification. No proof grants access to another account.
-
-#### Export while paired
-
-Fresh email verification permits export of records the requester can currently read, including shared content and their private events.
-
-Produce UTF-8 JSON plus media files. Preserve record dates and authorship. Exclude tokens, device secrets, and the partner's private events.
-
-Use bounded parts of at most 100 MiB. Persist progress between worker invocations to stay within platform execution limits.
-
-Store export parts privately for 24 hours. Authorize each download and issue at most 60-second links.
-
-Recheck access during each export step and download. Cancel shared export parts if the pair ends before download.
-
-#### End pair
+### End pair
 
 Require fresh verification within ten minutes and explicit confirmation.
 
-Atomically mark the pair ended, close memberships, revoke invitations, cancel unsent jobs, and invalidate shared export jobs.
-
-Former members can request a new author-only export for 30 days. Filter every record and photo by original author.
+Atomically mark the pair ended, close memberships, revoke invitations, and cancel unsent jobs.
 
 Allow a new pair immediately after termination. Never copy the former pair's records into it.
 
-Purge ended-pair records and media after 30 days. Completed external downloads cannot be recalled.
+No worker purges ended-pair records yet. `purge_after` records the 30-day deadline.
 
-#### Delete account
+#### Fresh verification
 
-Use the same verified command from the native app and the public deletion page.
+The browser sends an email code with Supabase Auth `signInWithOtp`. It verifies the code with `verifyOtp` in a separate in-memory client.
+That client sends the sensitive command, then signs out its session. The saved browser session does not change.
 
-Mark the account disabled first. RLS and jobs check this state even if an old JWT remains valid.
+`private.recently_signed_in()` accepts only a session with an `auth.mfa_amr_claims` row from the last ten minutes.
+Auth writes that row at sign-in. Token refresh does not change it, and the client cannot set it.
 
-Revoke Auth sessions and end the active pair. Deny content requests immediately after the disabling transaction.
+`supabase.auth.reauthenticate()` cannot replace this check. Its nonce works only with a password change in `updateUser`.
 
-Purge the deleting person's authored content and private files within 24 hours. Retry partial failures through `deletion_jobs`.
-
-The former partner retains only their own 30-day export access. Purge the Auth account after dependent cleanup succeeds.
-
-Keep content-free job status under an opaque receipt for seven days so the deletion page can show progress.
-
-Backups follow the selected hosting retention. Verify and disclose that retention before launch; do not promise immediate backup erasure.
+Check the JWT session ID against the current Auth session for protected reads and commands, including global sign-out enforcement.
 
 ### Indexes and limits
 
@@ -508,7 +478,7 @@ Inspect query plans with realistic synthetic pair data. Avoid indexing every fie
 
 Simultaneous invitation joins, one user joining two pairs, stale tokens, cross-pair IDs, private-event probes, duplicate sends, and stale edits.
 
-Also test uploads after disconnect, old media links, disabled accounts with valid JWTs, duplicate workers, and exports racing with deletion.
+Also test uploads after disconnect, old media links, disabled accounts with valid JWTs, and duplicate workers.
 
 See [verification](DEVELOPMENT.md#verification) for importance ratings and required evidence.
 
@@ -533,7 +503,7 @@ Queries validate the Pair UUID and calendar date before requesting data.
 Invalid dates raise `AppError` with code `VALIDATION` and field `date`.
 Malformed responses raise `AppError` with code `RETRYABLE`. Server Result errors retain their typed codes.
 Queries check all four arrays for foreign Pair rows before filtering ended timed Events.
-Foreign rows raise `FORBIDDEN`; old scopes abort reads and reject stale results.
+Foreign rows raise `FORBIDDEN`. Sign-out and pair change cancel reads and clear the cache.
 
 Browser Today makes two scoped data reads together: `get_today` and the Memories `latestMemory` query.
 It keeps one error state if either read fails. Calendar, Tasks, Notes, and Pair aggregation stay outside this query.
@@ -569,29 +539,8 @@ Domain platform restrictions and browser native-code restrictions remain active.
 
 ## Local backend and Edge
 
-The workspace helper verifies canonical Git registration, the shared Git directory, and matching Supabase configuration.
-Persistent services belong to the primary checkout under project `deseo`, API 55721, and database 55722.
-Edge source can belong to the primary checkout or a verified registered worktree.
-Missing, prunable, unregistered, and unrelated paths fail ownership checks.
-Linked worktrees cannot run Start or Reset. Test uses source SQL; Status reads the primary backend.
-Status records remain under the source checkout's ignored backend folder.
-Serving checks Kong, database, existing Edge ownership, and foreign Docker ports before selecting source.
-
-Each origin mode permits one exact `WEB_APP_ORIGIN` entry.
-Origin changes reject listeners on the other mode's port.
-An unchanged-origin source reload permits those listeners only with an owned, running Edge and one matching origin entry.
-The guard does not classify Vite processes or inspect foreign project files.
-Local source verification preserves persistent database identity and current origin policy.
-
-All six Edge entrypoints use `supabase/functions/deno.json`, its frozen lockfile, and Deno 2.9.6.
-Sensitive verification uses the shared pinned Supabase import.
-Run `npm run typecheck:functions` and both function test commands for local checks.
-Hosted bundling and runtime remain unverified.
-
-## Optimization record
-
-The owner approved the design and implementation plan on 9 October 2026.
-Git retains the design at `761553e:docs/ARCHITECTURE.md` and the plan at `19421cd:docs/DEVELOPMENT.md`.
-Read [the dated evidence](DEVELOPMENT.md#architecture-optimization-evidence-9-october-2026) for source revisions, results, and measurement limits.
-Measured Important date and realtime costs justify separate designs. This change adds neither capability.
-Keep migration history, fixture ownership, gallery assets, and the native and deployment acceptance limits.
+Use plain Supabase CLI commands through the [root scripts](DEVELOPMENT.md#scripts).
+One Edge process serves all functions. `supabase/dev/functions.env` lists the permitted browser origins.
+All Edge entrypoints use `supabase/functions/deno.json`, its frozen lockfile, and Deno 2.9.6.
+Run `npm run typecheck:functions` and `npm run test:functions` for local checks. Hosted bundling and runtime remain unverified.
+Nothing runs in production. Edit the baseline migration in place until the first release, then add new migrations.

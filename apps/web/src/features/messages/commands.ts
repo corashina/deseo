@@ -1,87 +1,30 @@
 import { z } from 'zod';
-import type { InfiniteData } from '@tanstack/react-query';
-import { getSupabase, type RpcName } from '../../lib/supabase';
-import { captureQueryScope, queryClient } from '../../lib/query-client';
-import { errorResult, resultSchema, type Page, type Result } from '@deseo/domain/result';
-import { mergeConfirmedMessagePages, messageCursorSchema, messageIdSchema, messageRowSchema, readCursorRowSchema, sendMessageSchema } from '@deseo/domain/messages';
+import { callRpc } from '../../lib/rpc';
+import { invalidate } from '../../lib/query-keys';
 import { messageKeys } from './queries';
-import { assertOnline } from '../../lib/network';
+import type { RpcName } from '../../lib/supabase';
+import { messageCursorSchema, messageIdSchema, messageRowSchema, readCursorRowSchema, sendMessageSchema } from '@deseo/domain/messages';
 import type { Message, MessageCursor, SendMessageInput } from '@deseo/domain/messages';
 
-export async function runMessageCommand<T extends z.ZodTypeAny>(
-  name: RpcName, parameters: Record<string, unknown>, schema: T,
-  invalidation: { pairId?: string; today?: boolean; unreadOnly?: boolean } = {},
-): Promise<Result<z.infer<T>>> {
-  try {
-    assertOnline();
-    const scope = captureQueryScope();
-    const client = await getSupabase();
-    scope.assertCurrent();
-    const response = await client.rpc(name, parameters).abortSignal(scope.signal);
-    scope.assertCurrent();
-    if (response.error) return errorResult(response.error);
-    const result = resultSchema(schema).parse(response.data);
-    if (result.ok) {
-      try {
-        await queryClient.invalidateQueries({ predicate: query => {
-          const key = query.queryKey;
-          if (invalidation.pairId !== undefined && key[2] !== invalidation.pairId) return false;
-          return key[0] === 'messages' && (!invalidation.unreadOnly || key[3] === 'unread')
-            || invalidation.today === true && key[0] === 'today';
-        } });
-      } catch { /* A failed read does not undo the confirmed command. */ }
-      scope.assertCurrent();
-    }
-    return result;
-  } catch (error) { return errorResult(error); }
+async function messageCommand<T extends z.ZodTypeAny>(name: RpcName, parameters: Record<string, unknown>, schema: T): Promise<z.infer<T>> {
+  const data = await callRpc(name, parameters, schema);
+  await invalidate(['messages'], ['today']);
+  return data;
 }
-
-export async function sendMessage(input: SendMessageInput): Promise<Result<Message>> {
-  try {
-    assertOnline();
-    const parsed = sendMessageSchema.parse(input);
-    const scope = captureQueryScope();
-    const client = await getSupabase();
-    scope.assertCurrent();
-    const response = await client.rpc('send_message', {
-      p_pair_id: parsed.pairId, p_client_id: parsed.clientId, p_body: parsed.body,
-    }).abortSignal(scope.signal);
-    scope.assertCurrent();
-    if (response.error) return errorResult(response.error);
-    const result = resultSchema(messageRowSchema).parse(response.data);
-    if (result.ok) {
-      scope.assertCurrent();
-      const confirmed = result.data;
-      queryClient.setQueryData<InfiniteData<Page<Message>>>(messageKeys.conversation(confirmed.authorId, confirmed.pairId), cached => {
-        scope.assertCurrent();
-        const pages = mergeConfirmedMessagePages(cached?.pages, confirmed);
-        return cached?.pages.length ? { ...cached, pages } : { pages, pageParams: [undefined] };
-      });
-      scope.assertCurrent();
-      try {
-        await queryClient.invalidateQueries({ predicate: query =>
-          query.queryKey[0] === 'messages' && query.queryKey[2] === parsed.pairId });
-      } catch { /* Keep the acknowledged message until a durable refresh succeeds. */ }
-      scope.assertCurrent();
-    }
-    return result;
-  } catch (error) { return errorResult(error); }
+// A retry sends the same client ID, so the server stores the message once.
+export function sendMessage(input: SendMessageInput): Promise<Message> {
+  const parsed = sendMessageSchema.parse(input);
+  return messageCommand('send_message', { p_pair_id: parsed.pairId, p_client_id: parsed.clientId, p_body: parsed.body }, messageRowSchema);
 }
-
-export async function deleteMessage(id: string, commandId: string): Promise<Result<{ id: string }>> {
-  try {
-    return await runMessageCommand('delete_message', {
-      p_message_id: messageIdSchema.parse(id), p_command_id: messageIdSchema.parse(commandId),
-    }, z.object({ id: messageIdSchema }), { today: true });
-  } catch (error) { return errorResult(error); }
-}
-
-export async function setReadCursor(pairId: string, cursor: MessageCursor): Promise<Result<MessageCursor>> {
-  try {
-    const pair = messageIdSchema.parse(pairId);
-    const parsed = messageCursorSchema.parse(cursor);
-    return await runMessageCommand('set_read_cursor', {
-      p_pair_id: pair, p_created_at: parsed.createdAt, p_message_id: parsed.id,
-    }, readCursorRowSchema, { pairId: pair, unreadOnly: true });
-  } catch (error) { return errorResult(error); }
+// These RPCs take a command ID. Each attempt sends a new one.
+const messageAction = (name: RpcName) => (id: string) =>
+  messageCommand(name, { p_message_id: messageIdSchema.parse(id), p_command_id: crypto.randomUUID() }, z.object({ id: messageIdSchema }));
+export const deleteMessage = messageAction('delete_message');
+export const pinMessage = messageAction('pin_message');
+export const unpinMessage = messageAction('unpin_message');
+export async function setReadCursor(accountId: string, pairId: string, cursor: MessageCursor): Promise<MessageCursor> {
+  const parsed = messageCursorSchema.parse(cursor);
+  const data = await callRpc('set_read_cursor', { p_pair_id: messageIdSchema.parse(pairId), p_created_at: parsed.createdAt, p_message_id: parsed.id }, readCursorRowSchema);
+  await invalidate(messageKeys.unread(accountId, pairId));
+  return data;
 }

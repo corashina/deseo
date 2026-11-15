@@ -1,11 +1,11 @@
 import { useTaskSignals } from '../realtime';
-import { useRef, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { toAppError } from '@deseo/domain/result';
 import { Link } from 'react-router-dom';
 import { useSession } from '../../../app/SessionProvider';
-import { useNetworkStatus } from '../../../lib/network';
-import { useCommandScope } from '../../../lib/use-command-scope';
-import { readDraft, writeDraft, removeDraft, useUnsavedChanges } from '../../../lib/drafts';
+import { useUnsavedChanges } from '../../../lib/unsaved-changes';
+import { useCommandId } from '../../../lib/command-id';
 import { PageHeader } from '../../../components/ui/PageHeader';
 import { Status } from '../../../components/ui/Status';
 import { Field } from '../../../components/ui/Field';
@@ -13,55 +13,15 @@ import { Button } from '../../../components/ui/Button';
 import { listTaskLists, taskKeys } from '../queries';
 import { createList } from '../commands';
 import '../../../styles/planning.css';
-type Draft = {
-  name: string;
-  attempt?: {
-    name: string;
-    commandId: string;
-  };
-};
 export function ListManagerPage() {
   const { account, pair } = useSession();
-  const online = useNetworkStatus();
   const pairId = pair?.status === 'active' ? pair.pairId : '';
-  const draft = useRef(readDraft<Draft>(account!.id, pairId, 'list-new'));
-  const attempt = useRef(draft.current?.attempt);
-  const [name, setName] = useState(draft.current?.name ?? '');
-  const [saving, setSaving] = useState(false);
-  const [frozen, setFrozen] = useState(Boolean(attempt.current));
-  const [error, setError] = useState('');
-  const beginScope = useCommandScope(() => { setSaving(false); });
+  const [name, setName] = useState('');
   useTaskSignals(account!.id, pair);
   const query = useQuery({ queryKey: taskKeys.lists(account!.id, pairId), queryFn: () => listTaskLists(pairId) });
+  const command = useCommandId();
+  const add = useMutation({ mutationFn: () => createList(pairId, name, command.idFor({ pairId, name })), onSuccess: () => { setName(''); command.reset(); } });
   useUnsavedChanges(Boolean(name));
-  async function add() {
-    if (!online || saving)
-      return;
-    const next = attempt.current ?? { name, commandId: crypto.randomUUID() };
-    attempt.current = next;
-    writeDraft(account!.id, pairId, 'list-new', { name, attempt: next });
-    const scope = beginScope();
-    setSaving(true);
-    setFrozen(true);
-    const result = await createList(pairId, next.name, next.commandId);
-    if (!scope.isCurrent()) return;
-    setSaving(false);
-    if (result.ok) {
-      removeDraft(account!.id, pairId, 'list-new');
-      attempt.current = undefined;
-      setName('');
-      setFrozen(false);
-      setError('');
-    }
-    else {
-      setError(result.error.message ?? 'List save failed. Try again.');
-      if (result.error.code !== 'RETRYABLE') {
-        attempt.current = undefined;
-        setFrozen(false);
-        writeDraft(account!.id, pairId, 'list-new', { name });
-      }
-    }
-  }
   return <>
     <PageHeader title="Task lists" description="General stays available for shared tasks." />
     <section className="card form-page">
@@ -75,21 +35,18 @@ export function ListManagerPage() {
       </li>)}
       </ul>}
       <h2>Add list</h2>
-      <form className="list-name-form" onSubmit={event => { event.preventDefault(); void add(); }}>
+      <form className="list-name-form" onSubmit={event => { event.preventDefault(); if (!add.isPending) add.mutate(); }}>
         <Field
           label="List name"
           name="listName"
           value={name}
           maxLength={40}
           required
-          disabled={saving || frozen}
-          onChange={event => {
-            setName(event.target.value);
-            writeDraft(account!.id, pairId, 'list-new', { name: event.target.value });
-          }} />
-        {error && <Status error>{error}
+          disabled={add.isPending}
+          onChange={event => setName(event.target.value)} />
+        {add.isError && <Status error>{toAppError(add.error).message}
         </Status>}
-        <Button disabled={!online || saving} type="submit">{saving ? 'Saving…' : frozen ? 'Retry list' : 'Create list'}
+        <Button disabled={add.isPending} type="submit">{add.isPending ? 'Saving…' : add.isError ? 'Retry list' : 'Create list'}
         </Button>
       </form>
       <p>

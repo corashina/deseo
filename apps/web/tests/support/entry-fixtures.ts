@@ -1,11 +1,9 @@
-import { readFileSync } from 'node:fs';
 import { randomUUID } from 'node:crypto';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+import { localStatus } from '../../../../supabase/dev/local-status.ts';
 
-// Credentials remain in the test process and the ignored local status file.
-const config = JSON.parse(readFileSync(new URL('../../../../.superpowers/backend/status.local.json', import.meta.url), 'utf8'));
+const config = localStatus();
 export const localUrl: string = config.API_URL;
-if (new URL(localUrl).hostname !== '127.0.0.1' || new URL(localUrl).port !== '55721') throw new Error('Use the disposable deseo stack.');
 export const admin = createClient(localUrl, config.SERVICE_ROLE_KEY, { auth: { persistSession: false, autoRefreshToken: false } });
 export const publicKey: string = config.PUBLISHABLE_KEY;
 const fixtureClients = new Map<string, SupabaseClient>();

@@ -4,7 +4,7 @@ import { createClient, type SupabaseClient } from 'npm:@supabase/supabase-js@2.1
 
 export type ErrorCode = 'UNAUTHENTICATED' | 'FORBIDDEN' | 'VALIDATION' | 'CONFLICT' | 'QUOTA_EXCEEDED' | 'RETRYABLE';
 export type Outcome<T> = { ok: true; data: T } | { ok: false; error: { code: ErrorCode; field?: string } };
-export interface MemoryActor { caller: SupabaseClient; admin: SupabaseClient; actorId: string; sessionId: string }
+export interface MemoryActor { admin: SupabaseClient; actorId: string; sessionId: string }
 interface IdentityCheck {
   actorId?: string; sessionId?: unknown; subject?: string;
   userError: { status?: number } | null; claimsError: { status?: number } | null;
@@ -72,7 +72,7 @@ export async function authenticate(request: Request): Promise<Outcome<MemoryActo
   const identity = resolveIdentity({ actorId: user.data.user?.id, sessionId: claims.data?.claims.session_id,
     subject: claims.data?.claims.sub, userError: user.error, claimsError: claims.error,
     contextError: context.error, context: context.data });
-  return identity.ok ? { ok: true, data: { caller, admin, ...identity.data } } : identity;
+  return identity.ok ? { ok: true, data: { admin, ...identity.data } } : identity;
 }
 export async function rpc<T>(client: SupabaseClient, name: string, args?: Record<string, unknown>): Promise<Outcome<T>> {
   const { data, error } = await client.rpc(name, args);

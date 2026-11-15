@@ -2,7 +2,7 @@
 
 Merge note, 8 October 2026: these images retain captured source `701f078` and its recorded checks.
 The merge keeps newer field errors, timezone controls, date labels, and message actions from master.
-These captures do not verify the merged interface. See [the merge record](../../../docs/DEVELOPMENT.md#frontend-merge-record).
+These captures do not verify the merged interface.
 
 Open [the complete gallery](index.html). It shows desktop and narrow views with full-size links.
 
@@ -16,7 +16,6 @@ Planning, tasks, messages, and account screens use the local Anna and Marek pair
 Normal Today and memory photo views use an owned disposable pair with decoded photos.
 The named photos failed decoding despite HTTP 200 media and storage responses.
 Named failure images: [desktop](named-media-failure-1440.jpg) and [phone](named-media-failure-390.jpg).
-See [the frontend handoff](../../../docs/DEVELOPMENT.md#frontend-design-handoff) for the named-media evidence and fixture ruling.
 Other screens use disposable local fixtures or controlled request failures.
 I masked email addresses, invitation codes, and verification codes before capture.
 I removed invite tokens from coverage URLs.

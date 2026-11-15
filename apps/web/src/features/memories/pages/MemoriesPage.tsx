@@ -6,7 +6,8 @@ import { PageHeader } from '../../../components/ui/PageHeader';
 import { Status } from '../../../components/ui/Status';
 import { formatDate } from '../../../lib/format';
 import { Button } from '../../../components/ui/Button';
-import { listMemories, memoryKeys, useMemorySignals } from '../queries';
+import { listMemories, memoryKeys } from '../queries';
+import { useMemorySignals } from '../realtime';
 import { MemoryCard } from '../components/MemoryCard';
 import '../../../styles/memories.css';
 export function MemoriesPage() {
