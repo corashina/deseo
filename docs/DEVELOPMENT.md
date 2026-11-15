@@ -177,6 +177,9 @@ Mask invitation tokens and verification codes in screenshots and logs.
 | `apps/web/tests/calendar.spec.ts` | 100, 98 | Shared and private events, edit conflicts |
 | `apps/web/tests/tasks.spec.ts` | 95 | Failed Undo and retry |
 | `apps/web/tests/notifications.spec.ts` | 92 | Saved preferences, no push permission prompt |
+| `apps/web/tests/layout/layout.spec.ts` | 95 | No side scroll, shell, clipped text, and 48px targets on 37 screens at 6 widths |
+| `apps/web/tests/layout/focus.spec.ts` | 95, 93, 92, 90 | Dialog and drawer focus, event form order, navigation order, skip link |
+| `apps/web/tests/layout/rules.spec.ts` | 91 | Each layout rule fails on a bad page |
 | `supabase/functions/finalize-memory/validate-jpeg.test.ts` | 100 | JPEG bytes, dimensions, embedded metadata |
 | `supabase/tests/end-pair.test.sql` | 95 | Shared access removal, fresh sign-in |
 | `supabase/tests/memories.test.sql` | 100 | Access, quota, immutable uploads, publication, cleanup |

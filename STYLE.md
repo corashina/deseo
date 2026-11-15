@@ -141,9 +141,11 @@ Build from one column. Set breakpoints by available space.
 | 1024px and above | 256px sidebar; 72px collapsed | 32px page padding |
 
 Cap content at 1440px, forms at 720px, and messages at 960px. The header is at least 72px high.
-Desktop Today pairs a flexible planning column with a 360px personal column.
+From 1200px, Today pairs a flexible planning column with a 360px personal column. Below 1200px, Today uses one column.
+From 1500px, Memories shows three columns.
 Use `min-width: 0` on grid children. Let long event and partner names wrap.
 Use 48px browser targets and 48dp native targets.
+Below 768px, month grid day buttons stay 48px high but can be narrower. Seven 48px columns do not fit on a 320px phone.
 At narrow widths, move the header action below the heading before either gets crowded.
 Do not shrink desktop calendar cells into unreadable mobile columns.
 
