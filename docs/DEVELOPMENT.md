@@ -106,7 +106,18 @@ After a migration change, run `npm run gen:types` against the running stack.
 CI fails when `packages/domain/src/database.types.ts` differs from the schema.
 `.github/workflows/ci.yml` runs typecheck, lint, unit tests, the web build and size budget, the site build, SQL tests, the race test, and Edge checks.
 `npm run size --workspace @deseo/web` fails when the gzip JS and CSS that `index.html` loads exceeds the budget in `apps/web/scripts/check-size.mjs`.
-Playwright tests need the local backend and Edge functions. Run them with `npm run test --workspace @deseo/web`.
+Playwright tests need the local backend and Edge functions. Run them with `npm run test --workspace @deseo/web` on all platforms.
+
+The `web-e2e` job ("Web journeys") runs the browser tests on each pull request and blocks merge. Its steps:
+
+1. Start Supabase without Studio, Vector, Logflare, imgproxy, and Supavisor.
+2. Serve Edge functions with `npm run functions`.
+3. Install Chromium for Playwright.
+4. Read the local URL and key from `npx supabase status`, then run the browser tests.
+5. On failure, upload the Playwright report, the traces, and the Edge log.
+
+The job reserves ports 55720 to 55729 so outgoing connections do not take them.
+Supabase start takes about 2 minutes. The tests run on 4 workers in about 30 seconds.
 
 ### Expo mobile
 
@@ -160,6 +171,12 @@ Mask invitation tokens and verification codes in screenshots and logs.
 | `apps/mobile/src/lib/private-storage.test.ts` | 100 | Key loss, corruption, failed writes, scoped removal |
 | `apps/web/tests/session-isolation.spec.ts` | 100 | Browser account and pair isolation |
 | `apps/web/tests/pair-revocation.spec.ts` | 100 | Fresh verification, pair closure, global sign-out |
+| `apps/web/tests/pairing.spec.ts` | 100 | Invitation and join, cross-pair reads, new pair without old content |
+| `apps/web/tests/memories.spec.ts` | 100 | Failed photo retry, pair end during publish |
+| `apps/web/tests/messages.spec.ts` | 100, 94 | Lost send acknowledgement, pinned notes |
+| `apps/web/tests/calendar.spec.ts` | 100, 98 | Shared and private events, edit conflicts |
+| `apps/web/tests/tasks.spec.ts` | 95 | Failed Undo and retry |
+| `apps/web/tests/notifications.spec.ts` | 92 | Saved preferences, no push permission prompt |
 | `supabase/functions/finalize-memory/validate-jpeg.test.ts` | 100 | JPEG bytes, dimensions, embedded metadata |
 | `supabase/tests/end-pair.test.sql` | 95 | Shared access removal, fresh sign-in |
 | `supabase/tests/memories.test.sql` | 100 | Access, quota, immutable uploads, publication, cleanup |
@@ -167,7 +184,7 @@ Mask invitation tokens and verification codes in screenshots and logs.
 | `supabase/tests/notification-jobs.test.sql` | 100 | Leases, cancellation, quiet hours, receipts |
 | `supabase/tests/planning-races.test.ts` | 100 | Concurrent writes, conflicts, retries, cross-pair access |
 
-The suite omits broad UI flows, native draft recovery, concurrent pairing, and full Edge handler checks.
+The suite omits mobile UI flows, native draft recovery, concurrent pairing, and full Edge handler checks.
 Check these areas manually until a defect needs a focused regression test.
 
 ### Acceptance priorities
@@ -193,9 +210,22 @@ Skip decorative snapshots (25) and trivial getter tests (20).
 Use synthetic accounts: two in one pair, one in another pair, and one unpaired.
 Use Europe/Warsaw and America/New_York for cross-zone checks. Pin DST and February 29 instants.
 
+Browser tests get fixtures from `apps/web/tests/support/test.ts`:
+
+| Fixture | Use |
+|---|---|
+| `account(name)` | New confirmed account with a password session. `null` skips the profile. |
+| `pendingPair(name)` | Account with a pair and an open invitation |
+| `pair([a, b])` | Two accounts in an active pair. Call it again for another pair. |
+| `signIn(page, account)` | Puts a new session in the tab before the app loads |
+| `filledPair` | One pair per worker with long text in each area. Read it and never change it. |
+
+Each test removes its accounts, pairs, and photos. Cleanup accepts only `entry-<uuid>@example.test` accounts.
+`support/network.ts` drops, fails, or holds one request to test retries and races.
+
 ### Complete journeys
 
-Check each journey before a release:
+`web-e2e` checks each web journey on each pull request. Check each journey on mobile before a release:
 invitation and join, shared and private events, edit conflicts, task Undo, lost message acknowledgement,
 pinned notes, failed photo retry, pair end during upload, and a new pair without old content.
 
