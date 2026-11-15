@@ -18,7 +18,7 @@ test('B sees the shared event and cannot open the private event', async ({ page,
     const partner = await context.newPage();
     await signIn(partner, b);
     await partner.goto('/calendar');
-    await expect(partner.getByText('Concert night')).toBeVisible();
+    await expect(partner.getByRole('link', { name: /Concert night/ }).first()).toBeVisible();
     await expect(partner.locator('body')).not.toContainText('Dentist visit');
     await partner.goto('/events/' + ids[0]);
     await expect(partner.getByRole('heading', { name: 'Concert night', exact: true })).toBeVisible();
@@ -45,6 +45,7 @@ test('the second save of one event keeps its draft and reports a conflict', asyn
     await partner.getByLabel('Title', { exact: true }).fill('Weekend trip to the lake');
     await partner.getByRole('button', { name: 'Save changes', exact: true }).click();
     await expect(partner.getByRole('heading', { name: 'Weekend trip to the lake', exact: true })).toBeVisible();
+    await page.getByText('More details', { exact: true }).click();
     await page.getByLabel('Location').fill('Train station');
     await page.getByRole('button', { name: 'Save changes', exact: true }).click();
     await expect(page.getByText('This event changed. Your draft is kept.')).toBeVisible();

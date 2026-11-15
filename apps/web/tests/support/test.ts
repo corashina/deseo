@@ -76,6 +76,16 @@ async function cleanup(created: Account[]) {
     const members = await admin.from('pair_members').select('user_id').in('pair_id', pairIds);
     if (members.error) throw members.error;
     if (members.data.some(row => !ids.includes(row.user_id))) throw new Error('Cleanup found a pair member it did not create.');
+    // Photo rows refer to pair members, so remove the photos and their files first.
+    const photos = await admin.from('memory_photos').select('full_path, thumb_path').in('pair_id', pairIds);
+    if (photos.error) throw photos.error;
+    const paths = photos.data.flatMap(photo => [photo.full_path, photo.thumb_path]);
+    if (paths.length > 0) {
+      const removed = await admin.storage.from('memory-photos').remove(paths);
+      if (removed.error) throw removed.error;
+      const { error } = await admin.from('memory_photos').delete().in('pair_id', pairIds);
+      if (error) throw error;
+    }
     const { error } = await admin.from('pairs').delete().in('id', pairIds);
     if (error) throw error;
   }

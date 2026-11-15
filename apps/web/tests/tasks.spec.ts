@@ -16,7 +16,8 @@ test('a failed Undo keeps the completed task, and a retry reopens it', async ({ 
     const partner = await context.newPage();
     await signIn(partner, b);
     await partner.goto('/tasks');
-    await partner.getByRole('checkbox', { name: 'Complete ' + title }).check();
+    // The row is a controlled checkbox. It shows the change after the next render, so click and then wait.
+    await partner.getByRole('checkbox', { name: 'Complete ' + title }).click();
     await expect(partner.getByRole('button', { name: 'Undo', exact: true })).toBeVisible();
     await page.reload();
     await expect(check).toBeChecked();
