@@ -11,12 +11,9 @@
     "noUncheckedIndexedAccess": true,
     "skipLibCheck": true,
     "noEmit": true,
-    "types": [
-      "jest"
-    ]
+    "types": []
   },
   "include": [
-    "src",
-    "tests"
+    "src"
   ]
 }
