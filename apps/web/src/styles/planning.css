@@ -55,7 +55,6 @@
 .today-layout .event-row:last-child { margin-bottom:0; }
 .today-layout .task-row:last-child { border-bottom:0; padding-bottom:0; }
 .today-layout .section-heading { margin-bottom:20px; }
-.today-layout .section-heading > a, .important-card > a { display:inline-flex; align-items:center; min-height:48px; padding:8px 0; }
 .important-card { background:var(--note); border-color:var(--note-line); }
 .important-card h3 { margin-bottom:12px; font-size:20px; line-height:1.3; }
 .important-card p { margin-bottom:12px; }
@@ -64,4 +63,3 @@
 
 .today-layout [data-testid="today-intro"] { grid-area:memory; }
 .today-intro-actions { display:flex; flex-wrap:wrap; gap:16px; }
-.today-intro-actions a { min-height:48px; display:inline-flex; align-items:center; }

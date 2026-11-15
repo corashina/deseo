@@ -27,7 +27,6 @@
 .memory-detail img { display: block; width: auto; max-width: 100%; height: auto; max-height: 80vh; margin: auto; border-radius: var(--radius-control); }
 .memory-detail figcaption { display: flex; justify-content: flex-end; margin-top: 16px; }
 .memory-detail .actions { align-items: center; justify-content: space-between; margin-bottom: 0; }
-.memory-detail .actions > a { display: inline-flex; align-items: center; min-height: var(--nav-target); }
 .photo-selection { margin-bottom: 20px; }
 .photo-picker { position: relative; font-size: 16px; }
 .photo-picker input[type='file'] { position: absolute; inset: 0; height: 100%; padding: 0; opacity: 0; cursor: pointer; }
