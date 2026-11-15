@@ -35,7 +35,6 @@ details.message-actions { display:block; margin-top:8px; }
 .message-actions > summary[aria-disabled=true] { opacity:.6; cursor:default; }
 .message-action-menu { display:flex; flex-wrap:wrap; gap:8px; padding-top:8px; }
 .message-action-menu .button { font-size:14px; }
-.message-actions > a { display:inline-flex; align-items:center; min-height:var(--nav-target); padding:8px 0; }
 .message-composer { margin-top:0; padding:20px; background:var(--sidebar); }
 .message-composer .field { margin-bottom:12px; }
 .message-composer textarea { width:100%; min-width:0; min-height:88px; resize:vertical; border:1px solid var(--control); border-radius:var(--radius-control); padding:12px 16px; color:var(--ink); background:var(--surface); font-size:16px; font-weight:400; }

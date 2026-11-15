@@ -32,11 +32,9 @@
 .task-row:last-child, .task-detail .task-row:last-of-type { border-bottom:0; }
 .task-detail { max-width:var(--form-width); }
 .task-detail > .actions { align-items:center; margin-bottom:0; }
-.task-detail > .actions > a { display:inline-flex; align-items:center; min-height:48px; }
 .task-detail > p:has(> a) { margin:24px 0 0; }
 .task-detail > p > a { display:inline-flex; align-items:center; min-height:48px; }
 .task-form > .actions { align-items:center; margin-top:20px; }
-.task-form > .actions > a { display:inline-flex; align-items:center; min-height:48px; }
 .task-form-group .field:last-child { margin-bottom:0; }
 .task-form-group { border-top:1px solid var(--line); padding-top:24px; margin-top:24px; }
 .task-form-group h2 { margin-bottom:16px; }

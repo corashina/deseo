@@ -21,7 +21,7 @@ h2, h3 { text-wrap: balance; }
 .form-page { width: 100%; max-width: var(--form-width); margin: 24px auto; }
 .form-page > a, .form-page > button { margin-top: 16px; margin-right: 12px; }
 /* A text link outside a sentence gets a 48px target. Links inside a sentence stay inline. */
-:is(.form-page, .page-header, .actions, .section-heading, .important-card, .today-intro-actions) > a:not(.button) { display: inline-flex; align-items: center; justify-content: center; min-height: var(--nav-target); min-width: var(--nav-target); }
+:is(.form-page, .page-header, .actions, .message-actions, .section-heading, .important-card, .today-intro-actions) > a:not(.button) { display: inline-flex; align-items: center; justify-content: center; min-height: var(--nav-target); min-width: var(--nav-target); }
 .page-header { display: flex; flex-wrap: wrap; align-items: start; justify-content: space-between; gap: 16px 24px; margin-bottom: 32px; }
 .page-header > div:first-child { flex: 1 1 280px; min-width: 0; }
 .page-header > :not(:first-child) { max-width: 100%; }
