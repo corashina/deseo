@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useInfiniteQuery, useMutation, useQuery } from '@tanstack/react-query';
 import { compareMessageCursors, messageBodySchema, type Message, type MessageCursor } from '@deseo/domain/messages';
 import { toAppError } from '@deseo/domain/result';
@@ -48,6 +48,9 @@ export function Conversation() {
     mutationFn: ({ kind, id }: { kind: 'pin' | 'unpin' | 'delete'; id: string }) => (kind === 'delete' ? deleteMessage : kind === 'pin' ? pinMessage : unpinMessage)(id),
     onSuccess: () => setDeleting(null),
   });
+  const { mutate } = action;
+  // Stable callbacks let unchanged message rows skip a render while the composer types.
+  const pin = useCallback((message: Message) => mutate({ kind: message.pinnedAt ? 'unpin' : 'pin', id: message.id }), [mutate]);
   const busy = action.isPending;
   const error = action.isError ? toAppError(action.error).message : '';
   // A failed pin, unpin, or delete shows on the message it was for.
@@ -107,7 +110,7 @@ export function Conversation() {
     // Use each authenticated data result to observe its rendered message rows.
   }, [accountId, conversation.data, messagesById, pairId, readAttempt]);
 
-  const pin = (message: Message) => action.mutate({ kind: message.pinnedAt ? 'unpin' : 'pin', id: message.id });
+
   if (pair?.status !== 'active') return null;
   const member = (message: Message) => pair.members.find(person => person.userId === message.authorId)!;
   const ownSlot = pair.members.find(person => person.userId === accountId)!.slot;

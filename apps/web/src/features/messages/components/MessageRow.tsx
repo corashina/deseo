@@ -1,5 +1,5 @@
 import type { Message } from '@deseo/domain/messages';
-import { useId, useRef, useState } from 'react';
+import { memo, useId, useRef, useState } from 'react';
 import { DotsThreeIcon } from '@phosphor-icons/react/dist/csr/DotsThree';
 import { Button } from '../../../components/ui/Button';
 import { Status } from '../../../components/ui/Status';
@@ -14,7 +14,7 @@ function sentAt(value: string, timezone: string, locale: string): string {
   return formatDate(sent, sent.hasSame(now, 'year') ? 'dayTime' : 'dateTime', locale);
 }
 
-export function MessageRow({ message, name, slot, own, latest, disabled, timezone, locale, error, onRetry, onPin, onDelete }: {
+export const MessageRow = memo(function MessageRow({ message, name, slot, own, latest, disabled, timezone, locale, error, onRetry, onPin, onDelete }: {
   message: Message; name: string; slot: 'a' | 'b'; own: boolean; latest: boolean; disabled: boolean; timezone: string; locale: string;
   error?: string; onRetry?(): void; onPin(message: Message): void; onDelete(message: Message): void;
 }) {
@@ -41,4 +41,4 @@ export function MessageRow({ message, name, slot, own, latest, disabled, timezon
     {state && <span className="message-state">{state}</span>}
     {error && <div className="message-error"><Status error>{error}</Status>{onRetry && <Button variant="secondary" onClick={onRetry}>Retry</Button>}</div>}
   </article>;
-}
+});
