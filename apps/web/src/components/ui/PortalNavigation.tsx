@@ -13,9 +13,9 @@ export function PortalNavigation({ destination, activePair, unreadCount, onPairO
   const calendarActive = /^\/(calendar|events|ideas)(\/|$)/.test(pathname);
   return <nav className="portal-nav" aria-label="Main navigation">
     <div className="nav-group">
-      {!activePair && <NavLink to={destination} aria-label="Your pair" title="Your pair" onClick={onPairOpen}>
+      {!activePair && <Link to={destination} aria-label="Your pair" title="Your pair" aria-current={pathname.startsWith('/pair/') ? 'page' : undefined} onClick={onPairOpen}>
         <UsersIcon size={20} aria-hidden="true" /><span className="nav-label">Your pair</span>
-      </NavLink>}
+      </Link>}
       {activePair && <>
         <NavLink to="/today" aria-label="Today" title="Today">
           <HouseIcon size={20} aria-hidden="true" /><span className="nav-label">Today</span>

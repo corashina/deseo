@@ -4,7 +4,10 @@ import { timezoneSchema } from '@deseo/domain/auth';
 import type { DeseoClient } from '../../lib/supabase';
 import { callRpc } from '../../lib/rpc';
 import { entryIntent } from '../auth';
-export const inviteTokenSchema = z.string().transform(value => value.replace(/[\s-]/g, '').toUpperCase()).pipe(z.string().regex(/^[0-9A-HJKMNP-TV-Z]{12}$/));
+// Takes the code or the invitation link that the waiting page copies.
+export const inviteTokenSchema = z.string()
+  .transform(value => (/[?&]token=([^&#\s]*)/.exec(value)?.[1] ?? value).replace(/[\s-]/g, '').toUpperCase())
+  .pipe(z.string().regex(/^[0-9A-HJKMNP-TV-Z]{12}$/));
 const pairResult = z.object({ pairId: z.string().uuid() });
 const endedResult = z.object({ endedAt: z.string() });
 const id = z.string().uuid();
