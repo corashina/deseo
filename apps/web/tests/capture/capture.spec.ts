@@ -27,14 +27,12 @@ const areas: [RegExp, string][] = [
 const areaOf = (path: string) => areas.find(([match]) => match.test(path))?.[1] ?? 'other';
 const slug = (path: string) => path.replace(/^\/|\/$/g, '').replace(/[/:.]+/g, '-') || 'home';
 
-// Grow the viewport to the page height, so fixed full-height parts such as the sidebar fill the shot.
+// Use a real window height, so layouts sized by the viewport (100dvh) render as users see them.
+// The full-page shot then shows the rest of the page. Fixed full-height parts, such as the sidebar, end at the window height.
 async function shoot(page: Page, width: number, file: string) {
-  await page.setViewportSize({ width, height: 900 });
+  await page.setViewportSize({ width, height: width < 768 ? 844 : 900 });
   await page.evaluate(() => new Promise(requestAnimationFrame));
-  const height = await page.evaluate(() => document.documentElement.scrollHeight);
-  await page.setViewportSize({ width, height: Math.max(900, height) });
-  await page.evaluate(() => new Promise(requestAnimationFrame));
-  await page.screenshot({ path: file });
+  await page.screenshot({ path: file, fullPage: true });
 }
 
 async function capture(page: Page, area: string, path: string) {
