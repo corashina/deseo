@@ -159,12 +159,12 @@ On narrow screens, the account avatar in the header opens Settings.
 **Today.** Show at most three upcoming events. Show one main action, **Add event**. Section actions are text buttons.
 Keyboard order matches the visual order.
 
-**Calendar.** Show the date, owner legend, view control, and Add event above the calendar.
+**Calendar.** Show the month, owner legend, and view control above the calendar. Date ideas and Add event go in the header.
 Each event shows title, time, and owner name, plus location when set.
 Open details before editing. Explain invalid end times beside the time field.
 Group overlapping events without hiding owners. Format dates through `Intl` in the user's locale.
 Keep all-day dates as dates. Never shift them through UTC conversion.
-Show the timezone while editing, and in details when partners use different zones.
+Show an IANA timezone only when it differs from the viewer's profile timezone. The event form keeps it in More details.
 
 **Memories.** Use a feed with month headings. Show image, caption, date, and author.
 Keep captions outside images. Use a 3:2 crop in cards and the full image in detail.

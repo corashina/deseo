@@ -175,7 +175,7 @@ Mask invitation tokens and verification codes in screenshots and logs.
 | `apps/web/tests/memories.spec.ts` | 100 | Failed photo retry, pair end during publish |
 | `apps/web/tests/messages.spec.ts` | 100, 94 | Lost send acknowledgement, pinned notes |
 | `apps/web/tests/calendar.spec.ts` | 100, 98 | Shared and private events, edit conflicts |
-| `apps/web/tests/tasks.spec.ts` | 95 | Failed Undo and retry |
+| `apps/web/tests/tasks.spec.ts` | 95 | Failed reopen and retry |
 | `apps/web/tests/layout/layout.spec.ts` | 95 | No side scroll, shell, clipped text, and 48px targets on 25 screens at 6 widths |
 | `apps/web/tests/layout/focus.spec.ts` | 95, 93, 92, 90 | Dialog and drawer focus, event form order, navigation order, skip link |
 | `apps/web/tests/layout/rules.spec.ts` | 91 | Each layout rule fails on a bad page |
@@ -228,7 +228,7 @@ Each test removes its accounts, pairs, and photos. Cleanup accepts only `entry-<
 ### Complete journeys
 
 `web-e2e` checks each web journey on each pull request. Check each journey on mobile before a release:
-invitation and join, shared and private events, edit conflicts, task Undo, lost message acknowledgement,
+invitation and join, shared and private events, edit conflicts, task reopen, lost message acknowledgement,
 pinned notes, failed photo retry, pair end during upload, and a new pair without old content.
 
 Record the commit, platform, device, command, and result for each check.

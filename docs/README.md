@@ -39,7 +39,7 @@ Settings stays available to unpaired accounts and former pair members.
 ```mermaid
 flowchart TD
   Link[Partner link] --> Auth[Email and verification code]
-  Auth --> Profile[Name and timezone]
+  Auth --> Profile[Name]
   Profile --> Choice{Invitation available?}
   Choice -->|Yes| Confirm[Review inviter and join]
   Choice -->|No| Invite[Create or enter invitation]
@@ -66,7 +66,7 @@ Add store links, app links, canonical URLs, a sitemap, `robots.txt`, and absolut
 | Welcome | One sentence, Continue with email, privacy and terms links |
 | Email | Visible Email label, email keyboard, Continue, inline format error |
 | Verification | One six-digit field, paste and autofill, email shown, Change email, resend countdown |
-| Profile | Required display name; detected timezone with edit control |
+| Profile | Required display name; the browser timezone, changed in Settings |
 | Pair choice | Invite your partner or Enter invitation; explain shared content |
 
 Use one email-code flow for new and returning accounts. Codes expire after ten minutes; resend waits 60 seconds.
@@ -108,7 +108,8 @@ For empty data, show a short prompt and its creation action. Omit empty decorati
 
 ### Calendar
 
-Calendar offers month, agenda, and comparison views. Filter by All, Me, Partner, and Together.
+Calendar offers month and agenda views. Filter by All, Me, Partner, and Together.
+The header holds Date ideas and Add event.
 Show owner names beside colors. A private event appears only to its author, with a lock and Private label.
 
 | Form field | Rule |
@@ -116,12 +117,11 @@ Show owner names beside colors. A private event appears only to its author, with
 | Title | Required; 1–120 characters |
 | All-day | Switches between date fields and date-time fields |
 | Start / End | End follows start; all-day UI shows the last included day |
-| Timezone | Detected default; editable IANA zone |
-| People | Me, Partner, Together; private events use Me |
-| Visibility | Shared or Private; default Shared |
+| Who | Together, Me, Partner, or Private (just me); default Together |
 | Location | Optional; 200 characters |
 | Description | Optional plain text; 2,000 characters |
-| Important date | All-day events only; optional yearly repeat |
+| Timezone | In More details; detected default; editable IANA zone |
+| Important date | In More details; one all-day date; Repeat every year |
 
 Store the inclusive all-day end as an exclusive end date.
 Important dates default to the pair timezone. Timed events default to the creator's timezone.
@@ -142,7 +142,7 @@ Remove list moves its tasks to General, then removes the empty list, after one c
 Each row shows a checkbox, title, assignee, and optional due date. The whole label is the target.
 Quick add is the only add path. It needs a title; assignee and due date are optional. Either member can complete any task.
 Opening a task shows its edit form with Delete.
-Keep completed tasks in a collapsed group. Allow Undo.
+Keep completed tasks in a collapsed group. Clear the checkbox to reopen a task.
 A failed completion restores the prior state and shows Retry beside the task.
 Text edits use version checks. Completion sends the desired state, never a toggle.
 
@@ -150,7 +150,8 @@ Text edits use version checks. Completion sends the desired state, never a toggl
 
 Use one conversation. Load the latest 50 messages, then page backward.
 The composer accepts plain text up to 4,000 characters. It stays inside the conversation region.
-Show Sending, Sent, or Failed beside the sender's message. Failed messages keep their text and UUID.
+Show Sending or Failed beside a pending message. Failed messages keep their text and UUID.
+Show Sent only on the viewer's latest message. Show the character count after 3,600 characters.
 Show a new-message control when the reader views older messages. Do not force scrolling.
 Unread counts use the viewer's read cursor. Do not show it as a partner read receipt.
 Authors can delete their own messages after confirmation. Sent messages cannot be edited.

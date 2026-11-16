@@ -23,7 +23,7 @@ export function SettingsPage() {
       <ProfileSection />
       <section className="settings-section" aria-labelledby="settings-pair"><h2 id="settings-pair">Your pair</h2>
         {pair?.status === 'active' ? <><div className="paired-members">{pair.members.map(member => <div key={member.userId}><Avatar name={member.displayName} slot={member.slot} /><h3>{member.displayName}</h3><p>{member.userId === account!.id ? 'You' : 'Your partner'}</p></div>)}</div>
-          <p>Pair timezone: <span translate="no">{pair.timezone}</span></p></>
+          {pair.timezone !== account!.timezone && <p>Pair timezone: <span translate="no">{pair.timezone}</span></p>}</>
           : <><p>{pair?.status === 'ended' ? 'Your pair has ended. Shared content is unavailable.' : 'You have no active pair.'}</p><Link to="/pair/start">Set up your pair</Link></>}
       </section>
       <AccountSection />

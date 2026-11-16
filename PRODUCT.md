@@ -27,7 +27,7 @@ They write their own date ideas and choose which events to share.
 
 ## Operating Context
 
-Users sign in with an email code, set a name and timezone, and create or accept a partner invitation.
+Users sign in with an email code, set a name, and create or accept a partner invitation.
 Today combines upcoming plans, due tasks, a memory, a pinned note, and an important date.
 Calendar, Memories, Messages, Tasks, and Settings provide the main workflows.
 The current portal uses English text. Date rules use event, profile, or pair timezones in the data contract.

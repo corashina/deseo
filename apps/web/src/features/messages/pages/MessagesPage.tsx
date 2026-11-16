@@ -32,6 +32,7 @@ export function MessagesPage() {
     }
     return { messagesById, messages: [...messagesById.values()].sort(compareMessageCursors) };
   }, [conversation.data?.pages]);
+  const latestOwnId = messages.filter(message => message.authorId === accountId).at(-1)?.id;
   const list = useRef<HTMLDivElement>(null);
   const mountedList = useRef<HTMLDivElement | null>(null);
   const scrollPosition = useRef<number | null>(null);
@@ -114,7 +115,7 @@ export function MessagesPage() {
         {conversation.hasNextPage && <Button variant="secondary" disabled={conversation.isFetchingNextPage} onClick={() => void conversation.fetchNextPage()}>{conversation.isFetchingNextPage ? 'Loading older messages…' : 'Load older messages'}</Button>}
         {!atLatest && <Button variant="secondary" onClick={() => { if (list.current) list.current.scrollTop = list.current.scrollHeight; }}>Latest messages</Button>}
         {readError && <><Status error>We could not update your unread count.</Status><Button onClick={() => { lastRead.current = null; setReadAttempt(value => value + 1); }}>Retry unread count</Button></>}
-        <div className="conversation" ref={list} onScroll={event => { const element = event.currentTarget; scrollPosition.current = element.scrollTop; setAtLatest(element.scrollHeight - element.scrollTop - element.clientHeight <= 24); }} aria-label="Conversation messages">{messages.length ? messages.map(message => <MessageRow key={message.id} message={message} name={member(message).displayName} slot={member(message).slot} own={message.authorId === accountId} disabled={busy} timezone={account!.timezone} locale={account!.locale} onPin={pin} onDelete={setDeleting} />) : <section className="card"><h2>Start your conversation</h2><p>Send a message to your partner.</p></section>}</div>
+        <div className="conversation" ref={list} onScroll={event => { const element = event.currentTarget; scrollPosition.current = element.scrollTop; setAtLatest(element.scrollHeight - element.scrollTop - element.clientHeight <= 24); }} aria-label="Conversation messages">{messages.length ? messages.map(message => <MessageRow key={message.id} message={message} name={member(message).displayName} slot={member(message).slot} own={message.authorId === accountId} latest={message.id === latestOwnId} disabled={busy} timezone={account!.timezone} locale={account!.locale} onPin={pin} onDelete={setDeleting} />) : <section className="card"><h2>Start your conversation</h2><p>Send a message to your partner.</p></section>}</div>
       </>}
     {unsent.map(item => <article className="card pending-send" key={item.clientId} data-testid="pending-send"><p className="preserve-lines">{item.body}</p>{item.failed ? <><Status error>Not sent</Status><Button variant="secondary" onClick={() => void deliver(item)}>Retry</Button></> : <Status>Sending…</Status>}</article>)}
     <Composer body={body} onChange={setBody} onSend={send} disabled={false} />
