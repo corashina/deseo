@@ -10,6 +10,7 @@ const styles = {
   weekdayName: { weekday: 'short' },
   month: { month: 'long', year: 'numeric' },
   time: { hour: 'numeric', minute: '2-digit' },
+  dayTime: { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' },
   dateTime: { day: 'numeric', month: 'short', year: 'numeric', hour: 'numeric', minute: '2-digit' },
 } satisfies Record<string, Intl.DateTimeFormatOptions>;
 

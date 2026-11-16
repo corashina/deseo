@@ -7,6 +7,8 @@ export type Failure = { rule: Rule; selector: string; detail: string };
 const ellipsis = [
   '.topbar-label > span', // On phones each pair name keeps one line in the top bar.
   '.memory-card-copy h3', // A memory card shows three lines of the caption; the detail screen shows all.
+  '.note-card p', // A pinned note shows two lines; the message in the conversation shows all.
+  '.day-chips a > span', // A Today chip keeps one line; its link opens the full item.
   '.day-events .event-row-content > *', // A month cell shows two title lines and one owner line; the day list below shows all.
 ];
 

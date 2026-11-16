@@ -50,6 +50,9 @@ export function Conversation() {
   });
   const busy = action.isPending;
   const error = action.isError ? toAppError(action.error).message : '';
+  // A failed pin, unpin, or delete shows on the message it was for.
+  const failedId = action.isError && !deleting ? action.variables?.id : undefined;
+  const retry = () => action.mutate(action.variables!);
   // A send keeps its client ID. A retry then cannot store the message twice.
   async function deliver(item: Unsent) {
     setUnsent(rows => rows.map(row => row.clientId === item.clientId ? { ...row, failed: false } : row));
@@ -107,16 +110,17 @@ export function Conversation() {
   const pin = (message: Message) => action.mutate({ kind: message.pinnedAt ? 'unpin' : 'pin', id: message.id });
   if (pair?.status !== 'active') return null;
   const member = (message: Message) => pair.members.find(person => person.userId === message.authorId)!;
+  const ownSlot = pair.members.find(person => person.userId === accountId)!.slot;
+  const failure = (message: Message, note: boolean) => failedId === message.id && (action.variables!.kind === 'unpin') === note ? { error, onRetry: retry } : {};
   return <section className="conversation-page" aria-label="Messages">
-    {notes.data && notes.data.length > 0 && <div className="notes-strip" aria-label="Pinned notes" data-testid="pinned-notes">{notes.data.map(message => <NoteCard key={message.id} message={message} name={member(message).displayName} own={message.authorId === accountId} disabled={busy} timezone={account!.timezone} locale={account!.locale} onUnpin={pin} />)}</div>}
-    {error && !deleting && <><Status error>{error}</Status><Button variant="secondary" onClick={() => action.mutate(action.variables!)}>Retry change</Button></>}
+    {notes.data && notes.data.length > 0 && <div className="notes-strip" aria-label="Pinned notes" data-testid="pinned-notes">{notes.data.map(message => <NoteCard key={message.id} message={message} name={member(message).displayName} own={message.authorId === accountId} disabled={busy} onUnpin={pin} {...failure(message, true)} />)}</div>}
     {conversation.isPending ? <Status>Loading messages…</Status> : conversation.isError ? <><Status error>We could not load messages.</Status><Button variant="secondary" onClick={() => void conversation.refetch()}>Retry</Button></> : <>
         {conversation.hasNextPage && <Button variant="secondary" disabled={conversation.isFetchingNextPage} onClick={() => void conversation.fetchNextPage()}>{conversation.isFetchingNextPage ? 'Loading older messages…' : 'Load older messages'}</Button>}
         {!atLatest && <Button variant="secondary" onClick={() => { if (list.current) list.current.scrollTop = list.current.scrollHeight; }}>Latest messages</Button>}
         {readError && <><Status error>We could not update your unread count.</Status><Button variant="secondary" onClick={() => { lastRead.current = null; setReadAttempt(value => value + 1); }}>Retry unread count</Button></>}
-        <div className="conversation" ref={list} onScroll={event => { const element = event.currentTarget; scrollPosition.current = element.scrollTop; setAtLatest(element.scrollHeight - element.scrollTop - element.clientHeight <= 24); }} aria-label="Conversation messages">{messages.length ? messages.map(message => <MessageRow key={message.id} message={message} name={member(message).displayName} slot={member(message).slot} own={message.authorId === accountId} latest={message.id === latestOwnId} disabled={busy} timezone={account!.timezone} locale={account!.locale} onPin={pin} onDelete={setDeleting} />) : <section className="card"><h2>Start your conversation</h2><p>Send a message to your partner.</p></section>}</div>
+        <div className="conversation" ref={list} onScroll={event => { const element = event.currentTarget; scrollPosition.current = element.scrollTop; setAtLatest(element.scrollHeight - element.scrollTop - element.clientHeight <= 24); }} aria-label="Conversation messages">{messages.length ? messages.map(message => <MessageRow key={message.id} message={message} name={member(message).displayName} slot={member(message).slot} own={message.authorId === accountId} latest={message.id === latestOwnId} disabled={busy} timezone={account!.timezone} locale={account!.locale} onPin={pin} onDelete={setDeleting} {...failure(message, false)} />) : <section className="card"><h2>Start your conversation</h2><p>Send a message to your partner.</p></section>}</div>
       </>}
-    {unsent.map(item => <article className="card pending-send" key={item.clientId} data-testid="pending-send"><p className="preserve-lines">{item.body}</p>{item.failed ? <><Status error>Not sent</Status><Button variant="secondary" onClick={() => void deliver(item)}>Retry</Button></> : <Status>Sending…</Status>}</article>)}
+    {unsent.map(item => <article className={'message-row own-message pending-send partner-' + ownSlot} key={item.clientId} data-testid="pending-send"><p className="preserve-lines">{item.body}</p>{item.failed ? <><Status error>Not sent</Status><Button variant="secondary" onClick={() => void deliver(item)}>Retry</Button></> : <Status>Sending…</Status>}</article>)}
     <Composer body={body} onChange={setBody} onSend={send} disabled={false} />
     <Dialog busy={busy} title="Delete message?" open={Boolean(deleting)} onClose={() => { if (!busy) setDeleting(null); }}><p>Delete your message from this conversation and pinned notes.</p>{error && deleting && <Status error>{error}</Status>}<Button variant="danger" disabled={busy} onClick={() => deleting && action.mutate({ kind: 'delete', id: deleting.id })}>Confirm deletion</Button><Button variant="secondary" disabled={busy} onClick={() => setDeleting(null)}>Cancel</Button></Dialog>
   </section>;

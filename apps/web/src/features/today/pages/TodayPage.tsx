@@ -1,6 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
 import { DateTime } from 'luxon';
-import { Link } from 'react-router-dom';
 import { importantDateCountdown } from '@deseo/domain/calendar';
 import { useSession } from '../../../app/SessionProvider';
 import { PageHeader } from '../../../components/ui/PageHeader';
@@ -31,11 +30,11 @@ export function TodayPage() {
     <PageHeader
       title="Today"
       eyebrow={formatDate(DateTime.fromISO(date), 'weekday', locale)}
-      description={zone !== account!.timezone ? <span translate="no">{zone}</span> : undefined}
-      action={<Link className="button secondary" to="/events/new">Add event</Link>} />
+      description={zone !== account!.timezone ? <span translate="no">{zone}</span> : undefined} />
     <div className="today-layout">
       <div className="today-conversation">
-        {query.data && <DayChips next={query.data.agenda[0]} dueCount={query.data.dueTasks.length} important={important} days={days} zone={zone} locale={locale} />}
+        {/* An empty row holds the chips' place while Today loads, so the conversation does not jump. */}
+        {query.data ? <DayChips next={query.data.agenda[0]} dueCount={query.data.dueTasks.length} important={important} days={days} zone={zone} locale={locale} /> : <div className="day-chips day-chips-pending" aria-hidden="true" />}
         <Conversation />
       </div>
       {query.isPending ? <Status>Loading Today…</Status> : query.isError ? <div><Status error>We could not load Today.</Status><Button variant="secondary" onClick={() => void query.refetch()}>Retry</Button></div>

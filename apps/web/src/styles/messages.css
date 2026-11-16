@@ -1,55 +1,54 @@
-.conversation-page { display:flex; flex-direction:column; min-width:0; }
+.conversation-page { display:flex; flex-direction:column; min-width:0; min-height:0; }
 .conversation-page > * { flex-shrink:0; }
-.conversation { display:flex; flex-direction:column; margin:0 0 16px; }
-.conversation-page > .conversation { flex:1 1 auto; min-height:240px; max-height:max(320px, calc(100dvh - 520px)); overflow-y:auto; padding:4px; }
+.conversation { display:flex; flex-direction:column; }
+/* The list scrolls inside the column. The line marks its top edge. The inline padding keeps focus rings visible. */
+.conversation-page > .conversation { flex:1 1 auto; min-height:160px; overflow-y:auto; margin:0 calc(-1 * var(--space-2)) var(--space-4); padding:var(--space-4) var(--space-2) var(--space-2); border-top:1px solid var(--line); }
 .conversation > * { flex-shrink:0; }
-.message-row { width:fit-content; max-width:80%; border-radius:var(--radius-card); padding:16px 20px; overflow-wrap:anywhere; }
-.message-row + .message-row { margin-top:24px; }
-.message-row.partner-a + .message-row.partner-a, .message-row.partner-b + .message-row.partner-b { margin-top:8px; }
+.message-row { position:relative; width:fit-content; max-width:80%; border-radius:var(--radius-card); padding:var(--space-4) var(--space-5); overflow-wrap:anywhere; }
+.message-row + .message-row { margin-top:var(--space-6); }
+.message-row.partner-a + .message-row.partner-a, .message-row.partner-b + .message-row.partner-b { margin-top:var(--space-2); }
 .message-row.partner-a { background:var(--rose-soft); }
 .message-row.partner-b { background:var(--teal-soft); }
 .message-row.partner-a strong { color:var(--rose); }
 .message-row.partner-b strong { color:var(--teal); }
 .own-message { align-self:flex-end; border-bottom-right-radius:var(--radius-control); }
 .message-row:not(.own-message) { border-bottom-left-radius:var(--radius-control); }
-.message-meta { display:flex; flex-wrap:wrap; justify-content:space-between; align-items:baseline; gap:4px 16px; margin-bottom:8px; }
-.message-meta time, .message-state, .note-card time { color:var(--muted); font-size:14px; font-variant-numeric:tabular-nums; }
-.message-row p { margin-bottom:8px; max-width:65ch; }
+.message-meta { display:flex; flex-wrap:wrap; align-items:center; gap:var(--space-1) var(--space-3); margin-bottom:var(--space-2); }
+.message-meta time, .message-state { font-size:14px; font-variant-numeric:tabular-nums; }
+.message-row p { margin-bottom:var(--space-2); max-width:65ch; }
+.message-row p:last-child { margin-bottom:0; }
 .message-row.partner-a .message-meta time, .message-row.partner-a .message-state { color:var(--rose); }
 .message-row.partner-b .message-meta time, .message-row.partner-b .message-state { color:var(--teal); }
 .message-state { display:block; }
-.message-actions { display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin-top:12px; }
-.message-actions .button { font-size:14px; }
-details.message-actions { display:block; margin-top:8px; }
-.message-actions > summary { display:flex; align-items:center; width:fit-content; min-height:48px; padding:8px 12px; border-radius:12px; color:var(--ink); font-size:14px; font-weight:600; cursor:pointer; list-style:none; }
+/* The actions button sits at the end of the sender line. Its 48px target overlaps the bubble padding. */
+.message-actions { position:relative; margin:calc(-1 * var(--space-3)) calc(-1 * var(--space-3)) calc(-1 * var(--space-3)) auto; }
+.message-actions > summary { display:flex; align-items:center; justify-content:center; width:var(--nav-target); height:var(--nav-target); border-radius:var(--radius-control); color:inherit; cursor:pointer; list-style:none; }
 .message-actions > summary::-webkit-details-marker { display:none; }
-.message-actions > summary::after { content:''; width:6px; height:6px; border-right:1px solid currentColor; border-bottom:1px solid currentColor; margin-left:8px; transform:rotate(45deg); }
-.message-actions[open] > summary::after { transform:rotate(225deg); }
-.message-actions > summary:hover { background:var(--surface); }
+.message-actions > summary:hover, .message-actions[open] > summary { background:var(--surface); }
 .message-actions > summary[aria-disabled=true] { opacity:.6; cursor:default; }
-.message-action-menu { display:flex; flex-wrap:wrap; gap:8px; padding-top:8px; }
-.message-action-menu .button { font-size:14px; }
-.message-composer { margin-top:0; padding:20px; background:var(--sidebar); }
-.message-composer .field { margin-bottom:12px; }
-.message-composer textarea { width:100%; min-width:0; min-height:88px; resize:vertical; border:1px solid var(--control); border-radius:var(--radius-control); padding:12px 16px; color:var(--ink); background:var(--surface); font-size:16px; font-weight:400; }
+.message-action-menu { position:absolute; top:calc(100% + var(--space-1)); right:0; z-index:2; display:grid; min-width:180px; padding:var(--space-1); background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-control); box-shadow:var(--shadow-popover); }
+.message-action-menu .button { justify-content:flex-start; color:var(--ink); }
+.message-error { margin-top:var(--space-3); }
+.message-error .status { margin-bottom:var(--space-2); }
+.message-composer { margin-top:0; padding:var(--space-5); background:var(--sidebar); }
+.message-composer .field { margin-bottom:var(--space-3); }
+.message-composer textarea { width:100%; min-width:0; min-height:88px; resize:vertical; border:1px solid var(--control); border-radius:var(--radius-control); padding:var(--space-3) var(--space-4); color:var(--ink); background:var(--surface); font-size:16px; font-weight:400; }
 .composer-footer .muted { font-variant-numeric:tabular-nums; }
-.composer-footer { display:flex; flex-wrap:wrap; gap:12px; align-items:center; justify-content:space-between; }
-.notes-strip { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; margin-bottom:16px; }
-.notes-strip .note-card { min-height:0; padding:16px; }
-.notes-strip .note-card h2 { font-size:16px; margin-bottom:8px; }
-.note-card { display:flex; flex-direction:column; align-items:flex-start; background:var(--note); border-color:var(--note-line); min-width:0; }
-.note-card h2 { margin-bottom:12px; }
-.note-card p { margin-bottom:16px; }
-.note-card .message-actions { margin-top:auto; padding-top:12px; }
-.pending-send { align-self:flex-end; width:fit-content; max-width:80%; margin:0 0 16px; overflow-wrap:anywhere; background:var(--shared-soft); }
-.pending-send p { margin-bottom:8px; }
-.pending-send .status { padding:0; border:0; margin-bottom:12px; font-size:14px; }
-@media(max-width:767px) {
-  .message-row { padding:16px; }
-  .message-row + .message-row { margin-top:16px; }
-  .message-row.partner-a + .message-row.partner-a, .message-row.partner-b + .message-row.partner-b { margin-top:8px; }
-  .notes-strip { grid-template-columns:minmax(0,1fr); gap:12px; }
-  .message-composer { padding:16px; }
-}
-.composer-links { display:flex; flex-wrap:wrap; gap:4px 16px; margin-top:8px; }
+.composer-footer { display:flex; flex-wrap:wrap; gap:var(--space-3); align-items:center; justify-content:space-between; }
+.composer-links { display:flex; flex-wrap:wrap; gap:var(--space-1) var(--space-4); margin-top:var(--space-2); }
 .composer-links a { display:inline-flex; align-items:center; min-height:var(--nav-target); font-size:14px; font-weight:600; }
+/* Pinned notes: one compact row each. A note fills the row when it is alone. */
+.notes-strip { display:grid; grid-template-columns:repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap:var(--space-3); margin-bottom:var(--space-4); }
+.note-card { display:flex; flex-wrap:wrap; align-items:center; gap:var(--space-1) var(--space-3); min-width:0; padding:var(--space-3) var(--space-4); background:var(--note); border:1px solid var(--note-line); border-radius:var(--radius-control); }
+.note-card-copy { flex:1 1 160px; min-width:0; }
+.note-card .eyebrow { margin-bottom:0; }
+.note-card p { margin:0; overflow:hidden; display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2; white-space:pre-wrap; overflow-wrap:anywhere; }
+.note-card .message-error { flex-basis:100%; margin-top:0; }
+.pending-send { align-self:flex-end; margin:0 0 var(--space-4); }
+.pending-send .status { padding:0; border:0; margin-bottom:var(--space-3); font-size:14px; background:transparent; }
+@media(max-width:767px) {
+  .message-row { padding:var(--space-4); }
+  .message-row + .message-row { margin-top:var(--space-4); }
+  .message-row.partner-a + .message-row.partner-a, .message-row.partner-b + .message-row.partner-b { margin-top:var(--space-2); }
+  .message-composer { padding:var(--space-4); }
+}
