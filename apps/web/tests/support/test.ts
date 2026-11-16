@@ -75,26 +75,32 @@ export async function createIdea(account: Account, pairId: string, title: string
   return id;
 }
 
+export type Photo = { full: Buffer<ArrayBuffer>; thumb: Buffer<ArrayBuffer>; width: number; height: number; thumbWidth: number; thumbHeight: number };
+const read = (name: string) => readFileSync(new URL('./photos/' + name, import.meta.url));
 // The test photo is 96 x 64 pixels, so it is valid as both the full photo and the thumbnail.
-const photo = readFileSync(new URL('./photos/lake.jpg', import.meta.url));
+const lake = read('lake.jpg');
+const testPhoto: Photo = { full: lake, thumb: lake, width: 96, height: 64, thumbWidth: 96, thumbHeight: 64 };
+// Larger photos for the site previews: 1200 x 800 with a 512 x 341 thumbnail.
+export const previewPhotos = ['lake', 'forest'].map((name): Photo =>
+  ({ full: read(`preview-${name}.jpg`), thumb: read(`preview-${name}-thumb.jpg`), width: 1200, height: 800, thumbWidth: 512, thumbHeight: 341 }));
 
 // Publish a memory with one photo through the same steps as the web: reserve, upload, finalize.
-export async function createMemory(account: Account, pairId: string, caption: string): Promise<{ id: string; path: string }> {
+export async function createMemory(account: Account, pairId: string, caption: string, photo = testPhoto, memoryDate = '2026-11-01'): Promise<{ id: string; path: string }> {
   const id = randomUUID();
   const photoId = randomUUID();
-  const size = photo.byteLength;
   await rpc(account.client, 'reserve_memory', {
-    p_input: { id, pairId, memoryDate: '2026-11-01', caption,
-      photos: [{ id: photoId, fullBytes: size, thumbBytes: size, width: 96, height: 64, thumbWidth: 96, thumbHeight: 64 }] },
+    p_input: { id, pairId, memoryDate, caption,
+      photos: [{ id: photoId, fullBytes: photo.full.byteLength, thumbBytes: photo.thumb.byteLength, width: photo.width, height: photo.height,
+        thumbWidth: photo.thumbWidth, thumbHeight: photo.thumbHeight }] },
     p_command_id: randomUUID(),
   });
   const claims = await account.client.auth.getClaims();
   if (claims.error) throw claims.error;
   const sessionId = claims.data?.claims.session_id;
   const path = `${pairId}/${id}/${photoId}/`;
-  for (const variant of ['full', 'thumb']) {
+  for (const variant of ['full', 'thumb'] as const) {
     const { error } = await account.client.storage.from('memory-photos').upload(path + variant + '.jpg',
-      new Blob([photo], { type: 'image/jpeg' }), { contentType: 'image/jpeg', upsert: false, metadata: { sessionId } });
+      new Blob([photo[variant]], { type: 'image/jpeg' }), { contentType: 'image/jpeg', upsert: false, metadata: { sessionId } });
     if (error) throw error;
   }
   const { data, error } = await account.client.functions.invoke('finalize-memory', { body: { memoryId: id, commandId: randomUUID() }, method: 'POST' });
@@ -193,7 +199,7 @@ const filled = {
 };
 
 // Hours from now, so Today and the current calendar view show the events.
-const hoursFromNow = (hours: number) => new Date(Math.ceil(Date.now() / 3_600_000 + hours) * 3_600_000).toISOString();
+export const hoursFromNow = (hours: number) => new Date(Math.ceil(Date.now() / 3_600_000 + hours) * 3_600_000).toISOString();
 
 async function createFilledPair(created: Account[]): Promise<FilledPair> {
   const pair = await formPair(await createAccount(created, filled.names[0]), await createAccount(created, filled.names[1]));

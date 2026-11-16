@@ -5,11 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="referrer" content="no-referrer">
   <title>Deseo: plan your days together</title>
-  <meta name="description" content="Deseo is a private app for two people. Plan your days, share a note, and keep the moments you want to remember.">
-  <meta name="theme-color" content="#FAF7F5">
+  <meta name="description" content="Deseo is a private app for two people. Share a calendar, talk in one place, and keep the moments you want to remember.">
   <meta property="og:site_name" content="Deseo">
   <meta property="og:title" content="Deseo: plan your days together">
-  <meta property="og:description" content="Deseo is a private app for two people. Plan your days, share a note, and keep the moments you want to remember.">
+  <meta property="og:description" content="Deseo is a private app for two people. Share a calendar, talk in one place, and keep the moments you want to remember.">
   <meta property="og:type" content="website">
   <meta property="og:image" content="/images/og.png">
   <meta property="og:image:width" content="1200">
@@ -19,14 +18,13 @@
   <link rel="icon" type="image/png" href="/favicon.png">
   <link rel="apple-touch-icon" href="/apple-touch-icon.png">
   <link rel="stylesheet" href="/src/site.css">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"MobileApplication","name":"Deseo","operatingSystem":"iOS, Android","applicationCategory":"LifestyleApplication","description":"Deseo is a private app for two people. Plan your days, share a note, and keep the moments you want to remember."}</script>
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"When can I download Deseo?","acceptedAnswer":{"@type":"Answer","text":"Deseo is not in the App Store or Google Play yet. Store links will appear on this page after release."}},{"@type":"Question","name":"Who can see what I add?","acceptedAnswer":{"@type":"Answer","text":"Your partner sees shared events, tasks, messages, and memories. Private events stay private."}},{"@type":"Question","name":"Can more than two people join?","acceptedAnswer":{"@type":"Answer","text":"No. Each pair has two people. Each account can join one active pair."}},{"@type":"Question","name":"How do I join my partner?","acceptedAnswer":{"@type":"Answer","text":"Your partner creates an invitation in the app. Open the link or enter the 12-character code. An invitation expires after 24 hours."}}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"When can I download Deseo?","acceptedAnswer":{"@type":"Answer","text":"Deseo is not in the App Store or Google Play yet. Store links will appear on this page after release."}},{"@type":"Question","name":"Who can see what I add?","acceptedAnswer":{"@type":"Answer","text":"Your partner sees shared events, tasks, messages, and memories. Private events stay private."}},{"@type":"Question","name":"Can more than two people join?","acceptedAnswer":{"@type":"Answer","text":"No. Each pair has two people. Each account can join one active pair."}},{"@type":"Question","name":"How do I join my partner?","acceptedAnswer":{"@type":"Answer","text":"Your partner creates an invitation in the app. Open the link or enter the 12‑character code. An invitation expires after 24 hours."}}]}</script>
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
   <header class="site-header">
     <div class="wrap">
-      <a class="brand" href="/"><img src="/images/icon.webp" width="40" height="40" alt="">Deseo</a>
+      <a class="brand" href="/"><picture><source srcset="../../brand/icon-web-dark.webp" media="(prefers-color-scheme: dark)"><img src="../../brand/icon-web.webp" width="40" height="40" alt=""></picture>Deseo</a>
       <nav aria-label="Main">
         <a href="/support/">Support</a>
       </nav>
@@ -36,54 +34,67 @@
     <section class="hero" aria-labelledby="title">
       <div>
         <h1 id="title">Plan your days together.</h1>
-        <p class="lede">Plan your days, share a note, and keep the moments you want to remember.</p>
+        <p class="lede">Share a calendar, talk in one place, and keep the moments you want to remember.</p>
         <p>Deseo is a private app for two people.</p>
         <div class="soon">
           <span class="badge">Coming soon</span>
-          <h2>Download for iOS / Android</h2>
+          <h2>Coming to iOS and Android</h2>
           <p>Deseo is not in the App Store or Google Play yet. Store links will appear here after release.</p>
+          <a class="go" href="/invite/">Have an invitation? See how to join</a>
         </div>
       </div>
       <figure class="preview phone">
-          <img src="/images/today.webp" width="358" height="865" fetchpriority="high" alt="Today screen with this week’s plans for two sample partners, Alex and Sam.">
-          <figcaption><span class="badge">Preview</span> Today, with sample content.</figcaption>
-        </figure>
+        <picture>
+          <source srcset="/images/today-390-dark.webp" media="(prefers-color-scheme: dark)">
+          <img src="/images/today-390.webp" width="780" height="1688" fetchpriority="high" alt="Today screen for two sample partners, Alex and Sam, with a pinned note, the next plan, and their conversation.">
+        </picture>
+        <figcaption><span class="badge">Preview</span> Today, with sample content.</figcaption>
+      </figure>
     </section>
 
     <section class="feature" aria-labelledby="planning">
-      <div>
+      <div class="feature-text">
         <h2 id="planning">Plan the week</h2>
         <p>Keep shared events, private events, important dates, and reminders in one calendar.</p>
         <p>Each person has a fixed color and a visible name. Shared task lists show who does what and when.</p>
       </div>
       <figure class="preview phone">
-          <img src="/images/calendar.webp" width="358" height="865" loading="lazy" decoding="async" alt="Calendar day view with separate plans for Alex and Sam and one shared dinner.">
-          <figcaption><span class="badge">Preview</span> Calendar, with sample content.</figcaption>
-        </figure>
+        <picture>
+          <source srcset="/images/calendar-390-dark.webp" media="(prefers-color-scheme: dark)">
+          <img src="/images/calendar-390.webp" width="780" height="1688" loading="lazy" decoding="async" alt="Calendar agenda with plans for Alex, plans for Sam, and a dinner together.">
+        </picture>
+        <figcaption><span class="badge">Preview</span> Calendar, with sample content.</figcaption>
+      </figure>
     </section>
 
-    <section class="feature flip" aria-labelledby="messages">
-      <div>
+    <section class="feature wide" aria-labelledby="messages">
+      <div class="feature-text">
         <h2 id="messages">Talk in one place</h2>
-        <p>You and your partner have one conversation. Each person can pin one message as a note.</p>
+        <p>You and your partner have one conversation, next to your plans for the day. Each person can pin one message as a note.</p>
         <p>A message shows Sent only after Deseo saves it.</p>
       </div>
-      <figure class="preview phone">
-          <img src="/images/messages.webp" width="390" height="900" loading="lazy" decoding="async" alt="Messages screen with a short conversation between Alex and Sam.">
-          <figcaption><span class="badge">Preview</span> Messages, with sample content.</figcaption>
-        </figure>
+      <figure class="preview wide">
+        <picture>
+          <source srcset="/images/today-1440-dark.webp 1440w, /images/today-720-dark.webp 720w" sizes="(min-width: 1120px) 1056px, 100vw" media="(prefers-color-scheme: dark)">
+          <img src="/images/today-1440.webp" srcset="/images/today-1440.webp 1440w, /images/today-720.webp 720w" sizes="(min-width: 1120px) 1056px, 100vw" width="1440" height="900" loading="lazy" decoding="async" alt="Large-screen Today with the conversation beside plans, tasks, the next important date, and the latest memory.">
+        </picture>
+        <figcaption><span class="badge">Preview</span> Today on a large screen, with sample content.</figcaption>
+      </figure>
     </section>
 
     <section class="feature" aria-labelledby="memories">
-      <div>
+      <div class="feature-text">
         <h2 id="memories">Keep your moments</h2>
         <p>Add one to five photos with a date and an optional caption.</p>
         <p>The author can change the caption or delete the memory. Your partner can view it and save a copy.</p>
       </div>
-      <figure class="preview wide">
-          <img src="/images/desktop.webp" srcset="/images/desktop-640.webp 640w, /images/desktop.webp 1265w" sizes="(min-width: 1120px) 512px, (min-width: 768px) 45vw, 100vw" width="1265" height="1220" loading="lazy" decoding="async" alt="Large-screen Today layout with plans, tasks, a memory card, and a note.">
-          <figcaption><span class="badge">Preview</span> Large-screen layout, with sample content.</figcaption>
-        </figure>
+      <figure class="preview phone">
+        <picture>
+          <source srcset="/images/memories-390-dark.webp" media="(prefers-color-scheme: dark)">
+          <img src="/images/memories-390.webp" width="780" height="1688" loading="lazy" decoding="async" alt="Memories with two photos from Alex and Sam, each with a date and a caption.">
+        </picture>
+        <figcaption><span class="badge">Preview</span> Memories, with sample content.</figcaption>
+      </figure>
     </section>
 
     <section class="panel rose" aria-labelledby="privacy">
@@ -94,7 +105,7 @@
         <li>Either person can end the pair without the other person’s approval.</li>
         <li>Deseo has no ads, public feeds, streaks, or relationship scores.</li>
       </ul>
-      <p>The privacy policy is <a href="/privacy/">not published yet</a>.</p>
+      <p>The privacy policy is not published yet. It will appear on the <a href="/privacy/">privacy page</a> before release.</p>
     </section>
 
     <section class="panel faq" aria-labelledby="faq">
@@ -106,14 +117,13 @@
       <h3>Can more than two people join?</h3>
       <p>No. Each pair has two people. Each account can join one active pair.</p>
       <h3>How do I join my partner?</h3>
-      <p>Your partner creates an invitation in the app. Open the link or enter the 12-character code. An invitation expires after 24 hours.</p>
+      <p>Your partner creates an invitation in the app. Open the link or enter the 12‑character code. An invitation expires after 24 hours.</p>
     </section>
   </main>
   <footer class="site-footer">
     <div class="wrap">
       <nav aria-label="Footer">
         <ul>
-          <li><a href="/">Home</a></li>
           <li><a href="/invite/">Invitations</a></li>
           <li><a href="/support/">Support</a></li>
           <li><a href="/privacy/">Privacy</a></li>
