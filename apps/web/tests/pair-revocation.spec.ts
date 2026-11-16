@@ -13,26 +13,25 @@ test('ending a pair requires a fresh code and removes both viewers access', asyn
     await second.goto('/events/' + eventId);
     await expect(second.getByRole('heading', { name: 'Dinner together', exact: true })).toBeVisible();
     await signIn(page, a);
-    await page.goto('/settings/pair');
-    await expect(page.getByRole('button', { name: 'End pair', exact: true })).toHaveCount(0);
-    await page.getByRole('button', { name: 'Send code to end pair', exact: true }).click();
-    await expect(page.getByLabel('Email verification code')).toBeVisible();
-    // Importance 93: a wrong code fails, and the error stays readable inside and after the dialog.
-    await page.getByLabel('Email verification code').fill('000000');
+    await page.goto('/settings');
+    await expect(page.getByLabel('Email verification code')).toHaveCount(0);
     await page.getByRole('button', { name: 'End pair', exact: true }).click();
-    await page.getByRole('button', { name: 'Confirm ending pair', exact: true }).click();
     const dialog = page.getByRole('dialog', { name: 'End this pair?', exact: true });
+    await expect(dialog.getByLabel('Email verification code')).toBeVisible();
+    // Importance 93: a wrong code fails, and the error stays readable inside and after the dialog.
+    await dialog.getByLabel('Email verification code').fill('000000');
+    await dialog.getByRole('button', { name: 'Confirm ending pair', exact: true }).click();
     await expect(dialog.getByRole('alert')).toHaveText('The code is invalid or expired. Request a new code.');
     await page.getByRole('button', { name: 'Close end this pair?', exact: true }).click();
     await expect(page.getByRole('alert')).toHaveText('The code is invalid or expired. Request a new code.');
-    await page.getByLabel('Email verification code').fill(await readLocalCode(a.email));
     await page.getByRole('button', { name: 'End pair', exact: true }).click();
-    await page.getByRole('button', { name: 'Confirm ending pair', exact: true }).click();
+    await dialog.getByLabel('Email verification code').fill(await readLocalCode(a.email));
+    await dialog.getByRole('button', { name: 'Confirm ending pair', exact: true }).click();
     await expect(page.getByText('Your pair has ended. Shared content is unavailable.')).toBeVisible();
     await second.bringToFront(); await second.evaluate(() => window.dispatchEvent(new Event('focus')));
     await expect(second).toHaveURL(/\/pair\/ended$/);
     await second.goto('/events/' + eventId); await expect(second).toHaveURL(/\/pair\/ended$/);
-    await page.goto('/settings/account'); await expect(page.getByRole('button', { name: 'Sign out on this browser' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Sign out on this browser' })).toBeVisible();
     expect((await a.client.from('events').select('id').eq('id', eventId)).data).toEqual([]);
   } finally { await partner.close(); }
 });
@@ -48,7 +47,7 @@ test('global sign-out revokes native devices and another browser session', async
     await signIn(second, a);
     await second.goto('/today');
     await expect(second.getByRole('link', { name: 'Settings', exact: true })).toBeVisible();
-    await page.goto('/settings/account');
+    await page.goto('/settings');
     await page.getByRole('button', { name: 'Sign out on all devices', exact: true }).click();
     await expect(page).toHaveURL(/\/welcome$/);
     await second.reload(); await expect(second).toHaveURL(/\/welcome$/);

@@ -16,20 +16,13 @@ function lazyPage<T extends Record<K, ComponentType>, K extends keyof T>(load: (
 }
 type LazyPage = LazyExoticComponent<ComponentType> & { load: () => Promise<unknown> };
 const SettingsPage = lazyPage(() => import('../features/settings'), 'SettingsPage');
-const ProfileSettingsPage = lazyPage(() => import('../features/settings'), 'ProfileSettingsPage');
-const PairSettingsPage = lazyPage(() => import('../features/settings'), 'PairSettingsPage');
-const AccountSettingsPage = lazyPage(() => import('../features/settings'), 'AccountSettingsPage');
 const MemoriesPage = lazyPage(() => import('../features/memories/pages/MemoriesPage'), 'MemoriesPage');
 const MemoryDetailPage = lazyPage(() => import('../features/memories/pages/MemoryDetailPage'), 'MemoryDetailPage');
 const MemoryFormPage = lazyPage(() => import('../features/memories/pages/MemoryFormPage'), 'MemoryFormPage');
 const TasksPage = lazyPage(() => import('../features/tasks/pages/TasksPage'), 'TasksPage');
 const MessagesPage = lazyPage(() => import('../features/messages/pages/MessagesPage'), 'MessagesPage');
 const TaskDetailPage = lazyPage(() => import('../features/tasks/pages/TaskDetailPage'), 'TaskDetailPage');
-const TaskFormPage = lazyPage(() => import('../features/tasks/pages/TaskFormPage'), 'TaskFormPage');
-const ListManagerPage = lazyPage(() => import('../features/tasks/pages/ListManagerPage'), 'ListManagerPage');
-const ListDetailPage = lazyPage(() => import('../features/tasks/pages/ListDetailPage'), 'ListDetailPage');
 const IdeasPage = lazyPage(() => import('../features/calendar/ideas/pages/IdeasPage'), 'IdeasPage');
-const IdeaDetailPage = lazyPage(() => import('../features/calendar/ideas/pages/IdeaDetailPage'), 'IdeaDetailPage');
 const IdeaFormPage = lazyPage(() => import('../features/calendar/ideas/pages/IdeaFormPage'), 'IdeaFormPage');
 const TodayPage = lazyPage(() => import('../features/today/pages/TodayPage'), 'TodayPage');
 const CalendarPage = lazyPage(() => import('../features/calendar/pages/CalendarPage'), 'CalendarPage');
@@ -40,7 +33,6 @@ const EmailPage = lazyPage(() => import('../features/auth/pages/EmailPage'), 'Em
 const VerifyPage = lazyPage(() => import('../features/auth/pages/VerifyPage'), 'VerifyPage');
 const ProfilePage = lazyPage(() => import('../features/auth/pages/ProfilePage'), 'ProfilePage');
 const StartPage = lazyPage(() => import('../features/pair/pages/StartPage'), 'StartPage');
-const InvitePage = lazyPage(() => import('../features/pair/pages/InvitePage'), 'InvitePage');
 const JoinPage = lazyPage(() => import('../features/pair/pages/JoinPage'), 'JoinPage');
 const WaitingPage = lazyPage(() => import('../features/pair/pages/WaitingPage'), 'WaitingPage');
 const EndedPage = lazyPage(() => import('../features/pair/pages/EndedPage'), 'EndedPage');
@@ -61,7 +53,7 @@ function Gate({ children, kind = 'pair' }: { children: ReactNode; kind?: 'public
   if (!session.account) return kind === 'profile' ? <>{children}</> : <Navigate to="/profile/setup" replace />;
   if (kind === 'account') return <>{children}</>;
   if (kind === 'profile') return <Navigate to={target} replace />;
-  const allowed = session.pair?.status === 'active' ? ['/today', '/calendar', '/events/new', '/tasks', '/ideas', '/messages', '/memories', ...( /^\/(events|tasks|ideas|memories)\//.test(pathname) ? [pathname] : [])] : session.pair?.status === 'pending' ? ['/pair/waiting', '/pair/invite'] : session.pair?.status === 'ended' ? ['/pair/ended', '/pair/start', '/pair/join'] : ['/pair/start', '/pair/join'];
+  const allowed = session.pair?.status === 'active' ? ['/today', '/calendar', '/events/new', '/tasks', '/ideas', '/messages', '/memories', ...( /^\/(events|tasks|ideas|memories)\//.test(pathname) ? [pathname] : [])] : session.pair?.status === 'pending' ? ['/pair/waiting'] : session.pair?.status === 'ended' ? ['/pair/ended', '/pair/start', '/pair/join'] : ['/pair/start', '/pair/join'];
   return allowed.includes(pathname) ? <>{children}</> : <Navigate to={target} replace />;
 }
 function Entry() { const session = useSession(); return <Navigate to={destination(session)} replace />; }
@@ -98,7 +90,6 @@ function RecordRoute({ children }: { children: ReactNode }) {
     ['taskId', 'Task', '/tasks', 'Return to tasks'],
     ['ideaId', 'Idea', '/ideas', 'Return to ideas'],
     ['memoryId', 'Memory', '/memories', 'Return to memories'],
-    ['listId', 'List', '/tasks/lists', 'Return to lists'],
   ];
   for (const [key, title, returnTo, returnLabel] of records) {
     if (params[key] && !z.string().uuid().safeParse(params[key]).success)
@@ -116,14 +107,10 @@ const routes: RouteObject[] = [{ element: <Root />, errorElement: <RouteFailureB
   { path: '/verify', ...publicPage('Check your email', VerifyPage) },
   { path: '/profile/setup', element: <Page title="Set up your profile"><Gate kind="profile"><ProfilePage /></Gate></Page>, handle: ProfilePage.load },
   { path: '/pair/start', ...pairPage('Set up your pair', StartPage) },
-  { path: '/pair/invite', ...pairPage('Invite your partner', InvitePage) },
   { path: '/pair/join', ...pairPage('Join your partner', JoinPage) },
   { path: '/pair/waiting', ...pairPage('Waiting for your partner', WaitingPage) },
   { path: '/pair/ended', ...pairPage('Your pair has ended', EndedPage) },
   { path: '/settings', ...accountPage('Settings', SettingsPage) },
-  { path: '/settings/profile', ...accountPage('Profile', ProfileSettingsPage) },
-  { path: '/settings/pair', ...accountPage('Your pair', PairSettingsPage) },
-  { path: '/settings/account', ...accountPage('Account', AccountSettingsPage) },
   { path: '/today', ...pairPage('Today', TodayPage) },
   { path: '/memories', ...pairPage('Memories', MemoriesPage) },
   { path: '/memories/new', ...pairPage('Add memory', MemoryFormPage) },
@@ -131,15 +118,10 @@ const routes: RouteObject[] = [{ element: <Root />, errorElement: <RouteFailureB
   { path: '/memories/:memoryId/edit', ...pairPage('Edit memory', MemoryFormPage) },
   { path: '/messages', ...pairPage('Messages', MessagesPage) },
   { path: '/tasks', ...pairPage('Tasks', TasksPage) },
-  { path: '/tasks/new', ...pairPage('Add task', TaskFormPage) },
-  { path: '/tasks/lists', ...pairPage('Task lists', ListManagerPage) },
-  { path: '/tasks/lists/:listId', ...pairPage('Task list', ListDetailPage) },
   { path: '/tasks/:taskId', ...pairPage('Task', TaskDetailPage) },
-  { path: '/tasks/:taskId/edit', ...pairPage('Edit task', TaskFormPage) },
   { path: '/ideas', ...pairPage('Date ideas', IdeasPage) },
   { path: '/ideas/new', ...pairPage('Add idea', IdeaFormPage) },
-  { path: '/ideas/:ideaId', ...pairPage('Date idea', IdeaDetailPage) },
-  { path: '/ideas/:ideaId/edit', ...pairPage('Edit idea', IdeaFormPage) },
+  { path: '/ideas/:ideaId', ...pairPage('Date idea', IdeaFormPage) },
   { path: '/calendar', ...pairPage('Calendar', CalendarPage) },
   { path: '/events/new', ...pairPage('Add event', EventFormPage) },
   { path: '/events/:eventId', ...pairPage('Event', EventDetailPage) },
