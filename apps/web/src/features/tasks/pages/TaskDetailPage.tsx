@@ -83,7 +83,7 @@ function TaskEditor({ task, lists }: { task: Task; lists: TaskList[] }) {
           <Link to={'/tasks?list=' + task.listId}>Cancel</Link>
         </div>
       </form>
-      <div className="task-delete"><Button variant="danger" disabled={saving} onClick={() => setConfirm(true)}>{remove.isError ? 'Retry deletion' : 'Delete task'}</Button></div>
+      <div className="task-delete"><Button variant="secondary" disabled={saving} onClick={() => setConfirm(true)}>{remove.isError ? 'Retry deletion' : 'Delete task'}</Button></div>
     </section>
     <Dialog busy={remove.isPending} open={confirm} title="Delete this task?" onClose={() => setConfirm(false)}>
       <p>Both partners will lose this task.</p>

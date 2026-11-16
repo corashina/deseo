@@ -26,10 +26,10 @@ export function TasksPage() {
   const tasks = useQuery({ queryKey: taskKeys.list(account!.id, pairId, listId), queryFn: () => listTasks(pairId, listId), enabled: Boolean(listId) });
   if (pair?.status !== 'active') return null;
   const select = (id: string) => { setAdding(false); setParams({ list: id }); };
-  const open = tasks.data?.filter(task => task.completedAt === null) ?? [];
+  // Open tasks with a due date come first, soonest first. Tasks without one keep their order.
+  const open = [...tasks.data?.filter(task => task.completedAt === null) ?? []].sort((a, b) => (a.dueDate ?? '9999').localeCompare(b.dueDate ?? '9999'));
   const done = tasks.data?.filter(task => task.completedAt !== null) ?? [];
-  const row = (task: Task) => <TaskRow key={task.id} task={task} timezone={pair.timezone} locale={account!.locale}
-    assignee={pair.members.find(member => member.userId === task.assigneeId)?.displayName ?? 'Unassigned'} />;
+  const row = (task: Task) => <TaskRow key={task.id} task={task} members={pair.members} timezone={pair.timezone} locale={account!.locale} />;
   return <>
     <PageHeader title="Tasks" description="Keep shared tasks in named lists." />
     <section className="card">
@@ -37,8 +37,9 @@ export function TasksPage() {
         <Status error>We could not load lists.</Status>
         <Button variant="secondary" onClick={() => void lists.refetch()}>Retry</Button>
       </> : <>
-        <div className="view-tabs" aria-label="Task lists">{lists.data.map(item => <button key={item.id} aria-pressed={item.id === listId && !adding} onClick={() => select(item.id)}>{item.name}</button>)}
-          <button aria-pressed={adding} onClick={() => setAdding(true)}>New list</button>
+        <div className="task-lists">
+          <div className="view-tabs" aria-label="Task lists">{lists.data.map(item => <button key={item.id} title={item.name} aria-pressed={item.id === listId && !adding} onClick={() => select(item.id)}><span>{item.name}</span></button>)}</div>
+          <Button variant="text" aria-pressed={adding} onClick={() => setAdding(true)}>New list</Button>
         </div>
         {adding ? <NewList pairId={pairId} onCreated={select} /> : <>
           <QuickAdd key={listId} pairId={pairId} listId={listId} />
@@ -48,7 +49,7 @@ export function TasksPage() {
           </> : tasks.data.length ? <>
             {open.map(row)}
             {done.length > 0 && <details className="completed-tasks"><summary>Completed ({done.length})</summary>{done.map(row)}</details>}
-          </> : <p>No tasks in this list.</p>}
+          </> : <p className="muted">No tasks in this list yet. Add one above.</p>}
           {list && !list.isGeneral && tasks.data && <ListSettings key={list.id} list={list} taskCount={tasks.data.length} onRemoved={() => select(lists.data.find(item => item.isGeneral)!.id)} />}
         </>}
       </>}
@@ -73,7 +74,7 @@ function QuickAdd({ pairId, listId }: { pairId: string; listId: string }) {
   useUnsavedChanges(Boolean(title));
   if (pair?.status !== 'active') return null;
   return <form className="quick-add" onSubmit={event => { event.preventDefault(); if (!add.isPending) add.mutate(); }}>
-    <Field label="Add a task" name="title" value={title} required maxLength={200} disabled={add.isPending} onChange={event => setTitle(event.target.value)} />
+    <Field label="New task" name="title" value={title} required maxLength={200} disabled={add.isPending} onChange={event => setTitle(event.target.value)} />
     <label className="field"><span>Assigned to</span><select name="assigneeId" value={assigneeId} disabled={add.isPending} onChange={event => setAssigneeId(event.target.value)}>
       <option value="">Unassigned</option>
       {pair.members.map(member => <option key={member.userId} value={member.userId}>{member.displayName}</option>)}
@@ -109,8 +110,8 @@ function ListSettings({ list, taskCount, onRemoved }: { list: TaskList; taskCoun
   const busy = rename.isPending || remove.isPending;
   const failure = rename.error ?? remove.error;
   const error = failure ? toAppError(failure).code === 'CONFLICT' ? 'This list changed. Try again.' : toAppError(failure).message : '';
-  return <div className="task-list-actions">
-    <h2>List settings</h2>
+  return <details className="task-list-actions">
+    <summary>List settings</summary>
     <form className="list-name-form" onSubmit={event => { event.preventDefault(); if (!busy) rename.mutate(); }}>
       <Field label="New list name" name="listName" value={name} maxLength={40} required disabled={busy} onChange={event => setName(event.target.value)} />
       <Button variant="primary" disabled={busy} type="submit">{rename.isError ? 'Retry rename' : 'Rename list'}</Button>
@@ -121,5 +122,5 @@ function ListSettings({ list, taskCount, onRemoved }: { list: TaskList; taskCoun
       <p>{taskCount ? 'Its tasks move to General. The list is removed for both partners.' : 'This empty list is removed for both partners.'}</p>
       <Button variant="danger" disabled={remove.isPending} onClick={() => remove.mutate()}>Confirm removal</Button>
     </Dialog>
-  </div>;
+  </details>;
 }

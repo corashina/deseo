@@ -1,31 +1,51 @@
 .section-heading { display:flex; gap:16px; align-items:center; justify-content:space-between; flex-wrap:wrap; margin-bottom:24px; }
 .section-heading h2 { margin:0; }
-.task-row { padding:20px 0; border-bottom:1px solid var(--line); overflow-wrap:anywhere; }
-.task-row-main { display:flex; align-items:center; flex-wrap:wrap; gap:8px 16px; }
-.task-check { padding:4px; display:flex; align-items:center; gap:16px; flex:1 1 180px; min-width:0; min-height:48px; cursor:pointer; border-radius:var(--radius-control); }
-.task-check:hover:has(input:not(:disabled)) { background:var(--canvas); }
-.task-check:has(input:focus-visible) { outline:3px solid var(--focus); outline-offset:3px; }
-.task-check:has(input:disabled) { cursor:default; }
-.task-row input[type=checkbox] { width:24px; height:24px; margin:0; flex-shrink:0; accent-color:var(--shared); cursor:pointer; }
-.task-row-content { flex:1; min-width:0; display:flex; flex-direction:column; gap:4px; }
-.task-title { color:var(--ink); font-weight:600; }
-.task-metadata { display:flex; flex-wrap:wrap; gap:4px 16px; color:var(--muted); font-size:14px; }
-.task-row input:disabled { cursor:default; }
-.task-metadata time { font-variant-numeric:tabular-nums; }
-.task-details { border-radius:var(--radius-control); font-size:14px; display:inline-flex; align-items:center; justify-content:center; min-height:48px; min-width:48px; padding:8px 0; }
-.task-completed .task-title { text-decoration:line-through; color:var(--muted); }
-.completed-tasks > summary { min-height:48px; padding:16px 0; font-weight:600; cursor:pointer; }
-.task-row .status { margin:12px 0; }
-.quick-add, .list-name-form { display:flex; align-items:flex-end; gap:16px; flex-wrap:wrap; width:100%; margin:24px 0; }
-.quick-add .field, .list-name-form .field { flex:1 1 180px; min-width:0; margin:0; }
-.quick-add > .status, .list-name-form > .status { flex-basis:100%; margin:0; }
-.task-list-actions { border-top:1px solid var(--line); padding-top:24px; margin-top:24px; }
-.task-list-actions h2 { margin-bottom:16px; }
-.task-list-actions .actions { margin-top:24px; margin-bottom:0; }
-.task-list-actions .list-name-form { margin-top:0; }
-.task-row:last-child { border-bottom:0; }
-.task-form > .actions { align-items:center; margin-top:20px; }
-.task-delete, .idea-actions { border-top:1px solid var(--line); padding-top:24px; margin-top:24px; margin-bottom:0; }
+/* Task row: a 48px checkbox target, then the title and metadata as one link to the task. */
+.task-row { padding: var(--space-4) 0; border-bottom: 1px solid var(--line); overflow-wrap: anywhere; }
+.task-row:last-child { border-bottom: 0; }
+.task-row-main { display: flex; align-items: flex-start; gap: var(--space-2); }
+.task-check { display: flex; align-items: center; justify-content: center; flex-shrink: 0; width: var(--nav-target); height: var(--nav-target); margin: calc(-1 * var(--space-3)) 0 0 calc(-1 * var(--space-3)); border-radius: var(--radius-control); cursor: pointer; }
+.task-check:hover:has(input:not(:disabled)) { background: var(--canvas); }
+.task-check:has(input:focus-visible) { outline: 3px solid var(--focus); outline-offset: 3px; }
+.task-check:has(input:disabled) { cursor: default; }
+.task-row input[type=checkbox] { width: 24px; height: 24px; margin: 0; flex-shrink: 0; accent-color: var(--primary); cursor: pointer; }
+.task-row input:disabled { cursor: default; }
+.task-row-content { flex: 1; min-width: 0; min-height: var(--nav-target); display: flex; flex-direction: column; gap: var(--space-1); color: var(--ink); text-decoration: none; border-radius: var(--radius-badge); }
+.task-row-content:hover .task-title { text-decoration: underline; text-underline-offset: 4px; }
+.task-title { font-weight: 600; }
+.task-metadata { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-1) var(--space-4); color: var(--muted); font-size: 14px; }
+.task-metadata time { font-variant-numeric: tabular-nums; }
+.task-metadata .overdue { color: var(--danger); font-weight: 600; }
+.task-metadata .due-today { color: var(--warning); font-weight: 600; }
+.task-completed .task-title { text-decoration: line-through; color: var(--muted); }
+.task-error { margin: var(--space-3) 0 0 calc(var(--nav-target) - var(--space-3) + var(--space-2)); }
+.task-error .status { margin-bottom: var(--space-3); }
+.completed-tasks > summary, .task-list-actions > summary { min-height: var(--nav-target); padding: var(--space-3) 0; font-weight: 600; cursor: pointer; }
+/* Quick add: title and Add task on one row; who and when beside them on wide screens, below them on narrow ones. */
+.quick-add { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr) auto; grid-template-areas: "title who due add" "status status status status"; gap: var(--space-4); align-items: end; margin: var(--space-6) 0; }
+.quick-add > .field { margin: 0; min-width: 0; }
+.quick-add > .field:nth-of-type(1) { grid-area: title; }
+.quick-add > .field:nth-of-type(2) { grid-area: who; }
+.quick-add > .field:nth-of-type(3) { grid-area: due; }
+.quick-add > .button { grid-area: add; }
+.quick-add > .status { grid-area: status; margin: 0; }
+.list-name-form { display: flex; align-items: flex-end; gap: var(--space-4); flex-wrap: wrap; width: 100%; margin: var(--space-6) 0; }
+.list-name-form .field { flex: 1 1 180px; min-width: 0; margin: 0; }
+.list-name-form > .status { flex-basis: 100%; margin: 0; }
+/* List tabs hold lists only. New list sits beside them. A long list name keeps one line. */
+.task-lists { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-4); }
+.task-lists .view-tabs { max-width: 100%; }
+.task-lists .view-tabs button { min-width: 0; max-width: 100%; }
+.task-lists .view-tabs button > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 24ch; }
+.task-lists .button.text[aria-pressed=true] { background: var(--sidebar); }
+.task-list-actions { border-top: 1px solid var(--line); margin-top: var(--space-6); }
+.task-list-actions .actions { margin: var(--space-6) 0 var(--space-4); }
+.task-list-actions .list-name-form { margin-top: var(--space-2); }
+.task-form > .actions { align-items: center; margin-top: var(--space-5); }
+@media (max-width: 1023px) {
+  .quick-add { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; grid-template-areas: "title title add" "who due due" "status status status"; }
+}
+.task-delete, .idea-actions { border-top: 1px solid var(--line); padding-top: var(--space-6); margin-top: var(--space-6); margin-bottom: 0; }
 .idea-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:24px; }
 .idea-grid .card { display:flex; flex-direction:column; gap:16px; min-width:0; }
 .idea-grid .card h2, .idea-grid .card p { margin:0; }
@@ -36,7 +56,7 @@
 .important-card p { margin-bottom:var(--space-3); }
 .important-card .countdown { margin:var(--space-2) 0 var(--space-1); font-size:19px; font-weight:700; color:var(--link); }
 .important-card .countdown strong { font-size:40px; line-height:1.1; font-weight:800; letter-spacing:-.035em; }
-@media (max-width:767px) { .idea-grid { grid-template-columns:1fr; gap:16px; } .task-check { gap:12px; } .section-heading { margin-bottom:16px; } }
+@media (max-width:767px) { .idea-grid { grid-template-columns:1fr; gap:16px; } .section-heading { margin-bottom:16px; } }
 
 .today-intro-actions { display:flex; flex-wrap:wrap; gap:var(--space-4); }
 .week-strip { list-style:none; margin:0 0 var(--space-5); padding:0; display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:var(--space-1); }

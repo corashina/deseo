@@ -332,6 +332,7 @@ Sources: [WCAG text contrast](https://www.w3.org/WAI/WCAG22/Understanding/contra
 | Browser navigation label | 15px | 15px | 550 / 1.4 |
 | Native navigation label | 12dp | 12dp | 600 / 17dp |
 
+Inputs and selects are 48px high, so fields in one row line up. Checkboxes use the `primary` accent.
 Use real text for labels and numbers. Use tabular numbers for times and countdowns.
 Use uppercase only for short decorative labels. Keep instructions and controls in sentence case.
 Limit title tracking to `-0.035em`.
@@ -482,8 +483,12 @@ A message shows the time; older messages add the day, and the year only when it 
 Pinned notes are compact rows above the conversation: sender eyebrow, two lines of text, and Unpin. A lone note fills the row.
 A failed pin, unpin, or delete shows on its message. An unsent message keeps the sender's color.
 
-**Tasks.** Each row has a checkbox, title, owner label, and optional due date.
-Completed tasks keep readable text. Keep overdue labels separate from partner colors.
+**Tasks.** Each row has a checkbox, title, assignee badge in its owner color, and optional due date. A completed row names who completed it.
+The checkbox has its own 48px target. The rest of the row opens the task.
+Overdue uses `danger` text and Due today uses `warning` text, never a partner color. Open tasks with a due date come first, soonest first.
+Quick add puts the title and Add task on one row. Assigned to and Due date sit beside them from 1024px and below them on narrower screens.
+List tabs hold lists only, one line each. New list sits beside the tabs. List settings start closed.
+Completed tasks keep readable text. Delete task is a secondary button; the dialog holds the destructive one.
 
 **Settings.** Profile, Your pair, and Account share one card. End this pair has its own card below it.
 Ending a pair opens a dialog that names the partner and explains the result. The email code goes out only when the person asks for it.

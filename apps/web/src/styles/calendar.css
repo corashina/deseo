@@ -44,7 +44,7 @@
 .event-fields .field select, .event-fields .field textarea { width: 100%; padding: var(--space-3) var(--space-4); border: 1px solid var(--control); border-radius: var(--radius-control); color: var(--ink); background: var(--surface); font-weight: 400; }
 .form-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0 var(--space-6); }
 .event-fields .checkbox-field { display: flex; gap: var(--space-3); align-items: center; min-height: var(--nav-target); margin-bottom: var(--space-2); cursor: pointer; }
-.event-fields input[type=checkbox] { width: 24px; height: 24px; margin: 0; flex-shrink: 0; accent-color: var(--link); }
+.event-fields input[type=checkbox] { width: 24px; height: 24px; margin: 0; flex-shrink: 0; accent-color: var(--primary); }
 .form-section + .form-section { margin-top: var(--space-4); }
 .form-section h2 { margin-bottom: var(--space-4); }
 .event-details { margin-bottom: var(--space-6); border-top: 1px solid var(--line); }
