@@ -25,6 +25,9 @@ p { text-wrap: pretty; }
 /* A lone text link starts at the content edge, not centered in its 48px target. */
 .form-page > a:not(.button) { justify-content: flex-start; }
 .form-page > .page-header + :is(a, button) { margin-top: 0; }
+/* A lone text button lines its label up with the content edge; its hover fill reaches into the card padding. */
+:is(.form-page, .pair-cancel) > .button.text { margin-left: calc(-1 * var(--space-4) - 1px); }
+.form-page form + .actions { margin-top: var(--space-4); }
 /* A text link outside a sentence gets a 48px target. Links inside a sentence stay inline. */
 :is(.form-page, .page-header, .actions, .message-actions, .section-heading, .important-card, .today-intro-actions) > a:not(.button) { display: inline-flex; align-items: center; justify-content: center; min-height: var(--nav-target); min-width: var(--nav-target); }
 .page-header { display: flex; flex-wrap: wrap; align-items: start; justify-content: space-between; gap: 16px 24px; margin-bottom: 32px; }
