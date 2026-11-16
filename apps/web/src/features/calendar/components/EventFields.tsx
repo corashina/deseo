@@ -6,7 +6,6 @@ import { TimezoneField } from '../../../components/ui/TimezoneField';
 import type { OwnerNames } from './EventRow';
 
 const timeFields = ['start', 'end'] as const;
-const owners = ['a', 'b', 'together'] as const;
 export function EventFields({ form, names, slot, author, locked, planning = false }: {
   form: UseFormReturn<EventFormValues>; names: OwnerNames; slot: 'a' | 'b'; author: boolean; locked: boolean; planning?: boolean;
 }) {
@@ -14,7 +13,7 @@ export function EventFields({ form, names, slot, author, locked, planning = fals
   const { register, formState: { errors } } = form;
   const prefix = useId();
   const details = useRef<HTMLDetailsElement>(null);
-  const detailErrors = Boolean(errors.importantDate || errors.repeat || errors.location || errors.description);
+  const detailErrors = Boolean(errors.importantDate || errors.repeat || errors.location || errors.description || errors.timezone);
   useEffect(() => { if (detailErrors && details.current) details.current.open = true; }, [detailErrors]);
   function error(name: keyof EventFormValues) { return errors[name]?.message; }
   function fieldProps(name: keyof EventFormValues, hint = false) {
@@ -30,6 +29,21 @@ export function EventFields({ form, names, slot, author, locked, planning = fals
   }
   function offsetChoices(which: 'start' | 'end') {
     try { return wallTimeChoices(values[`${which}Date`], values[`${which}Time`], values.timezone); } catch { return []; }
+  }
+  const partner = slot === 'a' ? 'b' : 'a';
+  // One choice sets both who the event is for and who can see it. Private events belong to their author.
+  function choose(value: string) {
+    const options = { shouldDirty: true, shouldValidate: form.formState.isSubmitted };
+    form.setValue('visibility', value === 'private' ? 'private' : 'shared', options);
+    form.setValue('owner', value === 'private' ? slot : value as EventFormValues['owner'], options);
+  }
+  // An important date is one all-day date. Only important dates repeat every year.
+  function markImportant(checked: boolean) {
+    if (checked) {
+      form.setValue('allDay', true, { shouldDirty: true });
+      form.setValue('endDate', form.getValues('startDate'), { shouldDirty: true });
+      clearOffset('start'); clearOffset('end');
+    } else form.setValue('repeat', 'none', { shouldDirty: true });
   }
   return <div className="event-fields"><fieldset disabled={locked}>
     <Field label="Title" {...register('title')} maxLength={120} required error={error('title')} />
@@ -55,30 +69,25 @@ export function EventFields({ form, names, slot, author, locked, planning = fals
           </label>}
         </div>;
       })}</div>}
-      <TimezoneField {...register('timezone', { onChange: () => { clearOffset('start'); clearOffset('end'); } })} required error={error('timezone')} />
     </section>
-    <section className="form-section" aria-labelledby={prefix + '-sharing'}>
-      <h2 id={prefix + '-sharing'}>Sharing</h2>
-      <div className="form-grid">
-        <label className="field" htmlFor={prefix + 'owner'}><span id={prefix + 'owner-label'}>Owner</span>
-          <select {...register('owner')} {...fieldProps('owner')} aria-labelledby={prefix + 'owner-label'}>{owners.filter(owner => values.visibility !== 'private' || owner === slot).map(owner => <option value={owner} key={owner}>{names[owner]}</option>)}</select>{fieldError('owner')}
-        </label>
-        <label className="field" htmlFor={prefix + 'visibility'}><span id={prefix + 'visibility-label'}>Visibility</span>
-          <select {...register('visibility', { onChange: event => { if (event.target.value === 'private') form.setValue('owner', slot); } })} {...fieldProps('visibility')} aria-labelledby={prefix + 'visibility-label'} disabled={!author || planning}>
-            <option value="shared">Shared with your partner</option><option value="private">Private to you</option>
-          </select>{fieldError('visibility')}
-        </label>
-      </div>
-    </section>
+    <label className="field" htmlFor={prefix + 'who'}><span id={prefix + 'who-label'}>Who</span>
+      <select id={prefix + 'who'} name="who" aria-labelledby={prefix + 'who-label'} aria-invalid={Boolean(errors.owner || errors.visibility)}
+        aria-describedby={errors.owner || errors.visibility ? prefix + 'who-error' : undefined}
+        value={values.visibility === 'private' ? 'private' : values.owner} onChange={event => choose(event.target.value)}>
+        <option value="together">Together</option>
+        <option value={slot}>Me</option>
+        <option value={partner}>{names[partner]}</option>
+        {(author && !planning || values.visibility === 'private') && <option value="private">Private (just me)</option>}
+      </select>
+      {(errors.owner || errors.visibility) && <span className="field-error" role="alert" id={prefix + 'who-error'}>{errors.owner?.message ?? errors.visibility?.message}</span>}
+    </label>
     <details className="event-details" ref={details} open={Boolean(values.location || values.description || values.importantDate || values.repeat === 'yearly') || undefined}>
       <summary>More details</summary>
       <div className="event-details-content">
-        <label className="checkbox-field"><input type="checkbox" {...register('importantDate')} {...fieldProps('importantDate', true)} />Important date</label>
-        <p className="field-hint" id={prefix + 'importantDate-hint'}>Show this date on Today. Choose a one-day, all-day event.</p>{fieldError('importantDate')}
-        <label className="field" htmlFor={prefix + 'repeat'}><span id={prefix + 'repeat-label'}>Repeat</span>
-          <select {...register('repeat')} {...fieldProps('repeat', true)} aria-labelledby={prefix + 'repeat-label'} disabled={planning}><option value="none">Does not repeat</option><option value="yearly">Every year</option></select>
-          <span className="field-hint" id={prefix + 'repeat-hint'}>Yearly dates require a one-day, all-day event.</span>{fieldError('repeat')}
-        </label>
+        <TimezoneField {...register('timezone', { onChange: () => { clearOffset('start'); clearOffset('end'); } })} required error={error('timezone')} />
+        <label className="checkbox-field"><input type="checkbox" {...register('importantDate', { onChange: event => markImportant(event.target.checked) })} {...fieldProps('importantDate', true)} />Important date</label>
+        <p className="field-hint" id={prefix + 'importantDate-hint'}>Show a countdown on Today. An important date is one whole day.</p>{fieldError('importantDate')}
+        {values.importantDate && !planning && <><label className="checkbox-field"><input type="checkbox" name="repeatYearly" {...fieldProps('repeat')} checked={values.repeat === 'yearly'} onChange={event => form.setValue('repeat', event.target.checked ? 'yearly' : 'none', { shouldDirty: true, shouldValidate: form.formState.isSubmitted })} />Repeat every year</label>{fieldError('repeat')}</>}
         <Field label="Location" {...register('location')} maxLength={200} error={error('location')} />
         <label className="field" htmlFor={prefix + 'description'}><span id={prefix + 'description-label'}>Description</span><textarea autoComplete="off" {...register('description')} {...fieldProps('description')} aria-labelledby={prefix + 'description-label'} maxLength={2000} rows={4} />{fieldError('description')}</label>
       </div>

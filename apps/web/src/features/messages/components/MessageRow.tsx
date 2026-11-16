@@ -3,13 +3,15 @@ import { useId, useRef, useState } from 'react';
 import { Button } from '../../../components/ui/Button';
 import { DateTime } from 'luxon';
 import { formatDate } from '../../../lib/format';
-export function MessageRow({ message, name, slot, own, disabled, timezone, locale, onPin, onDelete }: {
-  message: Message; name: string; slot: 'a' | 'b'; own: boolean; disabled: boolean; timezone: string; locale: string;
+export function MessageRow({ message, name, slot, own, latest, disabled, timezone, locale, onPin, onDelete }: {
+  message: Message; name: string; slot: 'a' | 'b'; own: boolean; latest: boolean; disabled: boolean; timezone: string; locale: string;
   onPin(message: Message): void; onDelete(message: Message): void;
 }) {
   const actions = useRef<HTMLDetailsElement>(null);
   const menuId = useId();
   const [expanded, setExpanded] = useState(false);
+  // Show Sent only on the viewer's latest message. It confirms the whole conversation.
+  const state = [latest && 'Sent', message.pinnedAt && 'Pinned note'].filter(Boolean).join(' · ');
   function closeActions() {
     actions.current?.querySelector('summary')?.focus();
     if (actions.current) actions.current.open = false;
@@ -17,7 +19,7 @@ export function MessageRow({ message, name, slot, own, disabled, timezone, local
   return <article className={'message-row partner-' + slot + (own ? ' own-message' : '')} data-testid="message-row" data-message-id={message.id}>
     <div className="message-meta"><strong>{name}</strong><time dateTime={message.createdAt}>{formatDate(DateTime.fromISO(message.createdAt).setZone(timezone), 'dateTime', locale)}</time></div>
     <p className="preserve-lines">{message.body}</p>
-    <span className="message-state">Sent{message.pinnedAt ? ' · Pinned note' : ''}</span>
+    {state && <span className="message-state">{state}</span>}
     {own && <details className="message-actions" ref={actions} onToggle={event => setExpanded(event.currentTarget.open)} onKeyDown={event => { if (event.key === 'Escape') { event.preventDefault(); closeActions(); } }}>
       <summary role="button" aria-label="Message actions" aria-controls={menuId} aria-expanded={expanded} aria-disabled={disabled} onClick={event => { if (disabled) event.preventDefault(); }}>Actions</summary>
       <div className="message-action-menu" id={menuId}>

@@ -36,8 +36,7 @@ export function TaskRow({ task, assignee, timezone, locale }: {
           <span className="task-metadata"><span>{assignee}</span>{task.dueDate && <time dateTime={task.dueDate}>{dueLabel}</time>}</span>
         </span>
       </label>
-      <Link className="task-details" aria-label={'Details: ' + task.title} to={'/tasks/' + task.id}>Details</Link>
-      {task.completedAt && <Button variant="secondary" disabled={completion.isPending} onClick={() => completion.mutate(false)}>Undo</Button>}
+      <Link className="task-details" aria-label={'Edit ' + task.title} to={'/tasks/' + task.id}>Edit</Link>
     </div>
     {error && <Status error>{error}</Status>}
     {completion.isError && <Button variant="secondary" onClick={() => completion.mutate(completion.variables!)}>Retry completion</Button>}

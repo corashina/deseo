@@ -2,7 +2,7 @@ import { createList, createTask, deleteEmptyList, moveListTasksToGeneral, rename
 import { useUnsavedChanges } from '../../../lib/unsaved-changes';
 import { useCommandId } from '../../../lib/command-id';
 import { toAppError } from '@deseo/domain/result';
-import type { TaskList } from '@deseo/domain/tasks';
+import type { Task, TaskList } from '@deseo/domain/tasks';
 import { useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useSearchParams } from 'react-router-dom';
@@ -28,6 +28,10 @@ export function TasksPage() {
   useTaskSignals(account!.id, pair);
   if (pair?.status !== 'active') return null;
   const select = (id: string) => { setAdding(false); setParams({ list: id }); };
+  const open = tasks.data?.filter(task => task.completedAt === null) ?? [];
+  const done = tasks.data?.filter(task => task.completedAt !== null) ?? [];
+  const row = (task: Task) => <TaskRow key={task.id} task={task} timezone={pair.timezone} locale={account!.locale}
+    assignee={pair.members.find(member => member.userId === task.assigneeId)?.displayName ?? 'Unassigned'} />;
   return <>
     <PageHeader title="Tasks" description="Keep shared tasks in named lists." />
     <section className="card">
@@ -43,12 +47,10 @@ export function TasksPage() {
           {tasks.isPending ? <Status>Loading tasks…</Status> : tasks.isError ? <>
             <Status error>We could not load tasks.</Status>
             <Button onClick={() => void tasks.refetch()}>Retry</Button>
-          </> : tasks.data.length ? tasks.data.map(task => <TaskRow
-            key={task.id}
-            task={task}
-            timezone={pair.timezone}
-            locale={account!.locale}
-            assignee={pair.members.find(member => member.userId === task.assigneeId)?.displayName ?? 'Unassigned'} />) : <p>No tasks in this list.</p>}
+          </> : tasks.data.length ? <>
+            {open.map(row)}
+            {done.length > 0 && <details className="completed-tasks"><summary>Completed ({done.length})</summary>{done.map(row)}</details>}
+          </> : <p>No tasks in this list.</p>}
           {list && !list.isGeneral && tasks.data && <ListSettings key={list.id} list={list} taskCount={tasks.data.length} onRemoved={() => select(lists.data.find(item => item.isGeneral)!.id)} />}
         </>}
       </>}

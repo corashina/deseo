@@ -34,7 +34,7 @@ export function TodayPage() {
   return <>
     <PageHeader
       title="Today"
-      description={<>{formatDate(DateTime.fromISO(date), 'weekday', account!.locale)} · <span translate="no">{zone}</span></>}
+      description={<>{formatDate(DateTime.fromISO(date), 'weekday', account!.locale)}{zone !== account!.timezone && <> · <span translate="no">{zone}</span></>}</>}
       action={<Link className="button primary" to="/events/new">Add event</Link>} />
     {query.isPending ? <Status>Loading Today…</Status> : query.isError ? <>
       <Status error>We could not load Today.</Status>

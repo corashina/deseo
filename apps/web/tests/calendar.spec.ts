@@ -5,10 +5,10 @@ test('B sees the shared event and cannot open the private event', async ({ page,
   const { a, b } = await pair();
   await signIn(page, a);
   const ids: string[] = [];
-  for (const [title, visibility] of [['Concert night', 'shared'], ['Dentist visit', 'private']] as const) {
+  for (const [title, who] of [['Concert night', 'together'], ['Dentist visit', 'private']] as const) {
     await page.goto('/events/new');
     await page.getByLabel('Title', { exact: true }).fill(title);
-    await page.getByLabel('Visibility').selectOption(visibility);
+    await page.getByLabel('Who').selectOption(who);
     await page.getByRole('button', { name: 'Save event', exact: true }).click();
     await expect(page.getByRole('heading', { name: title, exact: true })).toBeVisible();
     ids.push(page.url().split('/events/')[1]);

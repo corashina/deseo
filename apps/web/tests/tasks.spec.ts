@@ -1,8 +1,8 @@
 import { test, expect, admin } from './support/test';
 import { failRequest } from './support/network';
 
-// Importance 95: a failed Undo shows the saved state, and a retry reopens the task for both people.
-test('a failed Undo keeps the completed task, and a retry reopens it', async ({ page, browser, pair, signIn }) => {
+// Importance 95: a failed reopen shows the saved state, and a retry reopens the task for both people.
+test('a failed reopen keeps the completed task, and a retry reopens it', async ({ page, browser, pair, signIn }) => {
   const { id, a, b } = await pair();
   const title = 'Buy train tickets';
   await signIn(page, a);
@@ -18,11 +18,12 @@ test('a failed Undo keeps the completed task, and a retry reopens it', async ({ 
     await partner.goto('/tasks');
     // The row is a controlled checkbox. It shows the change after the next render, so click and then wait.
     await partner.getByRole('checkbox', { name: 'Complete ' + title }).click();
-    await expect(partner.getByRole('button', { name: 'Undo', exact: true })).toBeVisible();
+    await expect(partner.getByText('Completed (1)', { exact: true })).toBeVisible();
     await page.reload();
+    await page.getByText('Completed (1)', { exact: true }).click();
     await expect(check).toBeChecked();
     await failRequest(page, '**/rest/v1/rpc/set_task_completed');
-    await page.getByRole('button', { name: 'Undo', exact: true }).click();
+    await check.click();
     await expect(page.getByText('Completion failed. Try again.')).toBeVisible();
     await expect(check).toBeChecked();
     await page.getByRole('button', { name: 'Retry completion', exact: true }).click();

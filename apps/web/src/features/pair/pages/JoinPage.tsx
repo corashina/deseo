@@ -38,7 +38,7 @@ export function JoinPage() {
       setToken(event.target.value); review.reset(); accept.reset(); setInvalid(false); entryIntent.invite = null;
     }} autoComplete="off" />
     {!preview && <Button type="submit" disabled={busy}>Review invitation</Button>}</form>
-    {reviewed && preview && <><p className="muted">Pair timezone: <span translate="no">{preview.timezone}</span></p><p className="muted">Expires {formatDate(DateTime.fromISO(preview.expiresAt).setZone(account!.timezone), 'dateTime', account!.locale)}</p>
+    {reviewed && preview && <><p className="muted">Expires {formatDate(DateTime.fromISO(preview.expiresAt).setZone(account!.timezone), 'dateTime', account!.locale)}</p>
       <Button disabled={accept.isPending} onClick={() => accept.mutate(reviewed.token)}>{accept.isError ? 'Retry joining pair' : 'Join pair'}</Button></>}
     {error && <Status error>{error}</Status>}<Link to="/pair/start" onClick={() => { entryIntent.invite = null; }}>Back</Link></section>;
 }
