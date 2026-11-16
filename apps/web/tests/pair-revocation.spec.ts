@@ -32,7 +32,6 @@ test('ending a pair requires a fresh code and removes both viewers access', asyn
     await second.bringToFront(); await second.evaluate(() => window.dispatchEvent(new Event('focus')));
     await expect(second).toHaveURL(/\/pair\/ended$/);
     await second.goto('/events/' + eventId); await expect(second).toHaveURL(/\/pair\/ended$/);
-    await page.goto('/settings/notifications'); await expect(page.getByLabel('Notification timezone')).toBeVisible();
     await page.goto('/settings/account'); await expect(page.getByRole('button', { name: 'Sign out on this browser' })).toBeVisible();
     expect((await a.client.from('events').select('id').eq('id', eventId)).data).toEqual([]);
   } finally { await partner.close(); }
@@ -48,7 +47,7 @@ test('global sign-out revokes native devices and another browser session', async
     await signIn(page, a);
     await signIn(second, a);
     await second.goto('/today');
-    await expect(second.getByRole('button', { name: 'Account menu' })).toBeVisible();
+    await expect(second.getByRole('link', { name: 'Settings', exact: true })).toBeVisible();
     await page.goto('/settings/account');
     await page.getByRole('button', { name: 'Sign out on all devices', exact: true }).click();
     await expect(page).toHaveURL(/\/welcome$/);

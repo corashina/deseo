@@ -3,7 +3,7 @@ import tseslint from 'typescript-eslint';
 const nativeFeatures = ['auth', 'pair', 'calendar', 'today', 'memories', 'messages', 'tasks', 'notifications'];
 const applications = [
   { name: 'mobile', features: nativeFeatures, restrictions: [] },
-  { name: 'web', features: [...nativeFeatures, 'settings'], restrictions: [{
+  { name: 'web', features: ['auth', 'pair', 'calendar', 'today', 'memories', 'messages', 'tasks', 'settings'], restrictions: [{
     regex: '(?:^|/)(?:apps/)?mobile(?:/|$)|^@deseo/mobile(?:/|$)',
     message: 'Import shared rules and data. Keep native screens separate.',
   }] },

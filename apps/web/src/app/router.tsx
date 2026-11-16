@@ -19,8 +19,6 @@ const SettingsPage = lazyPage(() => import('../features/settings'), 'SettingsPag
 const ProfileSettingsPage = lazyPage(() => import('../features/settings'), 'ProfileSettingsPage');
 const PairSettingsPage = lazyPage(() => import('../features/settings'), 'PairSettingsPage');
 const AccountSettingsPage = lazyPage(() => import('../features/settings'), 'AccountSettingsPage');
-const NotificationsPage = lazyPage(() => import('../features/notifications'), 'NotificationsPage');
-const PreferencesPage = lazyPage(() => import('../features/notifications'), 'PreferencesPage');
 const MemoriesPage = lazyPage(() => import('../features/memories/pages/MemoriesPage'), 'MemoriesPage');
 const MemoryDetailPage = lazyPage(() => import('../features/memories/pages/MemoryDetailPage'), 'MemoryDetailPage');
 const MemoryFormPage = lazyPage(() => import('../features/memories/pages/MemoryFormPage'), 'MemoryFormPage');
@@ -45,12 +43,11 @@ const StartPage = lazyPage(() => import('../features/pair/pages/StartPage'), 'St
 const InvitePage = lazyPage(() => import('../features/pair/pages/InvitePage'), 'InvitePage');
 const JoinPage = lazyPage(() => import('../features/pair/pages/JoinPage'), 'JoinPage');
 const WaitingPage = lazyPage(() => import('../features/pair/pages/WaitingPage'), 'WaitingPage');
-const PairWelcomePage = lazyPage(() => import('../features/pair/pages/WelcomePage'), 'PairWelcomePage');
 const EndedPage = lazyPage(() => import('../features/pair/pages/EndedPage'), 'EndedPage');
 function destination(session: ReturnType<typeof useSession>) {
   if (session.status !== 'authenticated') return '/welcome';
   if (!session.account) return '/profile/setup';
-  if (session.pair?.status === 'active') return '/pair/welcome';
+  if (session.pair?.status === 'active') return '/today';
   if (session.pair?.status === 'pending') return '/pair/waiting';
   if (entryIntent.invite) return '/pair/join';
   return session.pair?.status === 'ended' ? '/pair/ended' : '/pair/start';
@@ -64,7 +61,7 @@ function Gate({ children, kind = 'pair' }: { children: ReactNode; kind?: 'public
   if (!session.account) return kind === 'profile' ? <>{children}</> : <Navigate to="/profile/setup" replace />;
   if (kind === 'account') return <>{children}</>;
   if (kind === 'profile') return <Navigate to={target} replace />;
-  const allowed = session.pair?.status === 'active' ? ['/pair/welcome', '/today', '/calendar', '/events/new', '/tasks', '/ideas', '/messages', '/memories', ...( /^\/(events|tasks|ideas|memories)\//.test(pathname) ? [pathname] : [])] : session.pair?.status === 'pending' ? ['/pair/waiting', '/pair/invite'] : session.pair?.status === 'ended' ? ['/pair/ended', '/pair/start', '/pair/join'] : ['/pair/start', '/pair/join'];
+  const allowed = session.pair?.status === 'active' ? ['/today', '/calendar', '/events/new', '/tasks', '/ideas', '/messages', '/memories', ...( /^\/(events|tasks|ideas|memories)\//.test(pathname) ? [pathname] : [])] : session.pair?.status === 'pending' ? ['/pair/waiting', '/pair/invite'] : session.pair?.status === 'ended' ? ['/pair/ended', '/pair/start', '/pair/join'] : ['/pair/start', '/pair/join'];
   return allowed.includes(pathname) ? <>{children}</> : <Navigate to={target} replace />;
 }
 function Entry() { const session = useSession(); return <Navigate to={destination(session)} replace />; }
@@ -122,14 +119,11 @@ const routes: RouteObject[] = [{ element: <Root />, errorElement: <RouteFailureB
   { path: '/pair/invite', ...pairPage('Invite your partner', InvitePage) },
   { path: '/pair/join', ...pairPage('Join your partner', JoinPage) },
   { path: '/pair/waiting', ...pairPage('Waiting for your partner', WaitingPage) },
-  { path: '/pair/welcome', ...pairPage('Your pair', PairWelcomePage) },
   { path: '/pair/ended', ...pairPage('Your pair has ended', EndedPage) },
   { path: '/settings', ...accountPage('Settings', SettingsPage) },
   { path: '/settings/profile', ...accountPage('Profile', ProfileSettingsPage) },
   { path: '/settings/pair', ...accountPage('Your pair', PairSettingsPage) },
   { path: '/settings/account', ...accountPage('Account', AccountSettingsPage) },
-  { path: '/settings/notifications', ...accountPage('Notification preferences', PreferencesPage) },
-  { path: '/notifications', ...accountPage('Notifications', NotificationsPage) },
   { path: '/today', ...pairPage('Today', TodayPage) },
   { path: '/memories', ...pairPage('Memories', MemoriesPage) },
   { path: '/memories/new', ...pairPage('Add memory', MemoryFormPage) },

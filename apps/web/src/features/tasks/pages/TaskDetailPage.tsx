@@ -1,5 +1,4 @@
 import { RouteErrorPage } from '../../../app/RouteErrorPage';
-import { ReminderControl } from '../../notifications';
 import { useTaskSignals } from '../realtime';
 import { useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
@@ -44,7 +43,6 @@ export function TaskDetailPage() {
         timezone={pair.timezone}
         locale={account!.locale}
         assignee={pair.members.find(member => member.userId === task.assigneeId)?.displayName ?? 'Unassigned'} />
-      <ReminderControl taskId={task.id} sourceVersion={task.version} timezone={pair.timezone} completed={Boolean(task.completedAt)} dueDate={task.dueDate} />
       <div className="actions">
         <Link to="/tasks">Return to tasks</Link>
         <Button variant="danger" disabled={remove.isPending} onClick={() => setConfirm(true)}>{remove.isError ? 'Retry deletion' : 'Delete task'}</Button>

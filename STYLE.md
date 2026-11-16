@@ -23,7 +23,7 @@ Planning screens are compact. Personal screens give photos and notes more space.
 | Know each other's plans | Owner colors, names, agenda, and shared event labels |
 | Save photos together | Large image cards, captions, and a chronological feed |
 | Send texts and notes | One conversation with clear sender labels |
-| Remember a date | Upcoming event cards and explicit reminder times |
+| Remember a date | Upcoming event cards and the important date countdown |
 | Coordinate daily work | Task rows with owners and due dates |
 | Feel like a pair | Partner names and personal content on Today |
 
@@ -152,15 +152,15 @@ Do not shrink desktop calendar cells into unreadable mobile columns.
 ## 6. Navigation and screens
 
 Use five primary destinations: **Today, Calendar, Memories, Messages, Tasks**.
-Group them above Notifications and Settings. Use surface fills for hover and pastel fills for the current page.
+Group them above Settings. Use surface fills for hover and pastel fills for the current page.
 Use labeled 20px icons: Phosphor regular in the browser, Ionicons on native devices.
-The pair avatar in the header or sidebar opens Settings.
+On narrow screens, the account avatar in the header opens Settings.
 
 **Today.** Show at most three upcoming events. Show one main action, **Add event**. Section actions are text buttons.
 Keyboard order matches the visual order.
 
 **Calendar.** Show the date, owner legend, view control, and Add event above the calendar.
-Each event shows title, time, owner name, and reminder state, plus location when set.
+Each event shows title, time, and owner name, plus location when set.
 Open details before editing. Explain invalid end times beside the time field.
 Group overlapping events without hiding owners. Format dates through `Intl` in the user's locale.
 Keep all-day dates as dates. Never shift them through UTC conversion.
