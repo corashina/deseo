@@ -43,9 +43,9 @@ test('capture site previews', async ({ browser, pair, signIn }) => {
 
   // Phones at 2x density. The large-screen Today at 1x is already sharp at its display size.
   const shots = [
-    { width: 390, height: 844, scale: 2, screens: [['today', '/today', 'Today'], ['calendar', '/calendar?date=' + day(1), 'Calendar'],
+    { width: 390, height: 960, scale: 2, screens: [['today', '/today', 'Today'], ['calendar', '/calendar?date=' + day(1), 'Calendar'],
       ['memories', '/memories', 'Memories']] },
-    { width: 1440, height: 900, scale: 1, screens: [['today', '/today', 'Today']] },
+    { width: 1440, height: 1100, scale: 1, screens: [['today', '/today', 'Today']] },
   ];
   for (const colorScheme of ['light', 'dark'] as const) {
     for (const shot of shots) {
