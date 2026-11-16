@@ -232,14 +232,14 @@ Planning screens are compact. Personal screens give photos and notes more space.
 ### Platforms
 
 React DOM serves the browser portal. Expo serves Android and iOS; the Expo app is frozen.
-`apps/site` serves static public pages. `apps/site/src/site.css` holds their styles; it copies the shared colors.
+`apps/site` serves static public pages. `apps/site/src/site.css` holds their styles. The site build adds the token variables to each page.
 Use React Router links and a sidebar in the portal. Use Expo Router stacks and bottom tabs on native devices.
 Follow [the screen guide](docs/README.md#screens) for routes and flows.
 
 ## Colors
 
 Define colors once in `brand/tokens.json`. Use semantic tokens in components.
-The browser maps them to CSS variables in `apps/web/src/main.tsx`. CSS variables use kebab case: `actionHover` becomes `--action-hover`.
+`brand/tokens-css.ts` maps them to CSS variables for the portal and the site. CSS variables use kebab case: `actionHover` becomes `--action-hover`.
 Native code reads colors through `useTheme()` or `makeStyles()` in `apps/mobile/src/theme`. Do not import `tokens.json` in components.
 The frontmatter holds both palettes: light keys have no suffix, and dark keys end in `-dark`.
 
@@ -494,6 +494,12 @@ Completed tasks keep readable text. Delete task is a secondary button; the dialo
 Ending a pair opens a dialog that names the partner and explains the result. The email code goes out only when the person asks for it.
 Your pair lists each member as a row: a 48px avatar, the name in the title style, and You or Your partner.
 Section intros use secondary text. The timezone field selects its value on focus, so typing a city starts a new search.
+
+**Site.** The site uses the portal tokens, Manrope, and the same type scale. Each page has a light and a dark browser bar color.
+Previews are captures of the real app with the sample pair Alex and Sam. Each preview has a dark version and a Preview badge.
+`apps/web/tests/capture/previews.spec.ts` makes the captures. Phone previews are 2x captures at 390px. All previews share the right edge.
+Narrow pages keep the left edge of the header with a 720px text column. The footer stays at the bottom of short pages.
+Make no claim that the product cannot prove. The hero states the release status and links to the invitation help.
 
 ### States
 
