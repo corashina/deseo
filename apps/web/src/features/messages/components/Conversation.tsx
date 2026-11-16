@@ -37,6 +37,7 @@ export function Conversation() {
   const mountedList = useRef<HTMLDivElement | null>(null);
   const scrollPosition = useRef<number | null>(null);
   const [atLatest, setAtLatest] = useState(true);
+  const following = useRef(true);
   const lastRead = useRef<MessageCursor | null>(null);
   const [readError, setReadError] = useState(false);
   const [readAttempt, setReadAttempt] = useState(0);
@@ -86,6 +87,15 @@ export function Conversation() {
   }, [conversation.data]);
 
   useEffect(() => {
+    const element = list.current;
+    if (!element) return;
+    // The list shrinks when notes, chips, or fonts load above it. A reader at the latest message stays there.
+    const observer = new ResizeObserver(() => { if (following.current) element.scrollTop = element.scrollHeight; });
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [conversation.isSuccess]);
+
+  useEffect(() => {
     if (!conversation.data || !list.current) return;
     let active = true;
     const observer = new IntersectionObserver(entries => {
@@ -121,7 +131,7 @@ export function Conversation() {
         {conversation.hasNextPage && <Button variant="secondary" disabled={conversation.isFetchingNextPage} onClick={() => void conversation.fetchNextPage()}>{conversation.isFetchingNextPage ? 'Loading older messages…' : 'Load older messages'}</Button>}
         {!atLatest && <Button variant="secondary" onClick={() => { if (list.current) list.current.scrollTop = list.current.scrollHeight; }}>Latest messages</Button>}
         {readError && <><Status error>We could not update your unread count.</Status><Button variant="secondary" onClick={() => { lastRead.current = null; setReadAttempt(value => value + 1); }}>Retry unread count</Button></>}
-        <div className="conversation" ref={list} onScroll={event => { const element = event.currentTarget; scrollPosition.current = element.scrollTop; setAtLatest(element.scrollHeight - element.scrollTop - element.clientHeight <= 24); }} aria-label="Conversation messages">{messages.length ? messages.map(message => <MessageRow key={message.id} message={message} name={member(message).displayName} slot={member(message).slot} own={message.authorId === accountId} latest={message.id === latestOwnId} disabled={busy} timezone={account!.timezone} locale={account!.locale} onPin={pin} onDelete={setDeleting} {...failure(message, false)} />) : <section className="card"><h2>Start your conversation</h2><p>Send a message to your partner.</p></section>}</div>
+        <div className="conversation" ref={list} onScroll={event => { const element = event.currentTarget; scrollPosition.current = element.scrollTop; following.current = element.scrollHeight - element.scrollTop - element.clientHeight <= 24; setAtLatest(following.current); }} aria-label="Conversation messages">{messages.length ? messages.map(message => <MessageRow key={message.id} message={message} name={member(message).displayName} slot={member(message).slot} own={message.authorId === accountId} latest={message.id === latestOwnId} disabled={busy} timezone={account!.timezone} locale={account!.locale} onPin={pin} onDelete={setDeleting} {...failure(message, false)} />) : <section className="card"><h2>Start your conversation</h2><p>Send a message to your partner.</p></section>}</div>
       </>}
     {unsent.map(item => <article className={'message-row own-message pending-send partner-' + ownSlot} key={item.clientId} data-testid="pending-send"><p className="preserve-lines">{item.body}</p>{item.failed ? <><Status error>Not sent</Status><Button variant="secondary" onClick={() => void deliver(item)}>Retry</Button></> : <Status>Sending…</Status>}</article>)}
     <Composer body={body} onChange={setBody} onSend={send} disabled={false} />
