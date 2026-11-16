@@ -13,7 +13,6 @@ import { Status } from '../../../components/ui/Status';
 import { formatDate } from '../../../lib/format';
 import { Dialog } from '../../../components/ui/Dialog';
 import { getMemory, memoryKeys } from '../queries';
-import { useMemorySignals } from '../realtime';
 import { deleteMemory } from '../commands';
 import { MemoryImage } from '../components/MemoryImage';
 import { memoryPhotoQuery } from '../media';
@@ -25,7 +24,6 @@ export function MemoryDetailPage() {
   const navigate = useNavigate();
   const [confirm, setConfirm] = useState(false);
   const command = useCommandId();
-  useMemorySignals(account!.id, pair);
   const query = useQuery({ queryKey: memoryKeys.detail(account!.id, pairId, memoryId), queryFn: () => getMemory(pairId, memoryId), retry: false });
   const remove = useMutation({
     mutationFn: (version: number) => deleteMemory(memoryId, version, command.idFor({ memoryId, version })),

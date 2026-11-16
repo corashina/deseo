@@ -13,7 +13,6 @@ import { Button } from '../../../components/ui/Button';
 import { Dialog } from '../../../components/ui/Dialog';
 import { calendarKeys, getEvent } from '../queries';
 import { deleteEvent } from '../commands';
-import { useCalendarSignals } from '../realtime';
 import '../../../styles/calendar.css';
 
 export function EventDetailPage() {
@@ -27,7 +26,6 @@ export function EventDetailPage() {
     queryFn: () => getEvent(pairId, eventId),
     enabled: Boolean(pairId),
   });
-  useCalendarSignals(account!.id, pair);
   const remove = useMutation({ mutationFn: (version: number) => deleteEvent(eventId, version), onSuccess: () => navigate('/calendar'), onError: () => void query.refetch(), onSettled: () => setConfirm(false) });
   const error = remove.isError ? toAppError(remove.error).code === 'CONFLICT'
     ? 'This event changed. Review it before deleting.'

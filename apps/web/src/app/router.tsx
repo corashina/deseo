@@ -61,7 +61,7 @@ function Frame() {
   const session = useSession();
   const identity = session.userId + ':' + session.pair?.status + ':' + (session.pair && 'pairId' in session.pair ? session.pair.pairId : '');
   if (session.status === 'loading') return <div className="entry-loading"><Status>Checking your account…</Status></div>;
-  if (session.status === 'error') return <section className="card form-page"><h1>We could not open your account</h1><Status error>{session.error}</Status><Button onClick={() => void session.revalidate()}>Retry</Button><Button variant="secondary" onClick={() => void signOut()}>Sign out</Button></section>;
+  if (session.status === 'error') return <section className="card form-page"><h1>We could not open your account</h1><Status error>{session.error}</Status><Button variant="primary" onClick={() => void session.revalidate()}>Retry</Button><Button variant="secondary" onClick={() => void signOut()}>Sign out</Button></section>;
   return session.status === 'authenticated' && session.account ? <AppShell key={identity}><Outlet /></AppShell> : <div className="entry-container" key={identity}><Outlet /></div>;
 }
 function Root() { return <SessionProvider><UnsavedChangesGuard /><Frame /></SessionProvider>; }

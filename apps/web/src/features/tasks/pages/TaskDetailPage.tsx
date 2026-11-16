@@ -1,5 +1,4 @@
 import { RouteErrorPage } from '../../../app/RouteErrorPage';
-import { useTaskSignals } from '../realtime';
 import { useEffect, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { AppError, toAppError } from '@deseo/domain/result';
@@ -23,7 +22,6 @@ export function TaskDetailPage() {
   const { taskId = '' } = useParams();
   const { account, pair } = useSession();
   const pairId = pair?.status === 'active' ? pair.pairId : '';
-  useTaskSignals(account!.id, pair);
   const query = useQuery({ queryKey: taskKeys.task(account!.id, pairId, taskId), queryFn: () => getTask(pairId, taskId) });
   const lists = useQuery({ queryKey: taskKeys.lists(account!.id, pairId), queryFn: () => listTaskLists(pairId) });
   if (query.isPending || lists.isPending) return <Status>Loading task…</Status>;
@@ -81,7 +79,7 @@ function TaskEditor({ task, lists }: { task: Task; lists: TaskList[] }) {
         {error && <Status error>{error}</Status>}
         {conflict && <Button disabled={saving} variant="secondary" type="button" onClick={() => { remove.reset(); reload.mutate(); }}>Reload task and discard draft</Button>}
         <div className="actions">
-          <Button type="submit" disabled={saving || conflict}>{save.isPending ? 'Saving…' : failure ? 'Retry save' : 'Save changes'}</Button>
+          <Button variant="primary" type="submit" disabled={saving || conflict}>{save.isPending ? 'Saving…' : failure ? 'Retry save' : 'Save changes'}</Button>
           <Link to={'/tasks?list=' + task.listId}>Cancel</Link>
         </div>
       </form>

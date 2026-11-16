@@ -7,9 +7,7 @@ import { PageHeader } from '../../../components/ui/PageHeader';
 import { Button } from '../../../components/ui/Button';
 import { Status } from '../../../components/ui/Status';
 import { formatDate } from '../../../lib/format';
-import { nextImportantDate, useCalendarSignals } from '../../calendar';
-import { useMemorySignals } from '../../memories';
-import { useTaskSignals } from '../../tasks';
+import { nextImportantDate } from '../../calendar';
 import { Conversation } from '../../messages';
 import { getToday, todayKeys } from '../queries';
 import { OurDayPanel } from '../components/OurDayPanel';
@@ -24,9 +22,6 @@ export function TodayPage() {
   const zone = pair?.status === 'active' ? pair.timezone : 'UTC';
   const date = DateTime.now().setZone(zone).toISODate()!;
   const query = useQuery({ queryKey: todayKeys.day(account!.id, pairId, date), queryFn: () => getToday(pairId, date) });
-  useMemorySignals(account!.id, pair);
-  useTaskSignals(account!.id, pair);
-  useCalendarSignals(account!.id, pair);
   if (pair?.status !== 'active') return null;
   const locale = account!.locale;
   const names = { a: pair.members.find(member => member.slot === 'a')!.displayName, b: pair.members.find(member => member.slot === 'b')!.displayName, together: 'Together' };
@@ -43,7 +38,7 @@ export function TodayPage() {
         {query.data && <DayChips next={query.data.agenda[0]} dueCount={query.data.dueTasks.length} important={important} days={days} zone={zone} locale={locale} />}
         <Conversation />
       </div>
-      {query.isPending ? <Status>Loading Today…</Status> : query.isError ? <div><Status error>We could not load Today.</Status><Button onClick={() => void query.refetch()}>Retry</Button></div>
+      {query.isPending ? <Status>Loading Today…</Status> : query.isError ? <div><Status error>We could not load Today.</Status><Button variant="secondary" onClick={() => void query.refetch()}>Retry</Button></div>
         : <OurDayPanel data={query.data} important={important} days={days} date={date} zone={zone} locale={locale} names={names} members={pair.members} />}
     </div>
   </div>;

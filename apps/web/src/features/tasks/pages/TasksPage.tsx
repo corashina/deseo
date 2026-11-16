@@ -7,7 +7,6 @@ import { useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useSearchParams } from 'react-router-dom';
 import { useSession } from '../../../app/SessionProvider';
-import { useTaskSignals } from '../realtime';
 import { PageHeader } from '../../../components/ui/PageHeader';
 import { Button } from '../../../components/ui/Button';
 import { Dialog } from '../../../components/ui/Dialog';
@@ -25,7 +24,6 @@ export function TasksPage() {
   const list = lists.data?.find(list => list.id === params.get('list')) ?? lists.data?.find(list => list.isGeneral);
   const listId = list?.id ?? '';
   const tasks = useQuery({ queryKey: taskKeys.list(account!.id, pairId, listId), queryFn: () => listTasks(pairId, listId), enabled: Boolean(listId) });
-  useTaskSignals(account!.id, pair);
   if (pair?.status !== 'active') return null;
   const select = (id: string) => { setAdding(false); setParams({ list: id }); };
   const open = tasks.data?.filter(task => task.completedAt === null) ?? [];
@@ -37,7 +35,7 @@ export function TasksPage() {
     <section className="card">
       {lists.isPending ? <Status>Loading lists…</Status> : lists.isError ? <>
         <Status error>We could not load lists.</Status>
-        <Button onClick={() => void lists.refetch()}>Retry</Button>
+        <Button variant="secondary" onClick={() => void lists.refetch()}>Retry</Button>
       </> : <>
         <div className="view-tabs" aria-label="Task lists">{lists.data.map(item => <button key={item.id} aria-pressed={item.id === listId && !adding} onClick={() => select(item.id)}>{item.name}</button>)}
           <button aria-pressed={adding} onClick={() => setAdding(true)}>New list</button>
@@ -46,7 +44,7 @@ export function TasksPage() {
           <QuickAdd key={listId} pairId={pairId} listId={listId} />
           {tasks.isPending ? <Status>Loading tasks…</Status> : tasks.isError ? <>
             <Status error>We could not load tasks.</Status>
-            <Button onClick={() => void tasks.refetch()}>Retry</Button>
+            <Button variant="secondary" onClick={() => void tasks.refetch()}>Retry</Button>
           </> : tasks.data.length ? <>
             {open.map(row)}
             {done.length > 0 && <details className="completed-tasks"><summary>Completed ({done.length})</summary>{done.map(row)}</details>}
@@ -81,7 +79,7 @@ function QuickAdd({ pairId, listId }: { pairId: string; listId: string }) {
       {pair.members.map(member => <option key={member.userId} value={member.userId}>{member.displayName}</option>)}
     </select></label>
     <Field label="Due date (optional)" name="dueDate" type="date" value={dueDate} disabled={add.isPending} onChange={event => setDueDate(event.target.value)} />
-    <Button type="submit" disabled={add.isPending}>{add.isPending ? 'Saving…' : add.isError ? 'Retry task' : 'Add task'}</Button>
+    <Button variant="primary" type="submit" disabled={add.isPending}>{add.isPending ? 'Saving…' : add.isError ? 'Retry task' : 'Add task'}</Button>
     {add.isError && <Status error>{toAppError(add.error).message}</Status>}
   </form>;
 }
@@ -92,7 +90,7 @@ function NewList({ pairId, onCreated }: { pairId: string; onCreated(id: string):
   useUnsavedChanges(Boolean(name) && !add.isSuccess);
   return <form className="list-name-form" onSubmit={event => { event.preventDefault(); if (!add.isPending) add.mutate(); }}>
     <Field label="List name" name="listName" value={name} maxLength={40} required disabled={add.isPending} onChange={event => setName(event.target.value)} />
-    <Button disabled={add.isPending} type="submit">{add.isPending ? 'Saving…' : add.isError ? 'Retry list' : 'Create list'}</Button>
+    <Button variant="primary" disabled={add.isPending} type="submit">{add.isPending ? 'Saving…' : add.isError ? 'Retry list' : 'Create list'}</Button>
     {add.isError && <Status error>{toAppError(add.error).message}</Status>}
   </form>;
 }
@@ -115,7 +113,7 @@ function ListSettings({ list, taskCount, onRemoved }: { list: TaskList; taskCoun
     <h2>List settings</h2>
     <form className="list-name-form" onSubmit={event => { event.preventDefault(); if (!busy) rename.mutate(); }}>
       <Field label="New list name" name="listName" value={name} maxLength={40} required disabled={busy} onChange={event => setName(event.target.value)} />
-      <Button disabled={busy} type="submit">{rename.isError ? 'Retry rename' : 'Rename list'}</Button>
+      <Button variant="primary" disabled={busy} type="submit">{rename.isError ? 'Retry rename' : 'Rename list'}</Button>
     </form>
     <div className="actions"><Button variant="danger" disabled={busy} onClick={() => setConfirm(true)}>{remove.isError ? 'Retry removal' : 'Remove list'}</Button></div>
     {error && <Status error>{error}</Status>}
