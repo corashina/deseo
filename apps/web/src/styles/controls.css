@@ -2,7 +2,7 @@
 .button.primary { background: var(--primary); color: var(--on-primary); border-color: var(--primary); font-weight: 700; }
 .button.primary:hover:not(:disabled) { background: color-mix(in srgb, var(--primary) 88%, var(--ink)); }
 .button.secondary { background: var(--surface); color: var(--ink); border-color: var(--control); }
-.button.danger { background: var(--danger); color: white; border-color: var(--danger); }
+.button.danger { background: var(--danger); color: var(--on-primary); border-color: var(--danger); }
 .button.secondary:hover:not(:disabled) { background: var(--sidebar); }
 .button.danger:hover:not(:disabled) { background: var(--danger-soft); color: var(--danger); }
 .button:active:not(:disabled) { transform: translateY(1px); }
@@ -28,7 +28,7 @@
 .slot-a { background: var(--rose-soft); color: var(--rose); }
 .slot-b { background: var(--teal-soft); color: var(--teal); }
 dialog { border: 1px solid var(--line); border-radius: 20px; padding: 24px; color: var(--ink); background: var(--surface); box-shadow: var(--shadow-popover); width: min(480px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); overflow: auto; overscroll-behavior: contain; }
-dialog::backdrop { background: rgb(56 53 71 / .35); }
+dialog::backdrop { background: var(--backdrop); }
 .dialog-heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 24px; }
 .dialog-heading h2 { margin: 0; }
 .view-tabs { display:flex; gap:4px; flex-wrap:wrap; padding:4px; background:var(--canvas); border:1px solid var(--line); border-radius:var(--radius-control); }

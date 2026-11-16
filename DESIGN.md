@@ -11,10 +11,10 @@ colors:
   action: "#DDD4EE"
   action-hover: "#D2C6E7"
   on-action: "#413852"
-  action-border: "#786A8B"
-  link: "#60527C"
   primary: "#60527C"
   on-primary: "#FFFFFF"
+  action-border: "#786A8B"
+  link: "#60527C"
   sidebar: "#F3EEF7"
   rose-accent: "#DCA9BD"
   teal-accent: "#A7CEC1"
@@ -34,38 +34,42 @@ colors:
   warning-soft: "#FFF2D6"
   danger: "#A92F3E"
   danger-soft: "#FCECEF"
-  canvas-dark: "#1C1A22"
-  surface-dark: "#25222D"
-  ink-dark: "#F1ECF4"
-  muted-dark: "#B4AABD"
-  line-dark: "#3A3543"
-  control-dark: "#8F859A"
-  action-dark: "#4A3F5E"
-  action-hover-dark: "#564A6C"
+  shadow: "#25324B1F"
+  backdrop: "#38354759"
+  canvas-dark: "#14111B"
+  surface-dark: "#221D2D"
+  ink-dark: "#F2ECF7"
+  muted-dark: "#A79EB4"
+  line-dark: "#332C40"
+  control-dark: "#8A7F99"
+  action-dark: "#3A3056"
+  action-hover-dark: "#45396A"
   on-action-dark: "#F1EBFA"
+  primary-dark: "#BBA4F7"
+  on-primary-dark: "#1A1526"
   action-border-dark: "#9C8CB3"
-  link-dark: "#C9B8EA"
-  primary-dark: "#C9B8EA"
-  on-primary-dark: "#1C1A22"
-  sidebar-dark: "#221F29"
-  rose-accent-dark: "#8A5468"
-  teal-accent-dark: "#4C7C70"
-  shared-accent-dark: "#6E5F8C"
-  rose-dark: "#F0A9C2"
-  rose-soft-dark: "#3F2731"
-  teal-dark: "#8FD3C4"
-  teal-soft-dark: "#1F3632"
-  shared-dark: "#C9B8EA"
-  shared-soft-dark: "#2E2840"
-  note-dark: "#3A2F25"
+  link-dark: "#C9B5F7"
+  sidebar-dark: "#1C1825"
+  rose-accent-dark: "#B45A80"
+  teal-accent-dark: "#3E9C86"
+  shared-accent-dark: "#7D68B8"
+  rose-dark: "#F49CC0"
+  rose-soft-dark: "#3A2231"
+  teal-dark: "#7EDEC6"
+  teal-soft-dark: "#18332D"
+  shared-dark: "#BBA4F7"
+  shared-soft-dark: "#2A2342"
+  note-dark: "#2E2620"
   note-line-dark: "#57473A"
-  focus-dark: "#B9A3E0"
+  focus-dark: "#C9B5F7"
   success-dark: "#8FD6AE"
   success-soft-dark: "#1D3326"
   warning-dark: "#F0C46B"
   warning-soft-dark: "#3A2E15"
   danger-dark: "#F2939F"
   danger-soft-dark: "#3E2227"
+  shadow-dark: "#0000004D"
+  backdrop-dark: "#05030ACC"
 typography:
   display:
     fontFamily: "Manrope Variable, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif"
@@ -236,8 +240,8 @@ The frontmatter holds both palettes: light keys have no suffix, and dark keys en
 
 ### Primary
 
-- **Plum Primary** (`primary` #60527C, dark #C9B8EA; `on-primary` #FFFFFF, dark #1C1A22): the one main button of a page.
-- **Lilac Action** (`action` #DDD4EE, dark #4A3F5E): selected navigation and selected dates. `action-hover` (#D2C6E7) on hover.
+- **Plum Primary** (`primary` #60527C, dark #BBA4F7; `on-primary` #FFFFFF, dark #1A1526): the one main button of a page. `on-primary` is also the danger button text.
+- **Lilac Action** (`action` #DDD4EE, dark #3A3056): selected navigation and selected dates. `action-hover` (#D2C6E7) on hover.
 - **Deep Plum Text on Action** (`on-action` #413852): text on pastel action surfaces.
 - **Plum Action Border** (`action-border` #786A8B): pastel action boundary.
 - **Plum Link** (`link` #60527C): text buttons and links.
@@ -271,7 +275,8 @@ The frontmatter holds both palettes: light keys have no suffix, and dark keys en
 **The Name Beside Color Rule.** Assign partner colors to stable partner IDs. Both partners see the same assignment. Do not assign colors by gender. Show a name beside each owner color.
 **The One Meaning Rule.** Do not create per-screen color aliases with the same meaning. Use accent tokens for decorative marks and owner foreground tokens for names and metadata.
 
-The browser portal stays light. The public site and the mobile app follow the device appearance.
+The browser portal, the public site, and the mobile app follow the device appearance. No control switches the appearance by hand.
+The dark palette is Midnight: plum surfaces and bright owner colors.
 Use an icon and explicit text for errors and warnings.
 
 ### Contrast
@@ -281,17 +286,18 @@ Every dark text color passes 4.5:1 on canvas, surface, sidebar, note, and its ow
 
 | Pair | Light | Dark |
 |---|---:|---:|
-| Ink / surface | 11.88:1 | 13.41:1 |
-| Muted / canvas | 5.30:1 | 7.72:1 |
-| Action text / action | 7.70:1 | 8.32:1 |
-| On primary / primary | 7.01:1 | 9.45:1 |
-| Rose / rose-soft | 5.64:1 | 7.22:1 |
-| Teal / teal-soft | 5.15:1 | 7.53:1 |
-| Shared / shared-soft | 5.65:1 | 7.72:1 |
-| Muted / note | 4.91:1 | 5.84:1 |
-| Control / surface | 3.68:1 | 4.45:1 |
-| Focus / canvas | 6.26:1 | 7.69:1 |
-| Action border / action | 3.48:1 | 3.15:1 |
+| Ink / surface | 11.88:1 | 14.14:1 |
+| Muted / canvas | 5.30:1 | 7.28:1 |
+| Action text / action | 7.70:1 | 10.36:1 |
+| On primary / primary | 7.01:1 | 8.28:1 |
+| On primary / danger | 6.64:1 | 8.01:1 |
+| Rose / rose-soft | 5.64:1 | 7.13:1 |
+| Teal / teal-soft | 5.15:1 | 8.48:1 |
+| Shared / shared-soft | 5.65:1 | 6.89:1 |
+| Muted / note | 4.91:1 | 5.79:1 |
+| Control / surface | 3.68:1 | 4.35:1 |
+| Focus / canvas | 6.26:1 | 10.16:1 |
+| Action border / action | 3.48:1 | 3.92:1 |
 
 Do not use decorative border colors as essential control boundaries. Recheck contrast after a token change.
 Sources: [WCAG text contrast](https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html) and [non-text contrast](https://www.w3.org/WAI/WCAG22/Understanding/non-text-contrast.html).
@@ -352,10 +358,12 @@ Surfaces are flat. A one-pixel `line` border separates cards from the canvas.
 
 ### Shadow Vocabulary
 
-- **Popover** (`box-shadow: 0 8px 24px rgb(37 50 75 / 12%)`): popovers and dialogs.
-- **Selected** (`box-shadow: 0 2px 8px rgb(56 53 71 / 8%)`): the selected navigation item.
+- **Popover** (`box-shadow: 0 8px 24px var(--shadow)`): popovers and dialogs.
+- **Selected** (`box-shadow: 0 2px 8px var(--shadow)`): the selected navigation item.
+- **Next plan glow** (`box-shadow: 0 12px 40px -16px` in the owner accent): the next plan card on Today.
+- **Backdrop** (`backdrop`): the scrim behind modal dialogs.
 
-**The Flat Card Rule.** Reserve shadows for popovers, dialogs, and selected navigation.
+**The Flat Card Rule.** Reserve shadows for popovers, dialogs, selected navigation, and the next plan card.
 
 ### Motion
 
@@ -419,7 +427,8 @@ On narrow screens, the account avatar in the header opens Settings.
 ### Screens
 
 **Today.** Show the date in the eyebrow above the title. Show at most three upcoming events.
-Show a seven-day strip above them, with one dot per owner on each day that has a plan.
+Show the next plan above all sections: a label (Now, Today, Tomorrow, or the weekday), title, time, place, and owner.
+Show a seven-day strip above the upcoming events, with one dot per owner on each day that has a plan.
 Upcoming plans and Due tasks are bordered cards. The note and the important date use fills without borders.
 Show one main action, **Add event**. Section actions are text buttons.
 Keyboard order matches the visual order.

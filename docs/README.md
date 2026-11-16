@@ -100,7 +100,7 @@ After a join, both partners open Today. Its empty sections offer the first actio
 
 ### Today
 
-Order: heading, Add event, next three events, latest memory, latest pinned note, due tasks, next important date.
+Order: heading, Add event, next plan, next three events with a seven-day strip, latest memory, latest pinned note, due tasks, next important date.
 Show each plan's date in the pair timezone. Each section links to its full page.
 Show up to three unfinished tasks due today or earlier.
 Show one upcoming important date with its absolute date. Count down in the pair timezone.
