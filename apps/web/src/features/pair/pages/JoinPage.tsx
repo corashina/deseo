@@ -31,10 +31,10 @@ export function JoinPage() {
   const reviewed = review.data;
   const preview = reviewed?.details;
   const busy = review.isPending || accept.isPending;
-  const error = invalid ? 'Enter the 12-character invitation code.' : review.isError ? toAppError(review.error).message : accept.isError ? toAppError(accept.error).message : '';
-  return <section className="card form-page"><PageHeader title={preview ? 'Join ' + preview.inviterName : 'Join your partner'} description={preview ? 'Share plans, messages, and memories. Private events stay private.' : 'Enter the invitation code from your partner.'} />
+  const error = invalid ? 'Enter the 12-character code or the invitation link.' : review.isError ? toAppError(review.error).message : accept.isError ? toAppError(accept.error).message : '';
+  return <section className="card form-page"><PageHeader title={preview ? 'Join ' + preview.inviterName : 'Join your partner'} description={preview ? 'Share plans, messages, and memories. Private events stay private.' : 'Paste the code or link from your partner.'} />
     <form onSubmit={event => { event.preventDefault(); if (!busy) start(token); }}>
-    <Field label="Invitation code" name="invitationCode" spellCheck={false} value={token} disabled={accept.isPending} onChange={event => {
+    <Field label="Invitation code or link" name="invitationCode" spellCheck={false} value={token} disabled={accept.isPending} onChange={event => {
       setToken(event.target.value); review.reset(); accept.reset(); setInvalid(false); entryIntent.invite = null;
     }} autoComplete="off" />
     {!preview && <Button variant="primary" type="submit" disabled={busy}>Review invitation</Button>}</form>

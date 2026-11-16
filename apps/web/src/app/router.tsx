@@ -6,6 +6,7 @@ import { entryIntent, signOut } from '../features/auth';
 import { inviteTokenSchema } from '../features/pair';
 import { Status } from '../components/ui/Status';
 import { Button } from '../components/ui/Button';
+import { BrandIcon } from '../components/ui/BrandIcon';
 import { z } from 'zod';
 import { RouteErrorPage, RouteFailureBoundary } from './RouteErrorPage';
 import { NotFoundPage } from './NotFoundPage';
@@ -60,10 +61,15 @@ function Entry() { const session = useSession(); return <Navigate to={destinatio
 function InviteEntry() { const session = useSession(); return <Navigate to={destination(session)} replace />; }
 function Frame() {
   const session = useSession();
+  const { pathname } = useLocation();
   const identity = session.userId + ':' + session.pair?.status + ':' + (session.pair && 'pairId' in session.pair ? session.pair.pairId : '');
   if (session.status === 'loading') return <div className="entry-loading"><Status>Checking your account…</Status></div>;
   if (session.status === 'error') return <section className="card form-page"><h1>We could not open your account</h1><Status error>{session.error}</Status><Button variant="primary" onClick={() => void session.revalidate()}>Retry</Button><Button variant="secondary" onClick={() => void signOut()}>Sign out</Button></section>;
-  return session.status === 'authenticated' && session.account ? <AppShell key={identity}><Outlet /></AppShell> : <div className="entry-container" key={identity}><Outlet /></div>;
+  return session.status === 'authenticated' && session.account ? <AppShell key={identity}><Outlet /></AppShell> : <div className="entry-container" key={identity}>
+    {/* Welcome shows the large icon. The other entry screens keep a small brand row above the card. */}
+    {pathname !== '/welcome' && <p className="entry-brand"><BrandIcon alt="" size={40} /><span translate="no">Deseo</span></p>}
+    <Outlet />
+  </div>;
 }
 function Root() { return <SessionProvider><UnsavedChangesGuard /><Frame /></SessionProvider>; }
 function Page({ title, children }: { title: string; children: ReactNode }) {

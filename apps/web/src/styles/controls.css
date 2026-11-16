@@ -50,3 +50,5 @@ dialog::backdrop { background: var(--backdrop); }
 .view-tabs button:hover { background: var(--surface); color: var(--ink); }
 .view-tabs button[aria-pressed=true] { background:var(--surface); border-color:var(--line); color:var(--ink); box-shadow:var(--shadow-selected); }
 @media (max-width:767px) { .view-tabs { width:100%; } .view-tabs button { flex:1; padding:var(--space-2); } }
+/* The sign-in code reads as six digits, not as a generic text field. */
+.field input.code-input { max-width: 16ch; font-size: 19px; font-weight: 700; letter-spacing: .3em; font-variant-numeric: tabular-nums; }

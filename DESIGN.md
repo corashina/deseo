@@ -321,6 +321,7 @@ Sources: [WCAG text contrast](https://www.w3.org/WAI/WCAG22/Understanding/contra
 |---|---|---|---|
 | Browser welcome title (display) | 48px | 36px | 700 / 1.2 |
 | Browser page title (headline) | 40px | 30px | 800 / 1.1 |
+| Entry card title | 30px | 30px | 800 / 1.1 |
 | Native page title | 28dp | 28dp | 700 / 34dp |
 | Section title (title) | 19px | 19px | 700 / 1.3 |
 | Eyebrow above a title (eyebrow) | 12px | 12px | 700 / 1.5, uppercase |
@@ -436,6 +437,13 @@ In the rail, use 12px/600 labels under the icons. Touch shows no tooltips.
 The icon tile follows the appearance: `brand/icon-web.webp` in light mode, `brand/icon-web-dark.webp` in dark mode.
 
 ### Screens
+
+**Entry.** Welcome shows the story panel and the sign-in card side by side from 1024px, and stacked below it.
+The other sign-in screens show the icon and name above one 480px card. The main button fills the card width.
+Profile setup offers Sign out. The sign-in code field shows six large spaced digits and says to check spam.
+Pair screens are one left-aligned card with the header inside. Start shows its two choices side by side when they fit.
+The Join field takes the code or the invitation link. Waiting says what to send only when a code is on screen.
+Ended offers Start a new pair and Enter invitation. Your pair stays selected in the navigation on every pair screen.
 
 **Today.** Today is chat-first: the conversation in the main column and the Our day panel beside it from 1200px.
 Show the date in the eyebrow above the title. The header has no buttons; Send message is the main action.
