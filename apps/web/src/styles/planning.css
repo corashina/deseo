@@ -60,3 +60,10 @@
 .week-strip-dots .owner-a { background:var(--rose-accent); }
 .week-strip-dots .owner-b { background:var(--teal-accent); }
 .today-layout .note-card, .today-layout .important-card { border-color:transparent; }
+.next-plan { display:flex; flex-direction:column; gap:4px; margin-bottom:24px; padding:24px 28px; border-radius:var(--radius-card); background:var(--shared-soft); color:var(--shared); text-decoration:none; box-shadow:0 12px 40px -16px var(--shared-accent); overflow-wrap:anywhere; transition:transform var(--duration-feedback) var(--ease); }
+.next-plan.owner-a { background:var(--rose-soft); color:var(--rose); box-shadow:0 12px 40px -16px var(--rose-accent); }
+.next-plan.owner-b { background:var(--teal-soft); color:var(--teal); box-shadow:0 12px 40px -16px var(--teal-accent); }
+.next-plan .eyebrow { color:inherit; margin:0; }
+.next-plan strong { color:var(--ink); font-size:30px; line-height:1.1; letter-spacing:-.035em; font-weight:800; }
+.next-plan:active { transform:translateY(1px); }
+@media (max-width:767px) { .next-plan { padding:20px; margin-bottom:16px; } .next-plan strong { font-size:19px; } }

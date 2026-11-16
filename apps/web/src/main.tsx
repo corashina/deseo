@@ -10,10 +10,15 @@ import './styles/tokens.css';
 import './styles/base.css';
 import './styles/shell.css';
 import './styles/controls.css';
-for (const [name, value] of Object.entries(tokens.colors)) document.documentElement.style.setProperty('--' + name.replace(/[A-Z]/g, letter => '-' + letter.toLowerCase()), value);
-for (const [name, value] of Object.entries(tokens.space)) document.documentElement.style.setProperty('--space-' + name, value + 'px');
-for (const [name, value] of Object.entries(tokens.radius)) document.documentElement.style.setProperty('--radius-' + name, value + 'px');
-document.documentElement.style.setProperty('--nav-target', tokens.touchTarget + 'px');
+const cssName = (name: string) => '--' + name.replace(/[A-Z]/g, letter => '-' + letter.toLowerCase());
+const declarations = (values: Record<string, string>) => Object.entries(values).map(([name, value]) => cssName(name) + ':' + value).join(';');
+const layout = { ...Object.fromEntries(Object.entries(tokens.space).map(([name, value]) => ['space-' + name, value + 'px'])),
+  ...Object.fromEntries(Object.entries(tokens.radius).map(([name, value]) => ['radius-' + name, value + 'px'])), navTarget: tokens.touchTarget + 'px' };
+// One style element holds both palettes. The device appearance picks one, and no script runs when it changes.
+const style = document.createElement('style');
+style.id = 'tokens';
+style.textContent = `:root{${declarations(tokens.colors)};${declarations(layout)}}@media (prefers-color-scheme: dark){:root{${declarations(tokens.darkColors)}}}`;
+document.head.append(style);
 const root = createRoot(document.getElementById('root')!);
 try {
   getSupabase();

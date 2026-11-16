@@ -15,6 +15,7 @@ import { NoteCard } from '../../messages';
 import '../../../styles/messages.css';
 import { getToday, todayKeys } from '../queries';
 import { WeekStrip } from '../components/WeekStrip';
+import { NextPlanCard } from '../components/NextPlanCard';
 import '../../../styles/calendar.css';
 import '../../../styles/planning.css';
 export function TodayPage() {
@@ -41,7 +42,9 @@ export function TodayPage() {
     {query.isPending ? <Status>Loading Today…</Status> : query.isError ? <>
       <Status error>We could not load Today.</Status>
       <Button onClick={() => void query.refetch()}>Retry</Button>
-    </> : <div className="today-layout">
+    </> : <>
+      {query.data.agenda[0] && <NextPlanCard event={query.data.agenda[0]} names={names} zone={zone} locale={account!.locale} />}
+      <div className="today-layout">
         <section className="card" data-testid="today-events">
           <div className="section-heading">
             <h2>Upcoming plans</h2>
@@ -82,6 +85,6 @@ export function TodayPage() {
         </time></p>}
         <Link to={'/events/' + important.id}>View date</Link>
       </section>}
-    </div>}
+    </div></>}
   </>;
 }
