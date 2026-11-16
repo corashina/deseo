@@ -9,8 +9,8 @@ const styles = {
   weekdayShort: { weekday: 'short', day: 'numeric' },
   weekdayName: { weekday: 'short' },
   month: { month: 'long', year: 'numeric' },
-  time: { hour: '2-digit', minute: '2-digit' },
-  dateTime: { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' },
+  time: { hour: 'numeric', minute: '2-digit' },
+  dateTime: { day: 'numeric', month: 'short', year: 'numeric', hour: 'numeric', minute: '2-digit' },
 } satisfies Record<string, Intl.DateTimeFormatOptions>;
 
 export type DateStyle = keyof typeof styles;

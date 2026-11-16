@@ -48,3 +48,5 @@
   .topbar-label > span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .portal main { padding: var(--space-6) var(--space-4); }
 }
+/* In the app, form cards line up with the page title. */
+.portal main .form-page { margin: 0 0 var(--space-6); }

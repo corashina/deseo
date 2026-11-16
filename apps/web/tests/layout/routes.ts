@@ -31,6 +31,7 @@ export const screens: Screen[] = [
   open('/ideas', 'Date ideas'),
   open('/ideas/new', 'Add idea'),
   record(ids => `/ideas/${ids.idea}`, 'Date idea'),
+  record(ids => `/ideas/${ids.idea}/edit`, 'Edit idea'),
   open('/memories', 'Memories'),
   open('/memories/new', 'Add memory'),
   record(ids => `/memories/${ids.memory}`, 'Memory'),

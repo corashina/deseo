@@ -18,6 +18,7 @@ import { Dialog } from '../../../components/ui/Dialog';
 import { calendarKeys, getEvent } from '../queries';
 import { createEvent, updateEvent } from '../commands';
 import { EventFields } from '../components/EventFields';
+import { useReturnTo } from '../../../lib/return-to';
 import '../../../styles/calendar.css';
 
 export function EventFormPage() {
@@ -50,6 +51,7 @@ function EventEditor({ event, idea }: { event?: Event; idea?: DateIdea }) {
   const { account, pair } = useSession();
   const navigate = useNavigate();
   const [params] = useSearchParams();
+  const back = useReturnTo('/calendar');
 
   if (!account || pair?.status !== 'active') throw new Error('Active pair required');
   const [id] = useState(() => event?.id ?? crypto.randomUUID());
@@ -101,8 +103,8 @@ function EventEditor({ event, idea }: { event?: Event; idea?: DateIdea }) {
   const saving = save.isPending || reload.isPending;
   useUnsavedChanges(!save.isSuccess && form.formState.isDirty);
   useEffect(() => {
-    if (save.isSuccess) navigate('/events/' + id, { replace: true });
-  }, [save.isSuccess, navigate, id]);
+    if (save.isSuccess) navigate('/events/' + id, { replace: true, state: { from: back } });
+  }, [save.isSuccess, navigate, id, back]);
 
   function submitValues(values: EventFormValues) {
     if (event?.visibility === 'private' && values.visibility === 'shared') setSharing(values);
@@ -122,10 +124,7 @@ function EventEditor({ event, idea }: { event?: Event; idea?: DateIdea }) {
   };
   const slot = pair.members.find(member => member.userId === account.id)!.slot;
   return <>
-    <PageHeader
-      title={event ? 'Edit event' : idea ? 'Plan date' : 'Add event'}
-      description={event ? 'Keep the details up to date.' : 'Plan time for yourself or together.'}
-    />
+    <PageHeader title={event ? 'Edit event' : idea ? 'Plan date' : 'Add event'} />
     <section className="card form-page">
       <form onSubmit={form.handleSubmit(submitValues)}>
         <EventFields form={form} names={names} slot={slot} author={!event || event.authorId === account.id} locked={saving} planning={Boolean(idea)} />
@@ -144,7 +143,7 @@ function EventEditor({ event, idea }: { event?: Event; idea?: DateIdea }) {
           <Button variant="primary" disabled={saving || conflict} type="submit">
             {saving ? 'Saving…' : failure ? 'Retry save' : event ? 'Save changes' : 'Save event'}
           </Button>
-          <Link to="/calendar">Cancel</Link>
+          <Link className="button secondary" to={event ? '/events/' + event.id : idea ? '/ideas/' + idea.id : back} state={{ from: back }}>Cancel</Link>
         </div>
       </form>
     </section>

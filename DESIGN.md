@@ -388,7 +388,7 @@ Use a one-pixel card border.
 |---|---|
 | App shell | Responsive navigation, page header, content region |
 | Page header | One heading, short context, one main action |
-| Partner badge | Stable owner color and visible name |
+| Partner badge | Stable owner color and visible name. Together uses the lilac pair |
 | Event row | Time column, tinted body, owner strip, title, metadata |
 | Memory card | Reserved image area, caption up to three lines, author badge, date, photo count |
 | Note card | Warm fill, sender, short text |
@@ -418,6 +418,7 @@ Reuse EventRow, MemoryCard, NoteCard, and TaskRow across callers on each platfor
 ### Filters and badges
 
 Use buttons for interactive filters. Badges stay static.
+View tabs and owner filters are segmented controls. The pressed segment is a raised surface with ink text, never an owner color. Owner segments show their owner dot.
 
 ### Dialogs
 
@@ -448,7 +449,12 @@ Keyboard order matches the visual order.
 
 **Calendar.** Show the month, owner legend, and view control above the calendar. Date ideas and Add event go in the header.
 Each event shows title, time, and owner name, plus location when set.
-Open details before editing. Explain invalid end times beside the time field.
+The selected day fills its number with `primary`. Today gets a 2px `link` ring. Cells stay clear, so event colors keep their meaning.
+In a month cell, a title keeps two lines and the owner one line. Below 768px, each day shows owner dots in place of events, and the day button names the count.
+Open details before editing. This applies to events and date ideas. Explain invalid end times beside the time field.
+The event and idea screens show an eyebrow, the title, and the owner badge or state. Delete and Archive are secondary buttons; the dialog holds the final action.
+Return links and Cancel go back to the page the person came from, with the same month, view, and filter.
+Show times with a numeric hour, such as 7:00 PM, in every place.
 Group overlapping events without hiding owners. Format dates through `Intl` in the user's locale.
 Keep all-day dates as dates. Never shift them through UTC conversion.
 Show an IANA timezone only when it differs from the viewer's profile timezone. The event form keeps it in More details.

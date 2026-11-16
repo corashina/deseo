@@ -23,6 +23,7 @@ const TasksPage = lazyPage(() => import('../features/tasks/pages/TasksPage'), 'T
 const TaskDetailPage = lazyPage(() => import('../features/tasks/pages/TaskDetailPage'), 'TaskDetailPage');
 const IdeasPage = lazyPage(() => import('../features/calendar/ideas/pages/IdeasPage'), 'IdeasPage');
 const IdeaFormPage = lazyPage(() => import('../features/calendar/ideas/pages/IdeaFormPage'), 'IdeaFormPage');
+const IdeaDetailPage = lazyPage(() => import('../features/calendar/ideas/pages/IdeaDetailPage'), 'IdeaDetailPage');
 const TodayPage = lazyPage(() => import('../features/today/pages/TodayPage'), 'TodayPage');
 const CalendarPage = lazyPage(() => import('../features/calendar/pages/CalendarPage'), 'CalendarPage');
 const EventDetailPage = lazyPage(() => import('../features/calendar/pages/EventDetailPage'), 'EventDetailPage');
@@ -119,7 +120,8 @@ const routes: RouteObject[] = [{ element: <Root />, errorElement: <RouteFailureB
   { path: '/tasks/:taskId', ...pairPage('Task', TaskDetailPage) },
   { path: '/ideas', ...pairPage('Date ideas', IdeasPage) },
   { path: '/ideas/new', ...pairPage('Add idea', IdeaFormPage) },
-  { path: '/ideas/:ideaId', ...pairPage('Date idea', IdeaFormPage) },
+  { path: '/ideas/:ideaId', ...pairPage('Date idea', IdeaDetailPage) },
+  { path: '/ideas/:ideaId/edit', ...pairPage('Edit idea', IdeaFormPage) },
   { path: '/calendar', ...pairPage('Calendar', CalendarPage) },
   { path: '/events/new', ...pairPage('Add event', EventFormPage) },
   { path: '/events/:eventId', ...pairPage('Event', EventDetailPage) },
