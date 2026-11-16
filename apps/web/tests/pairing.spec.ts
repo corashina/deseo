@@ -20,9 +20,11 @@ test('A invites, B joins, and C cannot read the pair', async ({ page, browser, a
     await signIn(partner, b);
     await partner.goto('/invite?token=' + encodeURIComponent(token));
     await partner.getByRole('button', { name: 'Join pair', exact: true }).click();
-    await expect(partner.getByRole('heading', { name: 'Anna + Marek' })).toBeVisible();
+    await expect(partner).toHaveURL(/\/today$/);
+    await expect(partner.locator('.topbar-label')).toHaveText('Anna + Marek');
     await page.goto('/');
-    await expect(page.getByRole('heading', { name: 'Anna + Marek' })).toBeVisible();
+    await expect(page).toHaveURL(/\/today$/);
+    await expect(page.locator('.topbar-label')).toHaveText('Anna + Marek');
 
     const member = await admin.from('pair_members').select('pair_id').eq('user_id', a.id).is('left_at', null).single();
     if (member.error) throw member.error;

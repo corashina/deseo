@@ -40,8 +40,8 @@ Browser drafts remain in memory and disappear when the user leaves the form or r
 - Tasks include named lists, assignment, due dates, completion, and reopening.
 - Memories include one to five photos, a date, a caption, and author controls.
 - Messages use plain text. Each person can pin one message as a note. Sent confirms server storage.
-- Settings covers profile, pair state, notification preferences, fresh verification, and sign-out.
-- Users control their own reminders. The portal does not request browser push permission or register native devices.
+- Settings covers profile, pair state, fresh verification, and sign-out.
+- The portal shows no reminders or notifications, because the browser receives no push. It does not request browser push permission or register native devices.
 - The server checks current account status and pair membership before granting shared access.
 - Private event authors control access. Memory authors control edits and deletion.
 - Users retain failed input and resolve edit conflicts. A retry of the same input reuses its command ID.

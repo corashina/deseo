@@ -10,11 +10,11 @@ The public site in `apps/site` builds static pages. Store links, policies, and a
 ## Product
 
 - **Today.** Upcoming plans with dates, due tasks, a memory, a note, and an important date.
-- **Calendar.** Shared events, private events, important dates, reminders, and date ideas.
+- **Calendar.** Shared events, private events, important dates, and date ideas.
 - **Memories.** Private photos with dates, captions, and author controls.
 - **Messages.** One conversation and one pinned note per person.
 - **Tasks.** Shared lists, assignment, due dates, and completion.
-- **Settings.** Profile, pair, preferences, fresh verification, and sign-out controls.
+- **Settings.** Profile, pair, fresh verification, and sign-out controls.
 
 Each account can join one active pair. Each pair has two people.
 Deseo uses pastel colors and the [Two voices icon](brand/icon-source.png).

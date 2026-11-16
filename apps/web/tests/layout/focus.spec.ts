@@ -38,13 +38,13 @@ test('skip link moves focus to the main content', async ({ page }) => {
 for (const width of [1440, 768]) {
   test(`navigation links follow in order with focus rings at ${width}px`, async ({ page }) => {
     await open(page, '/today', 'Today', width);
-    await tabTo(page, 'Your pair');
+    await tabTo(page, 'Today');
     const stops = [await focusState(page)];
-    for (let i = 0; i < 7; i++) {
+    for (let i = 0; i < 5; i++) {
       await page.keyboard.press('Tab');
       stops.push(await focusState(page));
     }
-    expect(stops.map(stop => stop?.name)).toEqual(['Your pair', 'Today', 'Calendar', 'Memories', 'Messages', 'Tasks', 'Notifications', 'Settings']);
+    expect(stops.map(stop => stop?.name)).toEqual(['Today', 'Calendar', 'Memories', 'Messages', 'Tasks', 'Settings']);
     for (const stop of stops) expect.soft(stop, stop?.name).toMatchObject({ ring: true, inView: true });
   });
 }
@@ -91,9 +91,7 @@ async function checkDialog(page: Page, trigger: string, dialog: string) {
   expect((await focusState(page))?.name).toBe(trigger);
 }
 
-test('account menu and delete dialog trap focus and return it', async ({ page, filledPair }) => {
-  await open(page, '/today', 'Today', 1440);
-  await checkDialog(page, 'Account menu', 'Your account');
+test('delete dialog traps focus and returns it', async ({ page, filledPair }) => {
   await open(page, `/tasks/${filledPair.ids.task}`, 'Task', 1440);
   await checkDialog(page, 'Delete task', 'Delete this task?');
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible();

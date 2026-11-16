@@ -25,7 +25,8 @@ The [router](../apps/web/src/app/router.tsx) defines the browser routes.
 The browser uses a sidebar, rail, or drawer. Expo keeps bottom tabs and native stacks.
 
 Entry routes cover Welcome, email codes, profile setup, invitations, joining, waiting, and ended pairs.
-Product routes cover Today, Calendar, events, ideas, tasks, lists, Messages, Memories, notifications, and Settings.
+Product routes cover Today, Calendar, events, ideas, tasks, lists, Messages, Memories, and Settings.
+The portal has no reminder or notification screens. The browser receives no push.
 Record URLs support reload and browser Back. Changed forms and unsent drafts warn before leaving.
 
 Browser shared rows, private images, and drafts stay in memory. Leaving the form or a reload discards a browser draft.
@@ -43,9 +44,8 @@ flowchart TD
   Choice -->|Yes| Confirm[Review inviter and join]
   Choice -->|No| Invite[Create or enter invitation]
   Invite --> Waiting[Wait for partner]
-  Confirm --> Welcome[Pair welcome]
-  Waiting --> Welcome
-  Welcome --> Today[Today]
+  Confirm --> Today[Today]
+  Waiting --> Today
   Today --> Sections[Calendar / Memories / Messages / Tasks]
   Today --> Settings[Pair avatar opens Settings]
 ```
@@ -87,7 +87,7 @@ Use Join pair as the only primary action. Keep Cancel available.
 | State | Behavior |
 |---|---|
 | Waiting | Invitation details and explicit refresh; realtime can update the state |
-| Partner joined | Confirm both names; continue to the pair welcome |
+| Partner joined | Open Today; the header shows both names |
 | Wrong or expired | One generic error; offer to enter a new invitation |
 | Already used | Explain that the invitation is unavailable |
 | Self-invitation | Explain that a second account is required |
@@ -95,7 +95,7 @@ Use Join pair as the only primary action. Keep Cancel available.
 | Pending pair exists | Allow cancellation of the empty pending pair before joining |
 | Race lost | Show the current server state; never show a third member |
 
-The pair welcome shows both names and **Your space is ready**. Offer Add your first event, then Continue to Today.
+After a join, both partners open Today. Its empty sections offer the first actions.
 
 ### Today
 
@@ -121,10 +121,8 @@ Show owner names beside colors. A private event appears only to its author, with
 | Location | Optional; 200 characters |
 | Description | Optional plain text; 2,000 characters |
 | Important date | All-day events only; optional yearly repeat |
-| Your reminder | None, 15 minutes, one hour, or one day before |
 
 Store the inclusive all-day end as an exclusive end date.
-All-day reminders count back from 09:00 in the event timezone. One day means 24 elapsed hours.
 Important dates default to the pair timezone. Timed events default to the creator's timezone.
 When the stored version changed, show a conflict screen. Offer Reload saved version or return to the draft.
 Never overwrite the partner's edit silently. Never merge text fields.
@@ -170,13 +168,11 @@ The author can change the caption or delete the memory. Saved copies stay outsid
 |---|---|
 | You | Display name, timezone |
 | Your pair | Partner identity, owner colors, pair timezone, invitation state |
-| Notifications | Event and task reminders, message alerts, quiet hours |
 | Account | Sign out, sign out of all devices |
 | Pair | End pair, apart from ordinary edits |
 
 Partner colors are blush and mint. Names identify people without color.
-Timezone changes affect future display and quiet hours. They never move stored event instants.
-Quiet hours are off by default. Each person sets them in their own timezone.
+Timezone changes affect future display. They never move stored event instants.
 End pair explains access loss. It needs a fresh email code.
 
 ### Common states

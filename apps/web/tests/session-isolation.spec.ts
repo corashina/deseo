@@ -7,10 +7,10 @@ test('sign out before pair response prevents stale partner identity', async ({ p
   const { a } = await pair();
   await signIn(page, a);
   await page.goto('/');
-  await expect(page.getByRole('heading', { name: 'Anna + Marek' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Today', level: 1 })).toBeVisible();
   const second = await context.newPage();
-  await second.goto('/');
-  await expect(second.getByRole('button', { name: 'Account menu' })).toBeVisible();
+  await second.goto('/settings/account');
+  await expect(second.getByRole('button', { name: 'Sign out on this browser' })).toBeVisible();
   let release!: () => void;
   let received!: () => void;
   const arrived = new Promise<void>(resolve => { received = resolve; });
@@ -21,8 +21,7 @@ test('sign out before pair response prevents stale partner identity', async ({ p
   });
   await page.reload({ waitUntil: 'domcontentloaded' });
   await arrived;
-  await second.getByRole('button', { name: 'Account menu' }).click();
-  await second.getByRole('button', { name: 'Sign out', exact: true }).click();
+  await second.getByRole('button', { name: 'Sign out on this browser' }).click();
   release();
   await expect(page.getByRole('link', { name: 'Continue with email' })).toBeVisible();
   await expect(page.locator('body')).not.toContainText('Marek');
@@ -32,7 +31,7 @@ test('disabled account cannot restore a cached session', async ({ page, pair, si
   const { a } = await pair();
   await signIn(page, a);
   await page.goto('/');
-  await expect(page.getByRole('heading', { name: 'Anna + Marek' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Today', level: 1 })).toBeVisible();
   const jwt = await page.evaluate(() => {
     const key = Object.keys(localStorage).find(k => k.endsWith('-auth-token'))!;
     return JSON.parse(localStorage.getItem(key)!).access_token as string;

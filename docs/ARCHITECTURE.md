@@ -413,8 +413,8 @@ Use the occurrence's local date in its unique key. Skip past reminder times and 
 
 The server expands yearly dates for agenda queries and reminder jobs. Native screens format those returned occurrences.
 
-Browser screens format the same occurrences. Both applications support None, 15 minutes, one hour, or one day before.
-Browser preferences and notification reads do not register native push devices or request browser push permission.
+Native screens support None, 15 minutes, one hour, or one day before.
+The web portal has no reminder, preference, or notification screens. It does not register native push devices or request browser push permission.
 
 Recheck current account status, pair membership, source existence/version, reminder preference, device status, and quiet hours before sending.
 

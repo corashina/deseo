@@ -4,7 +4,6 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { DateTime } from 'luxon';
 import { toAppError } from '@deseo/domain/result';
-import { ReminderControl } from '../../notifications';
 import { inclusiveEndDate } from '@deseo/domain/calendar';
 import { useSession } from '../../../app/SessionProvider';
 import { PageHeader } from '../../../components/ui/PageHeader';
@@ -74,10 +73,6 @@ export function EventDetailPage() {
         {event.location && <><dt>Location</dt><dd>{event.location}</dd></>}
         {event.description && <><dt>Description</dt><dd>{event.description}</dd></>}
       </dl>
-      <ReminderControl
-        key={event.id} eventId={event.id} sourceVersion={event.version}
-        allDay={event.temporal.kind === 'allDay'} timezone={event.timezone}
-      />
       <div className="actions">
         <Link to="/calendar">Return to calendar</Link>
         {editable && <Button variant="danger" disabled={remove.isPending} onClick={() => setConfirm(true)}>{remove.isError ? 'Retry deletion' : 'Delete event'}</Button>}

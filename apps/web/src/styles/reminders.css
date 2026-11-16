@@ -1,5 +1,0 @@
-.event-reminder { border-top:1px solid var(--line); padding:24px 0; margin:24px 0; max-width:480px; }
-.event-reminder > h2 { margin-bottom:16px; }
-.event-reminder .field:last-child { margin-bottom:0; }
-.event-reminder > .button { margin-top:16px; }
-@media (max-width:767px) { .event-reminder { margin:20px 0; padding:20px 0; } }
