@@ -8,7 +8,7 @@ const ellipsis = [
   '.topbar > button > span:last-child', // Long account names shorten in the top bar.
 ];
 
-// Check the STYLE.md section 6 rules that score 90 or more at the current width.
+// Check the DESIGN.md Layout rules that score 90 or more at the current width.
 export function checkLayout(page: Page, shell: boolean): Promise<Failure[]> {
   return page.evaluate(({ shell, ellipsis }) => {
     const out: Failure[] = [];
@@ -48,7 +48,7 @@ export function checkLayout(page: Page, shell: boolean): Promise<Failure[]> {
     }
 
     // Rule 3. 48px targets. Inline links in a sentence are exempt.
-    // Below 768px, STYLE.md lets month grid day buttons be narrower, but not lower.
+    // Below 768px, DESIGN.md lets month grid day buttons be narrower, but not lower.
     for (const el of document.querySelectorAll('a[href], button, input:not([type=hidden]), select, textarea, summary')) {
       if (!shown(el)) continue;
       if (el.matches('a') && getComputedStyle(el).display === 'inline') continue;
