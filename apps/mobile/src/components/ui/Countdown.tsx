@@ -1,7 +1,7 @@
 import { Text, View } from 'react-native';
 import { makeStyles, useTheme } from '../../theme';
 
-/** STYLE.md date countdown: number, unit, event name, absolute date. */
+/** DESIGN.md date countdown: number, unit, event name, absolute date. */
 export function Countdown({ days, title, date }: { days: number; title: string; date: string }) {
   const theme = useTheme();
   const styles = useStyles();

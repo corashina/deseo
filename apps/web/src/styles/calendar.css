@@ -45,7 +45,7 @@
 .event-fields .checkbox-field { display:flex; gap:12px; align-items:center; min-height:48px; margin-bottom:8px; cursor:pointer; }
 .event-fields input[type=checkbox] { width:22px; height:22px; }
 .form-section + .form-section { margin-top:16px; }
-.form-section h2 { font-size:20px; margin-bottom:16px; }
+.form-section h2 { font-size:19px; margin-bottom:16px; }
 .event-details { margin-bottom:24px; border-top:1px solid var(--line); }
 .event-details > summary { min-height:48px; padding:16px 0; font-weight:600; cursor:pointer; }
 .event-details-content { padding-top:8px; }
@@ -54,5 +54,5 @@
 .event-detail dt { color:var(--muted); }
 .event-detail dd { margin:0; overflow-wrap:anywhere; white-space:pre-wrap; }
 @media (max-width:1023px) { .month-day { padding:4px; } }
-@media (max-width:767px) { .calendar-card { padding:20px; } .calendar-date-controls { gap:8px; } .calendar-date-controls h2 { min-width:0; font-size:20px; } .calendar-date-controls .button { padding:8px 12px; } .calendar-filters { gap:16px; } .owner-filters { gap:4px; } .owner-filters button { padding:8px 10px; } .month-day { min-height:72px; padding:0; } .month-weekdays span { padding:8px 0; font-size:12px; } .day-number { width:100%; min-height:48px; border-radius:8px; } .day-events { display:none; } .day-count { display:block; font-size:11px; text-align:center; color:var(--muted); padding-bottom:8px; } .agenda-day { grid-template-columns:1fr; gap:8px; padding:16px 0; } .agenda-day h3 { margin-bottom:8px; } .form-grid { grid-template-columns:minmax(0,1fr); } .event-detail dl { grid-template-columns:1fr; gap:8px; } .event-detail dd { margin-bottom:16px; } }
+@media (max-width:767px) { .calendar-card { padding:20px; } .calendar-date-controls { gap:8px; } .calendar-date-controls h2 { min-width:0; font-size:19px; } .calendar-date-controls .button { padding:8px 12px; } .calendar-filters { gap:16px; } .owner-filters { gap:4px; } .owner-filters button { padding:8px 10px; } .month-day { min-height:72px; padding:0; } .month-weekdays span { padding:8px 0; font-size:12px; } .day-number { width:100%; min-height:48px; border-radius:8px; } .day-events { display:none; } .day-count { display:block; font-size:11px; text-align:center; color:var(--muted); padding-bottom:8px; } .agenda-day { grid-template-columns:1fr; gap:8px; padding:16px 0; } .agenda-day h3 { margin-bottom:8px; } .form-grid { grid-template-columns:minmax(0,1fr); } .event-detail dl { grid-template-columns:1fr; gap:8px; } .event-detail dd { margin-bottom:16px; } }
 

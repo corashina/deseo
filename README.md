@@ -40,7 +40,7 @@ Follow [Development](docs/DEVELOPMENT.md#setup) for local keys, seed data, and c
 | [Architecture](docs/ARCHITECTURE.md) | Modules, data, access, and lifecycle rules |
 | [Development](docs/DEVELOPMENT.md) | Setup, verification, remaining work, and release |
 | [Product](PRODUCT.md) | Purpose, scope, decisions, and glossary |
-| [Style](STYLE.md) | Colors, layout, controls, and writing |
+| [Design](DESIGN.md) | Colors, type, layout, components, and states |
 
 ## Workspace
 

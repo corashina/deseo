@@ -1,5 +1,5 @@
 import type { Page } from '@playwright/test';
-import { expect, type FilledPair } from '../support/test';
+import { endPair, expect, type FilledPair, type Fixtures } from '../support/test';
 
 // none: signed out. pair: Anna in the filled pair. The others get a new account in that state.
 export type As = 'none' | 'pair' | 'unpaired' | 'noProfile' | 'pending' | 'ended';
@@ -45,4 +45,30 @@ export async function ready(page: Page, title: string) {
   await expect(page).toHaveTitle(`${title} · Deseo`);
   await expect(page.getByRole('status').filter({ hasText: /^(Loading|Checking)/ })).toHaveCount(0);
   await page.waitForFunction(() => [...document.images].every(image => image.complete));
+}
+
+type Context = Fixtures & { filledPair: FilledPair };
+
+// Sign in as the screen needs, open it, and wait until it is ready.
+export async function openScreen(page: Page, screen: Screen, { filledPair, account, pendingPair, pair, signIn }: Context) {
+  // Create only the account this screen needs.
+  const person = await {
+    none: async () => null,
+    pair: async () => filledPair.a,
+    unpaired: () => account(),
+    noProfile: () => account(null),
+    pending: async () => (await pendingPair()).a,
+    ended: async () => { const ended = await pair(); await endPair(ended.a, ended.id); return ended.a; },
+  }[screen.as]();
+  if (person) await signIn(page, person);
+  if (screen.path(filledPair.ids) === '/verify') {
+    // The code screen needs an email request first. Answer it here, so no email is sent.
+    await page.route('**/auth/v1/otp', route => route.fulfill({ status: 200, json: {} }));
+    await page.goto('/sign-in');
+    await page.getByLabel('Email address').fill('layout@example.test');
+    await page.getByRole('button', { name: 'Send code', exact: true }).click();
+  } else {
+    await page.goto(screen.path(filledPair.ids));
+  }
+  await ready(page, screen.title);
 }
