@@ -13,9 +13,10 @@ import { finePointer } from '../../../../lib/pointer';
 import { PageHeader } from '../../../../components/ui/PageHeader';
 import { Button } from '../../../../components/ui/Button';
 import { Status } from '../../../../components/ui/Status';
-import { Dialog } from '../../../../components/ui/Dialog';
+import { Field } from '../../../../components/ui/Field';
+import { useReturnTo } from '../../../../lib/return-to';
 import { getDateIdea, ideaKeys } from '../queries';
-import { archiveIdea, createIdea, updateIdea } from '../commands';
+import { createIdea, updateIdea } from '../commands';
 import '../../../../styles/planning.css';
 type Fields = {
   title: string;
@@ -47,7 +48,7 @@ function IdeaEditor({ idea }: {
   // Keep the version the draft started from. A concurrent edit then fails with CONFLICT.
   const [version, setVersion] = useState(idea?.version);
   const command = useCommandId();
-  const [confirm, setConfirm] = useState(false);
+  const back = useReturnTo('/ideas');
   const form = useForm<Fields>({ resolver: zodResolver(ideaFieldsSchema), defaultValues: idea ? fields(idea) : { title: '', note: '', link: '' } });
   const save = useMutation({ mutationFn: (values: Fields) => {
     const input: IdeaInput = { ...values, id, pairId: pair.pairId };
@@ -63,55 +64,37 @@ function IdeaEditor({ idea }: {
     },
     onSuccess: () => save.reset(),
   });
-  const archive = useMutation({ mutationFn: () => archiveIdea(idea!.id, version!), onSuccess: () => navigate('/ideas'), onSettled: () => setConfirm(false) });
-  const failure = save.isError ? toAppError(save.error) : archive.isError ? toAppError(archive.error) : null;
+  const failure = save.isError ? toAppError(save.error) : null;
   const conflict = failure?.code === 'CONFLICT';
   const error = reload.isError ? toAppError(reload.error).message : conflict ? 'This idea changed. Your draft is kept.' : failure?.message ?? '';
-  const saving = save.isPending || reload.isPending || archive.isPending;
+  const saving = save.isPending || reload.isPending;
   useUnsavedChanges(!save.isSuccess && form.formState.isDirty);
   useEffect(() => {
     if (save.isSuccess)
-      navigate('/ideas', { replace: true });
-  }, [save.isSuccess, navigate]);
+      navigate('/ideas/' + id, { replace: true, state: { from: back } });
+  }, [save.isSuccess, navigate, id, back]);
+  const errors = form.formState.errors;
+  const noteError = errors.note?.message;
   return <>
-    <PageHeader title={idea ? 'Edit idea' : 'Add idea'} description="Keep a note and an optional HTTPS link." />
+    <PageHeader title={idea ? 'Edit idea' : 'Add idea'} />
     <section className="card form-page">
       <form onSubmit={form.handleSubmit(values => save.mutate(values))}>
         <fieldset disabled={saving}>
-          <label className="field">
-            <span>Title</span>
-            <input {...form.register('title')} autoComplete="off" maxLength={120} required autoFocus={finePointer} />
-          </label>
-          <label className="field">
+          <Field label="Title" {...form.register('title')} maxLength={120} required autoFocus={finePointer} error={errors.title?.message} />
+          <label className="field" htmlFor={id + '-note'}>
             <span>Note</span>
-            <textarea {...form.register('note')} autoComplete="off" maxLength={1000} rows={4} />
+            <textarea id={id + '-note'} {...form.register('note')} autoComplete="off" maxLength={1000} rows={4} aria-invalid={Boolean(noteError)} aria-describedby={noteError ? id + '-note-error' : undefined} />
+            {noteError && <span className="field-error" role="alert" id={id + '-note-error'}>{noteError}</span>}
           </label>
-          <label className="field">
-            <span>Link</span>
-            <input {...form.register('link')} type="text" inputMode="url" autoComplete="off" spellCheck={false} maxLength={2048} />
-          </label>
-          {Object.entries(form.formState.errors).map(([field, error]) => <p role="alert" key={field}>{error.message}
-          </p>)}
+          <Field label="Link" {...form.register('link')} type="text" inputMode="url" spellCheck={false} maxLength={2048} hint="Optional. Starts with https://" error={errors.link?.message} />
         </fieldset>
-        {error && <Status error>{error}
-        </Status>}
-        {conflict && <Button disabled={saving} variant="secondary" type="button" onClick={() => { archive.reset(); reload.mutate(); }}>Reload idea and discard draft</Button>}
+        {error && <Status error>{error}</Status>}
+        {conflict && <Button disabled={saving} variant="secondary" type="button" onClick={() => reload.mutate()}>Reload idea and discard draft</Button>}
         <div className="actions">
-          <Button variant="primary" type="submit" disabled={saving || conflict}>{saving ? 'Saving…' : failure ? 'Retry save' : idea ? 'Save changes' : 'Save idea'}
-          </Button>
-          <Link to="/ideas">Cancel</Link>
+          <Button variant="primary" type="submit" disabled={saving || conflict}>{saving ? 'Saving…' : failure ? 'Retry save' : idea ? 'Save changes' : 'Save idea'}</Button>
+          <Link className="button secondary" to={idea ? '/ideas/' + idea.id : back} state={{ from: back }}>Cancel</Link>
         </div>
       </form>
-      {idea && <div className="actions idea-actions">
-        {idea.state === 'saved' && <Link className="button primary" to={'/events/new?idea=' + idea.id}>Plan date</Link>}
-        {idea.linkedEventId && <Link to={'/events/' + idea.linkedEventId}>View planned event</Link>}
-        {idea.link && <a href={idea.link} target="_blank" rel="noopener noreferrer">Open idea link</a>}
-        {idea.state !== 'archived' && <Button variant="secondary" disabled={saving} onClick={() => setConfirm(true)}>{archive.isError ? 'Retry archive' : 'Archive idea'}</Button>}
-      </div>}
     </section>
-    <Dialog busy={archive.isPending} open={confirm} title="Archive this idea?" onClose={() => setConfirm(false)}>
-      <p>You can find this idea in Archived.</p>
-      <Button variant="primary" disabled={archive.isPending} onClick={() => archive.mutate()}>Confirm archive</Button>
-    </Dialog>
   </>;
 }

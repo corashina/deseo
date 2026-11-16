@@ -11,6 +11,8 @@ import { Status } from '../../../components/ui/Status';
 import { formatDate, formatRange } from '../../../lib/format';
 import { Button } from '../../../components/ui/Button';
 import { Dialog } from '../../../components/ui/Dialog';
+import { PartnerBadge } from '../../../components/ui/PartnerBadge';
+import { useReturnTo } from '../../../lib/return-to';
 import { calendarKeys, getEvent } from '../queries';
 import { deleteEvent } from '../commands';
 import '../../../styles/calendar.css';
@@ -20,13 +22,14 @@ export function EventDetailPage() {
   const { account, pair } = useSession();
   const navigate = useNavigate();
   const [confirm, setConfirm] = useState(false);
+  const back = useReturnTo('/calendar');
   const pairId = pair?.status === 'active' ? pair.pairId : '';
   const query = useQuery({
     queryKey: calendarKeys.event(account!.id, pairId, eventId),
     queryFn: () => getEvent(pairId, eventId),
     enabled: Boolean(pairId),
   });
-  const remove = useMutation({ mutationFn: (version: number) => deleteEvent(eventId, version), onSuccess: () => navigate('/calendar'), onError: () => void query.refetch(), onSettled: () => setConfirm(false) });
+  const remove = useMutation({ mutationFn: (version: number) => deleteEvent(eventId, version), onSuccess: () => navigate(back), onError: () => void query.refetch(), onSettled: () => setConfirm(false) });
   const error = remove.isError ? toAppError(remove.error).code === 'CONFLICT'
     ? 'This event changed. Review it before deleting.'
     : toAppError(remove.error).message : '';
@@ -57,9 +60,10 @@ export function EventDetailPage() {
   const editable = event.visibility === 'shared' || event.authorId === account!.id;
   return <>
     <PageHeader
+      eyebrow="Event"
       title={event.title}
-      description={names[event.owner]}
-      action={editable && <Link className="button secondary" to={'/events/' + event.id + '/edit'}>Edit event</Link>}
+      description={<PartnerBadge name={names[event.owner]} slot={event.owner} />}
+      action={editable && <Link className="button secondary" to={'/events/' + event.id + '/edit'} state={{ from: back }}>Edit event</Link>}
     />
     <section className="card event-detail">
       <dl>
@@ -70,11 +74,11 @@ export function EventDetailPage() {
         {event.location && <><dt>Location</dt><dd>{event.location}</dd></>}
         {event.description && <><dt>Description</dt><dd>{event.description}</dd></>}
       </dl>
-      <div className="actions">
-        <Link to="/calendar">Return to calendar</Link>
-        {editable && <Button variant="danger" disabled={remove.isPending} onClick={() => setConfirm(true)}>{remove.isError ? 'Retry deletion' : 'Delete event'}</Button>}
-      </div>
       {error && <Status error>{error}</Status>}
+      <div className="actions">
+        <Link to={back}>Return to calendar</Link>
+        {editable && <Button variant="secondary" disabled={remove.isPending} onClick={() => setConfirm(true)}>{remove.isError ? 'Retry deletion' : 'Delete event'}</Button>}
+      </div>
     </section>
     <Dialog busy={remove.isPending} title="Delete this event?" open={confirm} onClose={() => setConfirm(false)}>
       <p>{event.visibility === 'private' ? 'You will lose access to this event.' : 'Both partners will lose access to this event.'}</p>

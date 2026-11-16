@@ -1,16 +1,19 @@
-import { useState } from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import type { IdeaState } from '@deseo/domain/calendar';
 import { useSession } from '../../../../app/SessionProvider';
 import { PageHeader } from '../../../../components/ui/PageHeader';
 import { Button } from '../../../../components/ui/Button';
 import { Status } from '../../../../components/ui/Status';
 import { listDateIdeas, ideaKeys } from '../queries';
+import { useFrom, useReturnTo } from '../../../../lib/return-to';
 import '../../../../styles/planning.css';
 export function IdeasPage() {
   const { account, pair } = useSession();
-  const [state, setState] = useState<IdeaState>('saved');
+  const [params, setParams] = useSearchParams();
+  const state: IdeaState = params.get('state') === 'planned' || params.get('state') === 'archived' ? params.get('state') as IdeaState : 'saved';
+  const back = useReturnTo('/calendar');
+  const from = useFrom();
   const pairId = pair?.status === 'active' ? pair.pairId : '';
   const query = useInfiniteQuery({
     queryKey: ideaKeys.list(account!.id, pairId, state),
@@ -24,10 +27,10 @@ export function IdeasPage() {
       description="Save something you want to do together."
       action={<Link className="button primary" to="/ideas/new">Add idea</Link>} />
     <div className="section-heading">
-      <div className="view-tabs">{(['saved', 'planned', 'archived'] as const).map(value => <button key={value} aria-pressed={state === value} onClick={() => setState(value)}>{value[0].toUpperCase() + value.slice(1)}
+      <div className="view-tabs">{(['saved', 'planned', 'archived'] as const).map(value => <button key={value} aria-pressed={state === value} onClick={() => setParams({ state: value }, { replace: true, state: { from: back } })}>{value[0].toUpperCase() + value.slice(1)}
       </button>)}
       </div>
-      <Link to="/calendar">Return to calendar</Link>
+      <Link to={back}>Return to calendar</Link>
     </div>
     {query.isPending ? <Status>Loading ideas…</Status> : query.isError ? <>
       <Status error>We could not load ideas.</Status>
@@ -35,7 +38,7 @@ export function IdeasPage() {
     </> : <>
       <div className="idea-grid">{query.data.pages.flatMap(page => page.items).map(idea => <article className="card" key={idea.id}>
         <h2>
-          <Link to={'/ideas/' + idea.id}>{idea.title}
+          <Link to={'/ideas/' + idea.id} state={from}>{idea.title}
           </Link>
         </h2>
         {idea.note && <p className="preserve-lines">{idea.note}

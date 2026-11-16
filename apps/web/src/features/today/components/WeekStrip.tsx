@@ -25,7 +25,7 @@ export function WeekStrip({ date, events, zone, locale }: { date: string; events
     <li key={iso} aria-current={iso === date ? 'date' : undefined}>
       <span className="week-strip-name">{formatDate(day, 'weekdayName', locale)}</span>
       <span className="week-strip-number">{day.day}</span>
-      <span className="week-strip-dots" aria-hidden="true">{owners.map(owner => <span key={owner} className={'owner-' + owner} />)}</span>
+      <span className="owner-dots" aria-hidden="true">{owners.map(owner => <span key={owner} className={'owner-' + owner} />)}</span>
       <span className="visually-hidden">{count === 1 ? '1 plan' : count + ' plans'}</span>
     </li>)}</ol>;
 }

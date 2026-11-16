@@ -43,10 +43,6 @@
 .week-strip-name { font-size:12px; color:var(--muted); }
 .week-strip li[aria-current=date] .week-strip-name { color:var(--on-action); }
 .week-strip-number { font-size:16px; font-weight:700; font-variant-numeric:tabular-nums; }
-.week-strip-dots { display:flex; gap:3px; min-height:6px; }
-.week-strip-dots span { width:6px; height:6px; border-radius:50%; background:var(--shared-accent); }
-.week-strip-dots .owner-a { background:var(--rose-accent); }
-.week-strip-dots .owner-b { background:var(--teal-accent); }
 .next-plan { display:flex; flex-direction:column; gap:4px; margin-bottom:24px; padding:24px 28px; border-radius:var(--radius-card); background:var(--shared-soft); color:var(--shared); text-decoration:none; box-shadow:0 12px 40px -16px var(--shared-accent); overflow-wrap:anywhere; transition:transform var(--duration-feedback) var(--ease); }
 .next-plan.owner-a { background:var(--rose-soft); color:var(--rose); box-shadow:0 12px 40px -16px var(--rose-accent); }
 .next-plan.owner-b { background:var(--teal-soft); color:var(--teal); box-shadow:0 12px 40px -16px var(--teal-accent); }

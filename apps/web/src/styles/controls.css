@@ -32,6 +32,12 @@
 .avatar { display: inline-flex; width: 32px; height: 32px; border-radius: 50%; align-items: center; justify-content: center; flex-shrink: 0; font-size: 14px; font-weight: 600; }
 .slot-a { background: var(--rose-soft); color: var(--rose); }
 .slot-b { background: var(--teal-soft); color: var(--teal); }
+.slot-together { background: var(--shared-soft); color: var(--shared); }
+/* Owner dots: one dot per owner with plans on that day. */
+.owner-dots { display: flex; gap: 3px; min-height: 6px; }
+.owner-dots span { width: 6px; height: 6px; border-radius: 50%; background: var(--shared-accent); }
+.owner-dots .owner-a { background: var(--rose-accent); }
+.owner-dots .owner-b { background: var(--teal-accent); }
 /* Partner badge: a name in its owner color. */
 .partner-badge { display: inline-flex; align-items: center; border-radius: var(--radius-badge); padding: 2px var(--space-2); font-size: 12px; font-weight: 600; line-height: 1.4; overflow-wrap: anywhere; }
 dialog { border: 1px solid var(--line); border-radius: var(--radius-card); padding: var(--space-6); color: var(--ink); background: var(--surface); box-shadow: var(--shadow-popover); width: min(480px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); overflow: auto; overscroll-behavior: contain; }
@@ -39,7 +45,8 @@ dialog::backdrop { background: var(--backdrop); }
 .dialog-heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-4); margin-bottom: var(--space-6); }
 .dialog-heading h2 { margin: 0; }
 .view-tabs { display:flex; gap:var(--space-1); flex-wrap:wrap; padding:var(--space-1); background:var(--canvas); border:1px solid var(--line); border-radius:var(--radius-control); }
-.view-tabs button { min-height:var(--nav-target); border:1px solid transparent; border-radius:var(--radius-badge); background:transparent; padding:var(--space-2) var(--space-4); color:var(--ink); cursor:pointer; }
-.view-tabs button:hover { background: var(--sidebar); }
-.view-tabs button[aria-pressed=true] { background:var(--shared-soft); border-color:var(--control); color:var(--link); font-weight:600; }
+/* Segmented control: the pressed segment is a raised surface. Owner color stays for owner segments only. */
+.view-tabs button { display:inline-flex; align-items:center; justify-content:center; gap:var(--space-2); min-height:var(--nav-target); border:1px solid transparent; border-radius:var(--radius-badge); background:transparent; padding:var(--space-2) var(--space-4); color:var(--muted); font-size:15px; font-weight:600; line-height:1.4; cursor:pointer; }
+.view-tabs button:hover { background: var(--surface); color: var(--ink); }
+.view-tabs button[aria-pressed=true] { background:var(--surface); border-color:var(--line); color:var(--ink); box-shadow:var(--shadow-selected); }
 @media (max-width:767px) { .view-tabs { width:100%; } .view-tabs button { flex:1; padding:var(--space-2); } }
