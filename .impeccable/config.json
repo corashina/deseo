@@ -1,0 +1,13 @@
+{
+  "detector": {
+    "ignoreRules": [
+      "low-contrast",
+      "gray-on-color",
+      "skipped-heading"
+    ],
+    "ignoreFiles": [
+      "apps/mobile/**"
+    ],
+    "ignoreValues": []
+  }
+}

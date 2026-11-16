@@ -8,7 +8,7 @@ Both use shared domain contracts and one backend. Work targets the portal first;
 | [Architecture](ARCHITECTURE.md) | Modules, data, access, and lifecycle rules |
 | [Development](DEVELOPMENT.md) | Setup, verification, remaining work, and release |
 | [Product](../PRODUCT.md) | Purpose, scope, open decisions, and glossary |
-| [Style](../STYLE.md) | Colors, layout, controls, and writing |
+| [Design](../DESIGN.md) | Colors, type, layout, components, and states |
 | [Contributor rules](../AGENTS.md) | Change rules |
 
 Keep three Markdown files in `docs/`. Put visual assets in `design/`; do not add folders inside `docs/`.

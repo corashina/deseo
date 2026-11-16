@@ -14,7 +14,7 @@
 - Read [README.md](README.md), [PRODUCT.md](PRODUCT.md), and [the documentation index](docs/README.md) before product work.
 - Use the terms in [the glossary](PRODUCT.md#glossary).
 - Follow [the architecture](docs/ARCHITECTURE.md) and [data contract](docs/ARCHITECTURE.md#data-contract) for module and access rules.
-- Follow [STYLE.md](STYLE.md) for frontend design, colors, layout, components, and interaction rules.
+- Follow [DESIGN.md](DESIGN.md) for frontend design, colors, layout, components, and interaction rules.
 
 - Keep exactly three Markdown files in `docs`: `README.md`, `ARCHITECTURE.md`, and `DEVELOPMENT.md`.
 - Do not create folders inside `docs`. Merge new documentation into these files. Keep visual assets in `design`.

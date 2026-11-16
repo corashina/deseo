@@ -219,7 +219,7 @@ async function createFilledPair(created: Account[]): Promise<FilledPair> {
   return { ...pair, ids: { event: events[0], list, task: tasks[0], idea, memory: memories[0].id } };
 }
 
-type Fixtures = {
+export type Fixtures = {
   account: (name?: string | null) => Promise<Account>;
   pendingPair: (name?: string) => Promise<PendingPair>;
   pair: (names?: [string, string]) => Promise<Pair>;

@@ -7,7 +7,7 @@ Record unrun checks as pending. A requirement in this file does not prove that a
 ## Setup
 
 Use Node 24.18.0, npm 11.16.0, Docker, and the committed root lockfile.
-Read [Contributor rules](../AGENTS.md), [Style](../STYLE.md), [Screens](README.md#screens), and [Architecture](ARCHITECTURE.md) before product work.
+Read [Contributor rules](../AGENTS.md), [Design](../DESIGN.md), [Screens](README.md#screens), and [Architecture](ARCHITECTURE.md) before product work.
 
 ### Scripts
 
@@ -141,7 +141,7 @@ Generate database types after schema changes. Keep account, pair, and private-st
 
 ### Web interface rules
 
-The portal follows the [Web Interface Guidelines](https://github.com/vercel-labs/web-interface-guidelines) where AGENTS.md and STYLE.md allow.
+The portal follows the [Web Interface Guidelines](https://github.com/vercel-labs/web-interface-guidelines) where AGENTS.md and DESIGN.md allow.
 
 - Format dates and times with `lib/format.ts`. It uses `Intl`, the account locale, and an explicit timezone.
 - Give each controlled input a `name`. `Field` sets `autocomplete="off"` unless the caller sets a value.

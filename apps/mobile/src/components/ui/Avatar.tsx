@@ -12,7 +12,7 @@ export function Avatar({ name, slot = 'a', size = 48 }: { name: string; slot?: '
   </View>;
 }
 
-/** Both partners' avatars as one control. STYLE.md opens pair settings from here. */
+/** Both partners' avatars as one control. DESIGN.md opens pair settings from here. */
 export function PairAvatars({ members, onPress }: { members: { displayName: string; slot: 'a' | 'b' }[]; onPress: () => void }) {
   const styles = useStyles();
   const sorted = [...members].sort((left, right) => left.slot.localeCompare(right.slot));

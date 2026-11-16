@@ -56,9 +56,11 @@ Use [the data contract](docs/ARCHITECTURE.md#data-contract) for permissions, dat
 ## Brand Commitments
 
 The owner selected the Deseo name, pastel styling, and the Two voices icon.
-Use [STYLE.md](STYLE.md) for visual rules and [the selected icon](brand/icon-source.png).
+Use [DESIGN.md](DESIGN.md) for visual rules and [the selected icon](brand/icon-source.png).
 Write short sentences, name concrete actions, and describe the actual state.
-Keep instructions within 20 words. Use [unslop](https://github.com/michael-denyer/pstack-claude/blob/main/plugins/pstack/skills/unslop/SKILL.md) for UI text and documentation.
+Keep instructions within 20 words. Use terms from [the glossary](#glossary).
+Write button labels as actions: Add event, Save changes, Send message, Upload photo, Retry.
+Avoid guilt, inflated praise, vague promises, and relationship scoring. Use [unslop](https://github.com/michael-denyer/pstack-claude/blob/main/plugins/pstack/skills/unslop/SKILL.md) for UI text and documentation.
 
 ## Evidence on Hand
 
@@ -82,7 +84,7 @@ The project provides no confirmed customer testimonials, usage claims, store app
 Support keyboard navigation, visible focus, labeled controls, screen readers, and browser zoom.
 Use names and labels alongside ownership colors.
 Require 4.5:1 contrast for normal text and 3:1 for essential control boundaries and focus indicators.
-Use [STYLE.md](STYLE.md) for the full accessibility and release checks.
+Use [DESIGN.md](DESIGN.md) for the full accessibility and release checks.
 
 ## Open Decisions
 
