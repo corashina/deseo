@@ -13,6 +13,8 @@ colors:
   on-action: "#413852"
   action-border: "#786A8B"
   link: "#60527C"
+  primary: "#60527C"
+  on-primary: "#FFFFFF"
   sidebar: "#F3EEF7"
   rose-accent: "#DCA9BD"
   teal-accent: "#A7CEC1"
@@ -43,6 +45,8 @@ colors:
   on-action-dark: "#F1EBFA"
   action-border-dark: "#9C8CB3"
   link-dark: "#C9B8EA"
+  primary-dark: "#C9B8EA"
+  on-primary-dark: "#1C1A22"
   sidebar-dark: "#221F29"
   rose-accent-dark: "#8A5468"
   teal-accent-dark: "#4C7C70"
@@ -64,56 +68,63 @@ colors:
   danger-soft-dark: "#3E2227"
 typography:
   display:
-    fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif"
+    fontFamily: "Manrope Variable, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif"
     fontSize: "48px"
     fontWeight: 700
     lineHeight: 1.2
     letterSpacing: "-0.03em"
   display-mobile:
-    fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif"
+    fontFamily: "Manrope Variable, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif"
     fontSize: "36px"
     fontWeight: 700
     lineHeight: 1.2
     letterSpacing: "-0.03em"
   headline:
-    fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif"
-    fontSize: "36px"
-    fontWeight: 700
-    lineHeight: 1.2
-    letterSpacing: "-0.03em"
+    fontFamily: "Manrope Variable, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif"
+    fontSize: "40px"
+    fontWeight: 800
+    lineHeight: 1.1
+    letterSpacing: "-0.035em"
   headline-mobile:
-    fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif"
+    fontFamily: "Manrope Variable, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif"
     fontSize: "30px"
-    fontWeight: 700
-    lineHeight: 1.2
-    letterSpacing: "-0.03em"
+    fontWeight: 800
+    lineHeight: 1.1
+    letterSpacing: "-0.035em"
   title:
-    fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif"
-    fontSize: "20px"
-    fontWeight: 650
+    fontFamily: "Manrope Variable, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif"
+    fontSize: "19px"
+    fontWeight: 700
     lineHeight: 1.3
+    letterSpacing: "-0.015em"
+  eyebrow:
+    fontFamily: "Manrope Variable, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif"
+    fontSize: "12px"
+    fontWeight: 700
+    lineHeight: 1.5
+    letterSpacing: "0.06em"
   body:
-    fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif"
+    fontFamily: "Manrope Variable, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif"
     fontSize: "16px"
     fontWeight: 400
     lineHeight: 1.5
   body-small:
-    fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif"
+    fontFamily: "Manrope Variable, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif"
     fontSize: "14px"
     fontWeight: 400
     lineHeight: 1.5
   button:
-    fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif"
+    fontFamily: "Manrope Variable, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif"
     fontSize: "15px"
     fontWeight: 600
     lineHeight: 1.4
   nav-label:
-    fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif"
+    fontFamily: "Manrope Variable, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif"
     fontSize: "15px"
     fontWeight: 550
     lineHeight: 1.4
   badge:
-    fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif"
+    fontFamily: "Manrope Variable, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif"
     fontSize: "12px"
     fontWeight: 600
     lineHeight: 1.4
@@ -133,14 +144,12 @@ spacing:
   "10": "40px"
 components:
   button-primary:
-    backgroundColor: "{colors.action}"
-    textColor: "{colors.on-action}"
+    backgroundColor: "{colors.primary}"
+    textColor: "{colors.on-primary}"
     typography: "{typography.button}"
     rounded: "{rounded.control}"
     padding: "12px 16px"
     height: "48px"
-  button-primary-hover:
-    backgroundColor: "{colors.action-hover}"
   button-secondary:
     backgroundColor: "{colors.surface}"
     textColor: "{colors.ink}"
@@ -207,7 +216,7 @@ Planning screens are compact. Personal screens give photos and notes more space.
 - Pastel fills with dark text and dark essential boundaries.
 - A stable color for each partner, always shown with a name.
 - Flat cards with one-pixel borders; shadows only on popovers, dialogs, and selected navigation.
-- System sans-serif type and real text for labels and numbers.
+- Manrope type in the browser and real text for labels and numbers.
 
 ### Platforms
 
@@ -227,7 +236,8 @@ The frontmatter holds both palettes: light keys have no suffix, and dark keys en
 
 ### Primary
 
-- **Lilac Action** (`action` #DDD4EE, dark #4A3F5E): main buttons and selected dates. `action-hover` (#D2C6E7) on hover.
+- **Plum Primary** (`primary` #60527C, dark #C9B8EA; `on-primary` #FFFFFF, dark #1C1A22): the one main button of a page.
+- **Lilac Action** (`action` #DDD4EE, dark #4A3F5E): selected navigation and selected dates. `action-hover` (#D2C6E7) on hover.
 - **Deep Plum Text on Action** (`on-action` #413852): text on pastel action surfaces.
 - **Plum Action Border** (`action-border` #786A8B): pastel action boundary.
 - **Plum Link** (`link` #60527C): text buttons and links.
@@ -274,6 +284,7 @@ Every dark text color passes 4.5:1 on canvas, surface, sidebar, note, and its ow
 | Ink / surface | 11.88:1 | 13.41:1 |
 | Muted / canvas | 5.30:1 | 7.72:1 |
 | Action text / action | 7.70:1 | 8.32:1 |
+| On primary / primary | 7.01:1 | 9.45:1 |
 | Rose / rose-soft | 5.64:1 | 7.22:1 |
 | Teal / teal-soft | 5.15:1 | 7.53:1 |
 | Shared / shared-soft | 5.65:1 | 7.72:1 |
@@ -287,18 +298,19 @@ Sources: [WCAG text contrast](https://www.w3.org/WAI/WCAG22/Understanding/contra
 
 ## Typography
 
-**Body Font:** the system sans-serif stack (`system-ui`, `-apple-system`, `BlinkMacSystemFont`, `Segoe UI`, `sans-serif`).
+**Body Font:** Manrope in the browser, bundled through `@fontsource-variable/manrope`. The system sans-serif stack is the fallback. Native screens use the system font.
 
-**Character:** plain and familiar, so names, dates, and photos carry the personality.
+**Character:** rounded and friendly, with heavy titles. Names, dates, and photos carry the personality.
 
 ### Hierarchy
 
 | Role | Desktop | Mobile | Weight / line height |
 |---|---|---|---|
 | Browser welcome title (display) | 48px | 36px | 700 / 1.2 |
-| Browser page title (headline) | 36px | 30px | 700 / 1.2 |
+| Browser page title (headline) | 40px | 30px | 800 / 1.1 |
 | Native page title | 28dp | 28dp | 700 / 34dp |
-| Section title (title) | 20px | 20px | 650 / 1.3 |
+| Section title (title) | 19px | 19px | 700 / 1.3 |
+| Eyebrow above a title (eyebrow) | 12px | 12px | 700 / 1.5, uppercase |
 | Body and input | 16px | 16px | 400 / 1.5 |
 | Button | 15px | 15px | 600 / 1.4 |
 | Secondary text | 14px | 14px | 400 / 1.5 |
@@ -308,7 +320,7 @@ Sources: [WCAG text contrast](https://www.w3.org/WAI/WCAG22/Understanding/contra
 
 Use real text for labels and numbers. Use tabular numbers for times and countdowns.
 Use uppercase only for short decorative labels. Keep instructions and controls in sentence case.
-Limit title tracking to `-0.03em`.
+Limit title tracking to `-0.035em`.
 
 ## Layout
 
@@ -376,7 +388,7 @@ Reuse EventRow, MemoryCard, NoteCard, and TaskRow across callers on each platfor
 
 ### Buttons
 
-- **Primary:** `action` fill, `on-action` text, `action-border` border, 12px corners, 48px high. Use one primary button per form.
+- **Primary:** `primary` fill, `on-primary` text, 700 weight, 12px corners, 48px high. Use one primary button per page or form.
 - **Secondary:** surface fill and `control` border. Use it for Cancel.
 - **Text:** `link` color. Use it for section links and small edits.
 - **Destructive:** `danger` fill.
@@ -406,7 +418,10 @@ On narrow screens, the account avatar in the header opens Settings.
 
 ### Screens
 
-**Today.** Show at most three upcoming events. Show one main action, **Add event**. Section actions are text buttons.
+**Today.** Show the date in the eyebrow above the title. Show at most three upcoming events.
+Show a seven-day strip above them, with one dot per owner on each day that has a plan.
+Upcoming plans and Due tasks are bordered cards. The note and the important date use fills without borders.
+Show one main action, **Add event**. Section actions are text buttons.
 Keyboard order matches the visual order.
 
 **Calendar.** Show the month, owner legend, and view control above the calendar. Date ideas and Add event go in the header.

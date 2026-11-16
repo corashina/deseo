@@ -14,6 +14,7 @@ import { TaskRow, useTaskSignals } from '../../tasks';
 import { NoteCard } from '../../messages';
 import '../../../styles/messages.css';
 import { getToday, todayKeys } from '../queries';
+import { WeekStrip } from '../components/WeekStrip';
 import '../../../styles/calendar.css';
 import '../../../styles/planning.css';
 export function TodayPage() {
@@ -34,7 +35,8 @@ export function TodayPage() {
   return <>
     <PageHeader
       title="Today"
-      description={<>{formatDate(DateTime.fromISO(date), 'weekday', account!.locale)}{zone !== account!.timezone && <> · <span translate="no">{zone}</span></>}</>}
+      eyebrow={formatDate(DateTime.fromISO(date), 'weekday', account!.locale)}
+      description={zone !== account!.timezone ? <span translate="no">{zone}</span> : undefined}
       action={<Link className="button primary" to="/events/new">Add event</Link>} />
     {query.isPending ? <Status>Loading Today…</Status> : query.isError ? <>
       <Status error>We could not load Today.</Status>
@@ -45,6 +47,7 @@ export function TodayPage() {
             <h2>Upcoming plans</h2>
             <Link to="/calendar">View calendar</Link>
           </div>
+          <WeekStrip date={date} events={query.data.agenda} zone={zone} locale={account!.locale} />
           {query.data.agenda.length ? query.data.agenda.slice(0, 3).map(event => <EventRow
             key={event.id + (event.temporal.kind === 'allDay' ? event.temporal.startDate : event.temporal.startsAt)}
             event={event}

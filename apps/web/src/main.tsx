@@ -5,6 +5,7 @@ import { queryClient } from './lib/query-client';
 import { getSupabase } from './lib/supabase';
 import { router } from './app/router';
 import tokens from '../../../brand/tokens.json';
+import '@fontsource-variable/manrope/index.css';
 import './styles/tokens.css';
 import './styles/base.css';
 import './styles/shell.css';

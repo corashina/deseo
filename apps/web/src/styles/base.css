@@ -11,10 +11,11 @@ button, input, textarea, select { font: inherit; }
 select { background-color: var(--surface); color: var(--ink); }
 a { color: var(--link); text-underline-offset: 4px; }
 h1, h2, h3, p { margin-top: 0; overflow-wrap: anywhere; }
-h1 { font-size: 36px; line-height: 1.2; letter-spacing: -.025em; margin-bottom: 12px; font-weight: 700; text-wrap: balance; }
-h2 { font-size: 20px; line-height: 1.3; font-weight: 650; letter-spacing: -.015em; }
+h1 { font-size: 40px; line-height: 1.1; letter-spacing: -.035em; margin-bottom: 12px; font-weight: 800; text-wrap: balance; }
+h2 { font-size: 19px; line-height: 1.3; font-weight: 700; letter-spacing: -.015em; }
 h2, h3 { text-wrap: balance; }
 :focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+.eyebrow { display: block; margin-bottom: 6px; font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
 .muted { color: var(--muted); font-size: 14px; }
 .preserve-lines { white-space: pre-wrap; overflow-wrap: anywhere; }
 .card { min-width: 0; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-card); padding: 24px; }
@@ -53,3 +54,4 @@ h2, h3 { text-wrap: balance; }
 .entry-card .button { width: 100%; margin-bottom: 24px; }
 .entry-card .muted { margin-bottom: 0; }
 @media (max-width: 767px) { h1 { font-size: 30px; } .card { padding: 20px; } .pair-grid { grid-template-columns: 1fr; gap: 16px; } .entry-container { padding: 16px; } .entry-page { grid-template-columns: 1fr; align-content: start; gap: 24px; padding: 32px 0; } .entry-story { padding: 24px; } .entry-story h1 { font-size: 36px; } .welcome-icon { width: 64px; height: 64px; margin-bottom: 16px; } .entry-card { padding: 20px; } .page-header { margin-bottom: 24px; } .paired-members { gap: 16px; } }
+.visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
