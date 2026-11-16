@@ -50,3 +50,6 @@
 }
 /* In the app, form cards line up with the page title. */
 .portal main .form-page { margin: 0 0 var(--space-6); }
+/* Today fills the window. The conversation scrolls inside it, so the composer stays in view. */
+.portal-body:has(.today-page) { display: flex; flex-direction: column; height: 100dvh; }
+.portal-body:has(.today-page) > main { flex: 1; min-height: 0; width: 100%; display: flex; flex-direction: column; overflow-y: auto; }

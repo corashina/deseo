@@ -226,7 +226,7 @@ Planning screens are compact. Personal screens give photos and notes more space.
 
 - Pastel fills with dark text and dark essential boundaries.
 - A stable color for each partner, always shown with a name.
-- Flat cards with one-pixel borders; shadows only on popovers, dialogs, and selected navigation.
+- Flat cards with one-pixel borders; shadows only on popovers, dialogs, selected navigation, and the next plan card.
 - Manrope type in the browser and real text for labels and numbers.
 
 ### Platforms
@@ -438,13 +438,14 @@ The icon tile follows the appearance: `brand/icon-web.webp` in light mode, `bran
 ### Screens
 
 **Today.** Today is chat-first: the conversation in the main column and the Our day panel beside it from 1200px.
-Show the date in the eyebrow above the title. Add event is a secondary button in the header; Send message is the main action.
+Show the date in the eyebrow above the title. The header has no buttons; Send message is the main action.
+Today fills the window. The conversation scrolls inside its column, so the composer stays in view. The Our day panel scrolls on its own.
 Under the composer, show Add event, Add task, and Add memory as text links.
 The Our day panel shows, in order: the next plan, Upcoming plans, Due tasks, the next important date, and the latest memory.
 The next plan shows a label (Now, Today, Tomorrow, or the weekday), title, time, place, and owner.
-Upcoming plans shows a seven-day strip with one dot per owner, then at most three events.
-Upcoming plans and Due tasks are bordered cards. The important date uses a fill without a border.
-Below 1200px, the panel becomes a row of links above the conversation: next plan, due task count, and countdown.
+Upcoming plans shows a seven-day strip with one dot per owner, then up to three events after the next plan.
+Upcoming plans and Due tasks are bordered cards. The important date uses the `sidebar` fill without a border and shows the day count large.
+Below 1200px, the panel becomes a row of links above the conversation: next plan, due task count, and countdown. The next plan chip names its day. Each chip keeps one line.
 Keyboard order matches the visual order.
 
 **Calendar.** Show the month, owner legend, and view control above the calendar. Date ideas and Add event go in the header.
@@ -468,6 +469,9 @@ Reserve image space before loading. Show progress, failure, and Retry on the aff
 Limit message width to 80%. Align the viewer's messages to the trailing edge.
 Keep sender colors stable. Use 16px message padding on narrow screens.
 Show Read only if a real read receipt exists. Notes are pinned messages, not a second text system.
+A message shows the time; older messages add the day, and the year only when it differs. Own messages end the sender line with an actions button that opens a popover menu.
+Pinned notes are compact rows above the conversation: sender eyebrow, two lines of text, and Unpin. A lone note fills the row.
+A failed pin, unpin, or delete shows on its message. An unsent message keeps the sender's color.
 
 **Tasks.** Each row has a checkbox, title, owner label, and optional due date.
 Completed tasks keep readable text. Keep overdue labels separate from partner colors.

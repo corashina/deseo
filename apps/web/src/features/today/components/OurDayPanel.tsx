@@ -16,15 +16,17 @@ export function OurDayPanel({ data, important, days, date, zone, locale, names, 
   data: TodaySummary & { memory: Memory | null }; important: Event | undefined; days: number | null;
   date: string; zone: string; locale: string; names: OwnerNames; members: readonly PairMember[];
 }) {
+  const later = data.agenda.slice(1, 4);
   const name = (userId: string | null) => members.find(member => member.userId === userId)?.displayName ?? 'Unassigned';
   return <aside className="our-day" aria-label="Our day">
     {data.agenda[0] && <NextPlanCard event={data.agenda[0]} names={names} zone={zone} locale={locale} />}
     <section className="card" data-testid="today-events">
       <div className="section-heading"><h2>Upcoming plans</h2><Link to="/calendar">View calendar</Link></div>
       <WeekStrip date={date} events={data.agenda} zone={zone} locale={locale} />
-      {data.agenda.length ? data.agenda.slice(0, 3).map(event => <EventRow
+      {/* The next plan card above shows the first event, so the list starts at the second. */}
+      {later.length ? later.map(event => <EventRow
         key={event.id + (event.temporal.kind === 'allDay' ? event.temporal.startDate : event.temporal.startsAt)}
-        event={event} names={names} showDate timezone={zone} locale={locale} />) : <p>Nothing planned for the next seven days.</p>}
+        event={event} names={names} showDate timezone={zone} locale={locale} />) : <p className="muted">{data.agenda.length ? 'Nothing else planned this week.' : 'Nothing planned for the next seven days.'}</p>}
     </section>
     <section className="card" data-testid="today-tasks">
       <div className="section-heading"><h2>Due tasks</h2><Link to="/tasks">View tasks</Link></div>
@@ -32,9 +34,9 @@ export function OurDayPanel({ data, important, days, date, zone, locale, names, 
         assignee={name(task.assigneeId)} />) : <p>No unfinished tasks due today.</p>}
     </section>
     {important && <section className="card important-card" data-testid="today-important-date">
-      <h2>Next important date</h2>
-      <h3>{important.title}</h3>
-      <p>{days === 0 ? 'Today' : days === 1 ? 'Tomorrow' : 'In ' + days + ' days'}</p>
+      <span className="eyebrow">Next important date</span>
+      <p className="countdown">{days === 0 ? 'Today' : days === 1 ? 'Tomorrow' : <><strong>{days}</strong> days</>}</p>
+      <h2>{important.title}</h2>
       {important.temporal.kind === 'allDay' && <p><time dateTime={important.temporal.startDate}>
         {formatDate(DateTime.fromISO(important.temporal.startDate, { zone }), 'date', locale)}</time></p>}
       <Link to={'/events/' + important.id}>View date</Link>

@@ -5,7 +5,7 @@ import type { OwnerNames } from '../../calendar';
 import { formatDate, formatRange } from '../../../lib/format';
 
 // The label compares days in the pair timezone. It is computed once per render; nothing ticks.
-function dayLabel(event: Event, zone: string, locale: string): string {
+export function dayLabel(event: Event, zone: string, locale: string): string {
   const now = DateTime.now().setZone(zone);
   const start = event.temporal.kind === 'allDay' ? DateTime.fromISO(event.temporal.startDate, { zone }) : DateTime.fromISO(event.temporal.startsAt).setZone(zone);
   if (start <= now) return 'Now';
