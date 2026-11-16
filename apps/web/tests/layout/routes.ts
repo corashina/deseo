@@ -35,7 +35,6 @@ export const screens: Screen[] = [
   open('/memories/new', 'Add memory'),
   record(ids => `/memories/${ids.memory}`, 'Memory'),
   record(ids => `/memories/${ids.memory}/edit`, 'Edit memory'),
-  open('/messages', 'Messages'),
   open('/tasks', 'Tasks'),
   record(ids => `/tasks/${ids.task}`, 'Task'),
 ];

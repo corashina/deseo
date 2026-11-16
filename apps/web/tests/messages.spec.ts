@@ -7,7 +7,7 @@ test('a retry after a lost send response creates one message', async ({ page, br
   const { id, a, b } = await pair();
   const body = 'See you at the station at six';
   await signIn(page, a);
-  await page.goto('/messages');
+  await page.goto('/today');
   await loseResponse(page, '**/rest/v1/rpc/send_message');
   await page.getByLabel('Message', { exact: true }).fill(body);
   await page.getByRole('button', { name: 'Send message', exact: true }).click();
@@ -22,12 +22,12 @@ test('a retry after a lost send response creates one message', async ({ page, br
   try {
     const partner = await context.newPage();
     await signIn(partner, b);
-    await partner.goto('/messages');
+    await partner.goto('/today');
     await expect(partner.getByTestId('message-row').filter({ hasText: body })).toHaveCount(1);
   } finally { await context.close(); }
 });
 
-// Importance 94: a pinned message shows on Today, and deleting the message removes the note.
+// Importance 94: a pinned message shows above the partner's conversation, and deleting the message removes the note.
 test('a pinned note shows on Today until its message is deleted', async ({ page, browser, pair, signIn }) => {
   const { id, a, b } = await pair();
   const body = 'Bring the umbrella';
@@ -36,20 +36,20 @@ test('a pinned note shows on Today until its message is deleted', async ({ page,
   try {
     const partner = await context.newPage();
     await signIn(partner, b);
-    await partner.goto('/messages');
+    await partner.goto('/today');
     const row = partner.getByTestId('message-row').filter({ hasText: body });
     await row.getByRole('button', { name: 'Message actions' }).click();
     await row.getByRole('button', { name: 'Pin note', exact: true }).click();
     await expect(row.getByText('Sent · Pinned note')).toBeVisible();
     await signIn(page, a);
     await page.goto('/today');
-    await expect(page.getByTestId('today-note')).toContainText(body);
+    await expect(page.getByTestId('pinned-notes')).toContainText(body);
     await row.getByRole('button', { name: 'Message actions' }).click();
     await row.getByRole('button', { name: 'Delete message', exact: true }).click();
     await partner.getByRole('button', { name: 'Confirm deletion', exact: true }).click();
     await expect(partner.getByTestId('message-row').filter({ hasText: body })).toHaveCount(0);
     await page.reload();
     await expect(page.getByRole('heading', { name: 'Today' })).toBeVisible();
-    await expect(page.getByTestId('today-note')).toHaveCount(0);
+    await expect(page.getByTestId('pinned-notes')).toHaveCount(0);
   } finally { await context.close(); }
 });

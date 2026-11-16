@@ -1,9 +1,7 @@
-.messages-page { max-width:var(--message-width); margin:0 auto; min-width:0; }
-.conversation-page { display:flex; flex-direction:column; min-height:calc(100dvh - 136px); }
+.conversation-page { display:flex; flex-direction:column; min-width:0; }
 .conversation-page > * { flex-shrink:0; }
-.messages-page .page-header { margin-bottom:16px; }
 .conversation { display:flex; flex-direction:column; margin:0 0 16px; }
-.conversation-page > .conversation { flex:1 1 42dvh; min-height:180px; max-height:560px; overflow-y:auto; padding:4px; }
+.conversation-page > .conversation { flex:1 1 auto; min-height:240px; max-height:max(320px, calc(100dvh - 520px)); overflow-y:auto; padding:4px; }
 .conversation > * { flex-shrink:0; }
 .message-row { width:fit-content; max-width:80%; border-radius:var(--radius-card); padding:16px 20px; overflow-wrap:anywhere; }
 .message-row + .message-row { margin-top:24px; }
@@ -47,10 +45,11 @@ details.message-actions { display:block; margin-top:8px; }
 .pending-send p { margin-bottom:8px; }
 .pending-send .status { padding:0; margin-bottom:12px; font-size:14px; }
 @media(max-width:767px) {
-  .conversation-page { min-height:calc(100dvh - 120px); }
   .message-row { padding:16px; }
   .message-row + .message-row { margin-top:16px; }
   .message-row.partner-a + .message-row.partner-a, .message-row.partner-b + .message-row.partner-b { margin-top:8px; }
   .notes-strip { grid-template-columns:minmax(0,1fr); gap:12px; }
   .message-composer { padding:16px; }
 }
+.composer-links { display:flex; flex-wrap:wrap; gap:4px 16px; margin-top:8px; }
+.composer-links a { display:inline-flex; align-items:center; min-height:var(--nav-target); font-size:14px; font-weight:600; }

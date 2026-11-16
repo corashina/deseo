@@ -25,7 +25,7 @@ The [router](../apps/web/src/app/router.tsx) defines the browser routes.
 The browser uses a sidebar, rail, or drawer. Expo keeps bottom tabs and native stacks.
 
 Entry routes cover Welcome, email codes, profile setup, invitations, joining, waiting, and ended pairs.
-Product routes cover Today, Calendar, events, ideas, tasks, lists, Messages, Memories, and Settings.
+Product routes cover Today (with Messages), Calendar, events, ideas, tasks, lists, Memories, and Settings.
 The portal has no reminder or notification screens. The browser receives no push.
 Record URLs support reload and browser Back. Changed forms and unsent drafts warn before leaving.
 
@@ -46,7 +46,7 @@ flowchart TD
   Invite --> Waiting[Wait for partner]
   Confirm --> Today[Today]
   Waiting --> Today
-  Today --> Sections[Calendar / Memories / Messages / Tasks]
+  Today --> Sections[Calendar / Memories / Tasks]
   Today --> Settings[Pair avatar opens Settings]
 ```
 
@@ -100,7 +100,9 @@ After a join, both partners open Today. Its empty sections offer the first actio
 
 ### Today
 
-Order: heading, Add event, next plan, next three events with a seven-day strip, latest memory, latest pinned note, due tasks, next important date.
+Today holds the conversation (see [Messages and notes](#messages-and-notes)) and an Our day panel.
+Panel order: next plan, next three events with a seven-day strip, due tasks, next important date, latest memory.
+Below 1200px the panel becomes links above the conversation: next plan, due task count, countdown.
 Show each plan's date in the pair timezone. Each section links to its full page.
 Show up to three unfinished tasks due today or earlier.
 Show one upcoming important date with its absolute date. Count down in the pair timezone.
@@ -148,6 +150,7 @@ Text edits use version checks. Completion sends the desired state, never a toggl
 
 ### Messages and notes
 
+The conversation lives on Today. There is no separate Messages page.
 Use one conversation. Load the latest 50 messages, then page backward.
 The composer accepts plain text up to 4,000 characters. It stays inside the conversation region.
 Show Sending or Failed beside a pending message. Failed messages keep their text and UUID.
@@ -156,7 +159,7 @@ Show a new-message control when the reader views older messages. Do not force sc
 Unread counts use the viewer's read cursor. Do not show it as a partner read receipt.
 Authors can delete their own messages after confirmation. Sent messages cannot be edited.
 Each member can pin one own message with **Pin as note**. A new pin replaces the old one in one transaction.
-Show both pins above the conversation. Today shows the latest pin.
+Show both pins above the conversation.
 
 ### Memories
 
