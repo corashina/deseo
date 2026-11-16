@@ -89,6 +89,6 @@ function MemoryEditor({ memory }: { memory?: Memory }) {
     </fieldset>{!memory && <PhotoSelection photos={photos} disabled={saving} preparing={prepare.isPending} onSelect={files => { if (files.length) prepare.mutate(files); }} onRemove={photoId => setPhotos(current => current.filter(photo => photo.id !== photoId))} progress={progress} />}
       {memory && <p role="status">{progress}</p>}{error && <Status error>{error}</Status>}
       {conflict && <Button variant="secondary" disabled={saving} onClick={() => reload.mutate()}>Reload memory and discard draft</Button>}
-      <div className="actions"><Button type="submit" disabled={saving || prepare.isPending || conflict}>{saving ? 'Saving…' : failure ? 'Retry save' : memory ? 'Save changes' : 'Publish memory'}</Button><Link to="/memories">Cancel</Link></div>
+      <div className="actions"><Button variant="primary" type="submit" disabled={saving || prepare.isPending || conflict}>{saving ? 'Saving…' : failure ? 'Retry save' : memory ? 'Save changes' : 'Publish memory'}</Button><Link to="/memories">Cancel</Link></div>
     </form></section></>;
 }

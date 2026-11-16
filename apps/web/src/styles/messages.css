@@ -43,7 +43,7 @@ details.message-actions { display:block; margin-top:8px; }
 .note-card .message-actions { margin-top:auto; padding-top:12px; }
 .pending-send { align-self:flex-end; width:fit-content; max-width:80%; margin:0 0 16px; overflow-wrap:anywhere; background:var(--shared-soft); }
 .pending-send p { margin-bottom:8px; }
-.pending-send .status { padding:0; margin-bottom:12px; font-size:14px; }
+.pending-send .status { padding:0; border:0; margin-bottom:12px; font-size:14px; }
 @media(max-width:767px) {
   .message-row { padding:16px; }
   .message-row + .message-row { margin-top:16px; }

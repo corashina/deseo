@@ -141,7 +141,7 @@ function EventEditor({ event, idea }: { event?: Event; idea?: DateIdea }) {
           </Button>
         )}
         <div className="actions">
-          <Button disabled={saving || conflict} type="submit">
+          <Button variant="primary" disabled={saving || conflict} type="submit">
             {saving ? 'Saving…' : failure ? 'Retry save' : event ? 'Save changes' : 'Save event'}
           </Button>
           <Link to="/calendar">Cancel</Link>
@@ -150,7 +150,7 @@ function EventEditor({ event, idea }: { event?: Event; idea?: DateIdea }) {
     </section>
     <Dialog busy={saving} open={Boolean(sharing)} title="Share this event?" onClose={() => setSharing(null)}>
       <p>Your partner will see this event.</p>
-      <Button onClick={confirmSharing}>Share event</Button>
+      <Button variant="primary" onClick={confirmSharing}>Share event</Button>
     </Dialog>
   </>;
 }

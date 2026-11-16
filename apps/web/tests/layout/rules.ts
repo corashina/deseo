@@ -5,7 +5,7 @@ export type Failure = { rule: Rule; selector: string; detail: string };
 
 // Intended ellipsis only. Give the reason for each entry.
 const ellipsis = [
-  '.topbar > button > span:last-child', // Long account names shorten in the top bar.
+  '.topbar-label > span', // On phones each pair name keeps one line in the top bar.
 ];
 
 // Check the DESIGN.md Layout rules that score 90 or more at the current width.

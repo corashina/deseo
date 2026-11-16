@@ -8,8 +8,9 @@ import tokens from '../../../brand/tokens.json';
 import '@fontsource-variable/manrope/index.css';
 import './styles/tokens.css';
 import './styles/base.css';
-import './styles/shell.css';
+// Controls load before the shell, so shell rules can refine them.
 import './styles/controls.css';
+import './styles/shell.css';
 const cssName = (name: string) => '--' + name.replace(/[A-Z]/g, letter => '-' + letter.toLowerCase());
 const declarations = (values: Record<string, string>) => Object.entries(values).map(([name, value]) => cssName(name) + ':' + value).join(';');
 const layout = { ...Object.fromEntries(Object.entries(tokens.space).map(([name, value]) => ['space-' + name, value + 'px'])),

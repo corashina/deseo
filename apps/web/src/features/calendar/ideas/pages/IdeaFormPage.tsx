@@ -14,7 +14,6 @@ import { PageHeader } from '../../../../components/ui/PageHeader';
 import { Button } from '../../../../components/ui/Button';
 import { Status } from '../../../../components/ui/Status';
 import { Dialog } from '../../../../components/ui/Dialog';
-import { useCalendarSignals } from '../../realtime';
 import { getDateIdea, ideaKeys } from '../queries';
 import { archiveIdea, createIdea, updateIdea } from '../commands';
 import '../../../../styles/planning.css';
@@ -28,7 +27,6 @@ export function IdeaFormPage() {
   const { ideaId } = useParams();
   const { account, pair } = useSession();
   const pairId = pair?.status === 'active' ? pair.pairId : '';
-  useCalendarSignals(account!.id, pair);
   const query = useQuery({ queryKey: ideaKeys.detail(account!.id, pairId, ideaId ?? 'new'), queryFn: () => getDateIdea(pairId, ideaId!), enabled: Boolean(ideaId) });
   if (ideaId && query.isPending)
     return <Status>Loading idea…</Status>;
@@ -99,7 +97,7 @@ function IdeaEditor({ idea }: {
         </Status>}
         {conflict && <Button disabled={saving} variant="secondary" type="button" onClick={() => { archive.reset(); reload.mutate(); }}>Reload idea and discard draft</Button>}
         <div className="actions">
-          <Button type="submit" disabled={saving || conflict}>{saving ? 'Saving…' : failure ? 'Retry save' : idea ? 'Save changes' : 'Save idea'}
+          <Button variant="primary" type="submit" disabled={saving || conflict}>{saving ? 'Saving…' : failure ? 'Retry save' : idea ? 'Save changes' : 'Save idea'}
           </Button>
           <Link to="/ideas">Cancel</Link>
         </div>
@@ -113,7 +111,7 @@ function IdeaEditor({ idea }: {
     </section>
     <Dialog busy={archive.isPending} open={confirm} title="Archive this idea?" onClose={() => setConfirm(false)}>
       <p>You can find this idea in Archived.</p>
-      <Button disabled={archive.isPending} onClick={() => archive.mutate()}>Confirm archive</Button>
+      <Button variant="primary" disabled={archive.isPending} onClick={() => archive.mutate()}>Confirm archive</Button>
     </Dialog>
   </>;
 }

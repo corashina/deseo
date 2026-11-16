@@ -163,9 +163,16 @@ components:
     height: "48px"
   button-secondary-hover:
     backgroundColor: "{colors.sidebar}"
+  button-text:
+    backgroundColor: "transparent"
+    textColor: "{colors.link}"
+    typography: "{typography.button}"
+    rounded: "{rounded.control}"
+    padding: "12px 16px"
+    height: "48px"
   button-danger:
     backgroundColor: "{colors.danger}"
-    textColor: "{colors.surface}"
+    textColor: "{colors.on-primary}"
     typography: "{typography.button}"
     rounded: "{rounded.control}"
     padding: "12px 16px"
@@ -335,8 +342,8 @@ Build from one column. Set breakpoints by available space.
 | Width | Shell | Content |
 |---|---|---|
 | 320–767px | Menu button and drawer | One column, 16px page padding |
-| 768–1023px | 72px rail | 24px page padding |
-| 1024px and above | 256px sidebar; 72px collapsed | 32px page padding |
+| 768–1023px | 72px rail with labels under icons | 24px page padding |
+| 1024px and above | 256px sidebar; collapses to the rail | 32px page padding |
 
 Spacing tokens are 4, 8, 12, 16, 20, 24, 32, and 40px.
 Use 24px card padding on desktop and 20px on mobile. Use 24px section gaps on desktop and 16px on mobile.
@@ -390,7 +397,7 @@ Use a one-pixel card border.
 | Button | Primary, secondary, text, or destructive |
 | Input field | Visible label, input, optional hint, local error |
 | Dialog | Title, focused task, primary action, Cancel |
-| Status message | Plain explanation and a recovery action when available |
+| Status message | Plain explanation and a recovery action when available. Neutral: canvas fill and `line` border. Error: danger pair and a warning icon |
 
 Reuse EventRow, MemoryCard, NoteCard, and TaskRow across callers on each platform.
 
@@ -398,7 +405,7 @@ Reuse EventRow, MemoryCard, NoteCard, and TaskRow across callers on each platfor
 
 - **Primary:** `primary` fill, `on-primary` text, 700 weight, 12px corners, 48px high. Use one primary button per page or form.
 - **Secondary:** surface fill and `control` border. Use it for Cancel.
-- **Text:** `link` color. Use it for section links and small edits.
+- **Text:** `link` color, no fill or border. Use it for section links, small edits, and icon toggles in the shell.
 - **Destructive:** `danger` fill.
 - Show loading inside the button without changing its width.
 
@@ -423,7 +430,9 @@ Use four primary destinations: **Today, Calendar, Memories, Tasks**. Today holds
 Show the unread message count on Today.
 Group them above Settings. Use surface fills for hover and pastel fills for the current page.
 Use labeled 20px icons: Phosphor regular in the browser, Ionicons on native devices.
-On narrow screens, the account avatar in the header opens Settings.
+On narrow screens, the header stays at the top. The menu button shows the unread count. The account avatar opens Settings, and the pair shows names only, one line each.
+In the rail, use 12px/600 labels under the icons. Touch shows no tooltips.
+The icon tile follows the appearance: `brand/icon-web.webp` in light mode, `brand/icon-web-dark.webp` in dark mode.
 
 ### Screens
 

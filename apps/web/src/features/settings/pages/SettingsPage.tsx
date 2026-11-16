@@ -53,7 +53,7 @@ function ProfileSection() {
       <TimezoneField required value={input.timezone} onChange={event => change({ timezone: event.target.value })} />
     </fieldset>{message && <Status error={save.isError}>{message}</Status>}
     <div className="actions">{conflict && <Button disabled={busy} variant="secondary" onClick={() => discard.mutate()}>Discard changes and reload</Button>}
-    <Button type="submit" disabled={busy || conflict}>{save.isError ? 'Retry profile' : 'Save profile'}</Button></div></form>
+    <Button variant="primary" type="submit" disabled={busy || conflict}>{save.isError ? 'Retry profile' : 'Save profile'}</Button></div></form>
   </section>;
 }
 
@@ -62,7 +62,7 @@ function AccountSection() {
   return <section className="settings-section" aria-labelledby="settings-account"><h2 id="settings-account">Account</h2>
     <p>Signing out clears private content and unsent changes from this browser.</p>
     {leave.isError && <Status error>Sign-out failed. Try again.</Status>}
-    <div className="actions"><Button disabled={leave.isPending} onClick={() => leave.mutate('local')}>Sign out on this browser</Button>
+    <div className="actions"><Button variant="secondary" disabled={leave.isPending} onClick={() => leave.mutate('local')}>Sign out on this browser</Button>
     <Button variant="secondary" disabled={leave.isPending} onClick={() => leave.mutate('global')}>Sign out on all devices</Button></div>
   </section>;
 }

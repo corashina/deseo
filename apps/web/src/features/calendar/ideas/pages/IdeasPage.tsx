@@ -1,4 +1,3 @@
-import { useCalendarSignals } from '../../realtime';
 import { useState } from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
@@ -13,7 +12,6 @@ export function IdeasPage() {
   const { account, pair } = useSession();
   const [state, setState] = useState<IdeaState>('saved');
   const pairId = pair?.status === 'active' ? pair.pairId : '';
-  useCalendarSignals(account!.id, pair);
   const query = useInfiniteQuery({
     queryKey: ideaKeys.list(account!.id, pairId, state),
     queryFn: ({ pageParam }) => listDateIdeas(pairId, state, pageParam),
@@ -33,7 +31,7 @@ export function IdeasPage() {
     </div>
     {query.isPending ? <Status>Loading ideas…</Status> : query.isError ? <>
       <Status error>We could not load ideas.</Status>
-      <Button onClick={() => void query.refetch()}>Retry</Button>
+      <Button variant="secondary" onClick={() => void query.refetch()}>Retry</Button>
     </> : <>
       <div className="idea-grid">{query.data.pages.flatMap(page => page.items).map(idea => <article className="card" key={idea.id}>
         <h2>

@@ -24,6 +24,6 @@ export function VerifyPage() {
     <form noValidate onSubmit={event => { event.preventDefault(); if (pending) return;
       setInvalid(!/^\d{6}$/.test(code)); if (/^\d{6}$/.test(code)) verify.mutate(code);
     }}><Field label="Sign-in code" name="code" spellCheck={false} inputMode="numeric" autoComplete="one-time-code" maxLength={6} disabled={pending} value={code} onChange={event => { entryIntent.codeDraft = event.target.value; setCode(event.target.value); }} />
-    {error && <Status error>{error}</Status>}<Button type="submit" disabled={pending}>{verify.isPending ? 'Checking…' : 'Sign in'}</Button></form>
+    {error && <Status error>{error}</Status>}<Button variant="primary" type="submit" disabled={pending}>{verify.isPending ? 'Checking…' : 'Sign in'}</Button></form>
     <Button variant="secondary" disabled={pending || seconds > 0} onClick={() => { verify.reset(); resend.mutate(); }}>{seconds ? 'Resend code in ' + seconds + 's' : 'Resend code'}</Button><Link to="/sign-in">Use another email</Link></section>;
 }
