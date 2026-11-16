@@ -6,7 +6,7 @@ import { test } from '../support/test';
 import { openScreen, screens } from '../layout/routes';
 
 // Screenshots and detector results for the impeccable review. Runs only with CAPTURE=1.
-// Output: .superpowers/design-capture/<area>/<screen>-<width>.png and <screen>.detect.json.
+// Output: .superpowers/design-capture/<area>/<screen>-<width>[-dark].png and <screen>.detect.json.
 const widths = [390, 768, 1024, 1440];
 const root = resolve(import.meta.dirname, '../../../..');
 const out = resolve(root, '.superpowers/design-capture');
@@ -27,18 +27,24 @@ const areas: [RegExp, string][] = [
 const areaOf = (path: string) => areas.find(([match]) => match.test(path))?.[1] ?? 'other';
 const slug = (path: string) => path.replace(/^\/|\/$/g, '').replace(/[/:.]+/g, '-') || 'home';
 
+// Use a real window height, so layouts sized by the viewport (100dvh) render as users see them.
+// The full-page shot then shows the rest of the page. Fixed full-height parts, such as the sidebar, end at the window height.
+async function shoot(page: Page, width: number, file: string) {
+  await page.setViewportSize({ width, height: width < 768 ? 844 : 900 });
+  await page.evaluate(() => new Promise(requestAnimationFrame));
+  await page.screenshot({ path: file, fullPage: true });
+}
+
 async function capture(page: Page, area: string, path: string) {
   const dir = resolve(out, area);
   mkdirSync(dir, { recursive: true });
-  for (const width of widths) {
-    // Grow the viewport to the page height, so fixed full-height parts such as the sidebar fill the shot.
-    await page.setViewportSize({ width, height: 900 });
-    await page.evaluate(() => new Promise(requestAnimationFrame));
-    const height = await page.evaluate(() => document.documentElement.scrollHeight);
-    await page.setViewportSize({ width, height: Math.max(900, height) });
-    await page.evaluate(() => new Promise(requestAnimationFrame));
-    await page.screenshot({ path: resolve(dir, `${slug(path)}-${width}.png`) });
-  }
+  for (const width of widths) await shoot(page, width, resolve(dir, `${slug(path)}-${width}.png`));
+  // Dark mode follows the device. Capture the narrowest and widest widths.
+  await page.emulateMedia({ colorScheme: 'dark' });
+  // Let color transitions finish, so no shot catches a half-switched color.
+  await page.waitForTimeout(300);
+  for (const width of [390, 1440]) await shoot(page, width, resolve(dir, `${slug(path)}-${width}-dark.png`));
+  await page.emulateMedia({ colorScheme: 'light' });
   await page.setViewportSize({ width: 1440, height: 900 });
   // The detector attaches to this browser through its debug port and scans the open page at 1440px.
   const result = spawnSync(impeccable, ['detect', '--cdp', String(debugPort), '--target', new URL(page.url()).pathname, '--json'],
