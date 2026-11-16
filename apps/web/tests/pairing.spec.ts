@@ -69,7 +69,7 @@ test('a new pair after an ended pair shows none of the old content', async ({ pa
     ['/tasks', 'New pair task: water the plants'], ['/ideas', 'New pair idea: a museum visit'], ['/memories', 'New pair memory in the garden']];
   for (const [path, current] of pages) {
     await page.goto(path);
-    await expect(page.getByText(current).first()).toBeVisible();
+    await expect(page.getByText(current).filter({ visible: true }).first()).toBeVisible();
     await expect(page.locator('body')).not.toContainText('Old pair');
     await expect(page.locator('body')).not.toContainText('Old flat list');
   }
