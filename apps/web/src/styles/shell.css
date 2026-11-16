@@ -16,7 +16,6 @@
 .pair-avatars { display: inline-flex; flex-shrink: 0; padding-right: var(--space-1); }
 .pair-avatars .avatar + .avatar { margin-left: calc(-1 * var(--space-2)); outline: 3px solid var(--surface); }
 .topbar-label { color: var(--ink); font-size: 15px; font-weight: 600; line-height: 1.4; overflow-wrap: anywhere; min-width: 0; }
-.topbar-label > span + span::before { content: ' '; }
 .portal main { max-width: calc(var(--content-width) + 2 * var(--space-8)); margin: 0 auto; padding: var(--space-8); }
 .drawer-toggle, .mobile-account { display: none !important; }
 .skip-link { position: fixed; left: var(--space-3); top: -100px; z-index: 20; background: var(--surface); padding: var(--space-3); }
@@ -47,6 +46,5 @@
   /* The account button shows the own avatar, so the pair shows names only. Each name keeps one line. */
   .pair-avatars { display: none; }
   .topbar-label > span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .topbar-label > span + span::before { content: none; }
   .portal main { padding: var(--space-6) var(--space-4); }
 }

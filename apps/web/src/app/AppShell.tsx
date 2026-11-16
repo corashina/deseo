@@ -41,7 +41,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     <div className="portal-body"><header className="topbar">
       <Button variant="text" className="drawer-toggle" aria-label="Open navigation" onClick={() => setDrawer(true)}><ListIcon size={20} aria-hidden="true" />{Boolean(unread.data) && <span className="unread-count" aria-hidden="true">{unread.data}</span>}</Button>
       <div className="topbar-pair"><span className="pair-avatars" aria-hidden="true">{members.length ? members.map(member => <Avatar key={member.userId} slot={member.slot} name={member.displayName} />) : account && <Avatar slot={slot} name={account.displayName} />}</span>
-        <span className="topbar-label" translate="no">{names.map((name, index) => <span key={index}>{index > 0 && '+ '}{name}</span>)}</span></div>
+        <span className="topbar-label" translate="no">{names.map((name, index) => <span key={index}>{index > 0 && ' + '}{name}</span>)}</span></div>
       {account && <Link className="button secondary mobile-account" to="/settings" aria-label="Settings"><Avatar slot={slot} name={account.displayName} /></Link>}
     </header>
     <main id="main" tabIndex={-1}>{children}</main></div>
