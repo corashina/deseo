@@ -40,11 +40,11 @@ for (const width of [1440, 768]) {
     await open(page, '/today', 'Today', width);
     await tabTo(page, 'Today');
     const stops = [await focusState(page)];
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < 4; i++) {
       await page.keyboard.press('Tab');
       stops.push(await focusState(page));
     }
-    expect(stops.map(stop => stop?.name)).toEqual(['Today', 'Calendar', 'Memories', 'Messages', 'Tasks', 'Settings']);
+    expect(stops.map(stop => stop?.name)).toEqual(['Today', 'Calendar', 'Memories', 'Tasks', 'Settings']);
     for (const stop of stops) expect.soft(stop, stop?.name).toMatchObject({ ring: true, inView: true });
   });
 }

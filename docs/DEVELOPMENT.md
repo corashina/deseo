@@ -338,7 +338,7 @@ Tasks
 - Make named lists.
 - Assign a task, set a due date, and mark it done.
 
-Messages
+Messages (on Today)
 - Write to each other in one conversation.
 - Pin a message to keep it as a note.
 
@@ -346,7 +346,7 @@ Memories
 - Save one to five photos with a date and a caption.
 
 Today
-- See your next plans, due tasks, the latest memory, the latest note, and the next important date.
+- See the conversation, both notes, your next plans, due tasks, the latest memory, and the next important date.
 
 Privacy and control
 - Sign in with an email code.

@@ -22,7 +22,6 @@ const areas: [RegExp, string][] = [
   [/^\/today/, 'today'],
   [/^\/(calendar|events|ideas)/, 'calendar'],
   [/^\/memories/, 'memories'],
-  [/^\/messages/, 'messages'],
   [/^\/tasks/, 'tasks'],
 ];
 const areaOf = (path: string) => areas.find(([match]) => match.test(path))?.[1] ?? 'other';

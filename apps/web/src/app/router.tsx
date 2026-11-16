@@ -20,7 +20,6 @@ const MemoriesPage = lazyPage(() => import('../features/memories/pages/MemoriesP
 const MemoryDetailPage = lazyPage(() => import('../features/memories/pages/MemoryDetailPage'), 'MemoryDetailPage');
 const MemoryFormPage = lazyPage(() => import('../features/memories/pages/MemoryFormPage'), 'MemoryFormPage');
 const TasksPage = lazyPage(() => import('../features/tasks/pages/TasksPage'), 'TasksPage');
-const MessagesPage = lazyPage(() => import('../features/messages/pages/MessagesPage'), 'MessagesPage');
 const TaskDetailPage = lazyPage(() => import('../features/tasks/pages/TaskDetailPage'), 'TaskDetailPage');
 const IdeasPage = lazyPage(() => import('../features/calendar/ideas/pages/IdeasPage'), 'IdeasPage');
 const IdeaFormPage = lazyPage(() => import('../features/calendar/ideas/pages/IdeaFormPage'), 'IdeaFormPage');
@@ -53,7 +52,7 @@ function Gate({ children, kind = 'pair' }: { children: ReactNode; kind?: 'public
   if (!session.account) return kind === 'profile' ? <>{children}</> : <Navigate to="/profile/setup" replace />;
   if (kind === 'account') return <>{children}</>;
   if (kind === 'profile') return <Navigate to={target} replace />;
-  const allowed = session.pair?.status === 'active' ? ['/today', '/calendar', '/events/new', '/tasks', '/ideas', '/messages', '/memories', ...( /^\/(events|tasks|ideas|memories)\//.test(pathname) ? [pathname] : [])] : session.pair?.status === 'pending' ? ['/pair/waiting'] : session.pair?.status === 'ended' ? ['/pair/ended', '/pair/start', '/pair/join'] : ['/pair/start', '/pair/join'];
+  const allowed = session.pair?.status === 'active' ? ['/today', '/calendar', '/events/new', '/tasks', '/ideas', '/memories', ...( /^\/(events|tasks|ideas|memories)\//.test(pathname) ? [pathname] : [])] : session.pair?.status === 'pending' ? ['/pair/waiting'] : session.pair?.status === 'ended' ? ['/pair/ended', '/pair/start', '/pair/join'] : ['/pair/start', '/pair/join'];
   return allowed.includes(pathname) ? <>{children}</> : <Navigate to={target} replace />;
 }
 function Entry() { const session = useSession(); return <Navigate to={destination(session)} replace />; }
@@ -116,7 +115,6 @@ const routes: RouteObject[] = [{ element: <Root />, errorElement: <RouteFailureB
   { path: '/memories/new', ...pairPage('Add memory', MemoryFormPage) },
   { path: '/memories/:memoryId', ...pairPage('Memory', MemoryDetailPage) },
   { path: '/memories/:memoryId/edit', ...pairPage('Edit memory', MemoryFormPage) },
-  { path: '/messages', ...pairPage('Messages', MessagesPage) },
   { path: '/tasks', ...pairPage('Tasks', TasksPage) },
   { path: '/tasks/:taskId', ...pairPage('Task', TaskDetailPage) },
   { path: '/ideas', ...pairPage('Date ideas', IdeasPage) },

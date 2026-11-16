@@ -3,7 +3,6 @@ import { useInfiniteQuery, useMutation, useQuery } from '@tanstack/react-query';
 import { compareMessageCursors, messageBodySchema, type Message, type MessageCursor } from '@deseo/domain/messages';
 import { toAppError } from '@deseo/domain/result';
 import { useSession } from '../../../app/SessionProvider';
-import { PageHeader } from '../../../components/ui/PageHeader';
 import { Button } from '../../../components/ui/Button';
 import { Status } from '../../../components/ui/Status';
 import { Dialog } from '../../../components/ui/Dialog';
@@ -11,13 +10,14 @@ import { useUnsavedChanges } from '../../../lib/unsaved-changes';
 import { listMessages, messageKeys } from '../queries';
 import { deleteMessage, pinMessage, sendMessage, setReadCursor, unpinMessage } from '../commands';
 import { listPinnedNotes } from '../notes';
-import { MessageRow } from '../components/MessageRow';
-import { NoteCard } from '../components/NoteCard';
-import { Composer } from '../components/Composer';
+import { MessageRow } from './MessageRow';
+import { NoteCard } from './NoteCard';
+import { Composer } from './Composer';
 import '../../../styles/messages.css';
 
 type Unsent = { clientId: string; body: string; failed: boolean };
-export function MessagesPage() {
+// The pair's one conversation with its pinned notes and composer. Today places it beside the Our day panel.
+export function Conversation() {
   const { account, pair } = useSession();
   const pairId = pair?.status === 'active' ? pair.pairId : '';
   const accountId = account!.id;
@@ -107,9 +107,8 @@ export function MessagesPage() {
   const pin = (message: Message) => action.mutate({ kind: message.pinnedAt ? 'unpin' : 'pin', id: message.id });
   if (pair?.status !== 'active') return null;
   const member = (message: Message) => pair.members.find(person => person.userId === message.authorId)!;
-  return <section className="messages-page conversation-page">
-    <PageHeader title="Messages" description={pair.members.map(person => person.displayName).join(' + ')} />
-    {notes.data && notes.data.length > 0 && <div className="notes-strip" aria-label="Pinned notes">{notes.data.map(message => <NoteCard key={message.id} message={message} name={member(message).displayName} own={message.authorId === accountId} disabled={busy} timezone={account!.timezone} locale={account!.locale} onUnpin={pin} />)}</div>}
+  return <section className="conversation-page" aria-label="Messages">
+    {notes.data && notes.data.length > 0 && <div className="notes-strip" aria-label="Pinned notes" data-testid="pinned-notes">{notes.data.map(message => <NoteCard key={message.id} message={message} name={member(message).displayName} own={message.authorId === accountId} disabled={busy} timezone={account!.timezone} locale={account!.locale} onUnpin={pin} />)}</div>}
     {error && !deleting && <><Status error>{error}</Status><Button onClick={() => action.mutate(action.variables!)}>Retry change</Button></>}
     {conversation.isPending ? <Status>Loading messages…</Status> : conversation.isError ? <><Status error>We could not load messages.</Status><Button onClick={() => void conversation.refetch()}>Retry</Button></> : <>
         {conversation.hasNextPage && <Button variant="secondary" disabled={conversation.isFetchingNextPage} onClick={() => void conversation.fetchNextPage()}>{conversation.isFetchingNextPage ? 'Loading older messages…' : 'Load older messages'}</Button>}

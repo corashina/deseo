@@ -28,8 +28,8 @@ They write their own date ideas and choose which events to share.
 ## Operating Context
 
 Users sign in with an email code, set a name, and create or accept a partner invitation.
-Today combines upcoming plans, due tasks, a memory, a pinned note, and an important date.
-Calendar, Memories, Messages, Tasks, and Settings provide the main workflows.
+Today combines the conversation and its pinned notes with upcoming plans, due tasks, a memory, and an important date.
+Today, Calendar, Memories, Tasks, and Settings provide the main workflows.
 The current portal uses English text. Date rules use event, profile, or pair timezones in the data contract.
 Users can reload record URLs and use browser Back.
 Browser drafts remain in memory and disappear when the user leaves the form or reloads. Users receive a warning first.

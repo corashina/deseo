@@ -343,7 +343,7 @@ Use 24px card padding on desktop and 20px on mobile. Use 24px section gaps on de
 Keep form field groups 20px apart.
 
 Cap content at 1440px, forms at 720px, and messages at 960px. The header is at least 72px high.
-From 1200px, Today pairs a flexible planning column with a 360px personal column. Below 1200px, Today uses one column.
+From 1200px, Today pairs a flexible conversation column with the 360px Our day panel. Below 1200px, Today uses one column.
 From 1500px, Memories shows three columns.
 Use `min-width: 0` on grid children. Let long event and partner names wrap.
 Use 48px browser targets and 48dp native targets.
@@ -419,18 +419,22 @@ Give icon-only buttons an accessible name.
 
 ### Navigation
 
-Use five primary destinations: **Today, Calendar, Memories, Messages, Tasks**.
+Use four primary destinations: **Today, Calendar, Memories, Tasks**. Today holds the conversation.
+Show the unread message count on Today.
 Group them above Settings. Use surface fills for hover and pastel fills for the current page.
 Use labeled 20px icons: Phosphor regular in the browser, Ionicons on native devices.
 On narrow screens, the account avatar in the header opens Settings.
 
 ### Screens
 
-**Today.** Show the date in the eyebrow above the title. Show at most three upcoming events.
-Show the next plan above all sections: a label (Now, Today, Tomorrow, or the weekday), title, time, place, and owner.
-Show a seven-day strip above the upcoming events, with one dot per owner on each day that has a plan.
-Upcoming plans and Due tasks are bordered cards. The note and the important date use fills without borders.
-Show one main action, **Add event**. Section actions are text buttons.
+**Today.** Today is chat-first: the conversation in the main column and the Our day panel beside it from 1200px.
+Show the date in the eyebrow above the title. Add event is a secondary button in the header; Send message is the main action.
+Under the composer, show Add event, Add task, and Add memory as text links.
+The Our day panel shows, in order: the next plan, Upcoming plans, Due tasks, the next important date, and the latest memory.
+The next plan shows a label (Now, Today, Tomorrow, or the weekday), title, time, place, and owner.
+Upcoming plans shows a seven-day strip with one dot per owner, then at most three events.
+Upcoming plans and Due tasks are bordered cards. The important date uses a fill without a border.
+Below 1200px, the panel becomes a row of links above the conversation: next plan, due task count, and countdown.
 Keyboard order matches the visual order.
 
 **Calendar.** Show the month, owner legend, and view control above the calendar. Date ideas and Add event go in the header.
@@ -444,7 +448,7 @@ Show an IANA timezone only when it differs from the viewer's profile timezone. T
 Keep captions outside images. Use a 3:2 crop in cards and the full image in detail.
 Reserve image space before loading. Show progress, failure, and Retry on the affected image.
 
-**Messages.** Use sender names, timestamps, and restrained rose and teal fills.
+**Conversation.** Use sender names, timestamps, and restrained rose and teal fills.
 Limit message width to 80%. Align the viewer's messages to the trailing edge.
 Keep sender colors stable. Use 16px message padding on narrow screens.
 Show Read only if a real read receipt exists. Notes are pinned messages, not a second text system.
@@ -493,7 +497,7 @@ Announce save results in a polite live region. Keep errors visible until resolve
 
 ### Review checklist
 
-- Check Today, Calendar, Memories, Messages, Tasks, and pair setup at 320, 390, 768, and 1440px.
+- Check Today, Calendar, Memories, Tasks, and pair setup at 320, 390, 768, and 1440px.
 - Check 200% text zoom, keyboard navigation, and visible focus.
 - Check dialog focus, errors, and announcements with a screen reader.
 - Test long names, long event titles, and translated labels.
