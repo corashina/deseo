@@ -16,6 +16,8 @@ import { getMemory, memoryKeys } from '../queries';
 import { deleteMemory } from '../commands';
 import { MemoryImage } from '../components/MemoryImage';
 import { memoryPhotoQuery } from '../media';
+import { memoryTitle } from '../title';
+import { PartnerBadge } from '../../../components/ui/PartnerBadge';
 import '../../../styles/memories.css';
 export function MemoryDetailPage() {
   const { memoryId = '' } = useParams();
@@ -47,9 +49,12 @@ export function MemoryDetailPage() {
   if (query.isError) return <RouteErrorPage title="Memory" returnTo="/memories" returnLabel="Return to memories" error={query.error} onRetry={() => void query.refetch()} />;
   if (query.data.state !== 'published') return <RouteErrorPage title="Memory" returnTo="/memories" returnLabel="Return to memories" />;
   const memory = query.data; const author = memory.createdBy === account!.id;
-  return <><PageHeader title={memory.caption || 'Our memory'} description={formatDate(DateTime.fromISO(memory.memoryDate), 'date', account!.locale) + ' · ' + (pair?.status === 'active' ? pair.members.find(member => member.userId === memory.createdBy)!.displayName : '')} action={author ? <Link className="button secondary" to={'/memories/' + memoryId + '/edit'}>Edit memory</Link> : undefined} />
-    <section className="card memory-detail">{memory.photos.map((photo, index) => <figure key={photo.id}><MemoryImage photo={photo} variant="full" alt={(memory.caption || 'Shared memory') + ' · Photo ' + (index + 1)} /><figcaption><Button variant="secondary" disabled={busy} onClick={() => download.mutate({ path: photo.fullPath, index })}>Download photo {index + 1}</Button></figcaption></figure>)}
-      <div className="actions"><Link to="/memories">Return to memories</Link>{author && <Button variant="danger" disabled={busy} onClick={() => setConfirm(true)}>{remove.isError ? 'Retry deletion' : 'Delete memory'}</Button>}</div>{error && <Status error>{error}</Status>}
+  const member = pair?.status === 'active' ? pair.members.find(item => item.userId === memory.createdBy) : undefined;
+  // The date is the title. A caption can hold 1000 characters, so it reads as body text with its line breaks.
+  return <><PageHeader eyebrow="Memory" title={formatDate(DateTime.fromISO(memory.memoryDate), 'date', account!.locale)} description={member && <PartnerBadge name={member.displayName} slot={member.slot} />} action={author ? <Link className="button secondary" to={'/memories/' + memoryId + '/edit'}>Edit memory</Link> : undefined} />
+    <section className="card memory-detail">{memory.photos.map((photo, index) => <figure key={photo.id}><div className="memory-photo" style={{ aspectRatio: photo.width + ' / ' + photo.height }}><MemoryImage photo={photo} variant="full" alt={memoryTitle(memory) + ' · Photo ' + (index + 1)} /></div><figcaption><Button variant="text" disabled={busy} onClick={() => download.mutate({ path: photo.fullPath, index })}>Download photo {index + 1}</Button></figcaption></figure>)}
+      {memory.caption && <p className="memory-caption preserve-lines">{memory.caption}</p>}
+      <div className="actions"><Link to="/memories">Return to memories</Link>{author && <Button variant="secondary" disabled={busy} onClick={() => setConfirm(true)}>{remove.isError ? 'Retry deletion' : 'Delete memory'}</Button>}</div>{error && <Status error>{error}</Status>}
     </section><Dialog busy={remove.isPending} open={confirm} title="Delete this memory?" onClose={() => setConfirm(false)}><p>Both partners will lose this memory and its photos.</p><Button variant="danger" disabled={busy} onClick={() => remove.mutate(memory.version)}>Confirm deletion</Button></Dialog>
   </>;
 }

@@ -39,7 +39,7 @@ export function OurDayPanel({ data, important, days, date, zone, locale, names, 
         {formatDate(DateTime.fromISO(important.temporal.startDate, { zone }), 'date', locale)}</time></p>}
       <Link to={'/events/' + important.id}>View date</Link>
     </section>}
-    {data.memory ? <section data-testid="today-memory"><h2>Latest memory</h2><MemoryCard memory={data.memory} author={name(data.memory.createdBy)} locale={locale} /></section>
+    {data.memory ? <section data-testid="today-memory"><h2>Latest memory</h2><MemoryCard memory={data.memory} author={members.find(member => member.userId === data.memory?.createdBy)} locale={locale} /></section>
       : <section className="card today-intro" data-testid="today-intro"><h2>Keep a moment together</h2><p>Add a photo with a date and a caption.</p><div className="today-intro-actions"><Link to="/memories/new">Add memory</Link></div></section>}
   </aside>;
 }

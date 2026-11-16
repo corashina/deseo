@@ -390,7 +390,7 @@ Use a one-pixel card border.
 | Page header | One heading, short context, one main action |
 | Partner badge | Stable owner color and visible name |
 | Event row | Time column, tinted body, owner strip, title, metadata |
-| Memory card | Reserved image area, caption, author, date |
+| Memory card | Reserved image area, caption up to three lines, author badge, date, photo count |
 | Note card | Warm fill, sender, short text |
 | Task row | Labeled checkbox, wrapping title, owner, optional due date |
 | Date countdown | Number, unit, event name, absolute date |
@@ -453,7 +453,8 @@ Group overlapping events without hiding owners. Format dates through `Intl` in t
 Keep all-day dates as dates. Never shift them through UTC conversion.
 Show an IANA timezone only when it differs from the viewer's profile timezone. The event form keeps it in More details.
 
-**Memories.** Use a feed with month headings. Show image, caption, date, and author.
+**Memories.** Use a feed with month headings. Show image, caption, date, and author. Thumbnails download near the viewport, four at a time.
+The memory screen uses the date as its title and shows the full caption under the photos. Each photo box keeps its shape while it loads. Delete is a secondary button; the dialog holds the destructive one.
 Keep captions outside images. Use a 3:2 crop in cards and the full image in detail.
 Reserve image space before loading. Show progress, failure, and Retry on the affected image.
 

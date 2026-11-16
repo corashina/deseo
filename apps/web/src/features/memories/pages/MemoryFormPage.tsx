@@ -16,6 +16,8 @@ import { getMemory, memoryKeys } from '../queries';
 import { reserveMemory, publishMemory, updateMemory } from '../commands';
 import { preparePhoto, reservationInput, type PreparedBrowserPhoto, type MemoryReservationInput } from '../prepare';
 import { PhotoSelection } from '../components/PhotoSelection';
+import { MemoryImage } from '../components/MemoryImage';
+import { memoryTitle } from '../title';
 import '../../../styles/memories.css';
 type Upload = { key: string; input: MemoryReservationInput; reserveId: string; finalizeId: string };
 export function MemoryFormPage() {
@@ -83,10 +85,13 @@ function MemoryEditor({ memory }: { memory?: Memory }) {
     if (save.data) navigate('/memories/' + save.data.id, { replace: true });
   }, [save.data, navigate]);
   return <><PageHeader title={memory ? 'Edit memory' : 'Add memory'} description={memory ? 'Change the date or caption.' : 'Keep a moment with photos, a date, and a caption.'} />
-    <section className="card form-page memory-form"><form onSubmit={form.handleSubmit(values => save.mutate(values))}><fieldset disabled={saving || prepare.isPending}>
+    <section className="card form-page memory-form"><form onSubmit={form.handleSubmit(values => save.mutate(values))}>
+      {memory ? <div className="field"><span>Photos</span><div className="photo-selection-grid">{memory.photos.map(photo => <div key={photo.id} className="memory-cover"><MemoryImage photo={photo} alt={memoryTitle(memory)} /></div>)}</div><p className="field-hint">Photos stay as published.</p></div>
+        : <PhotoSelection photos={photos} disabled={saving} preparing={prepare.isPending} onSelect={files => { if (files.length) prepare.mutate(files); }} onRemove={photoId => setPhotos(current => current.filter(photo => photo.id !== photoId))} progress={progress} />}
+      <fieldset disabled={saving || prepare.isPending}>
       <label className="field"><span>Memory date</span><input type="date" autoComplete="off" required {...form.register('memoryDate')} /></label>
       <label className="field"><span>Caption</span><textarea rows={4} maxLength={1000} autoComplete="off" {...form.register('caption')} /></label>
-    </fieldset>{!memory && <PhotoSelection photos={photos} disabled={saving} preparing={prepare.isPending} onSelect={files => { if (files.length) prepare.mutate(files); }} onRemove={photoId => setPhotos(current => current.filter(photo => photo.id !== photoId))} progress={progress} />}
+    </fieldset>
       {memory && <p role="status">{progress}</p>}{error && <Status error>{error}</Status>}
       {conflict && <Button variant="secondary" disabled={saving} onClick={() => reload.mutate()}>Reload memory and discard draft</Button>}
       <div className="actions"><Button variant="primary" type="submit" disabled={saving || prepare.isPending || conflict}>{saving ? 'Saving…' : failure ? 'Retry save' : memory ? 'Save changes' : 'Publish memory'}</Button><Link to="/memories">Cancel</Link></div>
