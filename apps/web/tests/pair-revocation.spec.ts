@@ -17,6 +17,9 @@ test('ending a pair requires a fresh code and removes both viewers access', asyn
     await expect(page.getByLabel('Email verification code')).toHaveCount(0);
     await page.getByRole('button', { name: 'End pair', exact: true }).click();
     const dialog = page.getByRole('dialog', { name: 'End this pair?', exact: true });
+    // Importance 92: the dialog explains the result before it sends an email code.
+    await expect(dialog.getByLabel('Email verification code')).toHaveCount(0);
+    await dialog.getByRole('button', { name: 'Email me a code', exact: true }).click();
     await expect(dialog.getByLabel('Email verification code')).toBeVisible();
     // Importance 93: a wrong code fails, and the error stays readable inside and after the dialog.
     await dialog.getByLabel('Email verification code').fill('000000');

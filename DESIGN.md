@@ -404,7 +404,7 @@ Reuse EventRow, MemoryCard, NoteCard, and TaskRow across callers on each platfor
 
 ### Buttons
 
-- **Primary:** `primary` fill, `on-primary` text, 700 weight, 12px corners, 48px high. Use one primary button per page or form.
+- **Primary:** `primary` fill, `on-primary` text, 600 weight, 12px corners, 48px high. Use one primary button per page or form.
 - **Secondary:** surface fill and `control` border. Use it for Cancel.
 - **Text:** `link` color, no fill or border. Use it for section links, small edits, and icon toggles in the shell.
 - **Destructive:** `danger` fill.
@@ -425,6 +425,7 @@ View tabs and owner filters are segmented controls. The pressed segment is a rai
 
 Trap focus in modal dialogs. Return focus to the trigger on close. Support Escape where cancel is safe.
 Give icon-only buttons an accessible name.
+Close is an icon-only text button in the heading. A dialog with an action also has a Cancel button beside it.
 
 ### Navigation
 
@@ -484,7 +485,10 @@ A failed pin, unpin, or delete shows on its message. An unsent message keeps the
 **Tasks.** Each row has a checkbox, title, owner label, and optional due date.
 Completed tasks keep readable text. Keep overdue labels separate from partner colors.
 
-**Settings.** Explain data effects before ending a pair. Keep destructive actions apart from normal edits.
+**Settings.** Profile, Your pair, and Account share one card. End this pair has its own card below it.
+Ending a pair opens a dialog that names the partner and explains the result. The email code goes out only when the person asks for it.
+Your pair lists each member as a row: a 48px avatar, the name in the title style, and You or Your partner.
+Section intros use secondary text. The timezone field selects its value on focus, so typing a city starts a new search.
 
 ### States
 

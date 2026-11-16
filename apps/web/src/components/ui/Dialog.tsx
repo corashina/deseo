@@ -1,4 +1,5 @@
 import { useEffect, useRef, type ReactNode } from 'react';
+import { XIcon } from '@phosphor-icons/react/dist/csr/X';
 import { Button } from './Button';
 export function Dialog({ open, onClose, title, children, className = '', busy = false }: { open: boolean; onClose(): void; title: string; children: ReactNode; className?: string; busy?: boolean }) {
   const dialog = useRef<HTMLDialogElement>(null);
@@ -21,7 +22,7 @@ export function Dialog({ open, onClose, title, children, className = '', busy = 
     if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
     else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
   }}>
-    <div className="dialog-heading"><h2>{title}</h2><Button variant="secondary" disabled={busy} aria-label={'Close ' + title.toLowerCase()} onClick={onClose}>Close</Button></div>
+    <div className="dialog-heading"><h2>{title}</h2><Button className="dialog-close" variant="text" disabled={busy} aria-label={'Close ' + title.toLowerCase()} title="Close" onClick={onClose}><XIcon size={20} weight="bold" aria-hidden="true" /></Button></div>
     {children}
   </dialog>;
 }
