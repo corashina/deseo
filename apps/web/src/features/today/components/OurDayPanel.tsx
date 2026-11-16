@@ -17,7 +17,6 @@ export function OurDayPanel({ data, important, days, date, zone, locale, names, 
   date: string; zone: string; locale: string; names: OwnerNames; members: readonly PairMember[];
 }) {
   const later = data.agenda.slice(1, 4);
-  const name = (userId: string | null) => members.find(member => member.userId === userId)?.displayName ?? 'Unassigned';
   return <aside className="our-day" aria-label="Our day">
     {data.agenda[0] && <NextPlanCard event={data.agenda[0]} names={names} zone={zone} locale={locale} />}
     <section className="card" data-testid="today-events">
@@ -31,7 +30,7 @@ export function OurDayPanel({ data, important, days, date, zone, locale, names, 
     <section className="card" data-testid="today-tasks">
       <div className="section-heading"><h2>Due tasks</h2><Link to="/tasks">View tasks</Link></div>
       {data.dueTasks.length ? data.dueTasks.map(task => <TaskRow key={task.id} task={task} timezone={zone} locale={locale}
-        assignee={name(task.assigneeId)} />) : <p>No unfinished tasks due today.</p>}
+        members={members} />) : <p>No unfinished tasks due today.</p>}
     </section>
     {important && <section className="card important-card" data-testid="today-important-date">
       <span className="eyebrow">Next important date</span>

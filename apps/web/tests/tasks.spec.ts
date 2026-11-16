@@ -7,7 +7,7 @@ test('a failed reopen keeps the completed task, and a retry reopens it', async (
   const title = 'Buy train tickets';
   await signIn(page, a);
   await page.goto('/tasks');
-  await page.getByLabel('Add a task').fill(title);
+  await page.getByLabel('New task').fill(title);
   await page.getByRole('button', { name: 'Add task', exact: true }).click();
   const check = page.getByRole('checkbox', { name: 'Complete ' + title });
   await expect(check).not.toBeChecked();
@@ -24,7 +24,7 @@ test('a failed reopen keeps the completed task, and a retry reopens it', async (
     await expect(check).toBeChecked();
     await failRequest(page, '**/rest/v1/rpc/set_task_completed');
     await check.click();
-    await expect(page.getByText('Completion failed. Try again.')).toBeVisible();
+    await expect(page.getByText('Completion failed.', { exact: true })).toBeVisible();
     await expect(check).toBeChecked();
     await page.getByRole('button', { name: 'Retry completion', exact: true }).click();
     await expect(check).not.toBeChecked();

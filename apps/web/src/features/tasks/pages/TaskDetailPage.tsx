@@ -68,7 +68,9 @@ function TaskEditor({ task, lists }: { task: Task; lists: TaskList[] }) {
     <section className="card form-page">
       <form className="task-form" onSubmit={form.handleSubmit(values => save.mutate(values))}>
         <fieldset disabled={saving}>
-          <label className="field"><span>Title</span><input {...form.register('title')} autoComplete="off" maxLength={200} required /></label>
+          {/* A long title wraps. Enter saves, because a title has one line of text. */}
+          <label className="field"><span>Title</span><textarea {...form.register('title')} autoComplete="off" maxLength={200} rows={2} required
+            onKeyDown={event => { if (event.key === 'Enter') { event.preventDefault(); event.currentTarget.form?.requestSubmit(); } }} /></label>
           <label className="field"><span>List</span><select {...form.register('listId')}>{lists.map(list => <option key={list.id} value={list.id}>{list.name}</option>)}</select></label>
           <label className="field"><span>Assigned to</span><select {...form.register('assigneeId')}>
             <option value="">Unassigned</option>
@@ -83,7 +85,7 @@ function TaskEditor({ task, lists }: { task: Task; lists: TaskList[] }) {
           <Link to={'/tasks?list=' + task.listId}>Cancel</Link>
         </div>
       </form>
-      <div className="task-delete"><Button variant="danger" disabled={saving} onClick={() => setConfirm(true)}>{remove.isError ? 'Retry deletion' : 'Delete task'}</Button></div>
+      <div className="task-delete"><Button variant="secondary" disabled={saving} onClick={() => setConfirm(true)}>{remove.isError ? 'Retry deletion' : 'Delete task'}</Button></div>
     </section>
     <Dialog busy={remove.isPending} open={confirm} title="Delete this task?" onClose={() => setConfirm(false)}>
       <p>Both partners will lose this task.</p>

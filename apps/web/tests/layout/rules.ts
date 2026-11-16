@@ -10,6 +10,7 @@ const ellipsis = [
   '.note-card p', // A pinned note shows two lines; the message in the conversation shows all.
   '.day-chips a > span', // A Today chip keeps one line; its link opens the full item.
   '.day-events .event-row-content > *', // A month cell shows two title lines and one owner line; the day list below shows all.
+  '.task-lists .view-tabs button > span', // A list tab keeps one line; its title attribute and the list itself show the full name.
 ];
 
 // Check the DESIGN.md Layout rules that score 90 or more at the current width.
