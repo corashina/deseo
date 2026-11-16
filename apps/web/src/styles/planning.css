@@ -49,3 +49,14 @@
 
 .today-layout [data-testid="today-intro"] { grid-area:memory; }
 .today-intro-actions { display:flex; flex-wrap:wrap; gap:16px; }
+.week-strip { list-style:none; margin:0 0 20px; padding:0; display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:4px; }
+.week-strip li { display:flex; flex-direction:column; align-items:center; gap:2px; padding:8px 0; border-radius:12px; border:1px solid transparent; }
+.week-strip li[aria-current=date] { background:var(--action); border-color:var(--action-border); color:var(--on-action); }
+.week-strip-name { font-size:12px; color:var(--muted); }
+.week-strip li[aria-current=date] .week-strip-name { color:var(--on-action); }
+.week-strip-number { font-size:17px; font-weight:700; font-variant-numeric:tabular-nums; }
+.week-strip-dots { display:flex; gap:3px; min-height:6px; }
+.week-strip-dots span { width:6px; height:6px; border-radius:50%; background:var(--shared-accent); }
+.week-strip-dots .owner-a { background:var(--rose-accent); }
+.week-strip-dots .owner-b { background:var(--teal-accent); }
+.today-layout .note-card, .today-layout .important-card { border-color:transparent; }

@@ -47,6 +47,8 @@ CSS variables use kebab case: `actionHover` becomes `--action-hover`.
 | `actionHover` | `#D2C6E7` | `#564A6C` | Main button hover |
 | `onAction` | `#413852` | `#F1EBFA` | Text on pastel action surfaces |
 | `actionBorder` | `#786A8B` | `#9C8CB3` | Pastel action boundary |
+| `primary` | `#60527C` | `#C9B8EA` | Main button fill |
+| `onPrimary` | `#FFFFFF` | `#1C1A22` | Text on the main button |
 | `link` | `#60527C` | `#C9B8EA` | Text buttons and links |
 | `sidebar` | `#F3EEF7` | `#221F29` | Pale lavender navigation surface |
 | `roseAccent` | `#DCA9BD` | `#8A5468` | Decorative blush marks |
@@ -69,7 +71,8 @@ CSS variables use kebab case: `actionHover` becomes `--action-hover`.
 | `dangerSoft` | `#FCECEF` | `#3E2227` | Error background |
 
 Use blush, mint, lilac, and peach fills. In the light palette, keep text and essential boundaries dark.
-Use `onAction` text and `actionBorder` borders on primary buttons and selected dates.
+Use `primary` fill and `onPrimary` text on the one main button of a page.
+Use `onAction` text and `actionBorder` borders on selected navigation and selected dates.
 Use `link` for text buttons. Never use the pastel action fill as a text color.
 Use accent tokens for decorative marks. Use owner foreground tokens for names and metadata.
 
@@ -91,6 +94,7 @@ Every dark text color passes 4.5:1 on canvas, surface, sidebar, note, and its ow
 | Ink / surface | 11.88:1 | 13.41:1 |
 | Muted / canvas | 5.30:1 | 7.72:1 |
 | Action text / action | 7.70:1 | 8.32:1 |
+| On primary / primary | 7.01:1 | 9.45:1 |
 | Rose / rose-soft | 5.64:1 | 7.22:1 |
 | Teal / teal-soft | 5.15:1 | 7.53:1 |
 | Shared / shared-soft | 5.65:1 | 7.72:1 |
@@ -104,14 +108,16 @@ Sources: [WCAG text contrast](https://www.w3.org/WAI/WCAG22/Understanding/contra
 
 ## 4. Typography, spacing, and shape
 
-Use the system sans-serif stack. Use real text for labels and numbers.
+Use Manrope in the browser, bundled through `@fontsource-variable/manrope`, with the system sans-serif stack as fallback.
+Native screens use the system font. Use real text for labels and numbers.
 
 | Role | Desktop | Mobile | Weight / line height |
 |---|---|---|---|
-| Browser page title | 36px | 30px | 700 / 1.2 |
+| Browser page title | 40px | 30px | 800 / 1.1 |
 | Browser welcome title | 48px | 36px | 700 / 1.2 |
 | Native page title | 28dp | 28dp | 700 / 34dp |
-| Section title | 20px | 20px | 650 / 1.3 |
+| Section title | 19px | 19px | 700 / 1.3 |
+| Eyebrow above a title | 12px | 12px | 700 / 1.5, uppercase |
 | Body and input | 16px | 16px | 400 / 1.5 |
 | Button | 15px | 15px | 600 / 1.4 |
 | Secondary text | 14px | 14px | 400 / 1.5 |
@@ -156,7 +162,10 @@ Group them above Settings. Use surface fills for hover and pastel fills for the 
 Use labeled 20px icons: Phosphor regular in the browser, Ionicons on native devices.
 On narrow screens, the account avatar in the header opens Settings.
 
-**Today.** Show at most three upcoming events. Show one main action, **Add event**. Section actions are text buttons.
+**Today.** Show the date in the eyebrow above the title. Show at most three upcoming events.
+Show a seven-day strip above them, with one dot per owner on each day that has a plan.
+Upcoming plans and Due tasks are bordered cards. The note and the important date use fills without borders.
+Show one main action, **Add event**. Section actions are text buttons.
 Keyboard order matches the visual order.
 
 **Calendar.** Show the month, owner legend, and view control above the calendar. Date ideas and Add event go in the header.
