@@ -43,6 +43,8 @@ async function capture(page: Page, area: string, path: string) {
   for (const width of widths) await shoot(page, width, resolve(dir, `${slug(path)}-${width}.png`));
   // Dark mode follows the device. Capture the narrowest and widest widths.
   await page.emulateMedia({ colorScheme: 'dark' });
+  // Let color transitions finish, so no shot catches a half-switched color.
+  await page.waitForTimeout(300);
   for (const width of [390, 1440]) await shoot(page, width, resolve(dir, `${slug(path)}-${width}-dark.png`));
   await page.emulateMedia({ colorScheme: 'light' });
   await page.setViewportSize({ width: 1440, height: 900 });
