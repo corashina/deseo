@@ -9,7 +9,7 @@ test('sign out before pair response prevents stale partner identity', async ({ p
   await page.goto('/');
   await expect(page.getByRole('heading', { name: 'Today', level: 1 })).toBeVisible();
   const second = await context.newPage();
-  await second.goto('/settings/account');
+  await second.goto('/settings');
   await expect(second.getByRole('button', { name: 'Sign out on this browser' })).toBeVisible();
   let release!: () => void;
   let received!: () => void;
@@ -54,8 +54,8 @@ test('same-account pair change clears mounted invitation state', async ({ page, 
   let pairId = pending.id;
   const signals = await observeOwnSessionChanges(page, pending.a.id);
   await signIn(page, pending.a);
-  await page.goto('/pair/invite');
-  await page.getByRole('button', { name: 'Create invitation code' }).click();
+  await page.goto('/pair/waiting');
+  await page.getByRole('button', { name: 'Replace invitation code' }).click();
   await expect(page.locator('.invite-code')).toBeVisible();
   const oldToken = await page.locator('.invite-code').innerText();
   const refreshed = page.waitForResponse('**/rest/v1/rpc/get_pair_context');

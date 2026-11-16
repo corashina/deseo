@@ -11,9 +11,8 @@ test('A invites, B joins, and C cannot read the pair', async ({ page, browser, a
     await expect(page).toHaveURL(/\/profile\/setup$/);
     await page.getByLabel('Your name').fill('Anna');
     await page.getByRole('button', { name: 'Save profile', exact: true }).click();
-    await page.getByRole('button', { name: 'Create pair', exact: true }).click();
-    await page.getByRole('link', { name: 'Get invitation code' }).click();
-    await page.getByRole('button', { name: 'Create invitation code', exact: true }).click();
+    await page.getByRole('button', { name: 'Invite your partner', exact: true }).click();
+    await expect(page).toHaveURL(/\/pair\/waiting$/);
     const token = await page.locator('.invite-code').innerText();
 
     const partner = await contexts[0].newPage();

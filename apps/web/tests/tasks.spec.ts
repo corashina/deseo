@@ -7,8 +7,8 @@ test('a failed Undo keeps the completed task, and a retry reopens it', async ({ 
   const title = 'Buy train tickets';
   await signIn(page, a);
   await page.goto('/tasks');
-  await page.getByLabel('Quick add task').fill(title);
-  await page.getByRole('button', { name: 'Add to list', exact: true }).click();
+  await page.getByLabel('Add a task').fill(title);
+  await page.getByRole('button', { name: 'Add task', exact: true }).click();
   const check = page.getByRole('checkbox', { name: 'Complete ' + title });
   await expect(check).not.toBeChecked();
   const context = await browser.newContext();

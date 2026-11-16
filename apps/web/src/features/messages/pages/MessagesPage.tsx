@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useInfiniteQuery, useMutation, useQuery } from '@tanstack/react-query';
-import { Link, useSearchParams } from 'react-router-dom';
 import { compareMessageCursors, messageBodySchema, type Message, type MessageCursor } from '@deseo/domain/messages';
 import { toAppError } from '@deseo/domain/result';
 import { useSession } from '../../../app/SessionProvider';
@@ -22,12 +21,10 @@ export function MessagesPage() {
   const { account, pair } = useSession();
   const pairId = pair?.status === 'active' ? pair.pairId : '';
   const accountId = account!.id;
-  const [search] = useSearchParams();
-  const notesView = search.get('view') === 'notes';
   const conversation = useInfiniteQuery({ queryKey: messageKeys.conversation(accountId, pairId),
     queryFn: ({ pageParam }) => listMessages(pairId, pageParam), initialPageParam: undefined as string | undefined,
-    getNextPageParam: page => page.nextCursor ?? undefined, enabled: !notesView });
-  const notes = useQuery({ queryKey: messageKeys.notes(accountId, pairId), queryFn: () => listPinnedNotes(pairId), enabled: notesView });
+    getNextPageParam: page => page.nextCursor ?? undefined });
+  const notes = useQuery({ queryKey: messageKeys.notes(accountId, pairId), queryFn: () => listPinnedNotes(pairId) });
   const { messagesById, messages } = useMemo(() => {
     const messagesById = new Map<string, Message>();
     for (const page of conversation.data?.pages ?? []) for (const message of page.items) {
@@ -79,10 +76,10 @@ export function MessagesPage() {
       mountedList.current = element;
     }
     setAtLatest(element.scrollHeight - element.scrollTop - element.clientHeight <= 24);
-  }, [conversation.data, notesView]);
+  }, [conversation.data]);
 
   useEffect(() => {
-    if (notesView || !conversation.data || !list.current) return;
+    if (!conversation.data || !list.current) return;
     let active = true;
     const observer = new IntersectionObserver(entries => {
       if (!active || document.visibilityState === 'hidden') return;
@@ -104,27 +101,23 @@ export function MessagesPage() {
     document.addEventListener('visibilitychange', observe);
     return () => { active = false; observer.disconnect(); lastRead.current = null; document.removeEventListener('visibilitychange', observe); };
     // Use each authenticated data result to observe its rendered message rows.
-  }, [accountId, conversation.data, messagesById, notesView, pairId, readAttempt]);
+  }, [accountId, conversation.data, messagesById, pairId, readAttempt]);
 
   const pin = (message: Message) => action.mutate({ kind: message.pinnedAt ? 'unpin' : 'pin', id: message.id });
   if (pair?.status !== 'active') return null;
   const member = (message: Message) => pair.members.find(person => person.userId === message.authorId)!;
-  const query = notesView ? notes : conversation;
-  return <section className={'messages-page' + (notesView ? '' : ' conversation-page')}>
+  return <section className="messages-page conversation-page">
     <PageHeader title="Messages" description={pair.members.map(person => person.displayName).join(' + ')} />
-    <div className="message-views" aria-label="Message views"><Link to="/messages" aria-current={!notesView ? 'page' : undefined}>Conversation</Link><Link to="/messages?view=notes" aria-current={notesView ? 'page' : undefined}>Pinned notes</Link></div>
+    {notes.data && notes.data.length > 0 && <div className="notes-strip" aria-label="Pinned notes">{notes.data.map(message => <NoteCard key={message.id} message={message} name={member(message).displayName} own={message.authorId === accountId} disabled={busy} timezone={account!.timezone} locale={account!.locale} onUnpin={pin} />)}</div>}
     {error && !deleting && <><Status error>{error}</Status><Button onClick={() => action.mutate(action.variables!)}>Retry change</Button></>}
-    {query.isPending ? <Status>Loading messages…</Status> : query.isError ? <><Status error>We could not load messages.</Status><Button onClick={() => void query.refetch()}>Retry</Button></> : notesView ?
-      <div className="notes-grid">{notes.data?.length ? notes.data.map(message => <NoteCard key={message.id} message={message} name={member(message).displayName} own={message.authorId === accountId} disabled={busy} timezone={account!.timezone} locale={account!.locale} onUnpin={pin} />) : <section className="card"><h2>No pinned notes</h2><p>Pin one of your messages to keep it on Today.</p><Link to="/messages">Open conversation</Link></section>}</div> : <>
+    {conversation.isPending ? <Status>Loading messages…</Status> : conversation.isError ? <><Status error>We could not load messages.</Status><Button onClick={() => void conversation.refetch()}>Retry</Button></> : <>
         {conversation.hasNextPage && <Button variant="secondary" disabled={conversation.isFetchingNextPage} onClick={() => void conversation.fetchNextPage()}>{conversation.isFetchingNextPage ? 'Loading older messages…' : 'Load older messages'}</Button>}
         {!atLatest && <Button variant="secondary" onClick={() => { if (list.current) list.current.scrollTop = list.current.scrollHeight; }}>Latest messages</Button>}
         {readError && <><Status error>We could not update your unread count.</Status><Button onClick={() => { lastRead.current = null; setReadAttempt(value => value + 1); }}>Retry unread count</Button></>}
         <div className="conversation" ref={list} onScroll={event => { const element = event.currentTarget; scrollPosition.current = element.scrollTop; setAtLatest(element.scrollHeight - element.scrollTop - element.clientHeight <= 24); }} aria-label="Conversation messages">{messages.length ? messages.map(message => <MessageRow key={message.id} message={message} name={member(message).displayName} slot={member(message).slot} own={message.authorId === accountId} disabled={busy} timezone={account!.timezone} locale={account!.locale} onPin={pin} onDelete={setDeleting} />) : <section className="card"><h2>Start your conversation</h2><p>Send a message to your partner.</p></section>}</div>
       </>}
-    {!notesView && <>
-      {unsent.map(item => <article className="card pending-send" key={item.clientId} data-testid="pending-send"><p className="preserve-lines">{item.body}</p>{item.failed ? <><Status error>Not sent</Status><Button variant="secondary" onClick={() => void deliver(item)}>Retry</Button></> : <Status>Sending…</Status>}</article>)}
-      <Composer body={body} onChange={setBody} onSend={send} disabled={false} />
-    </>}
+    {unsent.map(item => <article className="card pending-send" key={item.clientId} data-testid="pending-send"><p className="preserve-lines">{item.body}</p>{item.failed ? <><Status error>Not sent</Status><Button variant="secondary" onClick={() => void deliver(item)}>Retry</Button></> : <Status>Sending…</Status>}</article>)}
+    <Composer body={body} onChange={setBody} onSend={send} disabled={false} />
     <Dialog busy={busy} title="Delete message?" open={Boolean(deleting)} onClose={() => { if (!busy) setDeleting(null); }}><p>Delete your message from this conversation and pinned notes.</p>{error && deleting && <Status error>{error}</Status>}<Button variant="danger" disabled={busy} onClick={() => deleting && action.mutate({ kind: 'delete', id: deleting.id })}>Confirm deletion</Button><Button variant="secondary" disabled={busy} onClick={() => setDeleting(null)}>Cancel</Button></Dialog>
   </section>;
 }

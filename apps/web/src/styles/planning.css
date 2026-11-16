@@ -18,26 +18,13 @@
 .quick-add, .list-name-form { display:flex; align-items:flex-end; gap:16px; flex-wrap:wrap; width:100%; margin:24px 0; }
 .quick-add .field, .list-name-form .field { flex:1 1 180px; min-width:0; margin:0; }
 .quick-add > .status, .list-name-form > .status { flex-basis:100%; margin:0; }
-.list-links { list-style:none; padding:0; margin:0 0 32px; }
-.list-links li + li { border-top:1px solid var(--line); }
-.list-links a { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; min-height:64px; gap:8px 16px; padding:12px 0; text-decoration:none; color:var(--ink); font-weight:600; }
-.list-links a:hover { color:var(--link); background:var(--sidebar); }
-.list-links a { padding-inline:12px; border-radius:var(--radius-control); }
-.list-links span { min-width:0; overflow-wrap:anywhere; }
-.list-links .muted { font-weight:400; }
 .task-list-actions { border-top:1px solid var(--line); padding-top:24px; margin-top:24px; }
 .task-list-actions h2 { margin-bottom:16px; }
 .task-list-actions .actions { margin-top:24px; margin-bottom:0; }
 .task-list-actions .list-name-form { margin-top:0; }
-.task-row:last-child, .task-detail .task-row:last-of-type { border-bottom:0; }
-.task-detail { max-width:var(--form-width); }
-.task-detail > .actions { align-items:center; margin-bottom:0; }
-.task-detail > p:has(> a) { margin:24px 0 0; }
-.task-detail > p > a { display:inline-flex; align-items:center; min-height:48px; }
+.task-row:last-child { border-bottom:0; }
 .task-form > .actions { align-items:center; margin-top:20px; }
-.task-form-group .field:last-child { margin-bottom:0; }
-.task-form-group { border-top:1px solid var(--line); padding-top:24px; margin-top:24px; }
-.task-form-group h2 { margin-bottom:16px; }
+.task-delete, .idea-actions { border-top:1px solid var(--line); padding-top:24px; margin-top:24px; margin-bottom:0; }
 .idea-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:24px; }
 .idea-grid .card { display:flex; flex-direction:column; gap:16px; min-width:0; }
 .idea-grid .card h2, .idea-grid .card p { margin:0; }

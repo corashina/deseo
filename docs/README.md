@@ -76,8 +76,9 @@ Changing the email keeps the pending invitation.
 
 ### Pairing
 
-Show a 12-character invitation code in three groups. Offer Copy. State the 24-hour expiry.
-Show Regenerate and Cancel invitation. Never send an invitation without a user action.
+Invite your partner creates the pair and its invitation in one action, then opens the waiting page.
+The waiting page shows the 12-character code once, Copy invitation link, and the 24-hour expiry.
+It offers Replace invitation code, Check pair status, and Cancel pending pair. Never send an invitation without a user action.
 
 Accept the full link or its code. Trim separators and normalize letter case.
 After sign-in, show only the inviter's name. Show no calendar, message, or photo content.
@@ -86,7 +87,7 @@ Use Join pair as the only primary action. Keep Cancel available.
 
 | State | Behavior |
 |---|---|
-| Waiting | Invitation details and explicit refresh; realtime can update the state |
+| Waiting | Code, expiry, and explicit refresh; realtime can update the state |
 | Partner joined | Open Today; the header shows both names |
 | Wrong or expired | One generic error; offer to enter a new invitation |
 | Already used | Explain that the invitation is unavailable |
@@ -129,15 +130,18 @@ Never overwrite the partner's edit silently. Never merge text fields.
 Delete through a confirmation that names the event. The server cancels its future reminder jobs.
 
 Saved ideas open from the Calendar header. Each idea has a title, an optional note, and an optional HTTPS link.
+Opening an idea shows its edit form with Plan date, View planned event, Open idea link, and Archive.
 Plan date fills a shared event. Save the event and the idea link in one transaction; the idea becomes Planned.
 When the future event is deleted, the idea returns to Saved. Do not scrape links or generate suggestions.
 
 ### Tasks
 
 Start with one General list. Allow named lists. General cannot be renamed or deleted.
-Deleting a list requires it to be empty; offer Move tasks to General.
+The list tabs end with New list. A named list shows List settings: Rename and Remove list.
+Remove list moves its tasks to General, then removes the empty list, after one confirmation.
 Each row shows a checkbox, title, assignee, and optional due date. The whole label is the target.
-Quick add needs only a title. Assign to Me, Partner, or Unassigned. Either member can complete any task.
+Quick add is the only add path. It needs a title; assignee and due date are optional. Either member can complete any task.
+Opening a task shows its edit form with Delete.
 Keep completed tasks in a collapsed group. Allow Undo.
 A failed completion restores the prior state and shows Retry beside the task.
 Text edits use version checks. Completion sends the desired state, never a toggle.
@@ -166,14 +170,15 @@ The author can change the caption or delete the memory. Saved copies stay outsid
 
 | Group | Controls |
 |---|---|
-| You | Display name, timezone |
-| Your pair | Partner identity, owner colors, pair timezone, invitation state |
+| Profile | Display name, timezone |
+| Your pair | Partner identity, owner colors, pair timezone |
 | Account | Sign out, sign out of all devices |
-| Pair | End pair, apart from ordinary edits |
+| End this pair | End pair, apart from ordinary edits |
 
 Partner colors are blush and mint. Names identify people without color.
 Timezone changes affect future display. They never move stored event instants.
-End pair explains access loss. It needs a fresh email code.
+Settings is one page with these sections.
+End pair sends a fresh email code and opens one dialog. The dialog explains access loss and takes the code.
 
 ### Common states
 
