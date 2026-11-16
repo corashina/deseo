@@ -6,6 +6,7 @@ export type Failure = { rule: Rule; selector: string; detail: string };
 // Intended ellipsis only. Give the reason for each entry.
 const ellipsis = [
   '.topbar-label > span', // On phones each pair name keeps one line in the top bar.
+  '.memory-card-copy h3', // A memory card shows three lines of the caption; the detail screen shows all.
 ];
 
 // Check the DESIGN.md Layout rules that score 90 or more at the current width.
