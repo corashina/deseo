@@ -18,17 +18,19 @@ import '../../../styles/settings.css';
 
 export function SettingsPage() {
   const { account, pair } = useSession();
+  const partner = pair?.status === 'active' ? pair.members.find(member => member.userId !== account!.id)?.displayName : undefined;
   return <><PageHeader title="Settings" description="Manage your profile, pair, and account." />
     <div className="card form-page settings-page">
       <ProfileSection />
       <section className="settings-section" aria-labelledby="settings-pair"><h2 id="settings-pair">Your pair</h2>
-        {pair?.status === 'active' ? <><div className="paired-members">{pair.members.map(member => <div key={member.userId}><Avatar name={member.displayName} slot={member.slot} /><h3>{member.displayName}</h3><p>{member.userId === account!.id ? 'You' : 'Your partner'}</p></div>)}</div>
-          {pair.timezone !== account!.timezone && <p>Pair timezone: <span translate="no">{pair.timezone}</span></p>}</>
-          : <><p>{pair?.status === 'ended' ? 'Your pair has ended. Shared content is unavailable.' : 'You have no active pair.'}</p><Link to="/pair/start">Set up your pair</Link></>}
+        {pair?.status === 'active' ? <><ul className="paired-members">{pair.members.map(member => <li key={member.userId}><Avatar name={member.displayName} slot={member.slot} /><div><h3>{member.displayName}</h3><p>{member.userId === account!.id ? 'You' : 'Your partner'}</p></div></li>)}</ul>
+          {pair.timezone !== account!.timezone && <p className="muted">Pair timezone: <span translate="no">{pair.timezone}</span></p>}</>
+          : pair?.status === 'pending' ? <><p className="muted">Your invitation is waiting for your partner.</p><Link to="/pair/waiting">View invitation</Link></>
+          : <><p className="muted">{pair?.status === 'ended' ? 'Your pair has ended. Shared content is unavailable.' : 'You do not have a pair yet.'}</p><Link to="/pair/start">{pair?.status === 'ended' ? 'Start a new pair' : 'Set up your pair'}</Link></>}
       </section>
       <AccountSection />
-      {pair?.status === 'active' && <EndPairSection pairId={pair.pairId} />}
-    </div></>;
+    </div>
+    {pair?.status === 'active' && <EndPairSection pairId={pair.pairId} partner={partner ?? 'your partner'} />}</>;
 }
 
 type Draft = { input: ProfileInput; version: number };
@@ -47,7 +49,7 @@ function ProfileSection() {
   const busy = save.isPending || discard.isPending;
   const message = save.isSuccess ? 'Profile saved.' : conflict ? 'Your profile changed. Your draft is kept.' : save.isError ? toAppError(save.error).message : '';
   return <section aria-labelledby="settings-profile"><h2 id="settings-profile">Profile</h2>
-    <p className="muted">Your timezone changes display times. Stored events keep their dates and instants.</p>
+    <p className="muted">Times show in your timezone. Changing it does not move your events.</p>
     <form onSubmit={event => { event.preventDefault(); if (!busy) save.mutate(draft ?? { input, version: account!.version }); }}><fieldset className="field-group" disabled={busy}>
       <Field label="Your name" name="displayName" required maxLength={40} value={input.displayName} onChange={event => change({ displayName: event.target.value })} />
       <TimezoneField required value={input.timezone} onChange={event => change({ timezone: event.target.value })} />
@@ -60,22 +62,23 @@ function ProfileSection() {
 function AccountSection() {
   const leave = useMutation({ mutationFn: signOut });
   return <section className="settings-section" aria-labelledby="settings-account"><h2 id="settings-account">Account</h2>
-    <p>Signing out clears private content and unsent changes from this browser.</p>
+    <p className="muted">Signing out removes private content and unsent changes from this browser.</p>
     {leave.isError && <Status error>Sign-out failed. Try again.</Status>}
     <div className="actions"><Button variant="secondary" disabled={leave.isPending} onClick={() => leave.mutate('local')}>Sign out on this browser</Button>
     <Button variant="secondary" disabled={leave.isPending} onClick={() => leave.mutate('global')}>Sign out on all devices</Button></div>
   </section>;
 }
 
-function EndPairSection({ pairId }: { pairId: string }) {
+function EndPairSection({ pairId, partner }: { pairId: string; partner: string }) {
   const { revalidate } = useSession();
   const [open, setOpen] = useState(false);
   const [code, setCode] = useState('');
   const [codeError, setCodeError] = useState('');
+  // The dialog explains the result first. The email code goes out only after the person asks for it.
   // One code per visit: the email service limits how often it sends a code. Send a new code asks again.
   // Keep the command ID once the code is accepted. A retry reuses it, so the server replays the result.
   const [attempt, setAttempt] = useState<{ pairId: string; commandId: string }>();
-  const send = useMutation({ mutationFn: requestVerificationCode, onSuccess: () => { setCode(''); setCodeError(''); setOpen(true); } });
+  const send = useMutation({ mutationFn: requestVerificationCode, onSuccess: () => { setCode(''); setCodeError(''); } });
   const disconnect = useMutation({
     mutationFn: async () => {
       if (attempt) return endPair(attempt.pairId, attempt.commandId);
@@ -91,17 +94,26 @@ function EndPairSection({ pairId }: { pairId: string }) {
   useUnsavedChanges(Boolean(code) || Boolean(attempt));
   const busy = send.isPending || disconnect.isPending;
   const error = disconnect.isError ? toAppError(disconnect.error).message : send.isError ? toAppError(send.error).message : '';
-  return <section className="settings-section" aria-labelledby="settings-end-pair"><h2 id="settings-end-pair">End this pair</h2>
-    <p>Either person can end this pair. Both people lose shared access. Your next pair starts empty.</p>
+  const close = () => { if (!busy) setOpen(false); };
+  return <section className="card form-page settings-danger" aria-labelledby="settings-end-pair"><h2 id="settings-end-pair">End this pair</h2>
+    <p className="muted">Either person can end this pair. Both people lose shared access. Your next pair starts empty.</p>
     {attempt ? <Button variant="danger" disabled={busy} onClick={() => disconnect.mutate()}>Retry ending pair</Button>
-      : <Button variant="danger" disabled={busy} onClick={() => { if (send.isSuccess) setOpen(true); else send.mutate(); }}>{send.isPending ? 'Sending code…' : 'End pair'}</Button>}
+      : <Button variant="danger" disabled={busy} onClick={() => setOpen(true)}>End pair</Button>}
     {error && !open && <Status error>{error}</Status>}
-    <Dialog busy={busy} title="End this pair?" open={open} onClose={() => { if (!busy) setOpen(false); }}>
-      <p>Both people lose shared access. This cannot be undone. Enter the code from your email.</p>
-      <Field label="Email verification code" name="code" spellCheck={false} disabled={busy} inputMode="numeric" autoComplete="one-time-code" value={code} maxLength={6} error={codeError} onChange={event => { setCodeError(''); setCode(event.target.value); }} />
-      {error && <Status error>{error}</Status>}
-      <div className="actions"><Button variant="danger" disabled={busy} onClick={() => { if (/^\d{6}$/.test(code)) disconnect.mutate(); else setCodeError('Enter the 6-digit code from your email.'); }}>Confirm ending pair</Button>
-      <Button variant="secondary" disabled={busy} onClick={() => send.mutate()}>Send a new code</Button></div>
+    <Dialog busy={busy} title="End this pair?" open={open} onClose={close}>
+      <p>You and {partner} lose access to your shared events, tasks, messages, and memories. You cannot undo this.</p>
+      {send.isSuccess ? <>
+        <Field label="Email verification code" name="code" spellCheck={false} disabled={busy} inputMode="numeric" autoComplete="one-time-code" value={code} maxLength={6} error={codeError} onChange={event => { setCodeError(''); setCode(event.target.value); }} />
+        {error && <Status error>{error}</Status>}
+        <div className="actions"><Button variant="danger" disabled={busy} onClick={() => { if (/^\d{6}$/.test(code)) disconnect.mutate(); else setCodeError('Enter the 6-digit code from your email.'); }}>Confirm ending pair</Button>
+        <Button variant="secondary" disabled={busy} onClick={close}>Cancel</Button>
+        <Button variant="text" disabled={busy} onClick={() => send.mutate()}>Send a new code</Button></div>
+      </> : <>
+        <p>To confirm, we email you a 6-digit code.</p>
+        {error && <Status error>{error}</Status>}
+        <div className="actions"><Button variant="danger" disabled={busy} onClick={() => send.mutate()}>{send.isPending ? 'Sending code…' : 'Email me a code'}</Button>
+        <Button variant="secondary" disabled={busy} onClick={close}>Cancel</Button></div>
+      </>}
     </Dialog>
   </section>;
 }

@@ -1,5 +1,5 @@
 .button { min-height: var(--nav-target); max-width: 100%; border: 1px solid var(--action-border); border-radius: var(--radius-control); padding: var(--space-3) var(--space-4); font-size: 15px; font-weight: 600; display: inline-flex; justify-content: center; align-items: center; gap: var(--space-2); cursor: pointer; text-decoration: none; line-height: 1.4; transition: background-color var(--duration-feedback) var(--ease), color var(--duration-feedback) var(--ease), border-color var(--duration-feedback) var(--ease), transform var(--duration-feedback) var(--ease); }
-.button.primary { background: var(--primary); color: var(--on-primary); border-color: var(--primary); font-weight: 700; }
+.button.primary { background: var(--primary); color: var(--on-primary); border-color: var(--primary); }
 .button.primary:hover:not(:disabled) { background: color-mix(in srgb, var(--primary) 88%, var(--ink)); }
 .button.secondary { background: var(--surface); color: var(--ink); border-color: var(--control); }
 .button.danger { background: var(--danger); color: var(--on-primary); border-color: var(--danger); }
@@ -11,16 +11,16 @@
 .button:disabled { opacity: .6; cursor: default; }
 .field input, .field select, .field textarea, .message-composer textarea { caret-color: var(--focus); }
 .field input:focus-visible, .field select:focus-visible, .field textarea:focus-visible { border-color: var(--focus); }
-.field { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; font-weight: 600; }
+.field { display: flex; flex-direction: column; gap: var(--space-2); margin-bottom: var(--space-5); font-weight: 600; }
 .field > span:first-child { font-size: 14px; }
 .field-hint, .field-error { font-size: 14px; font-weight: 400; margin: 0; }
 .field-hint { color: var(--muted); }
 .field-error { color: var(--danger); }
 .field input:hover:not(:disabled), .field select:hover:not(:disabled), .field textarea:hover:not(:disabled) { border-color: var(--focus); }
 .field input[aria-invalid=true], .field select[aria-invalid=true], .field textarea[aria-invalid=true] { border-color: var(--danger); }
-.field input, .field select, .form-page .field textarea { width: 100%; min-width: 0; min-height: 48px; padding: 12px 16px; border: 1px solid var(--control); border-radius: var(--radius-control); color: var(--ink); background: var(--surface); font-size: 16px; font-weight: 400; }
+.field input, .field select, .form-page .field textarea { width: 100%; min-width: 0; min-height: var(--nav-target); padding: var(--space-3) var(--space-4); border: 1px solid var(--control); border-radius: var(--radius-control); color: var(--ink); background: var(--surface); font-size: 16px; font-weight: 400; }
 .form-page fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
-.field-check > span { display: flex; align-items: center; gap: 12px; min-height: 48px; }
+.field-check > span { display: flex; align-items: center; gap: var(--space-3); min-height: var(--nav-target); }
 .field-check input { width: 24px; height: 24px; min-height: 24px; padding: 0; margin: 0; flex-shrink: 0; accent-color: var(--link); }
 .field-group { border: 0; padding: 0; margin: 0; min-width: 0; }
 /* Neutral status stays neutral: the lilac soft fill means Together. */
@@ -44,6 +44,7 @@ dialog { border: 1px solid var(--line); border-radius: var(--radius-card); paddi
 dialog::backdrop { background: var(--backdrop); }
 .dialog-heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-4); margin-bottom: var(--space-6); }
 .dialog-heading h2 { margin: 0; }
+.dialog-close { margin-right: calc(-1 * var(--space-3)); }
 .view-tabs { display:flex; gap:var(--space-1); flex-wrap:wrap; padding:var(--space-1); background:var(--canvas); border:1px solid var(--line); border-radius:var(--radius-control); }
 /* Segmented control: the pressed segment is a raised surface. Owner color stays for owner segments only. */
 .view-tabs button { display:inline-flex; align-items:center; justify-content:center; gap:var(--space-2); min-height:var(--nav-target); border:1px solid transparent; border-radius:var(--radius-badge); background:transparent; padding:var(--space-2) var(--space-4); color:var(--muted); font-size:15px; font-weight:600; line-height:1.4; cursor:pointer; }
