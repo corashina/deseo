@@ -32,10 +32,15 @@ async function capture(page: Page, area: string, path: string) {
   const dir = resolve(out, area);
   mkdirSync(dir, { recursive: true });
   for (const width of widths) {
+    // Grow the viewport to the page height, so fixed full-height parts such as the sidebar fill the shot.
     await page.setViewportSize({ width, height: 900 });
     await page.evaluate(() => new Promise(requestAnimationFrame));
-    await page.screenshot({ path: resolve(dir, `${slug(path)}-${width}.png`), fullPage: true });
+    const height = await page.evaluate(() => document.documentElement.scrollHeight);
+    await page.setViewportSize({ width, height: Math.max(900, height) });
+    await page.evaluate(() => new Promise(requestAnimationFrame));
+    await page.screenshot({ path: resolve(dir, `${slug(path)}-${width}.png`) });
   }
+  await page.setViewportSize({ width: 1440, height: 900 });
   // The detector attaches to this browser through its debug port and scans the open page at 1440px.
   const result = spawnSync(impeccable, ['detect', '--cdp', String(debugPort), '--target', new URL(page.url()).pathname, '--json'],
     { cwd: root, encoding: 'utf8', timeout: 90_000 });
