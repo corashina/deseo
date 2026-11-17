@@ -201,17 +201,8 @@ End pair sends a fresh email code and opens one dialog. The dialog explains acce
 
 ### Accessibility
 
-Use 48px targets. Keep visible labels on fields and navigation.
-Support keyboard focus, screen readers, and 200% text size.
-Announce save failures and send results. Do not move focus on realtime updates.
-Give every gesture a visible control.
-
-## Visual assets
-
-| Asset | Contents |
-|---|---|
-| [Selected icon](../brand/icon-source.png) | Two voices icon source |
-| [Brand tokens](../brand/tokens.json) | Light and dark palette values |
+Follow the [DESIGN.md](../DESIGN.md) target, focus, and announcement rules. Give every gesture a visible control.
+The [Two voices icon](../brand/icon-source.png) and [brand tokens](../brand/tokens.json) are the visual sources.
 
 ## Sources
 
