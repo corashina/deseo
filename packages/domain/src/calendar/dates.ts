@@ -1,16 +1,14 @@
 import { DateTime } from 'luxon';
-import { dateSchema, zoneSchema } from './schema';
+import { dateSchema } from './schema';
 import type { AgendaItem } from './types';
 
-export function importantDateCountdown(date: string, pairTimezone: string, now: DateTime = DateTime.now()): number {
+export function importantDateCountdown(date: string, timezone: string, now: DateTime = DateTime.now()): number {
   const day = dateSchema.parse(date);
-  zoneSchema.parse(pairTimezone);
-  const today = now.setZone(pairTimezone).toISODate()!;
+  const today = now.setZone(timezone).toISODate()!;
   return Math.round(DateTime.fromISO(day, { zone: 'UTC' }).diff(DateTime.fromISO(today, { zone: 'UTC' }), 'days').days);
 }
-export function nextImportantDate(items: AgendaItem[], pairTimezone: string, now: DateTime = DateTime.now()): AgendaItem | undefined {
-  zoneSchema.parse(pairTimezone);
-  const today = now.setZone(pairTimezone).toISODate()!;
+export function nextImportantDate(items: AgendaItem[], timezone: string, now: DateTime = DateTime.now()): AgendaItem | undefined {
+  const today = now.setZone(timezone).toISODate()!;
   let next: AgendaItem | undefined;
   let earliestDate: string | undefined;
   for (const event of items) {

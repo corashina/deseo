@@ -53,7 +53,7 @@ function TaskForm({ core, pairId, lists, task, reload, listId, quick }: Props & 
   });
   const { form, ready, saving, frozen, error, storageError } = draft;
   const values = form.watch(); const locked = !ready || frozen || saving;
-  const timezone = core.pair.status === 'active' ? core.pair.timezone : core.account.timezone;
+  const timezone = core.account.timezone;
   const fieldError = (name: keyof TaskValues) => form.formState.errors[name]?.message;
   if (draft.savedButNotCleared) { const savedId = draft.savedButNotCleared.id; return <Screen title="Task saved"><Status message="We saved your task. We could not remove its local draft." /><Button label="Open task" onPress={() => router.replace({ pathname: '/tasks/[taskId]', params: { taskId: savedId } })} /></Screen>; }
   return <Screen title={task ? 'Edit task' : quick ? 'Quick add' : 'Add task'}>
@@ -73,7 +73,7 @@ function TaskForm({ core, pairId, lists, task, reload, listId, quick }: Props & 
       </View>
       {fieldError('assigneeId') && <Status tone="error" message={fieldError('assigneeId')!} />}
       <Controller control={form.control} name="dueDate" render={({ field }) => <DateTimeField label="Due date (optional)" mode="date" value={field.value}
-        emptyValue={DateTime.now().setZone(timezone).toISODate()!} hint={`Pair timezone: ${timezone}.`} error={fieldError('dueDate')} disabled={locked}
+        emptyValue={DateTime.now().setZone(timezone).toISODate()!} error={fieldError('dueDate')} disabled={locked}
         onChange={field.onChange} />} />
     </>}
     <Button label={frozen ? 'Retry save' : task ? 'Save changes' : 'Add task'} loading={saving} disabled={!core.online || !ready || saving || error?.code === 'CONFLICT'} onPress={() => { void (frozen ? draft.retry() : draft.save()); }} />

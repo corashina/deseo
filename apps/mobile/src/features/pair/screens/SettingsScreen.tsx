@@ -59,7 +59,7 @@ export function PairSettingsScreen() {
         <Badge owner={member.slot} label={member.displayName} />
       </View>)}
     </View>}
-    {pair.status === 'active' ? <Text style={theme.typography.secondary}>Pair timezone: {pair.timezone}</Text> : <Text style={theme.typography.body}>{pair.status === 'ended' ? 'Your pair has ended. Shared content is unavailable.' : 'You have no active pair.'}</Text>}
+    {pair.status !== 'active' && <Text style={theme.typography.body}>{pair.status === 'ended' ? 'Your pair has ended. Shared content is unavailable.' : 'You have no active pair.'}</Text>}
     </Section>
     <Section card title="Preferences">
       <Button label="Notification preferences" variant="text" icon="notifications-outline" trailingIcon="chevron-forward"

@@ -175,14 +175,12 @@ grant execute on function public.get_session_context(),public.save_profile(text,
 create table public.pairs (
   id uuid primary key default gen_random_uuid(),
   state text not null default 'pending' check (state in ('pending','active','ended')),
-  timezone text not null,
   created_at timestamptz not null default now(),
   ended_at timestamptz,
   purge_after timestamptz,
   check ((state='ended' and ended_at is not null and purge_after=ended_at+interval '30 days')
     or (state<>'ended' and ended_at is null and purge_after is null))
 );
-create trigger pairs_timezone before insert or update on public.pairs for each row execute function private.check_timezone();
 create table public.pair_members (
   pair_id uuid not null references public.pairs(id) on delete cascade,
   user_id uuid not null references public.profiles(user_id),
@@ -285,18 +283,17 @@ language sql immutable set search_path = '' as $$
   select extensions.digest(upper(regexp_replace(coalesce(p_token,''),'[ -]','','g')),'sha256');
 $$;
 
-create function private.create_pair(p_timezone text,p_command_id uuid) returns jsonb
+create function private.create_pair(p_command_id uuid) returns jsonb
 language plpgsql security definer set search_path = '' as $$
-declare actor uuid; result jsonb; pair uuid; request jsonb := jsonb_build_object('timezone',p_timezone);
+declare actor uuid; result jsonb; pair uuid; request jsonb := '{}'::jsonb;
 begin
   actor := private.require_actor();
   perform 1 from public.profiles where user_id=actor for update;
   perform private.require_actor();
   result := private.receipt(actor,p_command_id,'create_pair',request);
   if result is not null then return result; end if;
-  if not exists(select 1 from pg_catalog.pg_timezone_names where name=p_timezone) then return private.error('VALIDATION','timezone'); end if;
   if exists(select 1 from public.pair_members where user_id=actor and left_at is null) then return private.error('ALREADY_PAIRED'); end if;
-  insert into public.pairs(timezone) values(p_timezone) returning id into pair;
+  insert into public.pairs default values returning id into pair;
   insert into public.pair_members(pair_id,user_id,slot) values(pair,actor,'a');
   return private.save_receipt(actor,p_command_id,'create_pair',pair,request,jsonb_build_object('pairId',pair));
 exception when sqlstate 'P0001' then return private.error(sqlerrm);
@@ -337,7 +334,7 @@ begin
   select * into invitation from private.pair_invites where token_hash=private.token_hash(p_token)
     and accepted_at is null and revoked_at is null and expires_at>now();
   if not found then return private.invite_failed(actor); end if;
-  select jsonb_build_object('pairId',p.id,'inviterName',profile.display_name,'timezone',p.timezone,'expiresAt',invitation.expires_at)
+  select jsonb_build_object('pairId',p.id,'inviterName',profile.display_name,'expiresAt',invitation.expires_at)
     into info from public.pairs p join public.profiles profile on profile.user_id=invitation.created_by
     where p.id=invitation.pair_id and p.state='pending' and profile.account_status='active';
   if info is null then return private.invite_failed(actor); end if;
@@ -414,18 +411,18 @@ begin
     into members from public.pair_members m join public.profiles p on p.user_id=m.user_id
     where m.pair_id=pair.id and m.left_at is null;
   if pair.state='active' then
-    return jsonb_build_object('ok',true,'data',jsonb_build_object('status','active','pairId',pair.id,'timezone',pair.timezone,'members',members));
+    return jsonb_build_object('ok',true,'data',jsonb_build_object('status','active','pairId',pair.id,'members',members));
   end if;
   select jsonb_build_object('expiresAt',expires_at) into invite from private.pair_invites
     where pair_id=pair.id and accepted_at is null and revoked_at is null and expires_at>now();
   member := members->0;
-  return jsonb_build_object('ok',true,'data',jsonb_build_object('status','pending','pairId',pair.id,'timezone',pair.timezone,'member',member,'invite',invite));
+  return jsonb_build_object('ok',true,'data',jsonb_build_object('status','pending','pairId',pair.id,'member',member,'invite',invite));
 exception when sqlstate 'P0001' then return private.error(sqlerrm);
 end;
 $$;
 
-create function public.create_pair(p_timezone text,p_command_id uuid) returns jsonb language sql security invoker set search_path = ''
-as $$ select private.create_pair(p_timezone,p_command_id); $$;
+create function public.create_pair(p_command_id uuid) returns jsonb language sql security invoker set search_path = ''
+as $$ select private.create_pair(p_command_id); $$;
 create function public.create_invite(p_pair_id uuid,p_command_id uuid) returns jsonb language sql security invoker set search_path = ''
 as $$ select private.create_invite(p_pair_id,p_command_id); $$;
 create function public.preview_invite(p_token text) returns jsonb language sql security invoker set search_path = ''
@@ -438,15 +435,15 @@ create function public.get_pair_context() returns jsonb language sql security in
 as $$ select private.get_pair_context(); $$;
 
 revoke all on function private.is_member(uuid,boolean),private.is_partner(uuid),private.lock_pair(uuid,uuid),
-private.invite_limited(uuid),private.invite_failed(uuid),private.token_hash(text),private.create_pair(text,uuid),
+private.invite_limited(uuid),private.invite_failed(uuid),private.token_hash(text),private.create_pair(uuid),
 private.create_invite(uuid,uuid),private.preview_invite(text),private.accept_invite(text,uuid),private.cancel_pending_pair(uuid,uuid),
 private.get_pair_context() from public,anon,authenticated;
-grant execute on function private.is_member(uuid,boolean),private.is_partner(uuid),private.create_pair(text,uuid),
+grant execute on function private.is_member(uuid,boolean),private.is_partner(uuid),private.create_pair(uuid),
 private.create_invite(uuid,uuid),private.preview_invite(text),private.accept_invite(text,uuid),private.cancel_pending_pair(uuid,uuid),
 private.get_pair_context() to authenticated;
-revoke all on function public.create_pair(text,uuid),public.create_invite(uuid,uuid),public.preview_invite(text),
+revoke all on function public.create_pair(uuid),public.create_invite(uuid,uuid),public.preview_invite(text),
 public.accept_invite(text,uuid),public.cancel_pending_pair(uuid,uuid),public.get_pair_context() from public,anon,authenticated;
-grant execute on function public.create_pair(text,uuid),public.create_invite(uuid,uuid),public.preview_invite(text),
+grant execute on function public.create_pair(uuid),public.create_invite(uuid,uuid),public.preview_invite(text),
 public.accept_invite(text,uuid),public.cancel_pending_pair(uuid,uuid),public.get_pair_context() to authenticated;
 alter publication supabase_realtime add table public.pair_members;
 alter publication supabase_realtime add table public.profiles;
@@ -469,7 +466,6 @@ create table public.events (
   created_by uuid not null,
   who text not null check(who in('together','a','b','private')),
   title text not null check(char_length(title) between 1 and 120 and title=btrim(title)),
-  timezone text not null,
   starts_at timestamptz,
   ends_at timestamptz,
   start_date date,
@@ -501,7 +497,6 @@ grant select on public.events to authenticated;
 grant all on public.events to service_role;
 create policy events_visible on public.events for select to authenticated
 using(pair_id=(select private.actor_pair()) and (who<>'private' or created_by=(select private.active_actor())));
-create trigger events_timezone before insert or update on public.events for each row execute function private.check_timezone();
 
 -- Keep only opaque IDs for former readers. This also removes drafts after an offline change to private.
 create table public.event_access_revocations (
@@ -534,7 +529,7 @@ create function private.event_command(p_action text,p_event_id uuid,p_input json
 returns jsonb language plpgsql security definer set search_path = '' as $$
 declare v_actor uuid; v_pair uuid; previous public.events; result public.events; replay jsonb;
   request jsonb := jsonb_build_object('id',p_event_id,'input',p_input,'version',p_expected_version);
-  v_important boolean; v_repeat text; v_month integer; v_day integer; v_title text; v_who text; v_timezone text; starts timestamptz; ends timestamptz; first_date date; last_date date;
+  v_important boolean; v_repeat text; v_month integer; v_day integer; v_title text; v_who text; starts timestamptz; ends timestamptz; first_date date; last_date date;
 begin
   v_actor := private.require_actor();
   if p_action not in('create','update','delete') then return private.error('VALIDATION'); end if;
@@ -574,10 +569,9 @@ begin
     return private.save_receipt(v_actor,p_command_id,'event_delete',v_pair,request,jsonb_build_object('id',p_event_id));
   end if;
   if (p_input->>'id')::uuid is distinct from p_event_id or (p_input->>'pair_id')::uuid is distinct from v_pair then return private.error('VALIDATION','id'); end if;
-  v_title := btrim(p_input->>'title'); v_who := p_input->>'who'; v_timezone := p_input->>'timezone';
+  v_title := btrim(p_input->>'title'); v_who := p_input->>'who';
   if v_title is null or char_length(v_title) not between 1 and 120 then return private.error('VALIDATION','title'); end if;
   if v_who is null or v_who not in('together','a','b','private') then return private.error('VALIDATION','who'); end if;
-  if not exists(select 1 from pg_catalog.pg_timezone_names where name=v_timezone) then return private.error('VALIDATION','timezone'); end if;
   if char_length(p_input->>'location')>200 then return private.error('VALIDATION','location'); end if;
   if char_length(p_input->>'description')>2000 then return private.error('VALIDATION','description'); end if;
   v_repeat := coalesce(p_input->>'repeat','none');
@@ -598,10 +592,10 @@ begin
     v_month := extract(month from first_date)::integer; v_day := extract(day from first_date)::integer;
   end if;
   if p_action='create' then
-    insert into public.events(id,pair_id,created_by,who,title,timezone,starts_at,ends_at,start_date,end_date_exclusive,location,description,repeat,repeat_month,repeat_day,important_date)
-    values(p_event_id,v_pair,v_actor,v_who,v_title,v_timezone,starts,ends,first_date,last_date,p_input->>'location',p_input->>'description',v_repeat,v_month,v_day,v_important) returning * into result;
+    insert into public.events(id,pair_id,created_by,who,title,starts_at,ends_at,start_date,end_date_exclusive,location,description,repeat,repeat_month,repeat_day,important_date)
+    values(p_event_id,v_pair,v_actor,v_who,v_title,starts,ends,first_date,last_date,p_input->>'location',p_input->>'description',v_repeat,v_month,v_day,v_important) returning * into result;
   else
-    update public.events set who=v_who,title=v_title,timezone=v_timezone,starts_at=starts,ends_at=ends,
+    update public.events set who=v_who,title=v_title,starts_at=starts,ends_at=ends,
       start_date=first_date,end_date_exclusive=last_date,location=p_input->>'location',description=p_input->>'description',
       important_date=v_important,repeat=v_repeat,repeat_month=v_month,repeat_day=v_day,version=version+1,updated_at=now() where id=p_event_id returning * into result;
     if previous.who<>'private' and v_who='private' then
@@ -642,19 +636,20 @@ revoke all on function private.yearly_date(integer,integer,integer) from public,
 grant execute on function private.yearly_date(integer,integer,integer) to authenticated;
 create function private.list_agenda(p_pair_id uuid,p_from date,p_to date,p_important_only boolean) returns jsonb
 language plpgsql stable security invoker set search_path='' as $$
-declare pair_timezone text; items jsonb;
+declare viewer_timezone text; items jsonb;
 begin
   if private.active_actor() is null then return private.error('UNAUTHENTICATED'); end if;
   if p_from is null or p_to is null or p_to<=p_from or p_to-p_from>366 then return private.error('VALIDATION','range'); end if;
-  select p.timezone into pair_timezone from public.pairs p where id=p_pair_id and state='active';
-  if pair_timezone is null then return private.error('FORBIDDEN'); end if;
+  if not exists(select 1 from public.pairs where id=p_pair_id and state='active') then return private.error('FORBIDDEN'); end if;
+  -- Days start at midnight in the viewer's own timezone.
+  select timezone into viewer_timezone from public.profiles where user_id=private.active_actor();
   with occurrences as (
-    select to_jsonb(e) item,coalesce(e.starts_at,e.start_date::timestamp at time zone pair_timezone) sort_time,e.id
+    select to_jsonb(e) item,coalesce(e.starts_at,e.start_date::timestamp at time zone viewer_timezone) sort_time,e.id
     from public.events e where e.pair_id=p_pair_id and e.repeat='none' and (e.important_date or not p_important_only) and
-      ((e.starts_at < (p_to::timestamp at time zone pair_timezone) and e.ends_at > (p_from::timestamp at time zone pair_timezone))
+      ((e.starts_at < (p_to::timestamp at time zone viewer_timezone) and e.ends_at > (p_from::timestamp at time zone viewer_timezone))
         or (e.start_date < p_to and e.end_date_exclusive > p_from))
     union all
-    select to_jsonb(e)||jsonb_build_object('occurrence_date',d.occurrence_day),d.occurrence_day::timestamp at time zone pair_timezone,e.id
+    select to_jsonb(e)||jsonb_build_object('occurrence_date',d.occurrence_day),d.occurrence_day::timestamp at time zone viewer_timezone,e.id
     from public.events e
     cross join lateral generate_series(extract(year from p_from)::integer,extract(year from p_to-1)::integer) y(year)
     cross join lateral (select private.yearly_date(y.year,e.repeat_month,e.repeat_day) as occurrence_day) d
@@ -1892,7 +1887,7 @@ begin
     return new;
   end if;
   future:=case when old.starts_at is not null then old.starts_at>now()
-    else old.start_date>(now() at time zone (select timezone from public.pairs where id=old.pair_id))::date end;
+    else old.start_date>(now() at time zone coalesce((select timezone from public.profiles where user_id=old.created_by),'UTC'))::date end;
   update public.date_ideas set linked_event_id=null,state=case when state='planned' and future then 'saved' else state end,
     version=version+1,updated_at=now() where linked_event_id=old.id;
   return old;
@@ -2077,21 +2072,22 @@ end; $$;
 create function private.reminder_json(r public.reminders) returns jsonb
 language plpgsql stable security definer set search_path='' as $$
 declare next_due timestamptz; e public.events; occurrence date; local_today date; year integer;
+ tz text:=(select timezone from public.profiles where user_id=r.user_id);
 begin
  if r.task_id is not null then next_due:=r.remind_at;
  else
    select * into e from public.events where id=r.event_id;
    if e.repeat='yearly' then
-     local_today:=(now() at time zone e.timezone)::date;
+     local_today:=(now() at time zone tz)::date;
      year:=greatest(extract(year from local_today),extract(year from e.start_date))::integer;
      occurrence:=private.yearly_date(year,e.repeat_month,e.repeat_day);
-     next_due:=(occurrence+time '09:00') at time zone e.timezone-make_interval(mins=>r.minutes_before);
+     next_due:=(occurrence+time '09:00') at time zone tz-make_interval(mins=>r.minutes_before);
      if next_due<=now() then
        occurrence:=private.yearly_date(year+1,e.repeat_month,e.repeat_day);
-       next_due:=(occurrence+time '09:00') at time zone e.timezone-make_interval(mins=>r.minutes_before);
+       next_due:=(occurrence+time '09:00') at time zone tz-make_interval(mins=>r.minutes_before);
      end if;
    else
-     next_due:=coalesce(e.starts_at,(e.start_date+time '09:00') at time zone e.timezone)-make_interval(mins=>r.minutes_before);
+     next_due:=coalesce(e.starts_at,(e.start_date+time '09:00') at time zone tz)-make_interval(mins=>r.minutes_before);
    end if;
  end if;
  return jsonb_build_object('id',r.id,'pairId',r.pair_id,'eventId',r.event_id,'taskId',r.task_id,
@@ -2291,32 +2287,32 @@ end; $$;
 create function private.refresh_reminder(p_id uuid) returns void
 language plpgsql security definer set search_path='' as $$
 declare r public.reminders; e public.events; t public.tasks; occurrence date; starts timestamptz;
- local_today date; year integer; candidate date;
+ local_today date; year integer; candidate date; tz text;
 begin
  select * into r from public.reminders where id=p_id;
  if not found then return; end if;
+ tz:=(select timezone from public.profiles where user_id=r.user_id);
  if not r.active or not private.notification_member(r.user_id,r.pair_id) then return; end if;
  if r.task_id is not null then
    select * into t from public.tasks where id=r.task_id and pair_id=r.pair_id and completed_at is null;
    if not found then return; end if;
-   perform private.enqueue_notification(r.user_id,r.pair_id,'task',t.id,(r.remind_at at time zone
-     (select timezone from public.pairs where id=r.pair_id))::date::text,t.version,r.id,r.version,r.remind_at,r.remind_at+interval '1 day');
+   perform private.enqueue_notification(r.user_id,r.pair_id,'task',t.id,(r.remind_at at time zone tz)::date::text,t.version,r.id,r.version,r.remind_at,r.remind_at+interval '1 day');
  else
    select * into e from public.events where id=r.event_id and pair_id=r.pair_id and (who<>'private' or created_by=r.user_id);
    if not found then return; end if;
    if e.repeat='yearly' then
-     local_today:=(now() at time zone e.timezone)::date;
+     local_today:=(now() at time zone tz)::date;
      for year in extract(year from local_today)::integer..extract(year from local_today+90)::integer loop
        candidate:=private.yearly_date(year,e.repeat_month,e.repeat_day);
        if candidate>=greatest(local_today,e.start_date) and candidate<=local_today+90 then
-         starts:=(candidate+time '09:00') at time zone e.timezone;
+         starts:=(candidate+time '09:00') at time zone tz;
          perform private.enqueue_notification(r.user_id,r.pair_id,'event',e.id,candidate::text,e.version,r.id,r.version,
            starts-make_interval(mins=>r.minutes_before),starts);
        end if;
      end loop;
    else
-     starts:=coalesce(e.starts_at,(e.start_date+time '09:00') at time zone e.timezone);
-     occurrence:=coalesce(e.start_date,(e.starts_at at time zone e.timezone)::date);
+     starts:=coalesce(e.starts_at,(e.start_date+time '09:00') at time zone tz);
+     occurrence:=coalesce(e.start_date,(e.starts_at at time zone tz)::date);
      perform private.enqueue_notification(r.user_id,r.pair_id,'event',e.id,occurrence::text,e.version,r.id,r.version,
        starts-make_interval(mins=>r.minutes_before),starts);
    end if;
@@ -2422,7 +2418,7 @@ declare pair uuid; r record;
 begin
  if tg_table_name='pairs' then
    pair:=new.id;
-   if (new.state,new.timezone) is not distinct from (old.state,old.timezone) then return new; end if;
+   if new.state is not distinct from old.state then return new; end if;
  else
    pair:=new.pair_id;
    if new.left_at is not distinct from old.left_at then return new; end if;

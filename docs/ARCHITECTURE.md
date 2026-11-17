@@ -206,7 +206,7 @@ Generate database types from the actual schema. Keep database checks authoritati
 | Record | Required fields and constraints |
 |---|---|
 | `profiles` | `user_id`, display name 1–40, IANA timezone, locale, `account_status` |
-| `pairs` | ID, state `pending/active/ended`, timezone, created/ended timestamps, purge deadline |
+| `pairs` | ID, state `pending/active/ended`, created/ended timestamps, purge deadline |
 | `pair_members` | Pair, user, stable slot `a/b`, joined/left timestamps; unique active membership per user |
 | `pair_invites` | Pair, token hash, creator, expiry, accepted/revoked time; only one live invite per pending pair |
 | `events` | Pair, author, who `together/a/b/private`, title, temporal fields, optional location/description |
@@ -230,9 +230,9 @@ No separate table exists for Today, notes, countdowns, or a relationship score.
 
 ### Temporal fields
 
-Timed event: `starts_at`, `ends_at`, `timezone`; require `ends_at > starts_at`.
+Timed event: `starts_at`, `ends_at`; require `ends_at > starts_at`.
 
-All-day event: `start_date`, `end_date_exclusive`, `timezone`; require a positive date span.
+All-day event: `start_date`, `end_date_exclusive`; require a positive date span.
 
 A check constraint permits exactly one temporal representation, never both.
 
@@ -245,12 +245,13 @@ A yearly date has no occurrence before its start date. Agenda reads, reminder st
 
 Include events that overlap the requested range, even when they start before it. Treat the query end as exclusive.
 
-Luxon converts wall times to instants. Detect invalid and ambiguous times before committing a timed event.
+Each person reads and enters times in their profile timezone. Luxon converts wall times to instants.
+A wall time that occurs twice at a clock change uses its first instant.
 
 Event reminder offsets are 15, 60, or 1440 minutes. Zero-offset reminders are not supported.
-All-day offsets count back from 09:00 in the event timezone. Yearly dates follow the February 28 leap-day rule.
+All-day offsets count back from 09:00 in the reminder owner's timezone. Yearly dates follow the February 28 leap-day rule.
 
-Task due dates are dates in the pair timezone. A task reminder stores an explicit chosen instant.
+Task due dates are dates in the viewer's timezone. A task reminder stores an explicit chosen instant.
 
 ### Access matrix
 
@@ -283,7 +284,7 @@ Use `security_invoker` views if a view is required. Do not expose unrestricted v
 
 #### Create and regenerate
 
-`create_pair(timezone, command_id)` creates a pending pair and membership atomically.
+`create_pair(command_id)` creates a pending pair and membership atomically.
 
 `create_invite(pair_id, command_id)` generates a cryptographically random 12-character Crockford code and returns it once.
 
@@ -506,8 +507,7 @@ It keeps one error state if either read fails. Calendar, Tasks, Notes, and Pair 
 Native Today keeps Memory loading and errors independent.
 Both applications display at most three plans. Native retains the complete filtered agenda for its count.
 Timed Events must end after the current instant. Important dates retain their full horizon.
-Pair timezone controls query dates, due Tasks, and Important dates.
-Native Event rows, Notes, and header dates use account timezone.
+The viewer's profile timezone controls query dates, due Tasks, Important dates, Event rows, Notes, and header dates.
 Section order remains plans, memory, note, tasks, then important date.
 
 ## Render calculations

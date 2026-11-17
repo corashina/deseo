@@ -29,7 +29,7 @@ export function TasksPage() {
   // Open tasks with a due date come first, soonest first. Tasks without one keep their order.
   const open = [...tasks.data?.filter(task => task.completedAt === null) ?? []].sort((a, b) => (a.dueDate ?? '9999').localeCompare(b.dueDate ?? '9999'));
   const done = tasks.data?.filter(task => task.completedAt !== null) ?? [];
-  const row = (task: Task) => <TaskRow key={task.id} task={task} members={pair.members} timezone={pair.timezone} locale={account!.locale} />;
+  const row = (task: Task) => <TaskRow key={task.id} task={task} members={pair.members} timezone={account!.timezone} locale={account!.locale} />;
   return <>
     <PageHeader title="Tasks" description="Keep shared tasks in named lists." />
     <section className="card">

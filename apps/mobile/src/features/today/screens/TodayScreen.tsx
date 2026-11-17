@@ -31,12 +31,12 @@ function Today() {
   const { account, pair, online } = useCore();
   const activePair = pair as Extract<typeof pair, { status: 'active' }>;
   const pairId = activePair.pairId;
-  const [date, setDate] = useState(() => DateTime.now().setZone(activePair.timezone).toISODate()!);
+  const [date, setDate] = useState(() => DateTime.now().setZone(account.timezone).toISODate()!);
   useEffect(() => {
-    const tick = () => setDate(DateTime.now().setZone(activePair.timezone).toISODate()!);
+    const tick = () => setDate(DateTime.now().setZone(account.timezone).toISODate()!);
     tick(); const timer = setInterval(tick, 60_000);
     return () => clearInterval(timer);
-  }, [activePair.timezone]);
+  }, [account.timezone]);
   const client = useQueryClient();
   const [recentTaskId, setRecentTaskId] = useState<string | null>(null);
   const query = useQuery({ queryKey: todayKeys.day(account.id, pairId, date),
@@ -46,8 +46,8 @@ function Today() {
   const notifications = useInfiniteQuery({ queryKey: notificationKeys.list(account.id, pairId), initialPageParam: null as string | null,
     queryFn: ({ pageParam }) => listNotifications(pageParam), getNextPageParam: page => page.nextCursor ?? undefined });
   const newNotifications = !notifications.isError && notifications.data?.pages.some(page => page.items.some(item => item.readAt === null));
-  const important = query.data ? nextImportantDate(query.data.importantDates, activePair.timezone) : undefined;
-  const countdown = important?.temporal.kind === 'allDay' ? importantDateCountdown(important.temporal.startDate, activePair.timezone) : null;
+  const important = query.data ? nextImportantDate(query.data.importantDates, account.timezone) : undefined;
+  const countdown = important?.temporal.kind === 'allDay' ? importantDateCountdown(important.temporal.startDate, account.timezone) : null;
   const note = query.data?.notes[0];
   const completedTask = !recentTask.isError && recentTask.data?.completedAt ? recentTask.data : null;
   const author = (id: string | null) => activePair.members.find(member => member.userId === id)?.displayName ?? 'Unassigned';
@@ -103,7 +103,7 @@ function Today() {
       {query.isPending ? <Status tone="loading" message="Loading important dates…" /> : query.isError ?
         <Status message="We could not load important dates." tone="error" /> :
         important && important.temporal.kind === 'allDay' && countdown !== null ? <>
-          <Countdown days={countdown} title={important.title} date={DateTime.fromISO(important.temporal.startDate, { zone: activePair.timezone }).toLocaleString(DateTime.DATE_HUGE)} />
+          <Countdown days={countdown} title={important.title} date={DateTime.fromISO(important.temporal.startDate, { zone: account.timezone }).toLocaleString(DateTime.DATE_HUGE)} />
           <Button label="View date" variant="text" trailingIcon="chevron-forward" onPress={() => router.push({ pathname: '/events/[eventId]', params: { eventId: important.id } })} />
         </> : <Text style={theme.typography.body}>Add an important date in Calendar.</Text>}
     </Section>

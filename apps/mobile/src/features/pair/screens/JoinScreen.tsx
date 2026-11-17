@@ -45,7 +45,6 @@ export function JoinScreen() {
   return <Screen title={preview ? `Join ${preview.inviterName}?` : 'Enter invitation'}>
     {preview ? <>
       <Text style={theme.typography.body}>Your partner will see shared events, tasks, messages, and memories. Private events stay private.</Text>
-      <Text style={theme.typography.secondary}>Timezone: {preview.timezone}</Text>
       <Button label="Join pair" loading={busy} disabled={!online} onPress={() => { void join(); }} />
     </> : <>
       <Field label="Invitation code or link" autoCapitalize="characters" autoCorrect={false} value={value}

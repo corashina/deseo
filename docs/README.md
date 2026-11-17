@@ -103,9 +103,9 @@ After a join, both partners open Today. Its empty sections offer the first actio
 Today holds the conversation (see [Messages and notes](#messages-and-notes)) and an Our day panel.
 Panel order: next plan, next three events with a seven-day strip, due tasks, next important date, latest memory.
 Below 1200px the panel becomes links above the conversation: next plan, due task count, countdown.
-Show each plan's date in the pair timezone. Each section links to its full page.
+Show each plan's date in the viewer's timezone. Each section links to its full page.
 Show up to three unfinished tasks due today or earlier.
-Show one upcoming important date with its absolute date. Count down in the pair timezone.
+Show one upcoming important date with its absolute date. Count down in the viewer's timezone.
 For empty data, show a short prompt and its creation action. Omit empty decorative cards.
 
 ### Calendar
@@ -122,11 +122,10 @@ Show owner names beside colors. A private event appears only to its author, with
 | Who | Together, Me, Partner, or Private (just me); default Together |
 | Location | Optional; 200 characters |
 | Description | Optional plain text; 2,000 characters |
-| Timezone | In More details; detected default; editable IANA zone |
 | Important date | In More details; one all-day date; Repeat every year |
 
 Store the inclusive all-day end as an exclusive end date.
-Important dates default to the pair timezone. Timed events default to the creator's timezone.
+Each person enters and reads times in their profile timezone. Events store no timezone.
 When the stored version changed, show a conflict screen. Offer Reload saved version or return to the draft.
 Never overwrite the partner's edit silently. Never merge text fields.
 Opening an event shows its edit form with Delete event.
@@ -178,7 +177,7 @@ For the author, the date and caption fields follow the photos, with Save changes
 | Group | Controls |
 |---|---|
 | Profile | Display name, timezone |
-| Your pair | Partner identity, owner colors, pair timezone |
+| Your pair | Partner identity, owner colors |
 | Account | Sign out, sign out of all devices |
 | End this pair | End pair, apart from ordinary edits |
 

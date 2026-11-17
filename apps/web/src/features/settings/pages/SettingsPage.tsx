@@ -23,8 +23,7 @@ export function SettingsPage() {
     <div className="card form-page settings-page">
       <ProfileSection />
       <section className="settings-section" aria-labelledby="settings-pair"><h2 id="settings-pair">Your pair</h2>
-        {pair?.status === 'active' ? <><ul className="paired-members">{pair.members.map(member => <li key={member.userId}><Avatar name={member.displayName} slot={member.slot} /><div><h3>{member.displayName}</h3><p>{member.userId === account!.id ? 'You' : 'Your partner'}</p></div></li>)}</ul>
-          {pair.timezone !== account!.timezone && <p className="muted">Pair timezone: <span translate="no">{pair.timezone}</span></p>}</>
+        {pair?.status === 'active' ? <><ul className="paired-members">{pair.members.map(member => <li key={member.userId}><Avatar name={member.displayName} slot={member.slot} /><div><h3>{member.displayName}</h3><p>{member.userId === account!.id ? 'You' : 'Your partner'}</p></div></li>)}</ul></>
           : pair?.status === 'pending' ? <><p className="muted">Your invitation is waiting for your partner.</p><Link to="/pair/waiting">View invitation</Link></>
           : <><p className="muted">{pair?.status === 'ended' ? 'Your pair has ended. Shared content is unavailable.' : 'You do not have a pair yet.'}</p><Link to="/pair/start">{pair?.status === 'ended' ? 'Start a new pair' : 'Set up your pair'}</Link></>}
       </section>

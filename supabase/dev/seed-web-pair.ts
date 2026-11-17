@@ -44,7 +44,7 @@ export async function populatePortalPair(anna: SupabaseClient, marek: SupabaseCl
   async function event(id: string, title: string, who: string, temporal: Record<string, unknown>, extra = {}) {
     const old = await anna.from('events').select('id').eq('id', id).maybeSingle();
     if (old.error) throw old.error;
-    if (!old.data) await fixtureCommand(anna, 'create_event', { p_input: { id, pair_id: pairId, title, who, timezone: 'Europe/Warsaw', repeat: 'none', ...temporal, ...extra }, p_command_id: commandId(Number.parseInt(id.slice(-6), 16)) });
+    if (!old.data) await fixtureCommand(anna, 'create_event', { p_input: { id, pair_id: pairId, title, who, repeat: 'none', ...temporal, ...extra }, p_command_id: commandId(Number.parseInt(id.slice(-6), 16)) });
   }
   await event(fixed.sharedEventId, 'Dinner together', 'together', { starts_at: '2026-10-05T17:00:00Z', ends_at: '2026-10-05T19:00:00Z' }, { location: 'Our kitchen', description: 'Pasta, candles, and time to talk.' });
   await event(fixed.walkEventId, 'Weekend walk', 'together', { start_date: '2026-10-10', end_date_exclusive: '2026-10-12' }, { location: 'Citadel Park' });
@@ -112,7 +112,7 @@ export async function seedWebPair(): Promise<FixtureIds> {
     if (!context.members.some((member: { userId: string }) => member.userId === FIXED_IDS.marekId)) throw new Error('Named fixture belongs to another pair.');
   } else {
     if (context.status !== 'unpaired' && context.status !== 'pending') throw new Error('Named pair has ended. Do not overwrite it.');
-    pairId = context.status === 'pending' ? context.pairId : (await fixtureCommand(anna, 'create_pair', { p_timezone: 'Europe/Warsaw', p_command_id: FIXED_IDS.createPairCommandId })).pairId;
+    pairId = context.status === 'pending' ? context.pairId : (await fixtureCommand(anna, 'create_pair', { p_command_id: FIXED_IDS.createPairCommandId })).pairId;
     const invite = await fixtureCommand(anna, 'create_invite', { p_pair_id: pairId, p_command_id: FIXED_IDS.inviteCommandId });
     await fixtureCommand(marek, 'accept_invite', { p_token: invite.token, p_command_id: FIXED_IDS.acceptCommandId });
     context = await fixtureCommand(anna, 'get_pair_context', {});

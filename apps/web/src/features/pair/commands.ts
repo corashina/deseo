@@ -1,6 +1,5 @@
 import { z } from 'zod';
 import { createdInviteSchema, invitePreviewSchema } from '@deseo/domain/pair';
-import { timezoneSchema } from '@deseo/domain/auth';
 import type { DeseoClient } from '../../lib/supabase';
 import { callRpc } from '../../lib/rpc';
 import { entryIntent } from '../auth';
@@ -12,8 +11,8 @@ const pairResult = z.object({ pairId: z.string().uuid() });
 const endedResult = z.object({ endedAt: z.string() });
 const id = z.string().uuid();
 // The pair RPCs take a command ID. Each attempt sends a new one.
-export function createPair(timezone: string) {
-  return callRpc('create_pair', { p_timezone: timezoneSchema.parse(timezone), p_command_id: crypto.randomUUID() }, pairResult);
+export function createPair() {
+  return callRpc('create_pair', { p_command_id: crypto.randomUUID() }, pairResult);
 }
 export function createInvite(pairId: string) {
   return callRpc('create_invite', { p_pair_id: id.parse(pairId), p_command_id: crypto.randomUUID() }, createdInviteSchema);
@@ -21,8 +20,8 @@ export function createInvite(pairId: string) {
 // One click creates the pair and its invitation. The waiting page shows that code once.
 type CreatedInvite = z.infer<typeof createdInviteSchema>;
 let heldInvite: { pairId: string; invite: CreatedInvite } | null = null;
-export async function createPairWithInvite(timezone: string) {
-  const { pairId } = await createPair(timezone);
+export async function createPairWithInvite() {
+  const { pairId } = await createPair();
   heldInvite = { pairId, invite: await createInvite(pairId) };
 }
 export function takeHeldInvite(pairId: string) {

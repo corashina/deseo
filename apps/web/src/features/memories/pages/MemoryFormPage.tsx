@@ -22,7 +22,7 @@ export function MemoryFormPage() {
   const upload = useRef<Upload>(undefined);
   const [photos, setPhotos] = useState<PreparedBrowserPhoto[]>([]);
   const [progress, setProgress] = useState('');
-  const form = useForm<MemoryInput>({ defaultValues: { caption: '', memoryDate: DateTime.now().setZone(pair.timezone).toISODate()! } });
+  const form = useForm<MemoryInput>({ defaultValues: { caption: '', memoryDate: DateTime.now().setZone(account.timezone).toISODate()! } });
   const prepare = useMutation({
     mutationFn: async (files: File[]) => {
       if (photos.length + files.length > 5) throw new Error('Choose no more than 5 photos.');

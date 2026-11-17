@@ -66,17 +66,17 @@ function EventEditor({ event, idea }: { event?: Event; idea?: DateIdea }) {
   const date = DateTime.fromISO(params.get('date') ?? '');
   const form = useForm<EventFormValues>({
     resolver: zodResolver(eventFormSchema),
-    defaultValues: event ? eventToForm(event) : {
+    defaultValues: event ? eventToForm(event, account.timezone) : {
       title: idea?.title ?? '', allDay: false,
       startDate: date.isValid ? date.toISODate()! : now.toISODate()!,
       endDate: date.isValid ? date.toISODate()! : now.toISODate()!,
-      startTime: '18:00', endTime: '19:00', timezone: account.timezone,
+      startTime: '18:00', endTime: '19:00',
       who: 'together', location: '', description: idea?.note ?? '', repeat: 'none', importantDate: false,
     },
   });
   const save = useMutation({
     mutationFn: ({ values, confirmShared }: { values: EventFormValues; confirmShared: boolean }) => {
-      const input = toEventInput({ ...values, id, pairId: pair.pairId, confirmShared });
+      const input = toEventInput({ ...values, id, pairId: pair.pairId, confirmShared }, account.timezone);
       const commandId = command.idFor({ input, version });
       return idea ? planDateIdea(idea.id, input, version!, commandId) : event ? updateEvent(input, version!, commandId) : createEvent(input, commandId);
     },
@@ -93,7 +93,7 @@ function EventEditor({ event, idea }: { event?: Event; idea?: DateIdea }) {
       }
       const current = await getEvent(pair.pairId, event!.id);
       if (!current) throw new AppError({ code: 'FORBIDDEN', message: 'Event unavailable.' });
-      form.reset(eventToForm(current));
+      form.reset(eventToForm(current, account.timezone));
       setVersion(current.version);
     },
     onSuccess: () => save.reset(),
