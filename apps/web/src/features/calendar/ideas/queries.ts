@@ -2,21 +2,21 @@ import { z } from 'zod';
 import { getSupabase } from '../../../lib/supabase';
 import { type Page } from '@deseo/domain/result';
 import { calendarKeys } from '../queries';
-import { ideaRowSchema, type IdeaState, type DateIdea } from '@deseo/domain/calendar';
+import { ideaRowSchema, type DateIdea } from '@deseo/domain/calendar';
 import type { QueryKeys } from '../../../lib/query-keys';
 export const ideaKeys = {
 
-  list: (accountId: string, pairId: string, state: IdeaState) => [...calendarKeys.all(accountId, pairId), 'ideas', state] as const,
+  list: (accountId: string, pairId: string) => [...calendarKeys.all(accountId, pairId), 'ideas'] as const,
 
   detail: (accountId: string, pairId: string, id: string) => [...calendarKeys.all(accountId, pairId), 'idea', id] as const,
 
 } satisfies QueryKeys;
 const cursorSchema = z.object({ at: z.string().datetime({ offset: true }), id: z.string().uuid() });
-export async function listDateIdeas(pairId: string, state: IdeaState = 'saved', cursor?: string): Promise<Page<DateIdea>> {
+// Calendar lists saved ideas only. A planned idea shows as its event.
+export async function listDateIdeas(pairId: string, cursor?: string): Promise<Page<DateIdea>> {
   z.string().uuid().parse(pairId);
-  z.enum(['saved', 'planned', 'archived']).parse(state);
   const client = await getSupabase();
-  let query = client.from('date_ideas').select('*').eq('pair_id', pairId).eq('state', state)
+  let query = client.from('date_ideas').select('*').eq('pair_id', pairId).eq('state', 'saved')
     .order('created_at', { ascending: false }).order('id', { ascending: false }).limit(51);
   if (cursor) {
     const value = cursorSchema.parse(JSON.parse(cursor));

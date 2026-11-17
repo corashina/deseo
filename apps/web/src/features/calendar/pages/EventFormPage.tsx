@@ -36,8 +36,8 @@ export function EventFormPage() {
   const idea = useQuery({ queryKey: ideaKeys.detail(account!.id, pairId, ideaId ?? 'none'), queryFn: () => getDateIdea(pairId, ideaId!), enabled: Boolean(ideaId) });
   if (!account || pair?.status !== 'active') return null;
   if (ideaId && idea.isPending) return <Status>Loading idea…</Status>;
-  if (ideaId && idea.isError) return <RouteErrorPage title="Idea" returnTo="/ideas" returnLabel="Return to ideas" error={idea.error} onRetry={() => void idea.refetch()} />;
-  if (ideaId && !idea.data) return <RouteErrorPage title="Idea" returnTo="/ideas" returnLabel="Return to ideas" />;
+  if (ideaId && idea.isError) return <RouteErrorPage title="Idea" returnTo="/calendar" returnLabel="Return to calendar" error={idea.error} onRetry={() => void idea.refetch()} />;
+  if (ideaId && !idea.data) return <RouteErrorPage title="Idea" returnTo="/calendar" returnLabel="Return to calendar" />;
   if (eventId && query.isPending) return <Status>Loading event…</Status>;
   if (eventId && query.isError) {
     return <RouteErrorPage title="Event" returnTo="/calendar" returnLabel="Return to calendar" error={query.error} onRetry={() => void query.refetch()} />;

@@ -22,9 +22,7 @@ const MemoryDetailPage = lazyPage(() => import('../features/memories/pages/Memor
 const MemoryFormPage = lazyPage(() => import('../features/memories/pages/MemoryFormPage'), 'MemoryFormPage');
 const TasksPage = lazyPage(() => import('../features/tasks/pages/TasksPage'), 'TasksPage');
 const TaskDetailPage = lazyPage(() => import('../features/tasks/pages/TaskDetailPage'), 'TaskDetailPage');
-const IdeasPage = lazyPage(() => import('../features/calendar/ideas/pages/IdeasPage'), 'IdeasPage');
-const IdeaFormPage = lazyPage(() => import('../features/calendar/ideas/pages/IdeaFormPage'), 'IdeaFormPage');
-const IdeaDetailPage = lazyPage(() => import('../features/calendar/ideas/pages/IdeaDetailPage'), 'IdeaDetailPage');
+const IdeaPage = lazyPage(() => import('../features/calendar/ideas/pages/IdeaPage'), 'IdeaPage');
 const TodayPage = lazyPage(() => import('../features/today/pages/TodayPage'), 'TodayPage');
 const CalendarPage = lazyPage(() => import('../features/calendar/pages/CalendarPage'), 'CalendarPage');
 const EventDetailPage = lazyPage(() => import('../features/calendar/pages/EventDetailPage'), 'EventDetailPage');
@@ -54,7 +52,7 @@ function Gate({ children, kind = 'pair' }: { children: ReactNode; kind?: 'public
   if (!session.account) return kind === 'profile' ? <>{children}</> : <Navigate to="/profile/setup" replace />;
   if (kind === 'account') return <>{children}</>;
   if (kind === 'profile') return <Navigate to={target} replace />;
-  const allowed = session.pair?.status === 'active' ? ['/today', '/calendar', '/events/new', '/tasks', '/ideas', '/memories', ...( /^\/(events|tasks|ideas|memories)\//.test(pathname) ? [pathname] : [])] : session.pair?.status === 'pending' ? ['/pair/waiting'] : session.pair?.status === 'ended' ? ['/pair/ended', '/pair/start', '/pair/join'] : ['/pair/start', '/pair/join'];
+  const allowed = session.pair?.status === 'active' ? ['/today', '/calendar', '/events/new', '/tasks', '/memories', ...( /^\/(events|tasks|ideas|memories)\//.test(pathname) ? [pathname] : [])] : session.pair?.status === 'pending' ? ['/pair/waiting'] : session.pair?.status === 'ended' ? ['/pair/ended', '/pair/start', '/pair/join'] : ['/pair/start', '/pair/join'];
   return allowed.includes(pathname) ? <>{children}</> : <Navigate to={target} replace />;
 }
 function Entry() { const session = useSession(); return <Navigate to={destination(session)} replace />; }
@@ -94,7 +92,7 @@ function RecordRoute({ children }: { children: ReactNode }) {
   const records = [
     ['eventId', 'Event', '/calendar', 'Return to calendar'],
     ['taskId', 'Task', '/tasks', 'Return to tasks'],
-    ['ideaId', 'Idea', '/ideas', 'Return to ideas'],
+    ['ideaId', 'Idea', '/calendar', 'Return to calendar'],
     ['memoryId', 'Memory', '/memories', 'Return to memories'],
   ];
   for (const [key, title, returnTo, returnLabel] of records) {
@@ -102,7 +100,7 @@ function RecordRoute({ children }: { children: ReactNode }) {
       return <RouteErrorPage title={title} returnTo={returnTo} returnLabel={returnLabel} />;
   }
   if (pathname === '/events/new' && search.has('idea') && !z.string().uuid().safeParse(search.get('idea')).success)
-    return <RouteErrorPage title="Idea" returnTo="/ideas" returnLabel="Return to ideas" />;
+    return <RouteErrorPage title="Idea" returnTo="/calendar" returnLabel="Return to calendar" />;
   return <Fragment key={pathname}>{children}</Fragment>;
 }
 const pairPage = (title: string, Component: LazyPage) => ({ element: <Page title={title}><Gate><RecordRoute><Component /></RecordRoute></Gate></Page>, handle: Component.load });
@@ -124,10 +122,7 @@ const routes: RouteObject[] = [{ element: <Root />, errorElement: <RouteFailureB
   { path: '/memories/:memoryId/edit', ...pairPage('Edit memory', MemoryFormPage) },
   { path: '/tasks', ...pairPage('Tasks', TasksPage) },
   { path: '/tasks/:taskId', ...pairPage('Task', TaskDetailPage) },
-  { path: '/ideas', ...pairPage('Date ideas', IdeasPage) },
-  { path: '/ideas/new', ...pairPage('Add idea', IdeaFormPage) },
-  { path: '/ideas/:ideaId', ...pairPage('Date idea', IdeaDetailPage) },
-  { path: '/ideas/:ideaId/edit', ...pairPage('Edit idea', IdeaFormPage) },
+  { path: '/ideas/:ideaId', ...pairPage('Date idea', IdeaPage) },
   { path: '/calendar', ...pairPage('Calendar', CalendarPage) },
   { path: '/events/new', ...pairPage('Add event', EventFormPage) },
   { path: '/events/:eventId', ...pairPage('Event', EventDetailPage) },

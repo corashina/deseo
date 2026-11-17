@@ -25,7 +25,7 @@ The [router](../apps/web/src/app/router.tsx) defines the browser routes.
 The browser uses a sidebar, rail, or drawer. Expo keeps bottom tabs and native stacks.
 
 Entry routes cover Welcome, email codes, profile setup, invitations, joining, waiting, and ended pairs.
-Product routes cover Today (with Messages), Calendar, events, ideas, tasks, lists, Memories, and Settings.
+Product routes cover Today (with Messages), Calendar (with date ideas), events, ideas, tasks, lists, Memories, and Settings.
 The portal has no reminder or notification screens. The browser receives no push.
 Record URLs support reload and browser Back. Changed forms and unsent drafts warn before leaving.
 
@@ -111,7 +111,7 @@ For empty data, show a short prompt and its creation action. Omit empty decorati
 ### Calendar
 
 Calendar offers month and agenda views. Filter by All, Me, Partner, and Together.
-The header holds Date ideas and Add event.
+The header holds Add event. Date ideas follow the calendar.
 Show owner names beside colors. A private event appears only to its author, with a lock and Private label.
 
 | Form field | Rule |
@@ -131,8 +131,10 @@ When the stored version changed, show a conflict screen. Offer Reload saved vers
 Never overwrite the partner's edit silently. Never merge text fields.
 Delete through a confirmation that names the event. The server cancels its future reminder jobs.
 
-Saved ideas open from the Calendar header. Each idea has a title, an optional note, and an optional HTTPS link.
-Opening an idea shows its edit form with Plan date, View planned event, Open idea link, and Archive.
+Date ideas list saved ideas under the calendar, newest first. A title field adds an idea. Each row has Plan date.
+Each idea has a title, an optional note, and an optional HTTPS link.
+Opening an idea shows its edit form with Plan date, View planned event, and Archive idea.
+Planned ideas show as their events. Archived ideas leave the list.
 Plan date fills a shared event. Save the event and the idea link in one transaction; the idea becomes Planned.
 When the future event is deleted, the idea returns to Saved. Do not scrape links or generate suggestions.
 

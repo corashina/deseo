@@ -49,17 +49,21 @@
   .quick-add > .status { order: 3; }
 }
 .task-delete, .idea-actions { border-top: 1px solid var(--line); padding-top: var(--space-6); margin-top: var(--space-6); margin-bottom: 0; }
-.idea-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:24px; }
-.idea-grid .card { display:flex; flex-direction:column; gap:16px; min-width:0; }
-.idea-grid .card h2, .idea-grid .card p { margin:0; }
-.idea-grid .card p { max-width:65ch; }
-.idea-grid .card > .muted { margin-top:auto; }
+/* Date ideas under the calendar: a title link with its note, and Plan date beside it. */
+.ideas-section { margin-top: var(--space-8); }
+.ideas-section > h2 { margin: 0; }
+.idea-list { list-style: none; margin: 0; padding: 0; }
+.idea-list li { display: flex; align-items: center; gap: var(--space-4); padding: var(--space-4) 0; border-bottom: 1px solid var(--line); }
+.idea-list li:last-child { border-bottom: 0; }
+.idea-row { flex: 1; min-width: 0; min-height: var(--nav-target); display: flex; flex-direction: column; justify-content: center; gap: var(--space-1); color: var(--ink); text-decoration: none; overflow-wrap: anywhere; }
+.idea-row:hover strong { text-decoration: underline; text-underline-offset: 4px; }
+.idea-row span { color: var(--muted); font-size: 14px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .important-card { background:var(--sidebar); border-color:var(--line); }
 .important-card h2 { margin-bottom:var(--space-2); }
 .important-card p { margin-bottom:var(--space-3); }
 .important-card .countdown { margin:var(--space-2) 0 var(--space-1); font-size:19px; font-weight:600; color:var(--link); }
 .important-card .countdown strong { font-size:36px; line-height:1.1; font-weight:500; letter-spacing:-.02em; }
-@media (max-width:767px) { .idea-grid { grid-template-columns:1fr; gap:16px; } .section-heading { margin-bottom:16px; } }
+@media (max-width:767px) { .section-heading { margin-bottom:16px; } }
 
 .today-intro-actions { display:flex; flex-wrap:wrap; gap:var(--space-4); }
 .week-strip { list-style:none; margin:0 0 var(--space-5); padding:0; display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:var(--space-1); }
