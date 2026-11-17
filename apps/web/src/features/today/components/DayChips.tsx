@@ -2,7 +2,7 @@ import { DateTime } from 'luxon';
 import { Link } from 'react-router-dom';
 import type { Event } from '@deseo/domain/calendar';
 import { formatDate } from '../../../lib/format';
-import { eventOwner, type OwnerNames } from '../../calendar/components/EventRow';
+import { eventOwner, type OwnerNames } from '../../calendar';
 import { dayLabel } from './NextPlanCard';
 
 // Below 1200px the Our day panel shrinks to these links above the conversation.
