@@ -7,7 +7,7 @@
 .button.text:hover:not(:disabled) { background: var(--sidebar); }
 .button.secondary:hover:not(:disabled) { background: var(--sidebar); }
 .button.danger:hover:not(:disabled) { background: var(--danger-soft); color: var(--danger); }
-.button:active:not(:disabled) { transform: translateY(1px); }
+.button:active:not(:disabled) { transform: scale(.98); }
 .button:disabled { opacity: .6; cursor: default; }
 .field input, .field select, .field textarea, .message-composer textarea { caret-color: var(--focus); }
 .field input:focus-visible, .field select:focus-visible, .field textarea:focus-visible { border-color: var(--focus); }
@@ -36,7 +36,7 @@
 .slot-b { background: var(--teal-soft); color: var(--teal); }
 .slot-together { background: var(--shared-soft); color: var(--shared); }
 /* Owner dots: one dot per owner with plans on that day. */
-.owner-dots { display: flex; gap: 3px; min-height: 6px; }
+.owner-dots { display: flex; gap: var(--space-1); min-height: 6px; }
 .owner-dots span { width: 6px; height: 6px; border-radius: 50%; background: var(--shared-accent); }
 .owner-dots .owner-a { background: var(--rose-accent); }
 .owner-dots .owner-b { background: var(--teal-accent); }
@@ -51,7 +51,7 @@ dialog::backdrop { background: var(--backdrop); }
 /* Segmented control: the pressed segment is a raised surface. Owner color stays for owner segments only. */
 .view-tabs button { display:inline-flex; align-items:center; justify-content:center; gap:var(--space-2); min-height:var(--nav-target); border:1px solid transparent; border-radius:var(--radius-badge); background:transparent; padding:var(--space-2) var(--space-4); color:var(--muted); font-size:15px; font-weight:600; line-height:1.4; cursor:pointer; }
 .view-tabs button:hover { background: var(--surface); color: var(--ink); }
-.view-tabs button[aria-pressed=true] { background:var(--surface); border-color:var(--line); color:var(--ink); box-shadow:var(--shadow-selected); }
+.view-tabs button[aria-pressed=true] { background:var(--surface); border-color:var(--line); color:var(--ink); }
 @media (max-width:767px) { .view-tabs { width:100%; } .view-tabs button { flex:1; padding:var(--space-2); } }
 /* The sign-in code reads as six digits, not as a generic text field. */
-.field input.code-input { max-width: 16ch; font-size: 19px; font-weight: 700; letter-spacing: .3em; font-variant-numeric: tabular-nums; }
+.field input.code-input { max-width: 16ch; font-size: 19px; font-weight: 600; letter-spacing: .3em; font-variant-numeric: tabular-nums; }

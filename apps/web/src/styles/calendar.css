@@ -8,21 +8,23 @@
 
 /* Selection is the filled day number. The cell stays clear, so a Together event keeps its color. Today gets a ring. */
 .month-weekdays, .month-days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); }
-.month-weekdays span { justify-self: start; box-sizing: content-box; width: var(--nav-target); max-width: calc(100% - 2 * var(--space-2)); padding: var(--space-3) var(--space-2); font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); text-align: center; }
+.month-weekdays span { justify-self: start; box-sizing: content-box; width: var(--nav-target); max-width: calc(100% - 2 * var(--space-2)); padding: var(--space-3) var(--space-2); font-size: 12px; font-weight: 600; color: var(--muted); text-align: center; }
 .month-days { border-top: 1px solid var(--line); border-left: 1px solid var(--line); }
 .month-day { min-width: 0; min-height: 142px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: var(--space-2); }
+/* Weeks start on Monday, so the last two cells of each row are the weekend. */
+.month-day:nth-child(7n+6), .month-day:nth-child(7n) { background: var(--canvas); }
 .month-day.outside .day-number { color: var(--muted); font-weight: 500; }
-.day-number { display: block; font-weight: 700; font-variant-numeric: tabular-nums; min-height: var(--nav-target); width: var(--nav-target); max-width: 100%; margin-bottom: var(--space-1); border-radius: 50%; border: 0; background: transparent; color: var(--ink); cursor: pointer; transition: background-color var(--duration-feedback) var(--ease); }
+.day-number { display: block; font-weight: 600; font-variant-numeric: tabular-nums; min-height: var(--nav-target); width: var(--nav-target); max-width: 100%; margin-bottom: var(--space-1); border-radius: 50%; border: 0; background: transparent; color: var(--ink); cursor: pointer; transition: background-color var(--duration-feedback) var(--ease); }
 .day-number:hover { background: var(--sidebar); }
 .day-number.today { box-shadow: inset 0 0 0 2px var(--link); color: var(--link); }
 .day-number[aria-pressed=true] { background: var(--primary); color: var(--on-primary); box-shadow: none; }
 .month-day .owner-dots { display: none; }
 
-.event-row { transition: filter var(--duration-feedback) var(--ease), transform var(--duration-feedback) var(--ease); min-height: var(--nav-target); display: flex; gap: var(--space-3); padding: var(--space-3) var(--space-4); border-radius: var(--radius-control); margin-bottom: var(--space-2); text-decoration: none; color: var(--shared); background: var(--shared-soft); min-width: 0; overflow-wrap: break-word; }
-.event-row:hover { filter: brightness(.98); }
-.event-row:active { transform: translateY(1px); }
-.event-row.owner-a { color: var(--rose); background: var(--rose-soft); }
-.event-row.owner-b { color: var(--teal); background: var(--teal-soft); }
+.event-row { --row-fill: var(--shared-soft); transition: background-color var(--duration-feedback) var(--ease), transform var(--duration-feedback) var(--ease); min-height: var(--nav-target); display: flex; gap: var(--space-3); padding: var(--space-3) var(--space-4); border-radius: var(--radius-control); margin-bottom: var(--space-2); text-decoration: none; color: var(--shared); background: var(--row-fill); min-width: 0; overflow-wrap: break-word; }
+.event-row:hover { background: color-mix(in srgb, var(--row-fill) 94%, var(--ink)); }
+.event-row:active { transform: scale(.98); }
+.event-row.owner-a { --row-fill: var(--rose-soft); color: var(--rose); }
+.event-row.owner-b { --row-fill: var(--teal-soft); color: var(--teal); }
 .event-row-time { min-width: 56px; font-weight: 600; font-variant-numeric: tabular-nums; font-size: 14px; line-height: 1.5; flex-shrink: 0; }
 .event-row-content { display: flex; flex-direction: column; min-width: 0; gap: var(--space-1); }
 .event-row-content > strong { color: var(--ink); font-weight: 600; line-height: 1.4; }
@@ -33,7 +35,7 @@
 .day-events .event-row-content > strong { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
 .day-events .event-row-content > span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-.selected-agenda { margin-top: var(--space-8); }
+.selected-agenda { margin-top: var(--space-8); scroll-margin-top: calc(72px + var(--space-4)); }
 .selected-agenda > h2 { margin-bottom: var(--space-4); }
 .agenda-day { display: grid; grid-template-columns: 190px minmax(0, 1fr); gap: var(--space-6); padding: var(--space-6) 0; border-bottom: 1px solid var(--line); }
 .agenda-day h3 { font-size: 16px; font-weight: 600; margin-bottom: var(--space-2); }

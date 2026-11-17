@@ -29,7 +29,7 @@ export function WaitingPage() {
   }
   const shown = Boolean(token) && !invite.isPending;
   const description = shown ? 'Send this code or link to your partner. Only your partner should use it.'
-    : expiresAt ? 'We show each code once. Replace it to get a code you can send.'
+    : expiresAt ? 'Your code still works until it expires. Replace it only if your partner does not have it.'
     : 'Create a code to send to your partner.';
   return <><section className="card form-page"><PageHeader title="Waiting for your partner" description={description} />
     {shown && <>
@@ -38,11 +38,12 @@ export function WaitingPage() {
     </>}
     {expiresAt && !invite.isPending && <p className="muted">Expires {formatDate(DateTime.fromISO(expiresAt).setZone(account!.timezone), 'dateTime', account!.locale)}</p>}
     {status && <Status>{status}</Status>}
+    <p className="muted">This page opens Today when your partner joins.</p>
     <div className="actions">
-      <Button variant={token ? 'secondary' : 'primary'} disabled={invite.isPending} onClick={() => invite.mutate(pair.pairId)}>
+      <Button variant={token || expiresAt ? 'secondary' : 'primary'} disabled={invite.isPending} onClick={() => invite.mutate(pair.pairId)}>
         {invite.isPending ? 'Creating invitation…' : invite.isError ? 'Retry invitation code' : expiresAt ? 'Replace invitation code' : 'Create invitation code'}
       </Button>
-      <Button variant="secondary" onClick={() => void revalidate()}>Check if your partner joined</Button>
+      <Button variant="text" onClick={() => void revalidate()}>Check now</Button>
     </div>
     {invite.isError && <Status error>{toAppError(invite.error).message}</Status>}
     <div className="pair-cancel"><Button variant="text" onClick={() => setOpen(true)}>Cancel invitation</Button></div></section>

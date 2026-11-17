@@ -13,7 +13,7 @@ import { Dialog } from '../../../components/ui/Dialog';
 import { Field } from '../../../components/ui/Field';
 import { PageHeader } from '../../../components/ui/PageHeader';
 import { Status } from '../../../components/ui/Status';
-import { TimezoneField } from '../../../components/ui/TimezoneField';
+import { resolveTimezone, TimezoneField } from '../../../components/ui/TimezoneField';
 import '../../../styles/settings.css';
 
 export function SettingsPage() {
@@ -38,6 +38,7 @@ function ProfileSection() {
   const { account, revalidate } = useSession();
   // Keep the version the draft started from. A concurrent edit then fails with CONFLICT.
   const [draft, setDraft] = useState<Draft>();
+  const [timezoneError, setTimezoneError] = useState('');
   const input = draft?.input ?? { displayName: account!.displayName, timezone: account!.timezone, locale: account!.locale };
   const save = useMutation({ mutationFn: (next: Draft) => saveProfile(next.input, next.version), onSuccess: async () => { setDraft(undefined); await revalidate(); } });
   const discard = useMutation({ mutationFn: revalidate, onSuccess: () => { setDraft(undefined); save.reset(); } });
@@ -50,12 +51,20 @@ function ProfileSection() {
   const message = save.isSuccess ? 'Profile saved.' : conflict ? 'Your profile changed. Your draft is kept.' : save.isError ? toAppError(save.error).message : '';
   return <section aria-labelledby="settings-profile"><h2 id="settings-profile">Profile</h2>
     <p className="muted">Times show in your timezone. Changing it does not move your events.</p>
-    <form onSubmit={event => { event.preventDefault(); if (!busy) save.mutate(draft ?? { input, version: account!.version }); }}><fieldset className="field-group" disabled={busy}>
+    <form onSubmit={event => {
+      event.preventDefault();
+      if (busy) return;
+      const timezone = resolveTimezone(input.timezone);
+      if (!timezone) { setTimezoneError('Pick a timezone from the list, such as Europe/Warsaw.'); return; }
+      const next = draft ?? { input, version: account!.version };
+      save.mutate({ ...next, input: { ...next.input, timezone } });
+    }}><fieldset className="field-group" disabled={busy}>
       <Field label="Your name" name="displayName" required maxLength={40} value={input.displayName} onChange={event => change({ displayName: event.target.value })} />
-      <TimezoneField required value={input.timezone} onChange={event => change({ timezone: event.target.value })} />
+      <TimezoneField required value={input.timezone} error={timezoneError} onChange={event => { setTimezoneError(''); change({ timezone: event.target.value }); }}
+        onBlur={() => { const zone = resolveTimezone(input.timezone); if (zone && zone !== input.timezone) change({ timezone: zone }); }} />
     </fieldset>{message && <Status error={save.isError}>{message}</Status>}
     <div className="actions">{conflict && <Button disabled={busy} variant="secondary" onClick={() => discard.mutate()}>Discard changes and reload</Button>}
-    <Button variant="primary" type="submit" disabled={busy || conflict}>{save.isError ? 'Retry profile' : 'Save profile'}</Button></div></form>
+    <Button variant="primary" type="submit" disabled={busy || conflict}>{save.isError && toAppError(save.error).code === 'RETRYABLE' ? 'Retry profile' : 'Save profile'}</Button></div></form>
   </section>;
 }
 
@@ -102,17 +111,17 @@ function EndPairSection({ pairId, partner }: { pairId: string; partner: string }
     {error && !open && <Status error>{error}</Status>}
     <Dialog busy={busy} title="End this pair?" open={open} onClose={close}>
       <p>You and {partner} lose access to your shared events, tasks, messages, and memories. You cannot undo this.</p>
-      {send.isSuccess ? <>
-        <Field label="Email verification code" name="code" spellCheck={false} disabled={busy} inputMode="numeric" autoComplete="one-time-code" value={code} maxLength={6} error={codeError} onChange={event => { setCodeError(''); setCode(event.target.value); }} />
+      {send.isSuccess ? <form onSubmit={event => { event.preventDefault(); if (busy) return; if (/^\d{6}$/.test(code)) { disconnect.mutate(); return; }
+        setCodeError('Enter the 6-digit code from your email.');
+        event.currentTarget.querySelector<HTMLInputElement>('input[name=code]')?.focus();
+      }}>
+        <Status>We sent a 6-digit code to your email.</Status>
+        <Field className="code-input" label="Email verification code" hint="No email after a minute? Check your spam folder." name="code" spellCheck={false} disabled={busy} inputMode="numeric" autoComplete="one-time-code" value={code} maxLength={6} error={codeError} onChange={event => { setCodeError(''); setCode(event.target.value); }} />
         {error && <Status error>{error}</Status>}
-        <div className="actions"><Button variant="danger" disabled={busy} onClick={event => {
-          if (/^\d{6}$/.test(code)) { disconnect.mutate(); return; }
-          setCodeError('Enter the 6-digit code from your email.');
-          event.currentTarget.closest('dialog')?.querySelector<HTMLInputElement>('input[name=code]')?.focus();
-        }}>Confirm ending pair</Button>
+        <div className="actions"><Button variant="danger" type="submit" disabled={busy}>Confirm ending pair</Button>
         <Button variant="secondary" disabled={busy} onClick={close}>Cancel</Button>
         <Button variant="text" disabled={busy} onClick={() => send.mutate()}>Send a new code</Button></div>
-      </> : <>
+      </form> : <>
         <p>To confirm, we email you a 6-digit code.</p>
         {error && <Status error>{error}</Status>}
         <div className="actions"><Button variant="danger" disabled={busy} onClick={() => send.mutate()}>{send.isPending ? 'Sending code…' : 'Email me a code'}</Button>

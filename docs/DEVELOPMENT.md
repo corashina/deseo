@@ -104,7 +104,7 @@ Use disposable fixtures for failures, end-pair actions, and destructive tests.
 
 After a migration change, run `npm run gen:types` against the running stack.
 CI fails when `packages/domain/src/database.types.ts` differs from the schema.
-`.github/workflows/ci.yml` runs typecheck, lint, unit tests, the web build and size budget, the site build, SQL tests, the race test, and Edge checks.
+`.github/workflows/ci.yml` runs typecheck, lint, unit tests, the web build and size budget, the site build, the design drift check, SQL tests, the race test, and Edge checks.
 `npm run size --workspace @deseo/web` fails when the gzip JS and CSS that `index.html` loads exceeds the budget in `apps/web/scripts/check-size.mjs`.
 Playwright tests need the local backend and Edge functions. Run them with `npm run test --workspace @deseo/web` on all platforms.
 
@@ -153,6 +153,50 @@ The portal follows the [Web Interface Guidelines](https://github.com/vercel-labs
 - Show counts as numerals. Format numbers with `Intl.NumberFormat`.
 - On phones, `html` scroll padding keeps focus below the sticky top bar.
 - `index.html` preloads the Manrope latin font file from `node_modules`.
+
+### Impeccable review
+
+[Impeccable](https://github.com/pbakaus/impeccable) 4.9.2 reviewed the web portal and the public site in November 2026. The mobile app was out of scope.
+Its skill is in `.claude/skills/impeccable`. Its project settings are in `.impeccable/config.json`.
+
+Design drift: CI runs `npx --yes impeccable@4.9.2 detect --github apps/web/src apps/site`. A counted rule fails the step. Off-token colors are advisory.
+
+Screens: run the "Design capture" workflow by hand on a branch. Download its `design-capture` artifact.
+It holds screenshots at 390, 768, 1024, and 1440px, dark screens at 390 and 1440px, and rendered detector results for each page.
+Locally, run `CAPTURE=1 npm run test --workspace @deseo/web`. `tests/capture/capture.spec.ts` lists the screens.
+`tests/capture/previews.spec.ts` makes the site previews with the sample pair Alex and Sam. Convert them to WebP in `apps/site/public/images`.
+
+Review steps:
+
+1. Capture the screens.
+2. Run `/impeccable audit` for the project. Run `/impeccable critique` for each area, with two separate reviewers.
+3. Store each report with `.claude/skills/impeccable/scripts/impeccable audit-storage write` or `critique-storage write`.
+4. Force-add the snapshots in `.impeccable/audit` and `.impeccable/critique`. Their `.gitignore` excludes them.
+
+Scores, baseline to final. Critique scores are of 40. The site is of 36.
+
+| Area | Baseline | Final |
+|---|---|---|
+| Shell | 26 | 29 |
+| Entry | 26 | 29 |
+| Today | 26 | 27 |
+| Calendar | 25 | 28 |
+| Memories | 24 | 28 |
+| Tasks | 27 | 28 |
+| Settings | 26 | 28 |
+| Public site | 25 | 27 |
+| Audit (of 16) | 12 | 12 |
+
+The final audit has no P0 or P1 issues. Accessibility was not scored, by owner decision.
+
+Turned-off rules and their reasons:
+
+- `low-contrast`, `gray-on-color`, `skipped-heading`: accessibility was out of scope for this review.
+- `kicker-above-heading`: DESIGN.md asks for an eyebrow above detail titles.
+- `design-system-font-size` 23px: the sidebar wordmark beside the 40px icon.
+- `tight-leading` in `apps/site`: the static scan rounds the 1.3 title leading down.
+
+The rendered `nested-cards` result on `.view-tabs` is a false positive. The segmented control is a track, not a card.
 
 ## Verification
 

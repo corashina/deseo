@@ -4,10 +4,13 @@ import type { Event, Owner } from '@deseo/domain/calendar';
 import { formatDate, formatRange } from '../../../lib/format';
 import { useFrom } from '../../../lib/return-to';
 export type OwnerNames = Record<Owner, string>;
-export function EventRow({ event, names, timezone, locale, showDate = false }: { event: Event; names: OwnerNames; timezone: string; locale: string; showDate?: boolean }) {
-  const time = event.temporal.kind === 'allDay' ? 'All day' : formatDate(DateTime.fromISO(event.temporal.startsAt).setZone(timezone), 'time', locale);
+// day is the calendar day that shows the row. A timed event that started on an earlier day shows its end time there.
+export function EventRow({ event, names, timezone, locale, showDate = false, day }: { event: Event; names: OwnerNames; timezone: string; locale: string; showDate?: boolean; day?: string }) {
   const date = event.temporal.kind === 'allDay' ? DateTime.fromISO(event.temporal.startDate) : DateTime.fromISO(event.temporal.startsAt).setZone(timezone);
   const end = event.temporal.kind === 'allDay' ? DateTime.fromISO(event.temporal.endDateExclusive).minus({ days: 1 }) : DateTime.fromISO(event.temporal.endsAt).setZone(timezone);
+  const time = event.temporal.kind === 'allDay' ? 'All day'
+    : day && day > date.toISODate()! ? (day === end.toISODate() ? 'Until ' + formatDate(end, 'time', locale) : 'Continues')
+    : formatDate(date, 'time', locale);
   const dateLabel = formatRange(date, end, date.year === end.year ? 'day' : 'dayYear', locale);
   const now = DateTime.now().setZone(timezone);
   const from = useFrom();

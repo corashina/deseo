@@ -10,7 +10,7 @@ export function Agenda({ events, from, to, timezone, locale, names, empty }: { e
   const days = new Map<string, AgendaItem[]>();
   for (const event of events) for (const date of agendaDates(event, timezone, from, to)) days.set(date, [...(days.get(date) ?? []), event]);
   if (days.size === 0) return <div className="empty-state">{empty}</div>;
-  const rows = (items: AgendaItem[]) => items.map(event => <EventRow key={event.id} event={event} names={names} timezone={timezone} locale={locale} />);
-  if (DateTime.fromISO(from).plus({ days: 1 }).toISODate() === to) return <div className="agenda">{rows([...days.values()][0])}</div>;
-  return <div className="agenda">{[...days].sort(([a], [b]) => a.localeCompare(b)).map(([date, items]) => <section key={date} className="agenda-day"><h3>{formatDate(DateTime.fromISO(date), 'weekday', locale)}</h3><div>{rows(items)}</div></section>)}</div>;
+  const rows = (day: string, items: AgendaItem[]) => items.map(event => <EventRow key={event.id} event={event} names={names} timezone={timezone} locale={locale} day={day} />);
+  if (DateTime.fromISO(from).plus({ days: 1 }).toISODate() === to) return <div className="agenda">{rows(from, [...days.values()][0])}</div>;
+  return <div className="agenda">{[...days].sort(([a], [b]) => a.localeCompare(b)).map(([date, items]) => <section key={date} className="agenda-day"><h3>{formatDate(DateTime.fromISO(date), 'weekday', locale)}</h3><div>{rows(date, items)}</div></section>)}</div>;
 }

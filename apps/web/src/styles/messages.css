@@ -30,12 +30,14 @@
 .message-action-menu .button { justify-content:flex-start; color:var(--ink); }
 .message-error { margin-top:var(--space-3); }
 .message-error .status { margin-bottom:var(--space-2); }
-.message-composer { margin-top:0; padding:var(--space-5); background:var(--sidebar); }
-.message-composer .field { margin-bottom:var(--space-3); }
-.message-composer textarea { width:100%; min-width:0; min-height:88px; resize:vertical; border:1px solid var(--control); border-radius:var(--radius-control); padding:var(--space-3) var(--space-4); color:var(--ink); background:var(--surface); font-size:16px; font-weight:400; }
+.message-composer { margin-top:0; padding:var(--space-3) var(--space-4); background:var(--sidebar); }
+.message-composer .field { margin-bottom:0; }
+.composer-row { display:flex; flex-wrap:wrap; gap:var(--space-3); align-items:flex-end; }
+.composer-row > .button { flex-shrink:0; }
+.message-composer textarea { flex:1 1 160px; min-width:0; min-height:var(--nav-target); max-height:calc(5lh + 2 * var(--space-3) + 2px); field-sizing:content; resize:none; line-height:1.4; border:1px solid var(--control); border-radius:var(--radius-control); padding:var(--space-3) var(--space-4); color:var(--ink); background:var(--surface); font-size:16px; font-weight:400; }
 .composer-footer .muted { font-variant-numeric:tabular-nums; }
-.composer-footer { display:flex; flex-wrap:wrap; gap:var(--space-3); align-items:center; justify-content:space-between; }
-.composer-links { display:flex; flex-wrap:wrap; gap:var(--space-1) var(--space-4); margin-top:var(--space-2); }
+.composer-footer { display:flex; flex-wrap:wrap; gap:0 var(--space-3); align-items:center; justify-content:space-between; }
+.composer-links { display:flex; flex-wrap:wrap; gap:0 var(--space-4); }
 .composer-links a { display:inline-flex; align-items:center; min-height:var(--nav-target); font-size:14px; font-weight:600; }
 /* Pinned notes: one compact row each. A note fills the row when it is alone. */
 .notes-strip { display:grid; grid-template-columns:repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap:var(--space-3); margin-bottom:var(--space-4); }
@@ -50,5 +52,4 @@
   .message-row { padding:var(--space-4); }
   .message-row + .message-row { margin-top:var(--space-4); }
   .message-row.partner-a + .message-row.partner-a, .message-row.partner-b + .message-row.partner-b { margin-top:var(--space-2); }
-  .message-composer { padding:var(--space-4); }
 }
