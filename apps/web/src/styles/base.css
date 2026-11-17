@@ -3,6 +3,7 @@ html { scroll-padding-block: 24px; -webkit-tap-highlight-color: color-mix(in srg
 /* With a mouse or trackpad the page does not bounce past its edges. Touch keeps pull-to-refresh. */
 @media (pointer: fine) { html { overscroll-behavior: none; } }
 input, textarea { caret-color: var(--focus); }
+::placeholder { color: var(--muted); opacity: 1; }
 button, a, input, select, textarea, summary { touch-action: manipulation; }
 button, a, input, select, textarea, summary, [tabindex] { scroll-margin-block: 24px; }
 textarea { resize: vertical; }

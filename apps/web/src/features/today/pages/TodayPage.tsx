@@ -34,7 +34,7 @@ export function TodayPage() {
     <div className="today-layout">
       <div className="today-conversation">
         {/* An empty row holds the chips' place while Today loads, so the conversation does not jump. */}
-        {query.data ? <DayChips next={query.data.agenda[0]} dueCount={query.data.dueTasks.length} important={important} days={days} zone={zone} locale={locale} /> : <div className="day-chips day-chips-pending" aria-hidden="true" />}
+        {query.data ? <DayChips next={query.data.agenda[0]} names={names} dueCount={query.data.dueTasks.length} important={important} days={days} zone={zone} locale={locale} /> : <div className="day-chips day-chips-pending" aria-hidden="true" />}
         <Conversation />
       </div>
       {query.isPending ? <Status>Loading Today…</Status> : query.isError ? <div><Status error>We could not load Today.</Status><Button variant="secondary" onClick={() => void query.refetch()}>Retry</Button></div>
