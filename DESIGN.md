@@ -445,11 +445,13 @@ The other sign-in screens show the icon and name above one 480px card. The main 
 Profile setup offers Sign out. The sign-in code field shows six large spaced digits and says to check spam.
 Pair screens are one left-aligned card with the header inside. Start shows its two choices side by side when they fit.
 The Join field takes the code or the invitation link. Waiting says what to send only when a code is on screen.
+On a return visit, Waiting says the code still works, and Replace is a secondary button. Waiting says that the page opens Today when the partner joins.
 Ended offers Start a new pair and Enter invitation. Your pair stays selected in the navigation on every pair screen.
 
 **Today.** Today is chat-first: the conversation in the main column and the Our day panel beside it from 1200px.
 Show the date in the eyebrow above the title. The header has no buttons; Send message is the main action.
 Today fills the window. The conversation scrolls inside its column, so the composer stays in view. The Our day panel scrolls on its own.
+The message field starts at one line and grows to five. Send message sits beside it when they fit. The conversation keeps the most height.
 Under the composer, show Add event, Add task, and Add memory as text links.
 The Our day panel shows, in order: the next plan, Upcoming plans, Due tasks, the next important date, and the latest memory.
 The next plan shows a label (Now, Today, Tomorrow, or the weekday), title, time, place, and owner.
@@ -465,7 +467,8 @@ In a month cell, a title keeps two lines and the owner one line. Below 768px, ea
 Open details before editing. This applies to events and date ideas. Explain invalid end times beside the time field.
 The event and idea screens show an eyebrow, the title, and the owner badge or state. Delete and Archive are secondary buttons; the dialog holds the final action.
 Return links and Cancel go back to the page the person came from, with the same month, view, and filter.
-Show times with a numeric hour, such as 7:00 PM, in every place.
+Show times with a numeric hour, such as 7:00 PM, in every place. On a later day of a timed event, show Until and the end time, or Continues.
+A tap on a day brings that day's events into view.
 Group overlapping events without hiding owners. Format dates through `Intl` in the user's locale.
 Keep all-day dates as dates. Never shift them through UTC conversion.
 Show an IANA timezone only when it differs from the viewer's profile timezone. The event form keeps it in More details.
@@ -473,7 +476,7 @@ Show an IANA timezone only when it differs from the viewer's profile timezone. T
 **Memories.** Use a feed with month headings. Show image, caption, date, and author. Thumbnails download near the viewport, four at a time.
 The memory screen uses the date as its title and shows the full caption under the photos. Each photo box keeps its shape while it loads. Delete is a secondary button; the dialog holds the destructive one.
 Keep captions outside images. Use a 3:2 crop in cards and the full image in detail.
-Reserve image space before loading. Show progress, failure, and Retry on the affected image.
+The photo hint says that photos cannot change after publish. Reserve image space before loading. Show progress, failure, and Retry on the affected image.
 
 **Conversation.** Use sender names, timestamps, and restrained rose and teal fills.
 Limit message width to 80%. Align the viewer's messages to the trailing edge.
@@ -486,20 +489,21 @@ A failed pin, unpin, or delete shows on its message. An unsent message keeps the
 **Tasks.** Each row has a checkbox, title, assignee badge in its owner color, and optional due date. A completed row names who completed it.
 The checkbox has its own 48px target. The rest of the row opens the task.
 Overdue uses `danger` text and Due today uses `warning` text, never a partner color. Open tasks with a due date come first, soonest first.
-Quick add puts the title and Add task on one row. Assigned to and Due date sit beside them from 1024px and below them on narrower screens.
+Quick add puts the title and Add task on one row. Assigned to and Due date sit beside them when the card is 760px wide or more, and below them otherwise.
 List tabs hold lists only, one line each. New list sits beside the tabs. List settings start closed.
 Completed tasks keep readable text. Delete task is a secondary button; the dialog holds the destructive one.
 
 **Settings.** Profile, Your pair, and Account share one card. End this pair has its own card below it.
 Ending a pair opens a dialog that names the partner and explains the result. The email code goes out only when the person asks for it.
 Your pair lists each member as a row: a 48px avatar, the name in the title style, and You or Your partner.
-Section intros use secondary text. The timezone field selects its value on focus, so typing a city starts a new search.
+Section intros use secondary text. The timezone field selects its value on focus, so typing a city starts a new search. A unique city name becomes its zone; any other value gets a field error.
+The end pair code step says where the code went, uses the code field style, and Enter confirms.
 
 **Site.** The site uses the portal tokens, Manrope, and the same type scale. Each page has a light and a dark browser bar color.
 Previews are captures of the real app with the sample pair Alex and Sam. Each preview has a dark version and a Preview badge.
 `apps/web/tests/capture/previews.spec.ts` makes the captures. Phone previews are 2x captures at 390px. All previews share the right edge.
 Narrow pages keep the left edge of the header with a 720px text column. The footer stays at the bottom of short pages.
-Make no claim that the product cannot prove. The hero states the release status and links to the invitation help.
+Make no claim that the product cannot prove. The hero has one primary button, Join with an invitation, and one line of release status.
 
 ### States
 

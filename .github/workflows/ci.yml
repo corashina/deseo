@@ -28,6 +28,8 @@ jobs:
       - run: npm run build --workspace @deseo/web
       - run: npm run size --workspace @deseo/web
       - run: npm run build --workspace @deseo/site
+      # Design drift: impeccable checks colors, type, and spacing against DESIGN.md. See docs/DEVELOPMENT.md.
+      - run: npx --yes impeccable@4.9.2 detect --github apps/web/src apps/site
 
   backend:
     name: Database, races and functions
