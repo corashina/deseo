@@ -7,13 +7,15 @@ import { ImagesIcon } from '@phosphor-icons/react/dist/csr/Images';
 import { ListChecksIcon } from '@phosphor-icons/react/dist/csr/ListChecks';
 import { GearSixIcon } from '@phosphor-icons/react/dist/csr/GearSix';
 
+const calendarPath = /^\/(calendar|events|ideas)(\/|$)/;
+
 export function PortalNavigation({ destination, activePair, unreadCount, onPairOpen, preload }: {
   destination: string; activePair: boolean; unreadCount: number | undefined; onPairOpen(): void; preload(pathname: string): void;
 }) {
   const { pathname } = useLocation();
   const unreadId = useId();
   const unread = unreadCount !== undefined && unreadCount > 0;
-  const calendarActive = /^\/(calendar|events|ideas)(\/|$)/.test(pathname);
+  const calendarActive = calendarPath.test(pathname);
   // One listener on the list serves every link.
   const startPreload = (event: SyntheticEvent) => {
     const link = (event.target as Element).closest('a');

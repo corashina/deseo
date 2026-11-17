@@ -41,6 +41,7 @@
 .photo-picker { position: relative; font-size: 16px; }
 .photo-picker input[type='file'] { position: absolute; inset: 0; height: 100%; padding: 0; opacity: 0; cursor: pointer; }
 .photo-picker:focus-within { outline: 2px solid var(--focus); outline-offset: 2px; }
+.photo-picker:has(input[aria-invalid=true]) { border-color: var(--danger); }
 .photo-picker:has(input:disabled) { opacity: .6; cursor: default; }
 .button.photo-picker:has(input:disabled):hover { background: var(--surface); }
 .photo-picker input:disabled { cursor: default; }

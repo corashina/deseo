@@ -50,6 +50,8 @@ main p a, main li a {
 main p a:hover, main li a:hover { background-size: 100% 1px, 100% 1px; transition-duration: var(--m-in); }
 /* A standalone link is 48px tall. Its line sits under the text, not at the box edge. */
 main p a.go { background-position: 0 calc(100% - 12px), 0 calc(100% - 12px); }
+/* With a mouse or trackpad the page does not bounce past its edges. Touch keeps pull-to-refresh. */
+@media (pointer: fine) { html { overscroll-behavior: none; } }
 
 /* Type scale: display, headline, and title in DESIGN.md. */
 h1, h2, h3 { margin: 0 0 var(--space-3); overflow-wrap: anywhere; text-wrap: balance; }
@@ -239,6 +241,8 @@ main.wrap { padding-block-end: var(--space-10); }
 
 .page { padding-top: var(--space-6); }
 .page section { margin-top: var(--space-10); }
+/* Single-topic pages: section titles step down to the app headline size, under the 48px page title. */
+.page h2 { font-size: 24px; line-height: 1.2; }
 .page .panel { margin-top: var(--space-6); }
 
 .steps { padding-left: var(--space-6); }
@@ -268,6 +272,7 @@ main.wrap { padding-block-end: var(--space-10); }
   .feature.wide { grid-template-columns: 1fr; }
   .panel { padding: var(--space-8); }
   .lights { font-size: 40px; }
+  .page h2 { font-size: 28px; }
 }
 
 /* On a phone the main button spans the column. */

@@ -488,7 +488,7 @@ The end pair code step says where the code went, uses the code field style, and 
 **Site.** The site uses the portal tokens, Manrope, and the same type scale. Each page has a light and a dark browser bar color.
 Previews are captures of the real app with the sample pair Alex and Sam. Each preview has a dark version. Alt text names the sample pair. No caption or badge goes under a preview.
 `apps/web/tests/capture/previews.spec.ts` makes the captures. Phone previews are 2x captures of one 390 by 844 screen. All previews share the right edge.
-Narrow pages keep the left edge of the header with a 720px text column. The footer stays at the bottom of short pages.
+Narrow pages keep the left edge of the header with a 720px text column. Their section titles are 28px (24px on mobile). The footer stays at the bottom of short pages.
 Make no claim that the product cannot prove. The h1 names the product type and its users. The hero has one primary button, Join with an invitation, and one line with a hard fact and the release status. On a phone the button spans the column.
 The site follows the website rules of [taste-skill](https://github.com/Leonxlnx/taste-skill) 2.5.1 in CSS only. The site has no page JavaScript.
 
