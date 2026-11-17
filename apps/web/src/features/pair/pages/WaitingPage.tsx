@@ -47,5 +47,5 @@ export function WaitingPage() {
     </div>
     {invite.isError && <Status error>{toAppError(invite.error).message}</Status>}
     <div className="pair-cancel"><Button variant="text" onClick={() => setOpen(true)}>Cancel invitation</Button></div></section>
-    <Dialog busy={cancel.isPending} open={open} onClose={() => { if (!cancel.isPending) setOpen(false); }} title="Cancel this invitation?"><p>Your code will stop working. You can then invite your partner again or join their pair.</p>{cancel.isError && <Status error>{toAppError(cancel.error).message}</Status>}<Button variant="danger" disabled={cancel.isPending} onClick={() => cancel.mutate(pair.pairId)}>{cancel.isError ? 'Retry cancel' : 'Cancel invitation'}</Button></Dialog></>;
+    <Dialog busy={cancel.isPending} open={open} onClose={() => { if (!cancel.isPending) setOpen(false); }} title="Cancel this invitation?"><p>Your code will stop working. You can then invite your partner again or join their pair.</p>{cancel.isError && <Status error>{toAppError(cancel.error).message}</Status>}<Button variant="danger" disabled={cancel.isPending} onClick={() => cancel.mutate(pair.pairId)}>{cancel.isPending ? 'Canceling…' : cancel.isError ? 'Retry cancel' : 'Cancel invitation'}</Button></Dialog></>;
 }

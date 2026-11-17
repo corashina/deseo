@@ -30,5 +30,5 @@ export function VerifyPage() {
       setInvalid(!valid); if (valid) verify.mutate(code); else focusCode();
     }}><Field className="code-input" label="Sign-in code" hint="No email after a minute? Check your spam folder." name="code" spellCheck={false} inputMode="numeric" autoComplete="one-time-code" maxLength={6} disabled={pending} value={code} error={codeError} onChange={event => { entryIntent.codeDraft = event.target.value; setCode(event.target.value); }} />
     {resend.isError && <Status error>{toAppError(resend.error).message}</Status>}<Button variant="primary" type="submit" disabled={pending}>{verify.isPending ? 'Checking…' : 'Sign in'}</Button></form>
-    <div className="actions"><Button variant="secondary" disabled={pending || seconds > 0} onClick={() => { verify.reset(); resend.mutate(); }}>{seconds ? 'Resend code in ' + seconds + 's' : 'Resend code'}</Button><Link to="/sign-in">Use another email</Link></div></section>;
+    <div className="actions"><Button variant="secondary" disabled={pending || seconds > 0} onClick={() => { verify.reset(); resend.mutate(); }}>{resend.isPending ? 'Sending…' : seconds ? 'Resend code in ' + seconds + 's' : 'Resend code'}</Button><Link to="/sign-in">Use another email</Link></div></section>;
 }

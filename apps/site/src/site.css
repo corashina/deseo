@@ -28,6 +28,9 @@ main { flex: 1 0 auto; }
 img { display: block; max-width: 100%; height: auto; }
 html { -webkit-tap-highlight-color: color-mix(in srgb, var(--ink) 8%, transparent); }
 a { color: var(--link); font-weight: 600; text-underline-offset: 3px; touch-action: manipulation; }
+a:hover { text-decoration-thickness: 2px; }
+/* With a mouse or trackpad the page does not bounce past its edges. Touch keeps pull-to-refresh. */
+@media (pointer: fine) { html { overscroll-behavior: none; } }
 :focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
 
 /* Type scale: display, headline, and title in DESIGN.md. */
@@ -116,6 +119,7 @@ main.wrap { padding-block-end: var(--space-10); }
   line-height: 1.4;
   text-decoration: none;
 }
+.button:hover { background: color-mix(in srgb, var(--primary) 88%, var(--ink)); }
 .soon {
   margin: var(--space-6) 0 0;
   padding: var(--space-4) var(--space-5);

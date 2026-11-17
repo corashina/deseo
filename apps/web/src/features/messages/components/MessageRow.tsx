@@ -29,7 +29,12 @@ export const MessageRow = memo(function MessageRow({ message, name, slot, own, l
   }
   return <article className={'message-row partner-' + slot + (own ? ' own-message' : '')} data-testid="message-row" data-message-id={message.id}>
     <div className="message-meta"><strong>{name}</strong><time dateTime={message.createdAt}>{sentAt(message.createdAt, timezone, locale)}</time>
-      {own && <details className="message-actions" ref={actions} onToggle={event => setExpanded(event.currentTarget.open)} onKeyDown={event => { if (event.key === 'Escape') { event.preventDefault(); closeActions(); } }}>
+      {own && <details className="message-actions" ref={actions} onToggle={event => {
+        const open = event.currentTarget.open;
+        setExpanded(open);
+        // The conversation clips the menu of a message near its bottom edge. Scroll the menu into view.
+        if (open) event.currentTarget.querySelector('.message-action-menu')?.scrollIntoView({ block: 'nearest' });
+      }} onKeyDown={event => { if (event.key === 'Escape') { event.preventDefault(); closeActions(); } }}>
         <summary role="button" aria-label="Message actions" title="Message actions" aria-controls={menuId} aria-expanded={expanded} aria-disabled={disabled} onClick={event => { if (disabled) event.preventDefault(); }}><DotsThreeIcon size={20} weight="bold" aria-hidden="true" /></summary>
         <div className="message-action-menu" id={menuId}>
           <Button variant="text" disabled={disabled} onClick={() => { closeActions(); onPin(message); }}>{message.pinnedAt ? 'Unpin note' : 'Pin note'}</Button>
