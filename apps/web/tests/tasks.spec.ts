@@ -24,7 +24,7 @@ test('a failed reopen keeps the completed task, and a retry reopens it', async (
     await expect(check).toBeChecked();
     await failRequest(page, '**/rest/v1/rpc/set_task_completed');
     await check.click();
-    await expect(page.getByText('Completion failed.', { exact: true })).toBeVisible();
+    await expect(page.getByText('We could not update this task. Try again.', { exact: true })).toBeVisible();
     await expect(check).toBeChecked();
     await page.getByRole('button', { name: 'Retry completion', exact: true }).click();
     await expect(check).not.toBeChecked();

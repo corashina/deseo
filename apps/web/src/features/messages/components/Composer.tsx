@@ -1,11 +1,10 @@
-import { useId, useRef, useState } from 'react';
-import { messageBodySchema } from '@deseo/domain/messages';
+import { useId, useMemo, useRef, useState } from 'react';
+import { messageBodyLimit as limit, messageBodySchema } from '@deseo/domain/messages';
 import { Link } from 'react-router-dom';
 import { Button } from '../../../components/ui/Button';
-import { useUnsavedChanges } from '../../../lib/unsaved-changes';
-// The composer keeps its own draft, so typing does not render the conversation again.
-export function Composer({ disabled, onSend }: { disabled: boolean; onSend(body: string): void }) {
+export function Composer({ body, disabled, locale, onChange, onSend }: { body: string; disabled: boolean; locale: string; onChange(body: string): void; onSend(): void }) {
   const id = useId();
+  const number = useMemo(() => new Intl.NumberFormat(locale), [locale]);
   const input = useRef<HTMLTextAreaElement>(null);
   const [body, setBody] = useState('');
   const [error, setError] = useState('');
@@ -14,7 +13,7 @@ export function Composer({ disabled, onSend }: { disabled: boolean; onSend(body:
   return <form className="card message-composer" onSubmit={event => {
     event.preventDefault();
     if (!messageBodySchema.safeParse(body).success) {
-      setError(body.trim() ? 'Use 4,000 characters or less.' : 'Write a message first.');
+      setError(body.trim() ? 'Use ' + number.format(limit) + ' characters or less.' : 'Write a message first.');
       input.current?.focus();
       return;
     }
@@ -28,6 +27,6 @@ export function Composer({ disabled, onSend }: { disabled: boolean; onSend(body:
         <Button variant="primary" type="submit" disabled={disabled}>Send message</Button></div>
       {error && <span className="field-error" role="alert" id={id + '-error'}>{error}</span>}</div>
     <div className="composer-footer"><nav className="composer-links" aria-label="Add to your day"><Link to="/events/new">Add event</Link><Link to="/tasks">Add task</Link><Link to="/memories/new">Add memory</Link></nav>
-      {length > 3600 && <span className="muted">{length} / 4,000</span>}</div>
+      {length > limit * .9 && <span className="muted">{number.format(length)} / {number.format(limit)}</span>}</div>
   </form>;
 }

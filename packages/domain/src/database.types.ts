@@ -76,13 +76,13 @@ isOneToOne: false
                   ]
                 },"events": {
                   Row: {
-                    "created_at": string,"created_by": string,"description": string | null,"end_date_exclusive": string | null,"ends_at": string | null,"id": string,"important_date": boolean,"location": string | null,"owner": string,"pair_id": string,"repeat": string,"repeat_day": number | null,"repeat_month": number | null,"start_date": string | null,"starts_at": string | null,"timezone": string,"title": string,"updated_at": string,"version": number,"visibility": string
+                    "created_at": string,"created_by": string,"description": string | null,"end_date_exclusive": string | null,"ends_at": string | null,"id": string,"important_date": boolean,"location": string | null,"pair_id": string,"repeat": string,"repeat_day": number | null,"repeat_month": number | null,"start_date": string | null,"starts_at": string | null,"title": string,"updated_at": string,"version": number,"who": string
                   }
                   Insert: {
-                    "created_at"?: string,"created_by": string,"description"?: string | null,"end_date_exclusive"?: string | null,"ends_at"?: string | null,"id": string,"important_date"?: boolean,"location"?: string | null,"owner": string,"pair_id": string,"repeat"?: string,"repeat_day"?: number | null,"repeat_month"?: number | null,"start_date"?: string | null,"starts_at"?: string | null,"timezone": string,"title": string,"updated_at"?: string,"version"?: number,"visibility": string
+                    "created_at"?: string,"created_by": string,"description"?: string | null,"end_date_exclusive"?: string | null,"ends_at"?: string | null,"id": string,"important_date"?: boolean,"location"?: string | null,"pair_id": string,"repeat"?: string,"repeat_day"?: number | null,"repeat_month"?: number | null,"start_date"?: string | null,"starts_at"?: string | null,"title": string,"updated_at"?: string,"version"?: number,"who": string
                   }
                   Update: {
-                    "created_at"?: string,"created_by"?: string,"description"?: string | null,"end_date_exclusive"?: string | null,"ends_at"?: string | null,"id"?: string,"important_date"?: boolean,"location"?: string | null,"owner"?: string,"pair_id"?: string,"repeat"?: string,"repeat_day"?: number | null,"repeat_month"?: number | null,"start_date"?: string | null,"starts_at"?: string | null,"timezone"?: string,"title"?: string,"updated_at"?: string,"version"?: number,"visibility"?: string
+                    "created_at"?: string,"created_by"?: string,"description"?: string | null,"end_date_exclusive"?: string | null,"ends_at"?: string | null,"id"?: string,"important_date"?: boolean,"location"?: string | null,"pair_id"?: string,"repeat"?: string,"repeat_day"?: number | null,"repeat_month"?: number | null,"start_date"?: string | null,"starts_at"?: string | null,"title"?: string,"updated_at"?: string,"version"?: number,"who"?: string
                   }
                   Relationships: [
                     {
@@ -270,26 +270,26 @@ isOneToOne: false
                   ]
                 },"pairs": {
                   Row: {
-                    "created_at": string,"ended_at": string | null,"id": string,"purge_after": string | null,"state": string,"timezone": string
+                    "created_at": string,"ended_at": string | null,"id": string,"purge_after": string | null,"state": string
                   }
                   Insert: {
-                    "created_at"?: string,"ended_at"?: string | null,"id"?: string,"purge_after"?: string | null,"state"?: string,"timezone": string
+                    "created_at"?: string,"ended_at"?: string | null,"id"?: string,"purge_after"?: string | null,"state"?: string
                   }
                   Update: {
-                    "created_at"?: string,"ended_at"?: string | null,"id"?: string,"purge_after"?: string | null,"state"?: string,"timezone"?: string
+                    "created_at"?: string,"ended_at"?: string | null,"id"?: string,"purge_after"?: string | null,"state"?: string
                   }
                   Relationships: [
                     
                   ]
                 },"profiles": {
                   Row: {
-                    "account_status": string,"avatar_path": string | null,"created_at": string,"display_name": string,"locale": string,"timezone": string,"updated_at": string,"user_id": string,"version": number
+                    "account_status": string,"created_at": string,"display_name": string,"locale": string,"timezone": string,"updated_at": string,"user_id": string,"version": number
                   }
                   Insert: {
-                    "account_status"?: string,"avatar_path"?: string | null,"created_at"?: string,"display_name": string,"locale": string,"timezone": string,"updated_at"?: string,"user_id": string,"version"?: number
+                    "account_status"?: string,"created_at"?: string,"display_name": string,"locale": string,"timezone": string,"updated_at"?: string,"user_id": string,"version"?: number
                   }
                   Update: {
-                    "account_status"?: string,"avatar_path"?: string | null,"created_at"?: string,"display_name"?: string,"locale"?: string,"timezone"?: string,"updated_at"?: string,"user_id"?: string,"version"?: number
+                    "account_status"?: string,"created_at"?: string,"display_name"?: string,"locale"?: string,"timezone"?: string,"updated_at"?: string,"user_id"?: string,"version"?: number
                   }
                   Relationships: [
                     
@@ -420,9 +420,6 @@ isOneToOne: false
 "cancel_pending_pair":
 { Args: { "p_command_id": string,"p_pair_id": string }; Returns: Json
                            },
-"claim_avatar_cleanup":
-{ Args: { "p_limit"?: number }; Returns: Json
-                           },
 "claim_due_jobs":
 { Args: { "p_lease_seconds"?: number,"p_limit"?: number }; Returns: Json
                            },
@@ -431,9 +428,6 @@ isOneToOne: false
                            },
 "claim_push_receipts":
 { Args: { "p_lease_seconds"?: number,"p_limit"?: number }; Returns: Json
-                           },
-"complete_avatar_cleanup":
-{ Args: { "p_error_code"?: string,"p_id": string,"p_lease_token": string }; Returns: Json
                            },
 "complete_job":
 { Args: { "p_id": string,"p_lease_id": string,"p_outcome": Json }; Returns: Json
@@ -457,7 +451,7 @@ isOneToOne: false
 { Args: { "p_command_id": string,"p_name": string,"p_pair_id": string }; Returns: Json
                            },
 "create_pair":
-{ Args: { "p_command_id": string,"p_timezone": string }; Returns: Json
+{ Args: { "p_command_id": string }; Returns: Json
                            },
 "create_task":
 { Args: { "p_command_id": string,"p_input": Json }; Returns: Json
@@ -479,12 +473,6 @@ isOneToOne: false
                            },
 "end_pair":
 { Args: { "p_command_id": string,"p_pair_id": string }; Returns: Json
-                           },
-"get_account_settings":
-{ Args: Record<PropertyKey, never>; Returns: Json
-                           },
-"get_avatar_media":
-{ Args: { "p_user_id": string }; Returns: Json
                            },
 "get_memory":
 { Args: { "p_memory_id": string }; Returns: Json
@@ -549,9 +537,6 @@ isOneToOne: false
 "rename_list":
 { Args: { "p_command_id": string,"p_expected_version": number,"p_list_id": string,"p_name": string }; Returns: Json
                            },
-"reserve_avatar":
-{ Args: { "p_bytes": number,"p_expected_version": number,"p_height": number,"p_id": string,"p_width": number }; Returns: Json
-                           },
 "reserve_memory":
 { Args: { "p_command_id": string,"p_input": Json }; Returns: Json
                            },
@@ -594,17 +579,11 @@ isOneToOne: false
 "update_memory":
 { Args: { "p_command_id": string,"p_expected_version": number,"p_input": Json,"p_memory_id": string }; Returns: Json
                            },
-"update_pair_timezone":
-{ Args: { "p_expected_timezone": string,"p_pair_id": string,"p_timezone": string }; Returns: Json
-                           },
 "update_task":
 { Args: { "p_command_id": string,"p_expected_version": number,"p_input": Json,"p_task_id": string }; Returns: Json
                            },
 "validate_memory_photo":
 { Args: { "p_actor_id": string,"p_evidence": Json,"p_memory_id": string,"p_photo_id": string,"p_session_id": string }; Returns: Json
-                           },
-"verify_avatar":
-{ Args: { "p_actor": string,"p_evidence"?: Json,"p_id": string,"p_session": string }; Returns: Json
                            },
 "verify_memory_reservation":
 { Args: { "p_actor_id": string,"p_memory_id": string,"p_session_id": string }; Returns: Json

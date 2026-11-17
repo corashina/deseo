@@ -77,7 +77,7 @@ test('same-account pair change clears mounted invitation state', async ({ page, 
   if (login.error) throw login.error;
   await rpc(actor, 'cancel_pending_pair', { p_pair_id: oldPair, p_command_id: crypto.randomUUID() });
   await expect.poll(signals.joined).toBe(true);
-  pairId = (await rpc(actor, 'create_pair', { p_timezone: 'Europe/Warsaw', p_command_id: crypto.randomUUID() })).pairId;
+  pairId = (await rpc(actor, 'create_pair', { p_command_id: crypto.randomUUID() })).pairId;
   await actor.auth.signOut({ scope: 'local' });
   await context.setOffline(false);
   await recovered();

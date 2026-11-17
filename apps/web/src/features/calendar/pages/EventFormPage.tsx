@@ -16,8 +16,10 @@ import { Button } from '../../../components/ui/Button';
 import { Status } from '../../../components/ui/Status';
 import { Dialog } from '../../../components/ui/Dialog';
 import { calendarKeys, getEvent } from '../queries';
-import { createEvent, updateEvent } from '../commands';
+import { createEvent, deleteEvent, updateEvent } from '../commands';
 import { EventFields } from '../components/EventFields';
+import { eventOwner, ownerNames } from '../components/EventRow';
+import { PartnerBadge } from '../../../components/ui/PartnerBadge';
 import { useReturnTo } from '../../../lib/return-to';
 import '../../../styles/calendar.css';
 
@@ -35,8 +37,8 @@ export function EventFormPage() {
   const idea = useQuery({ queryKey: ideaKeys.detail(account!.id, pairId, ideaId ?? 'none'), queryFn: () => getDateIdea(pairId, ideaId!), enabled: Boolean(ideaId) });
   if (!account || pair?.status !== 'active') return null;
   if (ideaId && idea.isPending) return <Status>Loading idea…</Status>;
-  if (ideaId && idea.isError) return <RouteErrorPage title="Idea" returnTo="/ideas" returnLabel="Return to ideas" error={idea.error} onRetry={() => void idea.refetch()} />;
-  if (ideaId && !idea.data) return <RouteErrorPage title="Idea" returnTo="/ideas" returnLabel="Return to ideas" />;
+  if (ideaId && idea.isError) return <RouteErrorPage title="Idea" returnTo="/calendar" returnLabel="Return to calendar" error={idea.error} onRetry={() => void idea.refetch()} />;
+  if (ideaId && !idea.data) return <RouteErrorPage title="Idea" returnTo="/calendar" returnLabel="Return to calendar" />;
   if (eventId && query.isPending) return <Status>Loading event…</Status>;
   if (eventId && query.isError) {
     return <RouteErrorPage title="Event" returnTo="/calendar" returnLabel="Return to calendar" error={query.error} onRetry={() => void query.refetch()} />;
@@ -59,21 +61,22 @@ function EventEditor({ event, idea }: { event?: Event; idea?: DateIdea }) {
   const [version, setVersion] = useState(idea?.version ?? event?.version);
   const command = useCommandId();
   const [sharing, setSharing] = useState<EventFormValues | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const [now] = useState(() => DateTime.now().setZone(account.timezone));
   const date = DateTime.fromISO(params.get('date') ?? '');
   const form = useForm<EventFormValues>({
     resolver: zodResolver(eventFormSchema),
-    defaultValues: event ? eventToForm(event) : {
+    defaultValues: event ? eventToForm(event, account.timezone) : {
       title: idea?.title ?? '', allDay: false,
       startDate: date.isValid ? date.toISODate()! : now.toISODate()!,
       endDate: date.isValid ? date.toISODate()! : now.toISODate()!,
-      startTime: '18:00', endTime: '19:00', timezone: account.timezone,
-      owner: 'together', visibility: 'shared', location: '', description: idea?.note ?? '', repeat: 'none', importantDate: false,
+      startTime: '18:00', endTime: '19:00',
+      who: 'together', location: '', description: idea?.note ?? '', repeat: 'none', importantDate: false,
     },
   });
   const save = useMutation({
     mutationFn: ({ values, confirmShared }: { values: EventFormValues; confirmShared: boolean }) => {
-      const input = toEventInput({ ...values, id, pairId: pair.pairId, confirmShared });
+      const input = toEventInput({ ...values, id, pairId: pair.pairId, confirmShared }, account.timezone);
       const commandId = command.idFor({ input, version });
       return idea ? planDateIdea(idea.id, input, version!, commandId) : event ? updateEvent(input, version!, commandId) : createEvent(input, commandId);
     },
@@ -90,24 +93,26 @@ function EventEditor({ event, idea }: { event?: Event; idea?: DateIdea }) {
       }
       const current = await getEvent(pair.pairId, event!.id);
       if (!current) throw new AppError({ code: 'FORBIDDEN', message: 'Event unavailable.' });
-      form.reset(eventToForm(current));
+      form.reset(eventToForm(current, account.timezone));
       setVersion(current.version);
     },
     onSuccess: () => save.reset(),
   });
-  const failure = save.isError ? toAppError(save.error) : null;
+  const remove = useMutation({ mutationFn: () => deleteEvent(event!.id, version!), onSuccess: () => navigate(back), onSettled: () => setConfirmDelete(false) });
+  const failure = save.isError ? toAppError(save.error) : remove.isError ? toAppError(remove.error) : null;
   const conflict = failure?.code === 'CONFLICT';
   const error = reload.isError ? toAppError(reload.error).message
     : conflict ? (idea ? 'This idea changed. Your draft is kept.' : 'This event changed. Your draft is kept.')
     : failure?.message ?? '';
-  const saving = save.isPending || reload.isPending;
+  const saving = save.isPending || reload.isPending || remove.isPending;
   useUnsavedChanges(!save.isSuccess && form.formState.isDirty);
+  // Navigate after the save clears the unsaved-changes guard, so no false prompt shows.
   useEffect(() => {
-    if (save.isSuccess) navigate('/events/' + id, { replace: true, state: { from: back } });
-  }, [save.isSuccess, navigate, id, back]);
+    if (save.isSuccess) navigate(back, { replace: true });
+  }, [save.isSuccess, navigate, back]);
 
   function submitValues(values: EventFormValues) {
-    if (event?.visibility === 'private' && values.visibility === 'shared') setSharing(values);
+    if (event?.who === 'private' && values.who !== 'private') setSharing(values);
     else save.mutate({ values, confirmShared: false });
   }
 
@@ -117,17 +122,14 @@ function EventEditor({ event, idea }: { event?: Event; idea?: DateIdea }) {
     save.mutate({ values, confirmShared: true });
   }
 
-  const names = {
-    a: pair.members.find(member => member.slot === 'a')!.displayName,
-    b: pair.members.find(member => member.slot === 'b')!.displayName,
-    together: 'Together',
-  };
-  const slot = pair.members.find(member => member.userId === account.id)!.slot;
+  const names = ownerNames(pair.members, account.id);
+  const owner = event && eventOwner(event, names);
   return <>
-    <PageHeader title={event ? 'Edit event' : idea ? 'Plan date' : 'Add event'} />
+    {event && owner ? <PageHeader eyebrow="Event" title={event.title} description={<PartnerBadge name={names[owner]} slot={owner} />} />
+      : <PageHeader title={idea ? 'Plan date' : 'Add event'} />}
     <section className="card form-page">
       <form onSubmit={form.handleSubmit(submitValues)}>
-        <EventFields form={form} names={names} slot={slot} author={!event || event.authorId === account.id} locked={saving} planning={Boolean(idea)} />
+        <EventFields form={form} names={names} slot={names.self} author={!event || event.authorId === account.id} locked={saving} planning={Boolean(idea)} />
         {error && <Status error>{error}</Status>}
         {conflict && (
           <Button
@@ -143,10 +145,15 @@ function EventEditor({ event, idea }: { event?: Event; idea?: DateIdea }) {
           <Button variant="primary" disabled={saving || conflict} type="submit">
             {saving ? 'Saving…' : failure ? 'Retry save' : event ? 'Save changes' : 'Save event'}
           </Button>
-          <Link className="button secondary" to={event ? '/events/' + event.id : idea ? '/ideas/' + idea.id : back} state={{ from: back }}>Cancel</Link>
+          <Link className="button secondary" to={idea ? '/ideas/' + idea.id : back} state={{ from: back }}>Cancel</Link>
         </div>
       </form>
+      {event && <div className="task-delete"><Button variant="secondary" disabled={saving} onClick={() => setConfirmDelete(true)}>{remove.isError ? 'Retry deletion' : 'Delete event'}</Button></div>}
     </section>
+    <Dialog busy={remove.isPending} title="Delete this event?" open={confirmDelete} onClose={() => setConfirmDelete(false)}>
+      <p>{event?.who === 'private' ? 'You will lose access to this event.' : 'Both partners will lose access to this event.'}</p>
+      <Button variant="danger" disabled={remove.isPending} onClick={() => remove.mutate()}>Confirm deletion</Button>
+    </Dialog>
     <Dialog busy={saving} open={Boolean(sharing)} title="Share this event?" onClose={() => setSharing(null)}>
       <p>Your partner will see this event.</p>
       <Button variant="primary" onClick={confirmSharing}>Share event</Button>

@@ -21,7 +21,7 @@ export function OurDayPanel({ data, important, days, date, zone, locale, names, 
     {data.agenda[0] && <NextPlanCard event={data.agenda[0]} names={names} zone={zone} locale={locale} />}
     <section className="card" data-testid="today-events">
       <div className="section-heading"><h2>Upcoming plans</h2><Link to="/calendar">View calendar</Link></div>
-      <WeekStrip date={date} events={data.agenda} zone={zone} locale={locale} />
+      <WeekStrip date={date} events={data.agenda} names={names} zone={zone} locale={locale} />
       {/* The next plan card above shows the first event, so the list starts at the second. */}
       {later.length ? later.map(event => <EventRow
         key={event.id + (event.temporal.kind === 'allDay' ? event.temporal.startDate : event.temporal.startsAt)}

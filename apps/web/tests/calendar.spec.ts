@@ -2,7 +2,7 @@ import { test, expect, admin, createEvent } from './support/test';
 
 // Importance 100: a shared event reaches the partner, and a private event never does.
 test('B sees the shared event and cannot open the private event', async ({ page, browser, pair, signIn }) => {
-  const { a, b } = await pair();
+  const { id, a, b } = await pair();
   await signIn(page, a);
   const ids: string[] = [];
   for (const [title, who] of [['Concert night', 'together'], ['Dentist visit', 'private']] as const) {
@@ -10,8 +10,8 @@ test('B sees the shared event and cannot open the private event', async ({ page,
     await page.getByLabel('Title', { exact: true }).fill(title);
     await page.getByLabel('Who').selectOption(who);
     await page.getByRole('button', { name: 'Save event', exact: true }).click();
-    await expect(page.getByRole('heading', { name: title, exact: true })).toBeVisible();
-    ids.push(page.url().split('/events/')[1]);
+    await expect(page).toHaveURL(/\/calendar$/);
+    ids.push((await admin.from('events').select('id').eq('pair_id', id).eq('title', title).single()).data!.id);
   }
   const context = await browser.newContext();
   try {
@@ -38,13 +38,13 @@ test('the second save of one event keeps its draft and reports a conflict', asyn
     const partner = await context.newPage();
     await signIn(page, a);
     await signIn(partner, b);
-    await page.goto(`/events/${eventId}/edit`);
-    await partner.goto(`/events/${eventId}/edit`);
+    await page.goto(`/events/${eventId}`);
+    await partner.goto(`/events/${eventId}`);
     await expect(page.getByLabel('Title', { exact: true })).toHaveValue('Weekend trip');
     await expect(partner.getByLabel('Title', { exact: true })).toHaveValue('Weekend trip');
     await partner.getByLabel('Title', { exact: true }).fill('Weekend trip to the lake');
     await partner.getByRole('button', { name: 'Save changes', exact: true }).click();
-    await expect(partner.getByRole('heading', { name: 'Weekend trip to the lake', exact: true })).toBeVisible();
+    await expect(partner).toHaveURL(/\/calendar$/);
     await page.getByText('More details', { exact: true }).click();
     await page.getByLabel('Location').fill('Train station');
     await page.getByRole('button', { name: 'Save changes', exact: true }).click();

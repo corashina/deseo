@@ -66,7 +66,7 @@ test('a new pair after an ended pair shows none of the old content', async ({ pa
 
   await signIn(page, next.a);
   const pages: [string, string][] = [['/today', 'New pair picnic'], ['/today', 'New pair message about the picnic'], ['/calendar', 'New pair picnic'],
-    ['/tasks', 'New pair task: water the plants'], ['/ideas', 'New pair idea: a museum visit'], ['/memories', 'New pair memory in the garden']];
+    ['/tasks', 'New pair task: water the plants'], ['/calendar', 'New pair idea: a museum visit'], ['/memories', 'New pair memory in the garden']];
   for (const [path, current] of pages) {
     await page.goto(path);
     await expect(page.getByText(current).filter({ visible: true }).first()).toBeVisible();

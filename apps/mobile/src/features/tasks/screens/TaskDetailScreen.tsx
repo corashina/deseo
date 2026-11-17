@@ -67,12 +67,12 @@ function Detail({ taskId, pairId }: { taskId: string; pairId: string }) {
     <RowGroup><TaskRow task={task} accountId={core.account.id} online={core.online && !saving && !action} assignee={assignee} onOpen={() => router.push({ pathname: '/tasks/[taskId]/edit', params: { taskId } })} /></RowGroup>
     <View style={theme.ui.card}>
       <DetailRow icon="list-outline">{`List: ${lists.data?.find(list => list.id === task.listId)?.name ?? (lists.isError ? 'Could not load list' : 'Loading list…')}`}</DetailRow>
-      <DetailRow icon="calendar-outline" note={core.pair.status === 'active' ? `Pair timezone: ${core.pair.timezone}` : undefined}>
+      <DetailRow icon="calendar-outline">
         {`Due: ${task.dueDate ? DateTime.fromISO(task.dueDate).toLocaleString(DateTime.DATE_HUGE) : 'No due date'}`}
       </DetailRow>
     </View>
     {lists.isError && <Status message="We could not load the list name." actionLabel="Retry" onAction={() => { void lists.refetch(); }} />}
-    <ReminderControl taskId={task.id} sourceVersion={task.version} timezone={core.pair.status === 'active' ? core.pair.timezone : core.account.timezone} dueDate={task.dueDate} completed={task.completedAt !== null} />
+    <ReminderControl taskId={task.id} sourceVersion={task.version} timezone={core.account.timezone} dueDate={task.dueDate} completed={task.completedAt !== null} />
     {retry}
     <Button label="Edit task" disabled={saving || !!action} onPress={() => router.push({ pathname: '/tasks/[taskId]/edit', params: { taskId } })} />
     <Button label="Delete task" variant="danger" loading={saving} disabled={!core.online || !ready || !!action || error?.code === 'CONFLICT'} onPress={() => Alert.alert(`Delete ${task.title}?`, 'Your partner will also lose this task.', [

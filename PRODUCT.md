@@ -30,7 +30,7 @@ They write their own date ideas and choose which events to share.
 Users sign in with an email code, set a name, and create or accept a partner invitation.
 Today combines the conversation and its pinned notes with upcoming plans, due tasks, a memory, and an important date.
 Today, Calendar, Memories, Tasks, and Settings provide the main workflows.
-The current portal uses English text. Date rules use event, profile, or pair timezones in the data contract.
+The current portal uses English text. Each person sees dates and times in their profile timezone.
 Users can reload record URLs and use browser Back.
 Browser drafts remain in memory and disappear when the user leaves the form or reloads. Users receive a warning first.
 
@@ -47,7 +47,7 @@ Browser drafts remain in memory and disappear when the user leaves the form or r
 - Users retain failed input and resolve edit conflicts. A retry of the same input reuses its command ID.
 - Clients clear private content when account or pair authority changes.
 - Browser scope excludes service workers, offline content storage, and installation prompts.
-- Account export, deletion, avatar backend work, and pair-timezone writes remain separate delivery scope. The public site ships without account deletion.
+- Account export, deletion, and avatar backend work remain separate delivery scope. The public site ships without account deletion.
 - Product scope excludes relationship scores, streaks, coaching, profiling, public feeds, advertising, and partner surveillance.
 
 Use [Architecture](docs/ARCHITECTURE.md) for module rules.
@@ -98,14 +98,14 @@ Use these terms in code, documentation, and UI text.
 | Term | Meaning |
 |---|---|
 | Account | One person's authenticated identity |
-| Profile | That person's display name, avatar, locale, and timezone |
+| Profile | That person's display name, locale, and timezone |
 | Pair | A private space with two active members |
 | Partner | The other member of the current pair |
 | Invitation | A temporary request to join a pair |
 | Event | A dated plan, either timed or all-day |
 | Shared event | An event both partners can view and edit |
 | Private event | An event only its author can view and edit |
-| Owner label | Who an event concerns: one person or both; it does not grant access |
+| Who | Whom an event is for: one person, both, or Private for its author only |
 | Important date | An all-day event marked for a countdown; it can repeat yearly |
 | Date idea | A saved activity the pair may schedule later |
 | Task | An item someone can complete |

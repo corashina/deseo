@@ -13,7 +13,6 @@ create table public.profiles (
   display_name text not null check (char_length(display_name) between 1 and 40 and display_name = btrim(display_name)),
   timezone text not null,
   locale text not null check (char_length(locale) between 2 and 35),
-  avatar_path text,
   account_status text not null default 'active' check (account_status in ('active', 'disabled')),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
@@ -176,14 +175,12 @@ grant execute on function public.get_session_context(),public.save_profile(text,
 create table public.pairs (
   id uuid primary key default gen_random_uuid(),
   state text not null default 'pending' check (state in ('pending','active','ended')),
-  timezone text not null,
   created_at timestamptz not null default now(),
   ended_at timestamptz,
   purge_after timestamptz,
   check ((state='ended' and ended_at is not null and purge_after=ended_at+interval '30 days')
     or (state<>'ended' and ended_at is null and purge_after is null))
 );
-create trigger pairs_timezone before insert or update on public.pairs for each row execute function private.check_timezone();
 create table public.pair_members (
   pair_id uuid not null references public.pairs(id) on delete cascade,
   user_id uuid not null references public.profiles(user_id),
@@ -286,18 +283,17 @@ language sql immutable set search_path = '' as $$
   select extensions.digest(upper(regexp_replace(coalesce(p_token,''),'[ -]','','g')),'sha256');
 $$;
 
-create function private.create_pair(p_timezone text,p_command_id uuid) returns jsonb
+create function private.create_pair(p_command_id uuid) returns jsonb
 language plpgsql security definer set search_path = '' as $$
-declare actor uuid; result jsonb; pair uuid; request jsonb := jsonb_build_object('timezone',p_timezone);
+declare actor uuid; result jsonb; pair uuid; request jsonb := '{}'::jsonb;
 begin
   actor := private.require_actor();
   perform 1 from public.profiles where user_id=actor for update;
   perform private.require_actor();
   result := private.receipt(actor,p_command_id,'create_pair',request);
   if result is not null then return result; end if;
-  if not exists(select 1 from pg_catalog.pg_timezone_names where name=p_timezone) then return private.error('VALIDATION','timezone'); end if;
   if exists(select 1 from public.pair_members where user_id=actor and left_at is null) then return private.error('ALREADY_PAIRED'); end if;
-  insert into public.pairs(timezone) values(p_timezone) returning id into pair;
+  insert into public.pairs default values returning id into pair;
   insert into public.pair_members(pair_id,user_id,slot) values(pair,actor,'a');
   return private.save_receipt(actor,p_command_id,'create_pair',pair,request,jsonb_build_object('pairId',pair));
 exception when sqlstate 'P0001' then return private.error(sqlerrm);
@@ -338,7 +334,7 @@ begin
   select * into invitation from private.pair_invites where token_hash=private.token_hash(p_token)
     and accepted_at is null and revoked_at is null and expires_at>now();
   if not found then return private.invite_failed(actor); end if;
-  select jsonb_build_object('pairId',p.id,'inviterName',profile.display_name,'timezone',p.timezone,'expiresAt',invitation.expires_at)
+  select jsonb_build_object('pairId',p.id,'inviterName',profile.display_name,'expiresAt',invitation.expires_at)
     into info from public.pairs p join public.profiles profile on profile.user_id=invitation.created_by
     where p.id=invitation.pair_id and p.state='pending' and profile.account_status='active';
   if info is null then return private.invite_failed(actor); end if;
@@ -415,18 +411,18 @@ begin
     into members from public.pair_members m join public.profiles p on p.user_id=m.user_id
     where m.pair_id=pair.id and m.left_at is null;
   if pair.state='active' then
-    return jsonb_build_object('ok',true,'data',jsonb_build_object('status','active','pairId',pair.id,'timezone',pair.timezone,'members',members));
+    return jsonb_build_object('ok',true,'data',jsonb_build_object('status','active','pairId',pair.id,'members',members));
   end if;
   select jsonb_build_object('expiresAt',expires_at) into invite from private.pair_invites
     where pair_id=pair.id and accepted_at is null and revoked_at is null and expires_at>now();
   member := members->0;
-  return jsonb_build_object('ok',true,'data',jsonb_build_object('status','pending','pairId',pair.id,'timezone',pair.timezone,'member',member,'invite',invite));
+  return jsonb_build_object('ok',true,'data',jsonb_build_object('status','pending','pairId',pair.id,'member',member,'invite',invite));
 exception when sqlstate 'P0001' then return private.error(sqlerrm);
 end;
 $$;
 
-create function public.create_pair(p_timezone text,p_command_id uuid) returns jsonb language sql security invoker set search_path = ''
-as $$ select private.create_pair(p_timezone,p_command_id); $$;
+create function public.create_pair(p_command_id uuid) returns jsonb language sql security invoker set search_path = ''
+as $$ select private.create_pair(p_command_id); $$;
 create function public.create_invite(p_pair_id uuid,p_command_id uuid) returns jsonb language sql security invoker set search_path = ''
 as $$ select private.create_invite(p_pair_id,p_command_id); $$;
 create function public.preview_invite(p_token text) returns jsonb language sql security invoker set search_path = ''
@@ -439,15 +435,15 @@ create function public.get_pair_context() returns jsonb language sql security in
 as $$ select private.get_pair_context(); $$;
 
 revoke all on function private.is_member(uuid,boolean),private.is_partner(uuid),private.lock_pair(uuid,uuid),
-private.invite_limited(uuid),private.invite_failed(uuid),private.token_hash(text),private.create_pair(text,uuid),
+private.invite_limited(uuid),private.invite_failed(uuid),private.token_hash(text),private.create_pair(uuid),
 private.create_invite(uuid,uuid),private.preview_invite(text),private.accept_invite(text,uuid),private.cancel_pending_pair(uuid,uuid),
 private.get_pair_context() from public,anon,authenticated;
-grant execute on function private.is_member(uuid,boolean),private.is_partner(uuid),private.create_pair(text,uuid),
+grant execute on function private.is_member(uuid,boolean),private.is_partner(uuid),private.create_pair(uuid),
 private.create_invite(uuid,uuid),private.preview_invite(text),private.accept_invite(text,uuid),private.cancel_pending_pair(uuid,uuid),
 private.get_pair_context() to authenticated;
-revoke all on function public.create_pair(text,uuid),public.create_invite(uuid,uuid),public.preview_invite(text),
+revoke all on function public.create_pair(uuid),public.create_invite(uuid,uuid),public.preview_invite(text),
 public.accept_invite(text,uuid),public.cancel_pending_pair(uuid,uuid),public.get_pair_context() from public,anon,authenticated;
-grant execute on function public.create_pair(text,uuid),public.create_invite(uuid,uuid),public.preview_invite(text),
+grant execute on function public.create_pair(uuid),public.create_invite(uuid,uuid),public.preview_invite(text),
 public.accept_invite(text,uuid),public.cancel_pending_pair(uuid,uuid),public.get_pair_context() to authenticated;
 alter publication supabase_realtime add table public.pair_members;
 alter publication supabase_realtime add table public.profiles;
@@ -468,10 +464,8 @@ create table public.events (
   id uuid primary key,
   pair_id uuid not null references public.pairs(id) on delete cascade,
   created_by uuid not null,
-  owner text not null check(owner in('a','b','together')),
-  visibility text not null check(visibility in('shared','private')),
+  who text not null check(who in('together','a','b','private')),
   title text not null check(char_length(title) between 1 and 120 and title=btrim(title)),
-  timezone text not null,
   starts_at timestamptz,
   ends_at timestamptz,
   start_date date,
@@ -488,8 +482,7 @@ create table public.events (
   unique(pair_id,id),
   foreign key(pair_id,created_by) references public.pair_members(pair_id,user_id),
   check((starts_at is not null and ends_at is not null and ends_at>starts_at and start_date is null and end_date_exclusive is null)
-    or (start_date is not null and end_date_exclusive is not null and end_date_exclusive>start_date and starts_at is null and ends_at is null)),
-  check(visibility<>'private' or owner<>'together')
+    or (start_date is not null and end_date_exclusive is not null and end_date_exclusive>start_date and starts_at is null and ends_at is null))
 );
 create index events_pair_start on public.events(pair_id,starts_at,id) where starts_at is not null;
 create index events_pair_date on public.events(pair_id,start_date,id) where start_date is not null;
@@ -503,10 +496,9 @@ revoke all on public.events from public,anon,authenticated;
 grant select on public.events to authenticated;
 grant all on public.events to service_role;
 create policy events_visible on public.events for select to authenticated
-using(pair_id=(select private.actor_pair()) and (visibility='shared' or created_by=(select private.active_actor())));
-create trigger events_timezone before insert or update on public.events for each row execute function private.check_timezone();
+using(pair_id=(select private.actor_pair()) and (who<>'private' or created_by=(select private.active_actor())));
 
--- Keep only opaque IDs for former readers. This also removes drafts after an offline visibility change.
+-- Keep only opaque IDs for former readers. This also removes drafts after an offline change to private.
 create table public.event_access_revocations (
   user_id uuid not null references auth.users(id) on delete cascade,
   pair_id uuid not null,
@@ -535,9 +527,9 @@ create trigger events_identity before update on public.events for each row execu
 -- Fixed public wrappers choose create, update, or delete. Reads remain RLS-scoped.
 create function private.event_command(p_action text,p_event_id uuid,p_input jsonb,p_expected_version integer,p_command_id uuid)
 returns jsonb language plpgsql security definer set search_path = '' as $$
-declare v_actor uuid; v_pair uuid; actor_slot text; previous public.events; result public.events; replay jsonb;
+declare v_actor uuid; v_pair uuid; previous public.events; result public.events; replay jsonb;
   request jsonb := jsonb_build_object('id',p_event_id,'input',p_input,'version',p_expected_version);
-  v_important boolean; v_repeat text; v_month integer; v_day integer; v_title text; v_owner text; v_visibility text; v_timezone text; starts timestamptz; ends timestamptz; first_date date; last_date date;
+  v_important boolean; v_repeat text; v_month integer; v_day integer; v_title text; v_who text; starts timestamptz; ends timestamptz; first_date date; last_date date;
 begin
   v_actor := private.require_actor();
   if p_action not in('create','update','delete') then return private.error('VALIDATION'); end if;
@@ -555,7 +547,7 @@ begin
   perform private.lock_pair(v_pair,v_actor);
   if not private.is_member(v_pair) then return private.error('FORBIDDEN'); end if;
   select * into previous from public.events where id=p_event_id for update;
-  if previous.id is not null and previous.visibility='private' and previous.created_by<>v_actor then
+  if previous.id is not null and previous.who='private' and previous.created_by<>v_actor then
     return private.error('FORBIDDEN');
   end if;
   replay := private.receipt(v_actor,p_command_id,'event_'||p_action,request);
@@ -568,7 +560,7 @@ begin
     return private.save_receipt(v_actor,p_command_id,'event_create',v_pair,request,to_jsonb(previous));
   end if;
   if p_action<>'create' then
-    if previous.id is null or previous.pair_id<>v_pair or (previous.visibility='private' and previous.created_by<>v_actor)
+    if previous.id is null or previous.pair_id<>v_pair or (previous.who='private' and previous.created_by<>v_actor)
       then return private.error('FORBIDDEN'); end if;
     if p_expected_version is null or p_expected_version<>previous.version then return private.error('CONFLICT'); end if;
   end if;
@@ -577,21 +569,17 @@ begin
     return private.save_receipt(v_actor,p_command_id,'event_delete',v_pair,request,jsonb_build_object('id',p_event_id));
   end if;
   if (p_input->>'id')::uuid is distinct from p_event_id or (p_input->>'pair_id')::uuid is distinct from v_pair then return private.error('VALIDATION','id'); end if;
-  v_title := btrim(p_input->>'title'); v_owner := p_input->>'owner'; v_visibility := p_input->>'visibility'; v_timezone := p_input->>'timezone';
+  v_title := btrim(p_input->>'title'); v_who := p_input->>'who';
   if v_title is null or char_length(v_title) not between 1 and 120 then return private.error('VALIDATION','title'); end if;
-  if v_owner is null or v_owner not in('a','b','together') then return private.error('VALIDATION','owner'); end if;
-  if v_visibility is null or v_visibility not in('shared','private') then return private.error('VALIDATION','visibility'); end if;
-  if not exists(select 1 from pg_catalog.pg_timezone_names where name=v_timezone) then return private.error('VALIDATION','timezone'); end if;
+  if v_who is null or v_who not in('together','a','b','private') then return private.error('VALIDATION','who'); end if;
   if char_length(p_input->>'location')>200 then return private.error('VALIDATION','location'); end if;
   if char_length(p_input->>'description')>2000 then return private.error('VALIDATION','description'); end if;
   v_repeat := coalesce(p_input->>'repeat','none');
   v_important := coalesce((p_input->>'important_date')::boolean,false) or v_repeat='yearly';
   if v_repeat not in('none','yearly') then return private.error('VALIDATION','repeat'); end if;
-  select slot into actor_slot from public.pair_members where pair_id=v_pair and user_id=v_actor and left_at is null;
-  if v_visibility='private' and v_owner<>actor_slot then return private.error('VALIDATION','owner'); end if;
-  if p_action='update' and previous.visibility<>v_visibility then
+  if p_action='update' and (previous.who='private')<>(v_who='private') then
     if previous.created_by<>v_actor then return private.error('FORBIDDEN'); end if;
-    if v_visibility='shared' and (p_input->>'confirm_shared')::boolean is distinct from true then return private.error('VALIDATION','confirm_shared'); end if;
+    if v_who<>'private' and (p_input->>'confirm_shared')::boolean is distinct from true then return private.error('VALIDATION','confirm_shared'); end if;
   end if;
   starts := (p_input->>'starts_at')::timestamptz; ends := (p_input->>'ends_at')::timestamptz;
   first_date := (p_input->>'start_date')::date; last_date := (p_input->>'end_date_exclusive')::date;
@@ -604,20 +592,20 @@ begin
     v_month := extract(month from first_date)::integer; v_day := extract(day from first_date)::integer;
   end if;
   if p_action='create' then
-    insert into public.events(id,pair_id,created_by,owner,visibility,title,timezone,starts_at,ends_at,start_date,end_date_exclusive,location,description,repeat,repeat_month,repeat_day,important_date)
-    values(p_event_id,v_pair,v_actor,v_owner,v_visibility,v_title,v_timezone,starts,ends,first_date,last_date,p_input->>'location',p_input->>'description',v_repeat,v_month,v_day,v_important) returning * into result;
+    insert into public.events(id,pair_id,created_by,who,title,starts_at,ends_at,start_date,end_date_exclusive,location,description,repeat,repeat_month,repeat_day,important_date)
+    values(p_event_id,v_pair,v_actor,v_who,v_title,starts,ends,first_date,last_date,p_input->>'location',p_input->>'description',v_repeat,v_month,v_day,v_important) returning * into result;
   else
-    update public.events set owner=v_owner,visibility=v_visibility,title=v_title,timezone=v_timezone,starts_at=starts,ends_at=ends,
+    update public.events set who=v_who,title=v_title,starts_at=starts,ends_at=ends,
       start_date=first_date,end_date_exclusive=last_date,location=p_input->>'location',description=p_input->>'description',
       important_date=v_important,repeat=v_repeat,repeat_month=v_month,repeat_day=v_day,version=version+1,updated_at=now() where id=p_event_id returning * into result;
-    if previous.visibility='shared' and v_visibility='private' then
+    if previous.who<>'private' and v_who='private' then
       insert into public.event_access_revocations(user_id,pair_id,event_id)
       select user_id,v_pair,p_event_id from public.pair_members where pair_id=v_pair and left_at is null and user_id<>v_actor
       on conflict(user_id,event_id) do update set revoked_at=now();
       -- The updated event is hidden by RLS. Notify the former reader through their own profile.
       update public.profiles set updated_at=now(),version=version+1
       where user_id in(select user_id from public.pair_members where pair_id=v_pair and left_at is null and user_id<>v_actor);
-    elsif previous.visibility='private' and v_visibility='shared' then
+    elsif previous.who='private' and v_who<>'private' then
       delete from public.event_access_revocations where event_id=p_event_id;
     end if;
   end if;
@@ -646,30 +634,34 @@ language sql immutable set search_path = '' as $$
 $$;
 revoke all on function private.yearly_date(integer,integer,integer) from public,anon,authenticated;
 grant execute on function private.yearly_date(integer,integer,integer) to authenticated;
-create function public.list_agenda(p_pair_id uuid,p_from date,p_to date) returns jsonb
-language plpgsql stable security invoker set search_path = '' as $$
-declare pair_timezone text; items jsonb;
+create function private.list_agenda(p_pair_id uuid,p_from date,p_to date,p_important_only boolean) returns jsonb
+language plpgsql stable security invoker set search_path='' as $$
+declare viewer_timezone text; items jsonb;
 begin
-  if private.active_actor() is null then return jsonb_build_object('ok',false,'error',jsonb_build_object('code','UNAUTHENTICATED')); end if;
-  if p_from is null or p_to is null or p_to<=p_from or p_to-p_from>366 then
-    return jsonb_build_object('ok',false,'error',jsonb_build_object('code','VALIDATION','field','range')); end if;
-  select p.timezone into pair_timezone from public.pairs p where id=p_pair_id and state='active';
-  if pair_timezone is null then return jsonb_build_object('ok',false,'error',jsonb_build_object('code','FORBIDDEN')); end if;
+  if private.active_actor() is null then return private.error('UNAUTHENTICATED'); end if;
+  if p_from is null or p_to is null or p_to<=p_from or p_to-p_from>366 then return private.error('VALIDATION','range'); end if;
+  if not exists(select 1 from public.pairs where id=p_pair_id and state='active') then return private.error('FORBIDDEN'); end if;
+  -- Days start at midnight in the viewer's own timezone.
+  select timezone into viewer_timezone from public.profiles where user_id=private.active_actor();
   with occurrences as (
-    select to_jsonb(e) item,coalesce(e.starts_at,e.start_date::timestamp at time zone pair_timezone) sort_time,e.id
-    from public.events e where e.pair_id=p_pair_id and e.repeat='none' and
-      ((e.starts_at < (p_to::timestamp at time zone pair_timezone) and e.ends_at > (p_from::timestamp at time zone pair_timezone))
+    select to_jsonb(e) item,coalesce(e.starts_at,e.start_date::timestamp at time zone viewer_timezone) sort_time,e.id
+    from public.events e where e.pair_id=p_pair_id and e.repeat='none' and (e.important_date or not p_important_only) and
+      ((e.starts_at < (p_to::timestamp at time zone viewer_timezone) and e.ends_at > (p_from::timestamp at time zone viewer_timezone))
         or (e.start_date < p_to and e.end_date_exclusive > p_from))
     union all
-    select to_jsonb(e)||jsonb_build_object('occurrence_date',d.occurrence_day),d.occurrence_day::timestamp at time zone pair_timezone,e.id
+    select to_jsonb(e)||jsonb_build_object('occurrence_date',d.occurrence_day),d.occurrence_day::timestamp at time zone viewer_timezone,e.id
     from public.events e
     cross join lateral generate_series(extract(year from p_from)::integer,extract(year from p_to-1)::integer) y(year)
     cross join lateral (select private.yearly_date(y.year,e.repeat_month,e.repeat_day) as occurrence_day) d
-    where e.pair_id=p_pair_id and e.repeat='yearly' and d.occurrence_day>=p_from and d.occurrence_day<p_to
+    where e.pair_id=p_pair_id and e.repeat='yearly' and d.occurrence_day>=greatest(p_from,e.start_date) and d.occurrence_day<p_to
   ) select coalesce(jsonb_agg(item order by sort_time,id),'[]'::jsonb) into items from occurrences;
   return jsonb_build_object('ok',true,'data',items);
 end;
 $$;
+revoke all on function private.list_agenda(uuid,date,date,boolean) from public,anon,authenticated;
+grant execute on function private.list_agenda(uuid,date,date,boolean) to authenticated;
+create function public.list_agenda(p_pair_id uuid,p_from date,p_to date) returns jsonb
+language sql stable security invoker set search_path='' as $$ select private.list_agenda(p_pair_id,p_from,p_to,false); $$;
 revoke all on function private.event_identity(),private.event_command(text,uuid,jsonb,integer,uuid) from public,anon,authenticated;
 grant execute on function private.event_command(text,uuid,jsonb,integer,uuid) to authenticated;
 revoke all on function public.create_event(jsonb,uuid),public.update_event(uuid,jsonb,integer,uuid),
@@ -1867,12 +1859,12 @@ begin
   if (p_event_input->>'pair_id')::uuid is distinct from pair then return private.error('FORBIDDEN'); end if;
   replay:=private.receipt(actor,p_command_id,'idea_plan',request);
   if replay is not null then
-    if replay->>'ok'='true' and not exists(select 1 from public.events where id=event_id and pair_id=pair and visibility='shared') then
+    if replay->>'ok'='true' and not exists(select 1 from public.events where id=event_id and pair_id=pair and who<>'private') then
       return private.error('FORBIDDEN'); end if;
     return replay;
   end if;
   if p_expected_version is null or idea.version<>p_expected_version or idea.state<>'saved' then return private.error('CONFLICT'); end if;
-  if p_event_input->>'visibility' is distinct from 'shared' or coalesce(p_event_input->>'repeat','none')<>'none' then return private.error('VALIDATION','visibility'); end if;
+  if coalesce(p_event_input->>'who','private')='private' or coalesce(p_event_input->>'repeat','none')<>'none' then return private.error('VALIDATION','who'); end if;
   if event_id is null then return private.error('VALIDATION','id'); end if;
   if exists(select 1 from public.events where id=event_id) then return private.error('CONFLICT'); end if;
   event_result:=private.event_command('create',null,p_event_input,null,p_command_id);
@@ -1890,18 +1882,18 @@ create function private.idea_event_lifecycle() returns trigger language plpgsql 
 declare future boolean;
 begin
   if tg_op='UPDATE' then
-    if new.visibility='private' and exists(select 1 from public.date_ideas where linked_event_id=new.id) then
+    if new.who='private' and exists(select 1 from public.date_ideas where linked_event_id=new.id) then
       raise exception using message='FORBIDDEN',errcode='P0001'; end if;
     return new;
   end if;
   future:=case when old.starts_at is not null then old.starts_at>now()
-    else old.start_date>(now() at time zone (select timezone from public.pairs where id=old.pair_id))::date end;
+    else old.start_date>(now() at time zone coalesce((select timezone from public.profiles where user_id=old.created_by),'UTC'))::date end;
   update public.date_ideas set linked_event_id=null,state=case when state='planned' and future then 'saved' else state end,
     version=version+1,updated_at=now() where linked_event_id=old.id;
   return old;
 end;
 $$;
-create trigger idea_event_lifecycle before update of visibility or delete on public.events for each row execute function private.idea_event_lifecycle();
+create trigger idea_event_lifecycle before update of who or delete on public.events for each row execute function private.idea_event_lifecycle();
 
 -- Send no row, ID, title, note, or link. Only current members can join this topic.
 create function private.idea_signal() returns trigger language plpgsql security definer set search_path = '' as $$
@@ -2080,21 +2072,22 @@ end; $$;
 create function private.reminder_json(r public.reminders) returns jsonb
 language plpgsql stable security definer set search_path='' as $$
 declare next_due timestamptz; e public.events; occurrence date; local_today date; year integer;
+ tz text:=(select timezone from public.profiles where user_id=r.user_id);
 begin
  if r.task_id is not null then next_due:=r.remind_at;
  else
    select * into e from public.events where id=r.event_id;
    if e.repeat='yearly' then
-     local_today:=(now() at time zone e.timezone)::date;
-     year:=extract(year from local_today)::integer;
+     local_today:=(now() at time zone tz)::date;
+     year:=greatest(extract(year from local_today),extract(year from e.start_date))::integer;
      occurrence:=private.yearly_date(year,e.repeat_month,e.repeat_day);
-     next_due:=(occurrence+time '09:00') at time zone e.timezone-make_interval(mins=>r.minutes_before);
+     next_due:=(occurrence+time '09:00') at time zone tz-make_interval(mins=>r.minutes_before);
      if next_due<=now() then
        occurrence:=private.yearly_date(year+1,e.repeat_month,e.repeat_day);
-       next_due:=(occurrence+time '09:00') at time zone e.timezone-make_interval(mins=>r.minutes_before);
+       next_due:=(occurrence+time '09:00') at time zone tz-make_interval(mins=>r.minutes_before);
      end if;
    else
-     next_due:=coalesce(e.starts_at,(e.start_date+time '09:00') at time zone e.timezone)-make_interval(mins=>r.minutes_before);
+     next_due:=coalesce(e.starts_at,(e.start_date+time '09:00') at time zone tz)-make_interval(mins=>r.minutes_before);
    end if;
  end if;
  return jsonb_build_object('id',r.id,'pairId',r.pair_id,'eventId',r.event_id,'taskId',r.task_id,
@@ -2112,7 +2105,7 @@ begin
  if (event is null)=(task is null) or reminder_id is null or jsonb_typeof(p_input->'active') is distinct from 'boolean'
  then return private.error('VALIDATION'); end if;
  if event is not null and not exists(select 1 from public.events where id=event and pair_id=pair
-   and (visibility='shared' or created_by=actor)) then return private.error('FORBIDDEN'); end if;
+   and (who<>'private' or created_by=actor)) then return private.error('FORBIDDEN'); end if;
  if task is not null and not exists(select 1 from public.tasks where id=task and pair_id=pair
    and (completed_at is null or (p_input->>'active')::boolean=false))
  then return private.error('FORBIDDEN'); end if;
@@ -2140,7 +2133,7 @@ begin
  if (p_event_id is null)=(p_task_id is null) then return private.error('VALIDATION'); end if;
  select * into r from public.reminders where user_id=actor and
  (event_id=p_event_id or task_id=p_task_id) and private.is_member(pair_id)
- and (event_id is null or exists(select 1 from public.events e where e.id=event_id and (e.visibility='shared' or e.created_by=actor)));
+ and (event_id is null or exists(select 1 from public.events e where e.id=event_id and (e.who<>'private' or e.created_by=actor)));
  return jsonb_build_object('ok',true,'data',case when r.id is null then null else private.reminder_json(r) end);
 exception when sqlstate 'P0001' then return private.error(sqlerrm);
 end; $$;
@@ -2233,7 +2226,7 @@ create function private.notification_source_allowed(n public.notifications,p_che
 language sql stable security definer set search_path='' as $$
  select private.notification_member(n.user_id,n.pair_id) and case n.kind
  when 'event' then exists(select 1 from public.events e where e.id=n.source_id and e.pair_id=n.pair_id
-   and (not p_check_version or e.version=n.source_version) and (e.visibility='shared' or e.created_by=n.user_id))
+   and (not p_check_version or e.version=n.source_version) and (e.who<>'private' or e.created_by=n.user_id))
  when 'task' then exists(select 1 from public.tasks t where t.id=n.source_id and t.pair_id=n.pair_id
    and (not p_check_version or (t.version=n.source_version and t.completed_at is null)))
  when 'message' then exists(select 1 from public.messages m where m.id=n.source_id and m.pair_id=n.pair_id
@@ -2294,32 +2287,32 @@ end; $$;
 create function private.refresh_reminder(p_id uuid) returns void
 language plpgsql security definer set search_path='' as $$
 declare r public.reminders; e public.events; t public.tasks; occurrence date; starts timestamptz;
- local_today date; year integer; candidate date;
+ local_today date; year integer; candidate date; tz text;
 begin
  select * into r from public.reminders where id=p_id;
  if not found then return; end if;
+ tz:=(select timezone from public.profiles where user_id=r.user_id);
  if not r.active or not private.notification_member(r.user_id,r.pair_id) then return; end if;
  if r.task_id is not null then
    select * into t from public.tasks where id=r.task_id and pair_id=r.pair_id and completed_at is null;
    if not found then return; end if;
-   perform private.enqueue_notification(r.user_id,r.pair_id,'task',t.id,(r.remind_at at time zone
-     (select timezone from public.pairs where id=r.pair_id))::date::text,t.version,r.id,r.version,r.remind_at,r.remind_at+interval '1 day');
+   perform private.enqueue_notification(r.user_id,r.pair_id,'task',t.id,(r.remind_at at time zone tz)::date::text,t.version,r.id,r.version,r.remind_at,r.remind_at+interval '1 day');
  else
-   select * into e from public.events where id=r.event_id and pair_id=r.pair_id and (visibility='shared' or created_by=r.user_id);
+   select * into e from public.events where id=r.event_id and pair_id=r.pair_id and (who<>'private' or created_by=r.user_id);
    if not found then return; end if;
    if e.repeat='yearly' then
-     local_today:=(now() at time zone e.timezone)::date;
+     local_today:=(now() at time zone tz)::date;
      for year in extract(year from local_today)::integer..extract(year from local_today+90)::integer loop
        candidate:=private.yearly_date(year,e.repeat_month,e.repeat_day);
-       if candidate>=local_today and candidate<=local_today+90 then
-         starts:=(candidate+time '09:00') at time zone e.timezone;
+       if candidate>=greatest(local_today,e.start_date) and candidate<=local_today+90 then
+         starts:=(candidate+time '09:00') at time zone tz;
          perform private.enqueue_notification(r.user_id,r.pair_id,'event',e.id,candidate::text,e.version,r.id,r.version,
            starts-make_interval(mins=>r.minutes_before),starts);
        end if;
      end loop;
    else
-     starts:=coalesce(e.starts_at,(e.start_date+time '09:00') at time zone e.timezone);
-     occurrence:=coalesce(e.start_date,(e.starts_at at time zone e.timezone)::date);
+     starts:=coalesce(e.starts_at,(e.start_date+time '09:00') at time zone tz);
+     occurrence:=coalesce(e.start_date,(e.starts_at at time zone tz)::date);
      perform private.enqueue_notification(r.user_id,r.pair_id,'event',e.id,occurrence::text,e.version,r.id,r.version,
        starts-make_interval(mins=>r.minutes_before),starts);
    end if;
@@ -2354,7 +2347,7 @@ begin
    end if;
  else
    if tg_table_name='events' then
-     if new.visibility='private' then
+     if new.who='private' then
        update public.reminders set active=false,version=version+1 where event_id=new.id and user_id<>new.created_by and active;
      end if;
    end if;
@@ -2425,7 +2418,7 @@ declare pair uuid; r record;
 begin
  if tg_table_name='pairs' then
    pair:=new.id;
-   if (new.state,new.timezone) is not distinct from (old.state,old.timezone) then return new; end if;
+   if new.state is not distinct from old.state then return new; end if;
  else
    pair:=new.pair_id;
    if new.left_at is not distinct from old.left_at then return new; end if;
@@ -2671,163 +2664,6 @@ select cron.schedule('deseo-dispatch-notifications','* * * * *',$job$select priv
 select cron.schedule('deseo-check-push-receipts','* * * * *',$job$select private.invoke_notification_worker('check-push-receipts');$job$);
 select cron.schedule('deseo-notification-horizon','7 0 * * *',$job$select private.invoke_notification_worker('dispatch-notifications','{"action":"refresh_horizon"}'::jsonb);$job$);
 
--- ========== account-settings ==========
-create function private.get_account_settings() returns jsonb language plpgsql stable security definer set search_path='' as $$
-declare actor uuid; profile public.profiles; email text; pending text;
-begin
- actor:=private.require_actor(); select * into profile from public.profiles where user_id=actor;
- select u.email,nullif(u.email_change,'') into email,pending from auth.users u where id=actor;
- return jsonb_build_object('ok',true,'data',private.account_json(profile)||jsonb_build_object('email',email,'pendingEmail',pending,'avatarPath',profile.avatar_path));
-exception when sqlstate 'P0001' then return private.error(sqlerrm);
-end; $$;
-create function private.update_pair_timezone(p_pair_id uuid,p_timezone text,p_expected_timezone text) returns jsonb language plpgsql security definer set search_path='' as $$
-declare actor uuid; current_timezone text;
-begin
- actor:=private.require_actor(); perform private.lock_pair(p_pair_id,actor);
- if not private.is_member(p_pair_id) then return private.error('FORBIDDEN'); end if;
- if p_timezone is null or not exists(select 1 from pg_catalog.pg_timezone_names where name=p_timezone) then return private.error('VALIDATION','timezone'); end if;
- select timezone into current_timezone from public.pairs where id=p_pair_id;
- if current_timezone is distinct from p_expected_timezone then return private.error('CONFLICT'); end if;
- update public.pairs set timezone=p_timezone where id=p_pair_id;
- -- Existing events and reminder instants retain their original temporal fields.
- return jsonb_build_object('ok',true,'data',jsonb_build_object('timezone',p_timezone));
-exception when sqlstate 'P0001' then return private.error(sqlerrm);
-end; $$;
-
--- Retain paths after Auth deletion until the worker confirms storage removal.
-create table private.avatar_uploads(
- id uuid primary key,user_id uuid not null,path text not null unique,
- bytes integer not null check(bytes between 1 and 5242880),width integer not null check(width between 1 and 512),height integer not null check(height between 1 and 512),
- expected_version integer not null,state text not null default 'pending' check(state in('pending','current','cleanup')),
- created_at timestamptz not null default now(),due_at timestamptz not null default(now()+interval '1 hour'),
- lease_token uuid,lease_until timestamptz,attempts integer not null default 0,error_code text,
- check(path=user_id::text||'/'||id::text||'/avatar.jpg'));
-create unique index avatar_one_pending on private.avatar_uploads(user_id) where state='pending';
-create index avatar_cleanup_due on private.avatar_uploads(due_at,id) where state in('pending','cleanup');
-alter table private.avatar_uploads enable row level security;
-revoke all on private.avatar_uploads from public,anon,authenticated;
-grant all on private.avatar_uploads to service_role;
-insert into storage.buckets(id,name,public,file_size_limit,allowed_mime_types) values('avatars','avatars',false,5242880,array['image/jpeg']);
-create function private.reserve_avatar(p_id uuid,p_bytes integer,p_width integer,p_height integer,p_expected_version integer) returns jsonb
-language plpgsql security definer set search_path='' as $$
-declare actor uuid; profile public.profiles; path text;
-begin
- actor:=private.require_actor(); select * into profile from public.profiles where user_id=actor for update; actor:=private.require_actor();
- if profile.version is distinct from p_expected_version then return private.error('CONFLICT'); end if;
- if p_id is null or p_bytes is null or p_bytes not between 1 and 5242880 or p_width is null or p_width not between 1 and 512 or p_height is null or p_height not between 1 and 512 then return private.error('VALIDATION'); end if;
- path:=actor::text||'/'||p_id::text||'/avatar.jpg';
- update private.avatar_uploads set state='cleanup',due_at=now() where user_id=actor and state='pending';
- insert into private.avatar_uploads(id,user_id,path,bytes,width,height,expected_version) values(p_id,actor,path,p_bytes,p_width,p_height,p_expected_version);
- return jsonb_build_object('ok',true,'data',jsonb_build_object('id',p_id,'path',path));
-exception when sqlstate 'P0001' then return private.error(sqlerrm); when unique_violation then return private.error('CONFLICT');
-end; $$;
-create function private.avatar_service_lock(p_actor uuid,p_session uuid) returns boolean language plpgsql security definer set search_path='' as $$
-begin
- if auth.jwt()->>'role' is distinct from 'service_role' then return false; end if;
- perform 1 from public.profiles where user_id=p_actor and account_status='active' for update;
- return found and exists(select 1 from auth.sessions s join auth.users u on u.id=s.user_id where s.id=p_session and s.user_id=p_actor
- and (s.not_after is null or s.not_after>now()) and u.deleted_at is null and u.email_confirmed_at is not null and (u.banned_until is null or u.banned_until<=now()));
-end; $$;
-create function private.avatar_upload_allowed(p_path text) returns boolean language plpgsql volatile security definer set search_path='' as $$
-declare actor uuid:=private.active_actor();
-begin
- if actor is null then return false; end if;
- perform 1 from public.profiles where user_id=actor for update;
- return private.active_actor() is not null and exists(select 1 from private.avatar_uploads where path=p_path and user_id=actor and state='pending' and due_at>now());
-end; $$;
-create policy avatar_upload_reserved on storage.objects for insert to authenticated with check(bucket_id='avatars' and private.avatar_upload_allowed(name));
-create function private.avatar_object_size() returns trigger language plpgsql security definer set search_path='' as $$
-declare actor uuid; session uuid; upload private.avatar_uploads;
-begin
- if tg_op='UPDATE' and old.bucket_id='avatars' then raise exception using message='FORBIDDEN',errcode='P0001'; end if;
- if new.bucket_id<>'avatars' then return new; end if;
- if tg_op='UPDATE' or new.owner_id is null or new.owner_id !~* '^[0-9a-f-]{36}$' or coalesce(new.user_metadata->>'sessionId','') !~* '^[0-9a-f-]{36}$' then raise exception using message='FORBIDDEN',errcode='P0001'; end if;
- actor:=new.owner_id::uuid; session:=(new.user_metadata->>'sessionId')::uuid;
- if auth.jwt()->>'role'='service_role' then
-  if not private.avatar_service_lock(actor,session) then raise exception using message='FORBIDDEN',errcode='P0001'; end if;
- else
-  if actor is distinct from private.active_actor() or session::text is distinct from auth.jwt()->>'session_id' or not private.avatar_upload_allowed(new.name) then raise exception using message='FORBIDDEN',errcode='P0001'; end if;
- end if;
- select * into upload from private.avatar_uploads where path=new.name and user_id=actor for update;
- if not found or upload.state<>'pending' or upload.due_at<=now() then raise exception using message='FORBIDDEN',errcode='P0001'; end if;
- -- Storage rolls this version='1' permission check back before streaming bytes.
- if new.version='1' and new.metadata->>'size' is null then return new; end if;
- if new.metadata->>'mimetype' is distinct from 'image/jpeg' or coalesce(new.metadata->>'size','') !~ '^[0-9]{1,8}$' or (new.metadata->>'size')::integer is distinct from upload.bytes then raise exception using message='VALIDATION',errcode='P0001'; end if;
- return new;
-end; $$;
-create trigger avatar_size before insert or update on storage.objects for each row execute function private.avatar_object_size();
-create function private.verify_avatar(p_id uuid,p_actor uuid,p_session uuid,p_evidence jsonb default null) returns jsonb
-language plpgsql security definer set search_path='' as $$
-declare upload private.avatar_uploads; profile public.profiles;
-begin
- if not private.avatar_service_lock(p_actor,p_session) then return private.error('FORBIDDEN'); end if;
- select * into upload from private.avatar_uploads where id=p_id and user_id=p_actor for update;
- if not found or upload.state not in('pending','current') or (upload.state='pending' and upload.due_at<=now()) then return private.error('FORBIDDEN'); end if;
- select * into profile from public.profiles where user_id=p_actor;
- if upload.state='current' and profile.avatar_path=upload.path then return jsonb_build_object('ok',true,'data',jsonb_build_object('path',upload.path,'bytes',upload.bytes,'width',upload.width,'height',upload.height,'version',profile.version)); end if;
- if profile.version<>upload.expected_version then update private.avatar_uploads set state='cleanup',due_at=now() where id=p_id; return private.error('CONFLICT'); end if;
- if p_evidence is not null then
-  if p_evidence is distinct from jsonb_build_object('bytes',upload.bytes,'width',upload.width,'height',upload.height) or not exists(select 1 from storage.objects where bucket_id='avatars' and name=upload.path) then return private.error('VALIDATION'); end if;
-  update private.avatar_uploads set state='cleanup',due_at=now() where user_id=p_actor and state='current';
-  update private.avatar_uploads set state='current',due_at='infinity' where id=p_id;
-  update public.profiles set avatar_path=upload.path,version=version+1,updated_at=now() where user_id=p_actor returning * into profile;
- end if;
- return jsonb_build_object('ok',true,'data',jsonb_build_object('path',upload.path,'bytes',upload.bytes,'width',upload.width,'height',upload.height,'version',profile.version));
-end; $$;
-create function private.get_avatar_media(p_user_id uuid) returns jsonb language plpgsql stable security definer set search_path='' as $$
-declare actor uuid; path text;
-begin
- actor:=private.require_actor();
- if p_user_id<>actor and not private.is_partner(p_user_id) then return private.error('FORBIDDEN'); end if;
- select avatar_path into path from public.profiles where user_id=p_user_id and account_status='active';
- if path is null then return private.error('FORBIDDEN'); end if;
- return jsonb_build_object('ok',true,'data',jsonb_build_object('path',path,'bucket','avatars','expiresIn',60));
-exception when sqlstate 'P0001' then return private.error(sqlerrm);
-end; $$;
-create function private.claim_avatar_cleanup(p_limit integer) returns jsonb language plpgsql security definer set search_path='' as $$
-declare candidate record; upload private.avatar_uploads; jobs jsonb:='[]'; token uuid;
-begin
- if auth.jwt()->>'role' is distinct from 'service_role' then return private.error('FORBIDDEN'); end if;
- if p_limit is null or p_limit not between 1 and 20 then return private.error('VALIDATION'); end if;
- for candidate in select id,user_id from private.avatar_uploads where state in('pending','cleanup') and due_at<=now() and (lease_until is null or lease_until<=now()) order by due_at,id limit 1 loop
-  perform 1 from public.profiles where user_id=candidate.user_id for update;
-  select * into upload from private.avatar_uploads where id=candidate.id and state in('pending','cleanup') and due_at<=now() and (lease_until is null or lease_until<=now()) for update skip locked;
-  if not found then continue; end if;
-  token:=gen_random_uuid(); update private.avatar_uploads set state='cleanup',lease_token=token,lease_until=now()+interval '5 minutes',attempts=attempts+1 where id=upload.id;
-  jobs:=jobs||jsonb_build_array(jsonb_build_object('id',upload.id,'userId',upload.user_id,'path',upload.path,'bucket','avatars','leaseToken',token));
- end loop;
- return jsonb_build_object('ok',true,'data',jobs);
-end; $$;
-create function private.complete_avatar_cleanup(p_id uuid,p_lease_token uuid,p_error_code text) returns jsonb language plpgsql security definer set search_path='' as $$
-declare upload private.avatar_uploads;
-begin
- if auth.jwt()->>'role' is distinct from 'service_role' then return private.error('FORBIDDEN'); end if;
- select * into upload from private.avatar_uploads where id=p_id and state='cleanup' and lease_token=p_lease_token and lease_until>now() for update;
- if not found then return private.error('CONFLICT'); end if;
- if p_error_code is null and exists(select 1 from storage.objects where bucket_id='avatars' and name=upload.path) then return private.error('RETRYABLE'); end if;
- if p_error_code is null then delete from private.avatar_uploads where id=p_id;
- else update private.avatar_uploads set lease_token=null,lease_until=null,due_at=now()+interval '5 minutes',error_code=p_error_code where id=p_id; end if;
- return jsonb_build_object('ok',true,'data',jsonb_build_object('id',p_id));
-end; $$;
-create function private.queue_account_avatars() returns trigger language plpgsql security definer set search_path='' as $$
-begin
- update private.avatar_uploads set state='cleanup',due_at=now() where user_id=old.user_id;
- return old;
-end; $$;
-create trigger profiles_avatar_cleanup before delete on public.profiles for each row execute function private.queue_account_avatars();
-
-create function public.get_account_settings() returns jsonb language sql security invoker set search_path='' as $$select private.get_account_settings();$$;
-create function public.update_pair_timezone(p_pair_id uuid,p_timezone text,p_expected_timezone text) returns jsonb language sql security invoker set search_path='' as $$select private.update_pair_timezone(p_pair_id,p_timezone,p_expected_timezone);$$;
-create function public.reserve_avatar(p_id uuid,p_bytes integer,p_width integer,p_height integer,p_expected_version integer) returns jsonb language sql security invoker set search_path='' as $$select private.reserve_avatar(p_id,p_bytes,p_width,p_height,p_expected_version);$$;
-create function public.get_avatar_media(p_user_id uuid) returns jsonb language sql security invoker set search_path='' as $$select private.get_avatar_media(p_user_id);$$;
-create function public.verify_avatar(p_id uuid,p_actor uuid,p_session uuid,p_evidence jsonb default null) returns jsonb language sql security invoker set search_path='' as $$select private.verify_avatar(p_id,p_actor,p_session,p_evidence);$$;
-create function public.claim_avatar_cleanup(p_limit integer default 2) returns jsonb language sql security invoker set search_path='' as $$select private.claim_avatar_cleanup(p_limit);$$;
-create function public.complete_avatar_cleanup(p_id uuid,p_lease_token uuid,p_error_code text default null) returns jsonb language sql security invoker set search_path='' as $$select private.complete_avatar_cleanup(p_id,p_lease_token,p_error_code);$$;
-revoke all on function private.avatar_service_lock(uuid,uuid),private.avatar_object_size(),private.queue_account_avatars() from public,anon,authenticated;
-revoke all on function private.get_account_settings(),public.get_account_settings(),private.update_pair_timezone(uuid,text,text),public.update_pair_timezone(uuid,text,text),private.reserve_avatar(uuid,integer,integer,integer,integer),public.reserve_avatar(uuid,integer,integer,integer,integer),private.get_avatar_media(uuid),public.get_avatar_media(uuid),private.avatar_upload_allowed(text),private.verify_avatar(uuid,uuid,uuid,jsonb),public.verify_avatar(uuid,uuid,uuid,jsonb),private.claim_avatar_cleanup(integer),public.claim_avatar_cleanup(integer),private.complete_avatar_cleanup(uuid,uuid,text),public.complete_avatar_cleanup(uuid,uuid,text) from public,anon,authenticated;
-grant execute on function private.get_account_settings(),public.get_account_settings(),private.update_pair_timezone(uuid,text,text),public.update_pair_timezone(uuid,text,text),private.reserve_avatar(uuid,integer,integer,integer,integer),public.reserve_avatar(uuid,integer,integer,integer,integer),private.get_avatar_media(uuid),public.get_avatar_media(uuid),private.avatar_upload_allowed(text) to authenticated;
-grant execute on function private.verify_avatar(uuid,uuid,uuid,jsonb),public.verify_avatar(uuid,uuid,uuid,jsonb),private.claim_avatar_cleanup(integer),public.claim_avatar_cleanup(integer),private.complete_avatar_cleanup(uuid,uuid,text),public.complete_avatar_cleanup(uuid,uuid,text) to service_role;
-
 -- ========== retention ==========
 -- Remove expired internal rows in small batches.
 create function private.expire_records() returns void language plpgsql security definer set search_path='' as $$
@@ -2856,19 +2692,18 @@ select cron.schedule('deseo-cleanup','* * * * *',$job$select private.invoke_clea
 -- RLS applies to every part.
 create function public.get_today(p_pair_id uuid,p_date date) returns jsonb
 language plpgsql stable security invoker set search_path='' as $$
-declare week jsonb; year jsonb;
+declare week jsonb; important jsonb;
 begin
   if private.active_actor() is null then return private.error('UNAUTHENTICATED'); end if;
   if p_date is null then return private.error('VALIDATION','date'); end if;
   if not private.is_member(p_pair_id) then return private.error('FORBIDDEN'); end if;
-  week:=public.list_agenda(p_pair_id,p_date,p_date+7);
+  week:=private.list_agenda(p_pair_id,p_date,p_date+7,false);
   if week->>'ok'<>'true' then return week; end if;
-  year:=public.list_agenda(p_pair_id,p_date,p_date+366);
-  if year->>'ok'<>'true' then return year; end if;
+  important:=private.list_agenda(p_pair_id,p_date,p_date+366,true);
+  if important->>'ok'<>'true' then return important; end if;
   return jsonb_build_object('ok',true,'data',jsonb_build_object(
     'agenda',week->'data',
-    'important_dates',(select coalesce(jsonb_agg(e),'[]'::jsonb) from jsonb_array_elements(year->'data') e
-      where (e->>'important_date')::boolean or e->>'repeat'='yearly'),
+    'important_dates',important->'data',
     'due_tasks',(select coalesce(jsonb_agg(to_jsonb(t) order by t.due_date,t.id),'[]'::jsonb) from (
       select * from public.tasks where pair_id=p_pair_id and completed_at is null and due_date<=p_date
       order by due_date,id limit 3) t),

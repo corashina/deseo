@@ -4,9 +4,9 @@ set local role authenticated;
 select public.register_device('{"installationId":"90000000-0000-4000-8000-000000000005","token":"ExpoPushToken[backlog-five]","platform":"android","permission":"allowed"}');
 select public.save_notification_preferences('{"messageAlerts":true,"timezone":"UTC"}',0);
 reset role;
-insert into public.events(id,pair_id,created_by,owner,visibility,title,timezone,starts_at,ends_at)
+insert into public.events(id,pair_id,created_by,who,title,starts_at,ends_at)
 select ('91000000-0000-4000-8003-'||lpad(n::text,12,'0'))::uuid,
- '30000000-0000-4000-8000-000000000003','10000000-0000-4000-8000-000000000005','a','private','Backlog','UTC',
+ '30000000-0000-4000-8000-000000000003','10000000-0000-4000-8000-000000000005','private','Backlog',
  now()+interval '15 minutes',now()+interval '1 hour' from generate_series(1,120) n;
 insert into public.reminders(id,user_id,pair_id,event_id,minutes_before,active)
 select ('92000000-0000-4000-8003-'||lpad(n::text,12,'0'))::uuid,

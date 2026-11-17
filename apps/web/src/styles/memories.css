@@ -28,6 +28,7 @@
 .memory-detail figcaption { margin-top: var(--space-2); }
 .memory-detail figcaption .button { padding-inline: 0; }
 .memory-caption { margin: 0 0 var(--space-6); max-width: 65ch; }
+.memory-edit { margin-bottom: var(--space-6); max-width: 65ch; }
 .memory-detail .actions { align-items: center; justify-content: space-between; margin-bottom: 0; }
 .memory-form .actions { margin-bottom: 0; }
 .memory-form p[role='status']:empty { margin: 0; }

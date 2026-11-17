@@ -3,7 +3,6 @@ import { getSupabase, type RpcName } from '../../lib/supabase';
 import { errorResult, resultSchema, type Result } from '@deseo/domain/result';
 import { captureQueryScope, resetPrivateQueries } from '../../lib/query-client';
 import { clearPendingInvite, inviteTokenSchema } from '../../lib/links';
-import { timezoneSchema } from '../auth';
 import { createdInviteSchema, invitePreviewSchema } from '@deseo/domain/pair';
 
 async function command<T extends z.ZodTypeAny>(name: RpcName, args: Record<string, unknown>, schema: T): Promise<Result<z.infer<T>>> {
@@ -19,9 +18,9 @@ const pairResult = z.object({ pairId: z.string().uuid() });
 const endedResult = z.object({ endedAt: z.string() });
 const id = z.string().uuid();
 
-export async function createPair(timezone: string, commandId: string) {
+export async function createPair(commandId: string) {
   try {
-    return await command('create_pair', { p_timezone: timezoneSchema.parse(timezone), p_command_id: id.parse(commandId) }, pairResult);
+    return await command('create_pair', { p_command_id: id.parse(commandId) }, pairResult);
   } catch (error) { return errorResult(error); }
 }
 export async function createInvite(pairId: string, commandId: string) {

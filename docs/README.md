@@ -25,7 +25,7 @@ The [router](../apps/web/src/app/router.tsx) defines the browser routes.
 The browser uses a sidebar, rail, or drawer. Expo keeps bottom tabs and native stacks.
 
 Entry routes cover Welcome, email codes, profile setup, invitations, joining, waiting, and ended pairs.
-Product routes cover Today (with Messages), Calendar, events, ideas, tasks, lists, Memories, and Settings.
+Product routes cover Today (with Messages), Calendar (with date ideas), events, ideas, tasks, lists, Memories, and Settings.
 The portal has no reminder or notification screens. The browser receives no push.
 Record URLs support reload and browser Back. Changed forms and unsent drafts warn before leaving.
 
@@ -103,15 +103,15 @@ After a join, both partners open Today. Its empty sections offer the first actio
 Today holds the conversation (see [Messages and notes](#messages-and-notes)) and an Our day panel.
 Panel order: next plan, next three events with a seven-day strip, due tasks, next important date, latest memory.
 Below 1200px the panel becomes links above the conversation: next plan, due task count, countdown.
-Show each plan's date in the pair timezone. Each section links to its full page.
+Show each plan's date in the viewer's timezone. Each section links to its full page.
 Show up to three unfinished tasks due today or earlier.
-Show one upcoming important date with its absolute date. Count down in the pair timezone.
+Show one upcoming important date with its absolute date. Count down in the viewer's timezone.
 For empty data, show a short prompt and its creation action. Omit empty decorative cards.
 
 ### Calendar
 
 Calendar offers month and agenda views. Filter by All, Me, Partner, and Together.
-The header holds Date ideas and Add event.
+The header holds Add event. Date ideas follow the calendar.
 Show owner names beside colors. A private event appears only to its author, with a lock and Private label.
 
 | Form field | Rule |
@@ -122,17 +122,19 @@ Show owner names beside colors. A private event appears only to its author, with
 | Who | Together, Me, Partner, or Private (just me); default Together |
 | Location | Optional; 200 characters |
 | Description | Optional plain text; 2,000 characters |
-| Timezone | In More details; detected default; editable IANA zone |
 | Important date | In More details; one all-day date; Repeat every year |
 
 Store the inclusive all-day end as an exclusive end date.
-Important dates default to the pair timezone. Timed events default to the creator's timezone.
+Each person enters and reads times in their profile timezone. Events store no timezone.
 When the stored version changed, show a conflict screen. Offer Reload saved version or return to the draft.
 Never overwrite the partner's edit silently. Never merge text fields.
+Opening an event shows its edit form with Delete event.
 Delete through a confirmation that names the event. The server cancels its future reminder jobs.
 
-Saved ideas open from the Calendar header. Each idea has a title, an optional note, and an optional HTTPS link.
-Opening an idea shows its edit form with Plan date, View planned event, Open idea link, and Archive.
+Date ideas list saved ideas under the calendar, newest first. A title field adds an idea. Each row has Plan date.
+Each idea has a title, an optional note, and an optional HTTPS link.
+Opening an idea shows its edit form with Plan date, View planned event, and Archive idea.
+Planned ideas show as their events. Archived ideas leave the list.
 Plan date fills a shared event. Save the event and the idea link in one transaction; the idea becomes Planned.
 When the future event is deleted, the idea returns to Saved. Do not scrape links or generate suggestions.
 
@@ -167,15 +169,15 @@ Use a feed grouped by month. Each entry shows date, photo, caption, and author.
 Add memory opens a file input. Select one to five photos. The date is required; the caption is optional, up to 1,000 characters.
 Show each photo's upload state. Publish only after every photo completes.
 Allow removing a failed photo before submission. Browser drafts last while the form stays open.
-The detail view shows full images. Downloads need an explicit action.
-The author can change the caption or delete the memory. Saved copies stay outside Deseo after deletion.
+The memory page shows full images. Downloads need an explicit action.
+For the author, the date and caption fields follow the photos, with Save changes and Delete memory. Saved copies stay outside Deseo after deletion.
 
 ### Settings
 
 | Group | Controls |
 |---|---|
 | Profile | Display name, timezone |
-| Your pair | Partner identity, owner colors, pair timezone |
+| Your pair | Partner identity, owner colors |
 | Account | Sign out, sign out of all devices |
 | End this pair | End pair, apart from ordinary edits |
 

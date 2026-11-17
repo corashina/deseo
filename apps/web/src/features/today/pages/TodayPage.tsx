@@ -6,7 +6,7 @@ import { PageHeader } from '../../../components/ui/PageHeader';
 import { Button } from '../../../components/ui/Button';
 import { Status } from '../../../components/ui/Status';
 import { formatDate } from '../../../lib/format';
-import { nextImportantDate } from '../../calendar';
+import { nextImportantDate, ownerNames } from '../../calendar';
 import { Conversation } from '../../messages';
 import { getToday, todayKeys } from '../queries';
 import { OurDayPanel } from '../components/OurDayPanel';
@@ -18,19 +18,18 @@ import '../../../styles/planning.css';
 export function TodayPage() {
   const { account, pair } = useSession();
   const pairId = pair?.status === 'active' ? pair.pairId : '';
-  const zone = pair?.status === 'active' ? pair.timezone : 'UTC';
+  const zone = account!.timezone;
   const date = DateTime.now().setZone(zone).toISODate()!;
   const query = useQuery({ queryKey: todayKeys.day(account!.id, pairId, date), queryFn: () => getToday(pairId, date) });
   if (pair?.status !== 'active') return null;
   const locale = account!.locale;
-  const names = { a: pair.members.find(member => member.slot === 'a')!.displayName, b: pair.members.find(member => member.slot === 'b')!.displayName, together: 'Together' };
+  const names = ownerNames(pair.members, account!.id);
   const important = query.data ? nextImportantDate(query.data.importantDates, zone) : undefined;
   const days = important?.temporal.kind === 'allDay' ? importantDateCountdown(important.temporal.startDate, zone) : null;
   return <div className="today-page">
     <PageHeader
       title="Today"
-      eyebrow={formatDate(DateTime.fromISO(date), 'weekday', locale)}
-      description={zone !== account!.timezone ? <span translate="no">{zone}</span> : undefined} />
+      eyebrow={formatDate(DateTime.fromISO(date), 'weekday', locale)} />
     <div className="today-layout">
       <div className="today-conversation">
         {/* An empty row holds the chips' place while Today loads, so the conversation does not jump. */}

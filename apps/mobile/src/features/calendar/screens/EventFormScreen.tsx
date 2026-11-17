@@ -7,7 +7,6 @@ import { Alert, Switch, Text, View } from 'react-native';
 import { Button } from '../../../components/ui/Button';
 import { DateTimeField } from '../../../components/ui/DateTimeField';
 import { Field } from '../../../components/ui/Field';
-import { TimezoneField } from '../../../components/ui/TimezoneField';
 import { Screen } from '../../../components/ui/Screen';
 import { Status } from '../../../components/ui/Status';
 import { useTheme } from '../../../theme';
@@ -19,7 +18,7 @@ import { getDateIdea, ideaKeys, planDateIdea } from '../date-ideas';
 import { useCalendarSignals } from '../realtime';
 import { createEvent, updateEvent } from '../commands';
 import { calendarKeys, getEvent } from '../queries';
-import { eventFormSchema, eventInputSchema, eventToForm, eventValuesSchema, toEventInput, wallTimeChoices } from '@deseo/domain/calendar';
+import { eventFormSchema, eventInputSchema, eventToForm, eventValuesSchema, toEventInput } from '@deseo/domain/calendar';
 import type { Event, EventFormValues, EventInput } from '@deseo/domain/calendar';
 
 type Core = ReturnType<typeof useCore>;
@@ -50,23 +49,22 @@ function FormEntry({ eventId, ideaId, ...core }: ActiveProps & { eventId?: strin
 function EventForm({ account, pair, online, event, idea, reload, reloadIdea }: ActiveProps & { event?: Event; idea?: DateIdea; reloadIdea: () => Promise<{ data?: DateIdea | null }>; reload: () => Promise<{ data?: Event | null }> }) {
   const theme = useTheme();
   const router = useRouter();
-  const slot = pair.members.find((member) => member.userId === account.id)!.slot;
   const [now] = useState(() => DateTime.now().setZone(account.timezone));
   const draft: Draft<EventFormValues, EventInput, Event> = useDraft<EventFormValues, EventInput, Event>({
     accountId: account.id, pairId: pair.pairId, key: idea ? `calendar:plan:${idea.id}` : `calendar:${event?.id ?? 'new'}`,
     values: eventValuesSchema, rules: eventFormSchema, input: eventInputSchema, online,
-    initial: { id: event?.id, expectedVersion: idea?.version ?? event?.version, values: event ? eventToForm(event) : {
+    initial: { id: event?.id, expectedVersion: idea?.version ?? event?.version, values: event ? eventToForm(event, account.timezone) : {
       title: idea?.title ?? '', allDay: false, repeat: 'none', importantDate: false, startDate: now.toISODate()!, endDate: now.plus({ hours: 1 }).toISODate()!,
       startTime: now.toFormat('HH:mm'), endTime: now.plus({ hours: 1 }).toFormat('HH:mm'),
-      timezone: account.timezone, owner: 'together', visibility: 'shared', location: '', description: idea?.note ?? '',
+      who: 'together', location: '', description: idea?.note ?? '',
     } },
-    toInput: (values, identity) => toEventInput({ ...values, id: identity.id, pairId: pair.pairId }),
+    toInput: (values, identity) => toEventInput({ ...values, id: identity.id, pairId: pair.pairId }, account.timezone),
     command: (input, identity) => idea ? planDateIdea(idea.id, input, identity.expectedVersion!, identity.commandId)
       : event ? updateEvent(input.id, input, identity.expectedVersion!, identity.commandId) : createEvent(input, identity.commandId),
     // Planning conflicts on the idea version. The entered event values stay.
     reload: async () => {
       if (idea) { const saved = (await reloadIdea()).data; return saved ? { values: draft.form.getValues(), expectedVersion: saved.version } : null; }
-      const saved = (await reload()).data; return saved ? { values: eventToForm(saved), expectedVersion: saved.version } : null;
+      const saved = (await reload()).data; return saved ? { values: eventToForm(saved, account.timezone), expectedVersion: saved.version } : null;
     },
     onSaved: saved => router.replace({ pathname: '/events/[eventId]', params: { eventId: saved.id } }),
   });
@@ -74,16 +72,14 @@ function EventForm({ account, pair, online, event, idea, reload, reloadIdea }: A
   const values = form.watch();
   const isAuthor = !event || event.authorId === account.id;
   const locked = frozen || saving || !ready;
-  const confirmShare = (input: EventInput) => event?.visibility === 'private' && input.visibility === 'shared'
+  const confirmShare = (input: EventInput) => event?.who === 'private' && input.who !== 'private'
     ? new Promise<EventInput | null>(resolve => Alert.alert('Share this event?', 'Your partner will see its title, dates, location, and description.', [
       { text: 'Cancel', style: 'cancel', onPress: () => resolve(null) }, { text: 'Share event', onPress: () => resolve({ ...input, confirmShared: true }) },
     ]))
     : input;
-  // A changed wall time drops its chosen daylight-saving offset. A yearly date keeps one day.
-  const change = (name: 'startDate' | 'endDate' | 'startTime' | 'endTime' | 'timezone', value: string) => {
+  // A yearly date keeps one day.
+  const change = (name: 'startDate' | 'endDate' | 'startTime' | 'endTime', value: string) => {
     if (name === 'startDate' && form.getValues('repeat') === 'yearly') form.setValue('endDate', value);
-    if (name === 'startTime' || name === 'startDate' || name === 'timezone') form.setValue('startOffset', undefined);
-    if (name === 'endTime' || name === 'endDate' || name === 'timezone') form.setValue('endOffset', undefined);
   };
   const textField = (name: 'title' | 'location' | 'description', label: string) =>
     <Controller key={name} control={form.control} name={name} render={({ field, fieldState }) => <Field label={label} error={fieldState.error?.message}
@@ -93,17 +89,6 @@ function EventForm({ account, pair, online, event, idea, reload, reloadIdea }: A
     <Controller key={name} control={form.control} name={name} render={({ field, fieldState }) => <DateTimeField label={label}
       mode={name.endsWith('Date') ? 'date' : 'time'} value={field.value} error={fieldState.error?.message} disabled={locked}
       onChange={value => { field.onChange(value); change(name, value); }} /> } />;
-  const offsets = (field: 'start' | 'end') => {
-    let choices: DateTime[];
-    try { choices = wallTimeChoices(values[`${field}Date`], values[`${field}Time`], values.timezone); } catch { return null; }
-    if (choices.length < 2) return null;
-    return <View style={theme.ui.stack}>
-      <Text style={theme.typography.body}>This {field} time occurs twice. Choose one.</Text>
-      <View style={theme.ui.row}>{choices.map((choice, index) => <Button key={choice.offset} label={`${index === 0 ? 'First' : 'Second'} · UTC${choice.toFormat('ZZ')}`}
-        disabled={locked} variant={values[`${field}Offset`] === choice.offset ? 'primary' : 'secondary'}
-        onPress={() => form.setValue(`${field}Offset`, choice.offset, { shouldValidate: true, shouldDirty: true })} />)}</View>
-    </View>;
-  };
   if (draft.savedButNotCleared) { const savedId = draft.savedButNotCleared.id; return <Screen title="Event saved">
     <Status message="We saved your event. We could not remove its local draft." />
     <Button label="Open event" onPress={() => router.replace({ pathname: '/events/[eventId]', params: { eventId: savedId } })} />
@@ -125,31 +110,21 @@ function EventForm({ account, pair, online, event, idea, reload, reloadIdea }: A
       <Controller control={form.control} name="allDay" render={({ field }) => <View style={theme.ui.row}><Text style={theme.typography.body}>All day</Text>
         <Switch accessibilityLabel="All day" value={field.value} disabled={locked} onValueChange={(value) => { field.onChange(value); if (!value) { form.setValue('repeat', 'none'); form.setValue('importantDate', false); } }} /></View>} />
       {values.allDay && !idea && <>
-        <Controller control={form.control} name="importantDate" render={({ field }) => <View style={theme.ui.row}><Text style={theme.typography.body}>Important date</Text><Switch accessibilityLabel="Important date" value={field.value === true} disabled={locked} onValueChange={value => { field.onChange(value); if (value) form.setValue('timezone', pair.timezone); else form.setValue('repeat', 'none'); }} /></View>} />
+        <Controller control={form.control} name="importantDate" render={({ field }) => <View style={theme.ui.row}><Text style={theme.typography.body}>Important date</Text><Switch accessibilityLabel="Important date" value={field.value === true} disabled={locked} onValueChange={value => { field.onChange(value); if (!value) form.setValue('repeat', 'none'); }} /></View>} />
         {values.importantDate && <View style={theme.ui.row}><Text style={theme.typography.body}>Repeat yearly</Text><Switch accessibilityLabel="Repeat yearly" value={values.repeat === 'yearly'} disabled={locked} onValueChange={value => { form.setValue('repeat', value ? 'yearly' : 'none'); if (value) form.setValue('endDate', form.getValues('startDate')); }} /></View>}
         {values.repeat === 'yearly' && <Status message="February 29 uses February 28 in non-leap years. Changes apply to the series." />}
       </>}
       {pickerField('startDate', 'Start date')}
-      {!values.allDay && <>{pickerField('startTime', 'Start time')}{offsets('start')}</>}
+      {!values.allDay && <>{pickerField('startTime', 'Start time')}</>}
       {pickerField('endDate', values.allDay ? 'Last included date' : 'End date')}
-      {!values.allDay && <>{pickerField('endTime', 'End time')}{offsets('end')}</>}
-      <Controller control={form.control} name="timezone" render={({ field, fieldState }) => <TimezoneField value={field.value}
-        error={fieldState.error?.message} disabled={locked} onChange={value => { field.onChange(value); change('timezone', value); }} />} />
+      {!values.allDay && <>{pickerField('endTime', 'End time')}</>}
     </View>
     <View style={theme.ui.stack}>
       <Text accessibilityRole="header" style={theme.typography.section}>Sharing</Text>
-      <Text style={theme.typography.headline}>Visibility</Text>
-      <View style={theme.ui.row}>{(['shared', 'private'] as const).map((visibility) => <Button key={visibility} label={visibility === 'shared' ? 'Shared' : 'Private'}
-        disabled={locked || !isAuthor || !!idea} variant={values.visibility === visibility ? 'primary' : 'secondary'} onPress={() => {
-          form.setValue('visibility', visibility, { shouldDirty: true });
-          if (visibility === 'private') form.setValue('owner', slot, { shouldDirty: true });
-        }} />)}</View>
-      <Text style={theme.typography.secondary}>{values.visibility === 'private' ? 'Only you can see this event.' : 'Both partners can see this event.'}</Text>
-      <Text style={theme.typography.headline}>People</Text>
-      <View style={theme.ui.row}>{pair.members.map((member) => <Button key={member.slot} label={member.displayName} disabled={locked || (values.visibility === 'private' && member.slot !== slot)}
-        variant={values.owner === member.slot ? 'primary' : 'secondary'} onPress={() => form.setValue('owner', member.slot, { shouldDirty: true })} />)}
-        <Button label="Together" disabled={locked || values.visibility === 'private'} variant={values.owner === 'together' ? 'primary' : 'secondary'} onPress={() => form.setValue('owner', 'together', { shouldDirty: true })} />
-      </View>
+      <View style={theme.ui.row}>{(['together', ...pair.members.map((member) => member.slot), 'private'] as const).map((who) => <Button key={who}
+        label={who === 'together' ? 'Together' : who === 'private' ? 'Private' : pair.members.find((member) => member.slot === who)!.displayName}
+        disabled={locked || (who === 'private' && (!isAuthor || !!idea))} variant={values.who === who ? 'primary' : 'secondary'}
+        onPress={() => form.setValue('who', who, { shouldDirty: true })} />)}</View>
     </View>
     <View style={theme.ui.stack}>
       <Text accessibilityRole="header" style={theme.typography.section}>Details</Text>

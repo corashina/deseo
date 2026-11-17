@@ -1,4 +1,4 @@
-import { useEffect, useState, useSyncExternalStore, type ReactNode } from 'react';
+import { useEffect, useId, useState, useSyncExternalStore, type ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useSession } from './SessionProvider';
 import { Avatar } from '../components/ui/Avatar';
@@ -30,6 +30,7 @@ export function AppShell({ children, preload }: { children: ReactNode; preload(p
   useTaskSignals(accountId, pair);
   const location = useLocation();
   const [drawer, setDrawer] = useState(false);
+  const unreadId = useId();
   const [collapsed, setCollapsed] = useState(false);
   const tablet = useSyncExternalStore(subscribe, () => railBand.matches);
   useEffect(() => { setDrawer(false); }, [location.pathname]);
@@ -40,7 +41,7 @@ export function AppShell({ children, preload }: { children: ReactNode; preload(p
   return <div className={`portal ${tablet || collapsed ? 'rail' : ''}`}><a className="skip-link" href="#main">Skip to content</a>
     <aside className="sidebar"><div className="brand"><BrandIcon alt="" size={40} /><span className="nav-label" translate="no">Deseo</span>{!tablet && <Button className="collapse-toggle" variant="text" aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'} onClick={() => setCollapsed(!collapsed)}>{collapsed ? <CaretRightIcon size={20} aria-hidden="true" /> : <CaretLeftIcon size={20} aria-hidden="true" />}</Button>}</div>{navigation}</aside>
     <div className="portal-body"><header className="topbar">
-      <Button variant="text" className="drawer-toggle" aria-label="Open navigation" onClick={() => setDrawer(true)}><ListIcon size={20} aria-hidden="true" />{Boolean(unread.data) && <span className="unread-count" aria-hidden="true">{unread.data}</span>}</Button>
+      <Button variant="text" className="drawer-toggle" aria-label="Open navigation" aria-describedby={unread.data ? unreadId : undefined} onClick={() => setDrawer(true)}><ListIcon size={20} aria-hidden="true" />{Boolean(unread.data) && <span className="unread-count" id={unreadId}>{unread.data}<span className="visually-hidden"> unread messages</span></span>}</Button>
       <div className="topbar-pair"><span className="pair-avatars" aria-hidden="true">{members.length ? members.map(member => <Avatar key={member.userId} slot={member.slot} name={member.displayName} />) : account && <Avatar slot={slot} name={account.displayName} />}</span>
         <span className="topbar-label" translate="no">{names.map((name, index) => <span key={index}>{index > 0 && ' + '}{name}</span>)}</span></div>
       {account && <Link className="button secondary mobile-account" to="/settings" aria-label="Settings"><Avatar slot={slot} name={account.displayName} /></Link>}

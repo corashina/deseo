@@ -9,9 +9,9 @@ select ('20000000-0000-4000-8000-'||lpad(n::text,12,'0'))::uuid,
   ('10000000-0000-4000-8000-'||lpad(n::text,12,'0'))::uuid,now(),now() from generate_series(1,8) n;
 insert into public.profiles(user_id,display_name,timezone,locale)
 select ('10000000-0000-4000-8000-'||lpad(n::text,12,'0'))::uuid,'Fixture '||n,'Europe/Warsaw','en' from generate_series(1,8) n;
-insert into public.pairs(id,state,timezone) values
-  ('30000000-0000-4000-8000-000000000001','active','Europe/Warsaw'),
-  ('30000000-0000-4000-8000-000000000002','active','America/New_York');
+insert into public.pairs(id,state) values
+  ('30000000-0000-4000-8000-000000000001','active'),
+  ('30000000-0000-4000-8000-000000000002','active');
 insert into public.pair_members(pair_id,user_id,slot) values
   ('30000000-0000-4000-8000-000000000001','10000000-0000-4000-8000-000000000001','a'),
   ('30000000-0000-4000-8000-000000000001','10000000-0000-4000-8000-000000000002','b'),

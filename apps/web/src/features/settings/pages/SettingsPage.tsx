@@ -23,8 +23,7 @@ export function SettingsPage() {
     <div className="card form-page settings-page">
       <ProfileSection />
       <section className="settings-section" aria-labelledby="settings-pair"><h2 id="settings-pair">Your pair</h2>
-        {pair?.status === 'active' ? <><ul className="paired-members">{pair.members.map(member => <li key={member.userId}><Avatar name={member.displayName} slot={member.slot} /><div><h3>{member.displayName}</h3><p>{member.userId === account!.id ? 'You' : 'Your partner'}</p></div></li>)}</ul>
-          {pair.timezone !== account!.timezone && <p className="muted">Pair timezone: <span translate="no">{pair.timezone}</span></p>}</>
+        {pair?.status === 'active' ? <><ul className="paired-members">{pair.members.map(member => <li key={member.userId}><Avatar name={member.displayName} slot={member.slot} /><div><h3>{member.displayName}</h3><p>{member.userId === account!.id ? 'You' : 'Your partner'}</p></div></li>)}</ul></>
           : pair?.status === 'pending' ? <><p className="muted">Your invitation is waiting for your partner.</p><Link to="/pair/waiting">View invitation</Link></>
           : <><p className="muted">{pair?.status === 'ended' ? 'Your pair has ended. Shared content is unavailable.' : 'You do not have a pair yet.'}</p><Link to="/pair/start">{pair?.status === 'ended' ? 'Start a new pair' : 'Set up your pair'}</Link></>}
       </section>
@@ -111,7 +110,10 @@ function EndPairSection({ pairId, partner }: { pairId: string; partner: string }
     {error && !open && <Status error>{error}</Status>}
     <Dialog busy={busy} title="End this pair?" open={open} onClose={close}>
       <p>You and {partner} lose access to your shared events, tasks, messages, and memories. You cannot undo this.</p>
-      {send.isSuccess ? <form onSubmit={event => { event.preventDefault(); if (busy) return; if (/^\d{6}$/.test(code)) disconnect.mutate(); else setCodeError('Enter the 6-digit code from your email.'); }}>
+      {send.isSuccess ? <form onSubmit={event => { event.preventDefault(); if (busy) return; if (/^\d{6}$/.test(code)) { disconnect.mutate(); return; }
+        setCodeError('Enter the 6-digit code from your email.');
+        event.currentTarget.querySelector<HTMLInputElement>('input[name=code]')?.focus();
+      }}>
         <Status>We sent a 6-digit code to your email.</Status>
         <Field className="code-input" label="Email verification code" hint="No email after a minute? Check your spam folder." name="code" spellCheck={false} disabled={busy} inputMode="numeric" autoComplete="one-time-code" value={code} maxLength={6} error={codeError} onChange={event => { setCodeError(''); setCode(event.target.value); }} />
         {error && <Status error>{error}</Status>}

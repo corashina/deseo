@@ -28,11 +28,9 @@ export function TasksPage() {
   const select = (id: string) => { setAdding(false); setParams({ list: id }); };
   // Split open and done tasks in one pass.
   // Open tasks with a due date come first, soonest first. Tasks without one keep their order.
-  const open: Task[] = [];
-  const done: Task[] = [];
-  for (const task of tasks.data ?? []) (task.completedAt === null ? open : done).push(task);
-  open.sort((a, b) => (a.dueDate ?? '9999').localeCompare(b.dueDate ?? '9999'));
-  const row = (task: Task) => <TaskRow key={task.id} task={task} members={pair.members} timezone={pair.timezone} locale={account!.locale} />;
+  const open = [...tasks.data?.filter(task => task.completedAt === null) ?? []].sort((a, b) => (a.dueDate ?? '9999').localeCompare(b.dueDate ?? '9999'));
+  const done = tasks.data?.filter(task => task.completedAt !== null) ?? [];
+  const row = (task: Task) => <TaskRow key={task.id} task={task} members={pair.members} timezone={account!.timezone} locale={account!.locale} />;
   return <>
     <PageHeader title="Tasks" description="Keep shared tasks in named lists." />
     <section className="card">
@@ -41,7 +39,7 @@ export function TasksPage() {
         <Button variant="secondary" onClick={() => void lists.refetch()}>Retry</Button>
       </> : <>
         <div className="task-lists">
-          <div className="view-tabs" aria-label="Task lists">{lists.data.map(item => <button key={item.id} title={item.name} aria-pressed={item.id === listId && !adding} onClick={() => select(item.id)}><span>{item.name}</span></button>)}</div>
+          <div className="view-tabs" role="group" aria-label="Task lists">{lists.data.map(item => <button key={item.id} title={item.name} aria-pressed={item.id === listId && !adding} onClick={() => select(item.id)}><span>{item.name}</span></button>)}</div>
           <Button variant="text" aria-pressed={adding} onClick={() => setAdding(true)}>New list</Button>
         </div>
         {adding ? <NewList pairId={pairId} onCreated={select} /> : <>
