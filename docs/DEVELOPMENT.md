@@ -110,13 +110,13 @@ Playwright tests need the local backend and Edge functions. Run them with `npm r
 
 The `web-e2e` job ("Web journeys") runs the browser tests on each pull request and blocks merge. Its steps:
 
-1. Start Supabase without Studio, Vector, Logflare, imgproxy, and Supavisor.
+1. Start Supabase without Studio, Vector, Logflare, imgproxy, and Supavisor. It starts in the background while `npm ci` and the Chromium install run.
 2. Serve Edge functions with `npm run functions`.
-3. Install Chromium for Playwright.
-4. Read the local URL and key from `npx supabase status`, then run the browser tests.
-5. On failure, upload the Playwright report, the traces, and the Edge log.
+3. Read the local URL and key from `supabase status`, then run the browser tests.
+4. On failure, upload the Playwright report, the traces, and the Edge log.
 
 The job reserves ports 55720 to 55729 so outgoing connections do not take them.
+The `supabase/setup-cli` action installs the CLI version from `package.json` before `npm ci`. The database job does the same.
 Supabase start takes about 2 minutes. The tests run on 4 workers in about 30 seconds.
 
 ### Expo mobile
