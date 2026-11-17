@@ -443,7 +443,7 @@ The icon tile follows the appearance: `brand/icon-web.webp` in light mode, `bran
 
 ### Screens
 
-**Entry.** Welcome shows the story panel and the sign-in card side by side from 1024px, and stacked below it.
+**Entry.** Sign in shows the story panel and the email card side by side from 1024px, and stacked below it.
 The other sign-in screens show the icon and name above one 480px card. The main button fills the card width.
 Profile setup offers Sign out. The sign-in code field shows six large spaced digits and says to check spam.
 Pair screens are one left-aligned card with the header inside. Start shows its two choices side by side when they fit.

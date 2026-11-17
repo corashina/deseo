@@ -24,7 +24,7 @@ Check [remaining work](DEVELOPMENT.md#remaining-work) before you treat a require
 The [router](../apps/web/src/app/router.tsx) defines the browser routes.
 The browser uses a sidebar, rail, or drawer. Expo keeps bottom tabs and native stacks.
 
-Entry routes cover Welcome, email codes, profile setup, invitations, joining, waiting, and ended pairs.
+Entry routes cover sign-in, email codes, profile setup, invitations, joining, waiting, and ended pairs.
 Product routes cover Today (with Messages), Calendar (with date ideas), events, ideas, tasks, lists, Memories, and Settings.
 The portal has no reminder or notification screens. The browser receives no push.
 Record URLs support reload and browser Back. Changed forms and unsent drafts warn before leaving.
@@ -63,8 +63,7 @@ Add store links, app links, canonical URLs, a sitemap, `robots.txt`, and absolut
 
 | Screen | Content and behavior |
 |---|---|
-| Welcome | One sentence, Continue with email, privacy and terms links |
-| Email | Visible Email label, email keyboard, Continue, inline format error |
+| Sign in | Story panel with one sentence; Email address field, Send code, inline format error |
 | Verification | One six-digit field, paste and autofill, email shown, Change email, resend countdown |
 | Profile | Required display name; the browser timezone, changed in Settings |
 | Pair choice | Invite your partner or Enter invitation; explain shared content |

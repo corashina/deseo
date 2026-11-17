@@ -13,7 +13,6 @@ const record = (path: Screen['path'], title: string): Screen => ({ path, as: 'pa
 // One entry per screen in router.tsx. "/" and "/invite" only redirect, so they are not here.
 // title is the text before " · Deseo" in the page title.
 export const screens: Screen[] = [
-  { path: () => '/welcome', as: 'none', title: 'Welcome', shell: false },
   { path: () => '/sign-in', as: 'none', title: 'Sign in', shell: false },
   { path: () => '/verify', as: 'none', title: 'Check your email', shell: false },
   { path: () => '/no-such-page', as: 'none', title: 'Page not found', shell: false },
