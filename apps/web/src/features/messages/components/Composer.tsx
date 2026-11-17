@@ -2,7 +2,9 @@ import { useId, useMemo, useRef, useState } from 'react';
 import { messageBodyLimit as limit, messageBodySchema } from '@deseo/domain/messages';
 import { Link } from 'react-router-dom';
 import { Button } from '../../../components/ui/Button';
-export function Composer({ body, disabled, locale, onChange, onSend }: { body: string; disabled: boolean; locale: string; onChange(body: string): void; onSend(): void }) {
+import { useUnsavedChanges } from '../../../lib/unsaved-changes';
+// The composer keeps its own draft, so typing does not render the conversation again.
+export function Composer({ disabled, locale, onSend }: { disabled: boolean; locale: string; onSend(body: string): void }) {
   const id = useId();
   const number = useMemo(() => new Intl.NumberFormat(locale), [locale]);
   const input = useRef<HTMLTextAreaElement>(null);

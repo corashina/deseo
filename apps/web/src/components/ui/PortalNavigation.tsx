@@ -1,4 +1,4 @@
-import { useId } from 'react';
+import { useId, type SyntheticEvent } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { UsersIcon } from '@phosphor-icons/react/dist/csr/Users';
 import { HouseIcon } from '@phosphor-icons/react/dist/csr/House';

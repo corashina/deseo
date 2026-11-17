@@ -1,5 +1,5 @@
 import { useEffect, useId, useRef } from 'react';
-import type { UseFormReturn } from 'react-hook-form';
+import { useWatch, type UseFormReturn } from 'react-hook-form';
 import type { EventFormValues } from '@deseo/domain/calendar';
 import { Field } from '../../../components/ui/Field';
 import type { OwnerNames } from './EventRow';
@@ -7,9 +7,9 @@ import type { OwnerNames } from './EventRow';
 export function EventFields({ form, names, slot, author, locked, planning = false }: {
   form: UseFormReturn<EventFormValues>; names: OwnerNames; slot: 'a' | 'b'; author: boolean; locked: boolean; planning?: boolean;
 }) {
-  // Read only the values these fields use. Typing a title, location, or description then does not render them again.
-  const values = useWatch({ control: form.control, compute: ({ allDay, startDate, startTime, endDate, endTime, timezone, owner, visibility, importantDate, repeat, location, description }) =>
-    ({ allDay, startDate, startTime, endDate, endTime, timezone, owner, visibility, importantDate, repeat, details: Boolean(location || description) }) });
+  // Read only the values these fields use. Typing a title, a date, or a description then does not render them again.
+  const values = useWatch({ control: form.control, compute: ({ allDay, who, importantDate, repeat, location, description }) =>
+    ({ allDay, who, importantDate, repeat, details: Boolean(location || description) }) });
   const { register, formState: { errors } } = form;
   const prefix = useId();
   const details = useRef<HTMLDetailsElement>(null);

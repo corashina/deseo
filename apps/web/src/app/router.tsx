@@ -88,24 +88,18 @@ const recordId = z.string().uuid();
 const records = [
   ['eventId', 'Event', '/calendar', 'Return to calendar'],
   ['taskId', 'Task', '/tasks', 'Return to tasks'],
-  ['ideaId', 'Idea', '/ideas', 'Return to ideas'],
+  ['ideaId', 'Idea', '/calendar', 'Return to calendar'],
   ['memoryId', 'Memory', '/memories', 'Return to memories'],
 ] as const;
 function RecordRoute({ children }: { children: ReactNode }) {
   const { pathname } = useLocation();
   const params = useParams();
   const [search] = useSearchParams();
-  const records = [
-    ['eventId', 'Event', '/calendar', 'Return to calendar'],
-    ['taskId', 'Task', '/tasks', 'Return to tasks'],
-    ['ideaId', 'Idea', '/calendar', 'Return to calendar'],
-    ['memoryId', 'Memory', '/memories', 'Return to memories'],
-  ];
   for (const [key, title, returnTo, returnLabel] of records) {
     if (params[key] && !recordId.safeParse(params[key]).success)
       return <RouteErrorPage title={title} returnTo={returnTo} returnLabel={returnLabel} />;
   }
-  if (pathname === '/events/new' && search.has('idea') && !z.string().uuid().safeParse(search.get('idea')).success)
+  if (pathname === '/events/new' && search.has('idea') && !recordId.safeParse(search.get('idea')).success)
     return <RouteErrorPage title="Idea" returnTo="/calendar" returnLabel="Return to calendar" />;
   return <Fragment key={pathname}>{children}</Fragment>;
 }
