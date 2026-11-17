@@ -10,7 +10,7 @@ export function PhotoSelection({ photos, disabled, preparing, onSelect, onRemove
   const selectionStatusId = useId();
   return <div className="photo-selection"><div className="field"><span>Photos</span><label className="button secondary photo-picker"><span>Choose photos</span><input aria-label="Photos" aria-describedby={selectionStatusId} type="file" accept="image/jpeg,image/png,image/webp" multiple disabled={disabled || preparing || photos.length === 5} onChange={event => { onSelect(Array.from(event.target.files ?? [])); event.target.value = ''; }} /></label></div>
     <p id={selectionStatusId} role="status">{photos.length ? photos.length + (photos.length === 1 ? ' photo selected.' : ' photos selected.') : 'No photos selected.'}</p>
-    <p className="field-hint">Choose one to five photos.</p>
+    <p className="field-hint">Choose 1 to 5 photos.</p>
     <div className="photo-selection-grid">{photos.map((photo, index) => <div key={photo.id}><Preview photo={photo} /><Button variant="secondary" disabled={disabled || preparing} onClick={() => onRemove(photo.id)}>Remove photo {index + 1}</Button></div>)}</div>
     <p role="status">{preparing ? 'Preparing photos…' : progress}</p>
   </div>;

@@ -105,7 +105,11 @@ function EndPairSection({ pairId, partner }: { pairId: string; partner: string }
       {send.isSuccess ? <>
         <Field label="Email verification code" name="code" spellCheck={false} disabled={busy} inputMode="numeric" autoComplete="one-time-code" value={code} maxLength={6} error={codeError} onChange={event => { setCodeError(''); setCode(event.target.value); }} />
         {error && <Status error>{error}</Status>}
-        <div className="actions"><Button variant="danger" disabled={busy} onClick={() => { if (/^\d{6}$/.test(code)) disconnect.mutate(); else setCodeError('Enter the 6-digit code from your email.'); }}>Confirm ending pair</Button>
+        <div className="actions"><Button variant="danger" disabled={busy} onClick={event => {
+          if (/^\d{6}$/.test(code)) { disconnect.mutate(); return; }
+          setCodeError('Enter the 6-digit code from your email.');
+          event.currentTarget.closest('dialog')?.querySelector<HTMLInputElement>('input[name=code]')?.focus();
+        }}>Confirm ending pair</Button>
         <Button variant="secondary" disabled={busy} onClick={close}>Cancel</Button>
         <Button variant="text" disabled={busy} onClick={() => send.mutate()}>Send a new code</Button></div>
       </> : <>

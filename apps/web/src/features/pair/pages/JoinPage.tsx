@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { toAppError } from '@deseo/domain/result';
@@ -21,24 +21,28 @@ export function JoinPage() {
     onSuccess: result => { entryIntent.invite = result.token; } });
   const accept = useMutation({ mutationFn: acceptInvite, onSuccess: () => revalidate() });
   useUnsavedChanges(!accept.isSuccess && Boolean(token));
+  // An error in the code moves focus to the field, where the person fixes it.
+  const form = useRef<HTMLFormElement>(null);
+  const focusToken = () => form.current?.querySelector<HTMLInputElement>('input[name=invitationCode]')?.focus();
+  useEffect(() => { if (review.isError) focusToken(); }, [review.isError]);
   const start = (value: string) => {
     const parsed = inviteTokenSchema.safeParse(value);
     setInvalid(!parsed.success);
-    if (parsed.success) review.mutate(parsed.data);
+    if (parsed.success) review.mutate(parsed.data); else focusToken();
   };
   const { mutate } = review;
   useEffect(() => { if (initialToken) mutate(initialToken); }, [initialToken, mutate]);
   const reviewed = review.data;
   const preview = reviewed?.details;
   const busy = review.isPending || accept.isPending;
-  const error = invalid ? 'Enter the 12-character code or the invitation link.' : review.isError ? toAppError(review.error).message : accept.isError ? toAppError(accept.error).message : '';
+  const tokenError = invalid ? 'Enter the 12-character code or the invitation link.' : review.isError ? toAppError(review.error).message : '';
   return <section className="card form-page"><PageHeader title={preview ? 'Join ' + preview.inviterName : 'Join your partner'} description={preview ? 'Share plans, messages, and memories. Private events stay private.' : 'Paste the code or link from your partner.'} />
-    <form onSubmit={event => { event.preventDefault(); if (!busy) start(token); }}>
-    <Field label="Invitation code or link" name="invitationCode" spellCheck={false} value={token} disabled={accept.isPending} onChange={event => {
+    <form ref={form} onSubmit={event => { event.preventDefault(); if (!busy) start(token); }}>
+    <Field label="Invitation code or link" name="invitationCode" spellCheck={false} value={token} disabled={accept.isPending} error={tokenError} onChange={event => {
       setToken(event.target.value); review.reset(); accept.reset(); setInvalid(false); entryIntent.invite = null;
     }} autoComplete="off" />
     {!preview && <Button variant="primary" type="submit" disabled={busy}>Review invitation</Button>}</form>
     {reviewed && preview && <><p className="muted">Expires {formatDate(DateTime.fromISO(preview.expiresAt).setZone(account!.timezone), 'dateTime', account!.locale)}</p>
       <Button variant="primary" disabled={accept.isPending} onClick={() => accept.mutate(reviewed.token)}>{accept.isError ? 'Retry joining pair' : 'Join pair'}</Button></>}
-    {error && <Status error>{error}</Status>}<Link to="/pair/start" onClick={() => { entryIntent.invite = null; }}>Back</Link></section>;
+    {accept.isError && <Status error>{toAppError(accept.error).message}</Status>}<Link to="/pair/start" onClick={() => { entryIntent.invite = null; }}>Back</Link></section>;
 }

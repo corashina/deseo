@@ -41,7 +41,7 @@ function MemoryEditor({ memory }: { memory?: Memory }) {
   const form = useForm<MemoryInput>({ defaultValues: memory ? { caption: memory.caption, memoryDate: memory.memoryDate } : { caption: '', memoryDate: DateTime.now().setZone(pair.timezone).toISODate()! } });
   const prepare = useMutation({
     mutationFn: async (files: File[]) => {
-      if (photos.length + files.length > 5) throw new Error('Choose no more than five photos.');
+      if (photos.length + files.length > 5) throw new Error('Choose no more than 5 photos.');
       const prepared: PreparedBrowserPhoto[] = [];
       for (const file of files) prepared.push(await preparePhoto(file));
       return prepared;

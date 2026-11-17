@@ -39,7 +39,8 @@
   .portal, .portal.rail { --sidebar-width: 0px; }
   .sidebar { display: none; }
   .drawer-toggle, .mobile-account { display: inline-flex !important; }
-  /* The menu stays in reach on long screens. */
+  /* The menu stays in reach on long screens. Scrolling to a focused control keeps it below the 72px bar. */
+  html { scroll-padding-top: calc(72px + 24px); }
   .topbar { position: sticky; top: 0; z-index: 10; padding: var(--space-3) var(--space-4); gap: var(--space-3); }
   .drawer-toggle { position: relative; padding: 0; min-width: var(--nav-target); }
   .drawer-toggle .unread-count { position: absolute; top: 0; right: 0; padding: 0 var(--space-1); }

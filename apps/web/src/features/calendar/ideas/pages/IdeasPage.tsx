@@ -27,7 +27,7 @@ export function IdeasPage() {
       description="Save something you want to do together."
       action={<Link className="button primary" to="/ideas/new">Add idea</Link>} />
     <div className="section-heading">
-      <div className="view-tabs">{(['saved', 'planned', 'archived'] as const).map(value => <button key={value} aria-pressed={state === value} onClick={() => setParams({ state: value }, { replace: true, state: { from: back } })}>{value[0].toUpperCase() + value.slice(1)}
+      <div className="view-tabs" role="group" aria-label="Idea status">{(['saved', 'planned', 'archived'] as const).map(value => <button key={value} aria-pressed={state === value} onClick={() => setParams({ state: value }, { replace: true, state: { from: back } })}>{value[0].toUpperCase() + value.slice(1)}
       </button>)}
       </div>
       <Link to={back}>Return to calendar</Link>

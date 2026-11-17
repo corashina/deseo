@@ -147,7 +147,12 @@ The portal follows the [Web Interface Guidelines](https://github.com/vercel-labs
 - Give each controlled input a `name`. `Field` sets `autocomplete="off"` unless the caller sets a value.
 - Turn spellcheck off on email and code inputs.
 - Keep submit enabled until the request starts. Validate on submit and show the error next to the field.
+- Pass a field error to `Field` as `error`. Move focus to that field.
 - Give images `width` and `height`. Contain scroll in dialogs.
+- Give an `aria-label` only to an element with a role, such as `group` or `log`. The conversation is a `log`.
+- Show counts as numerals. Format numbers with `Intl.NumberFormat`.
+- On phones, `html` scroll padding keeps focus below the sticky top bar.
+- `index.html` preloads the Manrope latin font file from `node_modules`.
 
 ## Verification
 

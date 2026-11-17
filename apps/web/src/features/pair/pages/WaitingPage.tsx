@@ -33,7 +33,7 @@ export function WaitingPage() {
     : 'Create a code to send to your partner.';
   return <><section className="card form-page"><PageHeader title="Waiting for your partner" description={description} />
     {shown && <>
-      <p className="invite-code" translate="no" aria-label="Your invitation code">{token}</p>
+      <p className="invite-code" translate="no">{token}</p>
       <Button variant="primary" onClick={() => void copy()}>Copy invitation link</Button>
     </>}
     {expiresAt && !invite.isPending && <p className="muted">Expires {formatDate(DateTime.fromISO(expiresAt).setZone(account!.timezone), 'dateTime', account!.locale)}</p>}
