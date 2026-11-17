@@ -25,13 +25,7 @@
 .message-row.partner-b .message-meta time, .message-row.partner-b .message-state { color:var(--teal); }
 .message-state { display:block; }
 /* The actions button sits at the end of the sender line. Its 48px target overlaps the bubble padding. */
-.message-actions { position:relative; margin:calc(-1 * var(--space-3)) calc(-1 * var(--space-3)) calc(-1 * var(--space-3)) auto; }
-.message-actions > summary { display:flex; align-items:center; justify-content:center; width:var(--nav-target); height:var(--nav-target); border-radius:var(--radius-control); color:inherit; cursor:pointer; list-style:none; }
-.message-actions > summary::-webkit-details-marker { display:none; }
-.message-actions > summary:hover, .message-actions[open] > summary { background:var(--surface); }
-.message-actions > summary[aria-disabled=true] { opacity:.6; cursor:default; }
-.message-action-menu { position:absolute; top:calc(100% + var(--space-1)); right:0; z-index:2; display:grid; min-width:180px; padding:var(--space-1); background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-control); box-shadow:var(--shadow-popover); }
-.message-action-menu .button { justify-content:flex-start; color:var(--ink); }
+.message-actions { margin:calc(-1 * var(--space-3)) calc(-1 * var(--space-3)) calc(-1 * var(--space-3)) auto; }
 .message-error { margin-top:var(--space-3); }
 .message-error .status { margin-bottom:var(--space-2); }
 .message-composer { margin-top:0; padding:var(--space-3) var(--space-4); background:var(--sidebar); }

@@ -45,7 +45,8 @@ fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
 /* Partner badge: a name in its owner color. */
 .partner-badge { display: inline-flex; align-items: center; border-radius: var(--radius-badge); padding: 2px var(--space-2); font-size: 12px; font-weight: 600; line-height: 1.4; overflow-wrap: anywhere; }
 dialog { border: 1px solid var(--line); border-radius: var(--radius-card); padding: var(--space-6); color: var(--ink); background: var(--surface); box-shadow: var(--shadow-popover); width: min(480px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); overflow: auto; overscroll-behavior: contain; }
-dialog::backdrop { background: var(--backdrop); }
+/* Both rules keep scroll gestures over the backdrop or inside a dialog from scrolling the page behind it. */
+dialog::backdrop { background: var(--backdrop); overflow: hidden; overscroll-behavior: contain; }
 dialog .actions:last-child { margin-bottom: 0; }
 .dialog-heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-4); margin-bottom: var(--space-6); }
 .dialog-heading h2 { margin: 0; }
@@ -58,3 +59,14 @@ dialog .actions:last-child { margin-bottom: 0; }
 @media (max-width:767px) { .view-tabs { width:100%; } .view-tabs button { flex:1; padding:var(--space-2); } }
 /* The sign-in code reads as six digits, not as a generic text field. */
 .field input.code-input { max-width: 16ch; font-size: 19px; font-weight: 600; letter-spacing: .3em; font-variant-numeric: tabular-nums; }
+/* Menu: an icon trigger and a popover list. Anchor positioning places the list below the trigger, and flips it when it does not fit.
+   Without anchor positioning, Menu.tsx sets top and left. Set display only on the inner list: the popover hides itself when closed. */
+.menu-trigger { display: flex; align-items: center; justify-content: center; width: var(--nav-target); height: var(--nav-target); padding: 0; border: 0; border-radius: var(--radius-control); background: transparent; color: inherit; cursor: pointer; }
+.menu-trigger:hover:not(:disabled), .menu-trigger[aria-expanded=true] { background: var(--surface); }
+.menu-trigger:disabled { opacity: .6; cursor: default; }
+.menu-popover { inset: auto; margin: 0; min-width: 180px; padding: var(--space-1); color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-control); box-shadow: var(--shadow-popover); }
+@supports (position-area: block-end) {
+  .menu-popover { position-area: block-end span-inline-start; position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline; margin-block: var(--space-1); }
+}
+.menu-popover > div { display: grid; }
+.menu-popover .button { justify-content: flex-start; color: var(--ink); }

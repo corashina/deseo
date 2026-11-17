@@ -39,13 +39,13 @@ test('a pinned note shows on Today until its message is deleted', async ({ page,
     await partner.goto('/today');
     const row = partner.getByTestId('message-row').filter({ hasText: body });
     await row.getByRole('button', { name: 'Message actions' }).click();
-    await row.getByRole('button', { name: 'Pin note', exact: true }).click();
+    await row.getByText('Pin note', { exact: true }).click();
     await expect(row.getByText('Sent · Pinned note')).toBeVisible();
     await signIn(page, a);
     await page.goto('/today');
     await expect(page.getByTestId('pinned-notes')).toContainText(body);
     await row.getByRole('button', { name: 'Message actions' }).click();
-    await row.getByRole('button', { name: 'Delete message', exact: true }).click();
+    await row.getByText('Delete message', { exact: true }).click();
     await partner.getByRole('button', { name: 'Confirm deletion', exact: true }).click();
     await expect(partner.getByTestId('message-row').filter({ hasText: body })).toHaveCount(0);
     await page.reload();

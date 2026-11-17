@@ -403,7 +403,7 @@ View tabs and owner filters are segmented controls. The pressed segment is a rai
 
 ### Dialogs
 
-Trap focus in modal dialogs. Return focus to the trigger on close. Support Escape where cancel is safe.
+Use the native modal dialog. The browser keeps focus off the page and returns it to the trigger. Do not add a focus trap. Support Escape where cancel is safe. A click outside closes the navigation drawer.
 Give icon-only buttons an accessible name.
 Close is an icon-only text button in the heading. A dialog with an action also has a Cancel button beside it.
 Only the final, destructive step of a flow uses the `danger` fill. Earlier steps, such as Email me a code, use the primary fill.
@@ -468,7 +468,7 @@ The photo hint says that photos cannot change after publish. Reserve image space
 Limit message width to 80%. Align the viewer's messages to the trailing edge.
 Keep sender colors stable. Use 16px message padding on narrow screens.
 Show Read only if a real read receipt exists. Notes are pinned messages, not a second text system.
-A message shows the time; older messages add the day, and the year only when it differs. Own messages end the sender line with an actions button that opens a popover menu.
+A message shows the time; older messages add the day, and the year only when it differs. Own messages end the sender line with an actions button that opens a popover menu. The menu sits in the top layer, below the button or above it when there is no room.
 Pinned notes are compact rows above the conversation: sender eyebrow, two lines of text, and Unpin. A lone note fills the row. Own notes say From you.
 Below 768px, a note shows one line of text, and two notes share one row that scrolls sideways.
 In a run of messages from one sender, only the first message shows the name. The color carries the run.
