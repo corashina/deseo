@@ -52,8 +52,8 @@ test('global sign-out revokes native devices and another browser session', async
     await expect(second.getByRole('link', { name: 'Settings', exact: true })).toBeVisible();
     await page.goto('/settings');
     await page.getByRole('button', { name: 'Sign out on all devices', exact: true }).click();
-    await expect(page).toHaveURL(/\/welcome$/);
-    await second.reload(); await expect(second).toHaveURL(/\/welcome$/);
+    await expect(page).toHaveURL(/\/sign-in$/);
+    await second.reload(); await expect(second).toHaveURL(/\/sign-in$/);
     const devices = await admin.from('devices').select('revoked_at').eq('user_id', a.id);
     expect(devices.data?.length).toBe(1); expect(devices.data?.[0].revoked_at).not.toBeNull();
     expect((await a.client.rpc('get_session_context')).data?.ok).toBe(false);

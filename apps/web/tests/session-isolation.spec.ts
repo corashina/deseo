@@ -23,7 +23,7 @@ test('sign out before pair response prevents stale partner identity', async ({ p
   await arrived;
   await second.getByRole('button', { name: 'Sign out on this browser' }).click();
   release();
-  await expect(page.getByRole('link', { name: 'Continue with email' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Send code' })).toBeVisible();
   await expect(page.locator('body')).not.toContainText('Marek');
 });
 
@@ -40,7 +40,7 @@ test('disabled account cannot restore a cached session', async ({ page, pair, si
   expect(error).toBeNull();
   await page.reload();
   await expect(page.locator('body')).not.toContainText('Marek');
-  await expect(page.getByRole('link', { name: 'Continue with email' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Send code' })).toBeVisible();
   const response = await fetch(`${localUrl}/rest/v1/rpc/get_pair_context`, {
     method: 'POST', headers: { apikey: publicKey, Authorization: `Bearer ${jwt}`, 'Content-Type': 'application/json' }, body: '{}',
   });
