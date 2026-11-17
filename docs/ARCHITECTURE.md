@@ -205,7 +205,7 @@ Generate database types from the actual schema. Keep database checks authoritati
 
 | Record | Required fields and constraints |
 |---|---|
-| `profiles` | `user_id`, display name 1–40, IANA timezone, locale, avatar path, `account_status` |
+| `profiles` | `user_id`, display name 1–40, IANA timezone, locale, `account_status` |
 | `pairs` | ID, state `pending/active/ended`, timezone, created/ended timestamps, purge deadline |
 | `pair_members` | Pair, user, stable slot `a/b`, joined/left timestamps; unique active membership per user |
 | `pair_invites` | Pair, token hash, creator, expiry, accepted/revoked time; only one live invite per pending pair |
@@ -225,8 +225,6 @@ Generate database types from the actual schema. Keep database checks authoritati
 | `command_receipts` | Actor, pair, command UUID, command type, result ID, result version, expiry |
 
 Keep invites, delivery jobs, and command receipts outside the exposed schema.
-
-Store avatars privately. Only their owner and current partner can retrieve them.
 
 No separate table exists for Today, notes, countdowns, or a relationship score.
 

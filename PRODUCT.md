@@ -98,7 +98,7 @@ Use these terms in code, documentation, and UI text.
 | Term | Meaning |
 |---|---|
 | Account | One person's authenticated identity |
-| Profile | That person's display name, avatar, locale, and timezone |
+| Profile | That person's display name, locale, and timezone |
 | Pair | A private space with two active members |
 | Partner | The other member of the current pair |
 | Invitation | A temporary request to join a pair |
