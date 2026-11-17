@@ -110,13 +110,13 @@ Playwright tests need the local backend and Edge functions. Run them with `npm r
 
 The `web-e2e` job ("Web journeys") runs the browser tests on each pull request and blocks merge. Its steps:
 
-1. Start Supabase without Studio, Vector, Logflare, imgproxy, and Supavisor.
+1. Start Supabase without Studio, Vector, Logflare, imgproxy, and Supavisor. It starts in the background while `npm ci` and the Chromium install run.
 2. Serve Edge functions with `npm run functions`.
-3. Install Chromium for Playwright.
-4. Read the local URL and key from `npx supabase status`, then run the browser tests.
-5. On failure, upload the Playwright report, the traces, and the Edge log.
+3. Read the local URL and key from `supabase status`, then run the browser tests.
+4. On failure, upload the Playwright report, the traces, and the Edge log.
 
 The job reserves ports 55720 to 55729 so outgoing connections do not take them.
+The `supabase/setup-cli` action installs the CLI version from `package.json` before `npm ci`. The database job does the same.
 Supabase start takes about 2 minutes. The tests run on 4 workers in about 30 seconds.
 
 ### Expo mobile
@@ -156,47 +156,18 @@ The portal follows the [Web Interface Guidelines](https://github.com/vercel-labs
 
 ### Impeccable review
 
-[Impeccable](https://github.com/pbakaus/impeccable) 4.9.2 reviewed the web portal and the public site in November 2026. The mobile app was out of scope.
-Its skill is in `.claude/skills/impeccable`. Its project settings are in `.impeccable/config.json`.
+[Impeccable](https://github.com/pbakaus/impeccable) 4.9.2 reviews the web portal and the public site. Its settings are in `.impeccable/config.json`.
+CI runs `npx --yes impeccable@4.9.2 detect --github apps/web/src apps/site`. A counted rule fails the step. Off-token colors are advisory.
+To capture screens, run the "Design capture" workflow on a branch, or run `CAPTURE=1 npm run test --workspace @deseo/web` locally.
+`tests/capture/capture.spec.ts` lists the screens. `tests/capture/previews.spec.ts` makes the site previews; convert them to WebP in `apps/site/public/images`.
+Do not commit audit or critique reports.
 
-Design drift: CI runs `npx --yes impeccable@4.9.2 detect --github apps/web/src apps/site`. A counted rule fails the step. Off-token colors are advisory.
+Turned-off rules:
 
-Screens: run the "Design capture" workflow by hand on a branch. Download its `design-capture` artifact.
-It holds screenshots at 390, 768, 1024, and 1440px, dark screens at 390 and 1440px, and rendered detector results for each page.
-Locally, run `CAPTURE=1 npm run test --workspace @deseo/web`. `tests/capture/capture.spec.ts` lists the screens.
-`tests/capture/previews.spec.ts` makes the site previews with the sample pair Alex and Sam. Convert them to WebP in `apps/site/public/images`.
-
-Review steps:
-
-1. Capture the screens.
-2. Run `/impeccable audit` for the project. Run `/impeccable critique` for each area, with two separate reviewers.
-3. Store each report with `.claude/skills/impeccable/scripts/impeccable audit-storage write` or `critique-storage write`.
-4. Force-add the snapshots in `.impeccable/audit` and `.impeccable/critique`. Their `.gitignore` excludes them.
-
-Scores, baseline to final. Critique scores are of 40. The site is of 36.
-
-| Area | Baseline | Final |
-|---|---|---|
-| Shell | 26 | 29 |
-| Entry | 26 | 29 |
-| Today | 26 | 27 |
-| Calendar | 25 | 28 |
-| Memories | 24 | 28 |
-| Tasks | 27 | 28 |
-| Settings | 26 | 28 |
-| Public site | 25 | 27 |
-| Audit (of 16) | 12 | 12 |
-
-The final audit has no P0 or P1 issues. Accessibility was not scored, by owner decision.
-
-Turned-off rules and their reasons:
-
-- `low-contrast`, `gray-on-color`, `skipped-heading`: accessibility was out of scope for this review.
-- `kicker-above-heading`: DESIGN.md asks for an eyebrow above detail titles.
-- `design-system-font-size` 23px: the sidebar wordmark beside the 40px icon.
-- `tight-leading` in `apps/site`: the static scan rounds the 1.3 title leading down.
-
-The rendered `nested-cards` result on `.view-tabs` is a false positive. The segmented control is a track, not a card.
+- `low-contrast`, `gray-on-color`, `skipped-heading`: accessibility is out of scope.
+- `kicker-above-heading`: detail titles have an eyebrow.
+- `design-system-font-size` 23px: the sidebar wordmark.
+- `tight-leading` in `apps/site`: the scan rounds the 1.3 title leading down.
 
 ## Verification
 
@@ -237,24 +208,6 @@ Mask invitation tokens and verification codes in screenshots and logs.
 
 The suite omits mobile UI flows, native draft recovery, concurrent pairing, and full Edge handler checks.
 Check these areas manually until a defect needs a focused regression test.
-
-### Acceptance priorities
-
-| Area | Importance | Required cases |
-|---|---:|---|
-| Pair isolation | 100 | Foreign pair IDs, private events, media, direct calls, live subscriptions |
-| Pair transaction | 100 | Simultaneous joins, self-join, one account in two pairs, regeneration race |
-| Account disable/delete | 100 | Valid old JWT, session revocation, partial cleanup |
-| Disconnect | 100 | Open screens, resume, writes, export, upload, and push races |
-| Sensitive verification | 100 | Old sign-in, other pair, and receipt replay (`supabase/tests/end-pair.test.sql`) |
-| Message durability | 100 | Lost acknowledgement, duplicate UUID, reconnect, paging during inserts |
-| Photo access | 100 | Pending access, forged type, metadata, quota race, stale links |
-| Reminder delivery | 100 | Duplicate workers, crashes, quiet hours, stale versions, bad tokens |
-| Event changes | 98 | Conflicts, duplicate creates, visibility changes, deleted sources |
-| Time semantics | 98 | All-day dates, DST gaps and overlaps, partner timezones |
-| Accessibility | 95 | Screen readers, large text, focus, labels, status announcements |
-
-Skip decorative snapshots (25) and trivial getter tests (20).
 
 ### Fixtures
 
@@ -301,41 +254,16 @@ Use real operator, support, domain, store, and signing values. Do not invent the
 
 Local setup does not prove hosted deployment or publication.
 
-### Required owner inputs
-
-| Input | Required before |
+| Owner input | Required before |
 |---|---|
 | Legal operator, launch regions, audience, and reviewed policies | Public beta |
 | Production domain and support address | App links, email, and store listing |
-| Apple and Google developer accounts | Signed distribution |
-| Stable bundle and package identifiers | Push credentials and association files |
+| Apple and Google developer accounts, bundle and package identifiers | Signed distribution and push |
 | Hosting regions and backup retention | Privacy disclosures |
 | Consenting beta testers | Usability sessions |
 
-### Environments
-
-Use isolated local, staging, and production data. Limit production secrets to approved contexts.
-Use verified SMTP. Check sender identity, expiry text, resend, and junk-folder results.
-Use restricted worker credentials. Reject public worker calls.
-Apply migrations to staging first. Replay a fresh local database and run access tests before production.
-
-### Operational targets
-
-| Area | Target |
-|---|---|
-| Reminder claims | Every minute; alert when due jobs wait five minutes |
-| Message persistence | Show Sent only after database acknowledgement |
-| Orphan uploads | Remove abandoned reservations after 24 hours |
-| Media links | At most 60 seconds; never log them |
-| Backup restore | Test in an isolated environment before release |
-
+Use isolated local, staging, and production data. Apply migrations to staging first.
 Use content-free metrics only. Do not collect message text, captions, event titles, or tokens.
-
-### Incident handling
-
-For suspected cross-pair access, disable the path, keep content-free evidence, and stop related jobs.
-Fix policies and add direct-request tests before you reopen the path.
-For partial deletion, keep the account disabled and continue the stored cleanup phase.
 
 ### Release candidate
 
@@ -354,57 +282,5 @@ For partial deletion, keep the account disabled and continue the stored cleanup 
 
 ### Store preparation
 
-Prepare name, description, screenshots, icon exports, content rating, support URL, and privacy URL.
 Describe only working features. Do not claim therapy, guaranteed reminders, or end-to-end encryption.
-Give reviewers a synthetic pair. Match privacy labels to the exact build.
-#### Listing text
-
-Use this draft for both stores. Before submission, confirm each feature on the signed build.
-
-| Field | Limit | Text |
-|---|---|---|
-| App Store name | 30 | `Deseo: Plan Together` |
-| App Store subtitle | 30 | `Shared calendar for couples` |
-| App Store keywords | 100 | `couple,partner,relationship,schedule,agenda,tasks,todo,photo,memories,chat,notes,date,anniversary` |
-| Google Play title | 30 | `Deseo: Plan Together` |
-| Google Play short description | 80 | `Plan your days together. Share a calendar, tasks, messages, and photo memories.` |
-
-Keywords do not repeat words from the name or subtitle. Apple indexes those words separately.
-
-Full description:
-
-```text
-Plan your days together.
-
-Deseo is a private space for two partners. Plan your days, share a note, and keep the moments you want to remember.
-
-Calendar
-- Add shared events and private events.
-- Add all-day plans and yearly important dates.
-- Save date ideas for later.
-
-Tasks
-- Make named lists.
-- Assign a task, set a due date, and mark it done.
-
-Messages (on Today)
-- Write to each other in one conversation.
-- Pin a message to keep it as a note.
-
-Memories
-- Save one to five photos with a date and a caption.
-
-Today
-- See the conversation, both notes, your next plans, due tasks, the latest memory, and the next important date.
-
-Privacy and control
-- Sign in with an email code.
-- Join your partner with an invitation.
-- Private events stay private.
-- Either partner can end the pair at any time.
-- No ads, no public feed, and no relationship scores.
-```
-
-Add a reminder line only after push reminders pass on signed Android and iOS builds.
-
 Read the current [Apple deletion guidance](https://developer.apple.com/support/offering-account-deletion-in-your-app/) and [Google deletion requirements](https://support.google.com/googleplay/android-developer/answer/13327111).

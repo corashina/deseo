@@ -17,7 +17,7 @@ const pattern = { event: ':eventId', list: ':listId', task: ':taskId', idea: ':i
 
 // Each screen belongs to one review area. The shell area reads the Today and Calendar captures.
 const areas: [RegExp, string][] = [
-  [/^\/(welcome|sign-in|verify|no-such-page|profile|pair)\b/, 'entry'],
+  [/^\/(sign-in|verify|no-such-page|profile|pair)\b/, 'entry'],
   [/^\/settings/, 'settings'],
   [/^\/today/, 'today'],
   [/^\/(calendar|events|ideas)/, 'calendar'],

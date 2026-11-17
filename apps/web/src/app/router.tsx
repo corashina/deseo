@@ -26,7 +26,6 @@ const IdeaPage = lazyPage(() => import('../features/calendar/ideas/pages/IdeaPag
 const TodayPage = lazyPage(() => import('../features/today/pages/TodayPage'), 'TodayPage');
 const CalendarPage = lazyPage(() => import('../features/calendar/pages/CalendarPage'), 'CalendarPage');
 const EventFormPage = lazyPage(() => import('../features/calendar/pages/EventFormPage'), 'EventFormPage');
-const WelcomePage = lazyPage(() => import('../features/auth/pages/WelcomePage'), 'WelcomePage');
 const EmailPage = lazyPage(() => import('../features/auth/pages/EmailPage'), 'EmailPage');
 const VerifyPage = lazyPage(() => import('../features/auth/pages/VerifyPage'), 'VerifyPage');
 const ProfilePage = lazyPage(() => import('../features/auth/pages/ProfilePage'), 'ProfilePage');
@@ -35,7 +34,7 @@ const JoinPage = lazyPage(() => import('../features/pair/pages/JoinPage'), 'Join
 const WaitingPage = lazyPage(() => import('../features/pair/pages/WaitingPage'), 'WaitingPage');
 const EndedPage = lazyPage(() => import('../features/pair/pages/EndedPage'), 'EndedPage');
 function destination(session: ReturnType<typeof useSession>) {
-  if (session.status !== 'authenticated') return '/welcome';
+  if (session.status !== 'authenticated') return '/sign-in';
   if (!session.account) return '/profile/setup';
   if (session.pair?.status === 'active') return '/today';
   if (session.pair?.status === 'pending') return '/pair/waiting';
@@ -47,7 +46,7 @@ function Gate({ children, kind = 'pair' }: { children: ReactNode; kind?: 'public
   const { pathname } = useLocation();
   const target = destination(session);
   if (kind === 'public') return session.status === 'authenticated' ? <Navigate to={target} replace /> : <>{children}</>;
-  if (session.status !== 'authenticated') return <Navigate to="/welcome" replace />;
+  if (session.status !== 'authenticated') return <Navigate to="/sign-in" replace />;
   if (!session.account) return kind === 'profile' ? <>{children}</> : <Navigate to="/profile/setup" replace />;
   if (kind === 'account') return <>{children}</>;
   if (kind === 'profile') return <Navigate to={target} replace />;
@@ -63,8 +62,8 @@ function Frame() {
   if (session.status === 'loading') return <div className="entry-loading"><Status>Checking your account…</Status></div>;
   if (session.status === 'error') return <section className="card form-page"><h1>We could not open your account</h1><Status error>{session.error}</Status><Button variant="primary" onClick={() => void session.revalidate()}>Retry</Button><Button variant="secondary" onClick={() => void signOut()}>Sign out</Button></section>;
   return session.status === 'authenticated' && session.account ? <AppShell key={identity} preload={preloadPage}><Outlet /></AppShell> : <div className="entry-container" key={identity}>
-    {/* Welcome shows the large icon. The other entry screens keep a small brand row above the card. */}
-    {pathname !== '/welcome' && <p className="entry-brand"><BrandIcon alt="" size={40} /><span translate="no">Deseo</span></p>}
+    {/* Sign in shows the large icon. The other entry screens keep a small brand row above the card. */}
+    {pathname !== '/sign-in' && <p className="entry-brand"><BrandIcon alt="" size={40} /><span translate="no">Deseo</span></p>}
     <Outlet />
   </div>;
 }
@@ -105,8 +104,7 @@ function RecordRoute({ children }: { children: ReactNode }) {
 }
 const pairPage = (title: string, Component: LazyPage) => ({ element: <Page title={title}><Gate><RecordRoute><Component /></RecordRoute></Gate></Page>, handle: Component.load });
 const routes: RouteObject[] = [{ element: <Root />, errorElement: <RouteFailureBoundary />, children: [
-  { path: '/', element: <Page title="Welcome"><Entry /></Page> },
-  { path: '/welcome', ...publicPage('Welcome', WelcomePage) },
+  { path: '/', element: <Page title="Sign in"><Entry /></Page> },
   { path: '/sign-in', ...publicPage('Sign in', EmailPage) },
   { path: '/verify', ...publicPage('Check your email', VerifyPage) },
   { path: '/profile/setup', element: <Page title="Set up your profile"><Gate kind="profile"><ProfilePage /></Gate></Page>, handle: ProfilePage.load },

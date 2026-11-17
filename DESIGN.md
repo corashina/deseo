@@ -212,15 +212,6 @@ The look is calm and personal: pastel fills, dark text, and names beside every o
 Planning screens are compact. Personal screens give photos and notes more space.
 The type, label, depth, and motion rules follow [unslop](https://github.com/heydamir/unslop) by Damir Sokolovsky (CC BY 4.0).
 
-| User need | Interface treatment |
-|---|---|
-| Know each other's plans | Owner colors, names, agenda, and shared event labels |
-| Save photos together | Large image cards, captions, and a chronological feed |
-| Send texts and notes | One conversation with clear sender labels |
-| Remember a date | Upcoming event cards and the important date countdown |
-| Coordinate daily work | Task rows with owners and due dates |
-| Feel like a pair | Partner names and personal content on Today |
-
 **Key Characteristics:**
 
 - Pastel fills with dark text and dark essential boundaries.
@@ -269,7 +260,7 @@ The frontmatter holds both palettes: light keys have no suffix, and dark keys en
 - **Muted** (`muted` #6C6475): secondary text and timestamps.
 - **Line** (`line` #E5DEE8): decorative dividers and card borders.
 - **Control** (`control` #8B8293): input and checkbox boundaries.
-- **Pale Lavender Fill** (`sidebar` #F3EEF7): hover fills, the important date, the welcome story, and the message composer.
+- **Pale Lavender Fill** (`sidebar` #F3EEF7): hover fills, the important date, the sign-in story, and the message composer.
 - **Focus** (`focus` #68518C): focus ring.
 
 ### Status
@@ -290,21 +281,6 @@ Use an icon and explicit text for errors and warnings.
 
 Require 4.5:1 for normal text. Require 3:1 for essential control boundaries and focus indicators.
 Every dark text color passes 4.5:1 on canvas, surface, sidebar, note, and its own soft fill.
-
-| Pair | Light | Dark |
-|---|---:|---:|
-| Ink / surface | 11.88:1 | 14.14:1 |
-| Muted / canvas | 5.30:1 | 7.28:1 |
-| Action text / action | 7.70:1 | 10.36:1 |
-| On primary / primary | 7.01:1 | 8.28:1 |
-| On primary / danger | 6.64:1 | 8.01:1 |
-| Rose / rose-soft | 5.64:1 | 7.13:1 |
-| Teal / teal-soft | 5.15:1 | 8.48:1 |
-| Shared / shared-soft | 5.65:1 | 6.89:1 |
-| Muted / note | 4.91:1 | 5.79:1 |
-| Control / surface | 3.68:1 | 4.35:1 |
-| Focus / canvas | 6.26:1 | 10.16:1 |
-| Action border / action | 3.48:1 | 3.92:1 |
 
 Do not use decorative border colors as essential control boundaries. Recheck contrast after a token change.
 Sources: [WCAG text contrast](https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html) and [non-text contrast](https://www.w3.org/WAI/WCAG22/Understanding/non-text-contrast.html).
@@ -443,7 +419,7 @@ The icon tile follows the appearance: `brand/icon-web.webp` in light mode, `bran
 
 ### Screens
 
-**Entry.** Welcome shows the story panel and the sign-in card side by side from 1024px, and stacked below it.
+**Entry.** Sign in shows the story panel and the email card side by side from 1024px, and stacked below it.
 The other sign-in screens show the icon and name above one 480px card. The main button fills the card width.
 Profile setup offers Sign out. The sign-in code field shows six large spaced digits and says to check spam.
 Pair screens are one left-aligned card with the header inside. Start shows its two choices side by side when they fit.
@@ -510,48 +486,13 @@ Make no claim that the product cannot prove. The hero has one primary button, Jo
 
 ### States
 
-| State | Behavior | Example text |
-|---|---|---|
-| First use | Explain the screen and offer one action | Add your first shared event |
-| No events | Show the date and a creation action | Nothing planned for today |
-| Loading | Keep the final layout's dimensions | Loading your calendar… |
-| Save failure | Keep input and offer Retry | We could not save this event. Try again. |
-| Message failure | Show failure beside the message | Message not sent. Retry |
-| Partner changed data | Refresh or ask for conflict resolution | Sam changed this event. Review the update. |
-| Upload failure | Keep the caption and retry the file | Photo upload failed. Retry |
-
+Use the [common states](docs/README.md#common-states). Keep the final layout's size while loading.
 Keep draft and sent states distinct. Prevent duplicate saves while a request is pending.
 Use optimistic updates only with rollback and a visible failure.
 Announce save results in a polite live region. Keep errors visible until resolved or dismissed.
 
 ## Do's and Don'ts
 
-### Do:
-
-- **Do** use blush, mint, lilac, and peach fills with dark text.
-- **Do** use `on-action` text and `action-border` borders on primary buttons and selected dates.
-- **Do** show a name beside each owner color, and check event ownership without color.
-- **Do** keep server access in feature data modules and pass explicit view data to display components.
-- **Do** keep static data, formatters, and icon definitions outside render paths.
-- **Do** give production images explicit dimensions and responsive sizes.
-- **Do** keep authorization on the server. Frontend visibility controls do not grant access.
-- **Do** follow [ARCHITECTURE.md](docs/ARCHITECTURE.md) for modules.
-
-### Don't:
-
-- **Don't** use the pastel action fill as a text color.
-- **Don't** use decorative border colors as essential control boundaries.
-- **Don't** assign partner colors by gender.
-- **Don't** add looping animation, parallax, or decorative counters.
+- **Do** check event ownership without color, and test long names and long event titles.
+- **Do** check 320, 390, 768, and 1440px, 200% text zoom, keyboard navigation, and visible focus.
 - **Don't** add questions, streaks, quizzes, AI advice, or relationship scores.
-
-### Review checklist
-
-- Check Today, Calendar, Memories, Tasks, and pair setup at 320, 390, 768, and 1440px.
-- Check 200% text zoom, keyboard navigation, and visible focus.
-- Check dialog focus, errors, and announcements with a screen reader.
-- Test long names, long event titles, and translated labels.
-- Check event ownership without color.
-- Check dates across timezones and daylight-saving changes.
-- Confirm failed saves keep input and create no duplicates.
-- Check invitation, offline, loading, empty, error, and conflict states with real data.

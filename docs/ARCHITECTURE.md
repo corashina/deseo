@@ -2,7 +2,6 @@
 
 Use [Development](DEVELOPMENT.md) for setup and checks, and [Screens](README.md#screens) for user flows.
 Read [modules](#module-structure), [access rules](#server-authorization), and the [data contract](#data-contract) before changing product code.
-
 Data sections: [records](#records), [access](#access-matrix), [pairing](#pair-transactions), [commands](#content-commands-and-conflicts),
 [messages](#messages-and-realtime), [photos](#photos), [reminders](#reminders-and-push), and [end pair](#end-pair).
 
@@ -111,25 +110,20 @@ Web forms keep one command ID per submitted input. A retry of the same input reu
 Native uses SecureStore for its encryption key and encrypted MMKV for Auth sessions and scoped drafts.
 Handle storage failure by explaining the failure and requiring sign-in. Do not add plaintext fallback storage.
 Native photos use private temporary files. Purge them on discard, scope change, and sign-out.
-
 Browser Auth uses Supabase's supported browser session storage.
 Shared rows and private images stay in memory. Form input stays in its page. Leaving the page or a reload discards it.
 Use no-store media requests and scoped blobs. Release object URLs after use and on authority loss.
 Warn before navigation or reload discards changed input. Explicit or forced sign-out clears private state immediately.
 A failed global Auth sign-out remains visible after local session removal.
-
 Keep fetched shared content in memory on both platforms. Revalidate account status and membership before displaying it.
 
 ## Browser navigation and loading
 
 Use ordinary links, reloadable record URLs, browser Back, document titles, and visible active navigation.
-Use a 256px sidebar from 1024px, a 72px rail from 768px, and a drawer below 768px.
 Keep navigation and account controls outside route loading boundaries.
 Load route pages with React lazy and Suspense. The route boundary reports loading and handles load failures.
-
 Keep shared form rules in `controls.css` and shared text wrapping in `base.css`.
 Each page loads its feature styles. Do not depend on a previously visited feature's stylesheet.
-
 Keep one router blocker with memory-scoped dirty registrations. Retain unresolved input when the user cancels leaving.
 Do not add service workers, offline content storage, browser push, or installation prompts.
 
@@ -143,43 +137,14 @@ Expose narrow invoker wrappers around hardened private implementations.
 Revoke default execution, grant required roles, set an empty search path, and check callers.
 Keep internal tables outside exposed schemas. Do not accept client-supplied trusted actor IDs.
 Keep server keys inside verified server jobs and test processes.
-
-Server `WEB_APP_ORIGIN` lists permitted browser origins, separated by commas. Native requests can omit Origin.
-Local values are in `supabase/dev/functions.env`.
-The local Supabase gateway uses wildcard CORS headers and intercepts OPTIONS.
-The function still rejects unknown and null origins before Auth or action work.
-Direct helper tests prove handler policy; they do not prove external gateway headers.
-
-See [the data contract](#data-contract) for access, lifecycle, retention, and race rules.
-
-## Platform acceptance
-
-Use separate local and hosted projects. Local fixtures reject non-loopback addresses.
-Keep the named Anna and Marek pair usable. Remove only fixtures with proven ownership.
-Replay migrations in a new isolated project; preserve populated web and integration stacks.
-
-Expo Go cannot verify MMKV. Physical devices must verify native storage, permissions, photos, notifications, and lifecycle changes.
-JavaScript exports do not compile native binaries. Windows cannot run an iOS simulator.
-Use macOS with Xcode or authorized EAS builds for iOS native work.
-
-Account export, deletion, avatar backend work, and public pages remain separate delivery work.
-The portal uses current supported backend commands without adding incomplete account controls.
+Edge functions reject unknown and null browser origins before Auth or action work. See [Web portal](DEVELOPMENT.md#web-portal).
 
 ## Design decisions
 
-Keep one backend and separate browser, native, and public-site applications.
-Share domain contracts and brand assets. Keep platform UI and storage in their application.
-Pair commands and database policies enforce membership. Today reads `get_today` and latest Memory; a note is a pinned message.
 Use named commands for retries and conflicts, validated photo finalization, and durable reminder jobs.
 Do not add generic repositories, backend adapters, microservices, a global event bus, or a second form framework.
 Add an interface when multiple callers need it. Keep public pages static unless product requirements change.
-Review backend limits against measured workloads. Revisit offline writes or calendar sync only after a new scope decision.
-
-Keep Today sections in reading and keyboard order: plans, memory, note, tasks, then important date.
-Use grid areas for desktop placement. Keep task completion labels separate from detail links.
-Keep memory navigation and photo Retry as sibling controls.
-Pass account timezone and locale to native note cards. Use the current theme hooks for colors and styles.
-Read notification permission again for Retry. Do not request permission or register devices during this read.
+Revisit offline writes or calendar sync only after a new scope decision.
 
 ## Data contract
 
@@ -187,18 +152,12 @@ Both applications call the same authenticated reads, transactions, and Edge func
 PostgreSQL remains authoritative for membership, permissions, versions, and lifecycle changes.
 Shared schemas and payloads live in `packages/domain`; each application owns its client and private state.
 
-Account export, account deletion, and public deletion pages have no backend. Design them again when they enter scope.
-
 ### Shared conventions
 
 Use UUID record IDs. Use UTC `timestamptz` values for instants and `date` values for calendar dates.
-
 Use `created_by`, `created_at`, `updated_at`, and an integer `version` on mutable content records.
-
 Each pair record carries `pair_id`. Composite foreign keys prevent references to a record from another pair.
-
 Include current account status in access checks. Include active membership and pair status for shared content reads.
-
 Generate database types from the actual schema. Keep database checks authoritative when client validation duplicates them.
 
 ### Records
@@ -225,32 +184,22 @@ Generate database types from the actual schema. Keep database checks authoritati
 | `command_receipts` | Actor, pair, command UUID, command type, result ID, result version, expiry |
 
 Keep invites, delivery jobs, and command receipts outside the exposed schema.
-
 No separate table exists for Today, notes, countdowns, or a relationship score.
 
 ### Temporal fields
 
 Timed event: `starts_at`, `ends_at`; require `ends_at > starts_at`.
-
 All-day event: `start_date`, `end_date_exclusive`; require a positive date span.
-
 A check constraint permits exactly one temporal representation, never both.
-
 Yearly important dates use a one-day all-day event with `repeat = yearly` and a stored month/day.
-
 Other events use `repeat = none`. Yearly edits affect the series; there are no occurrence overrides.
-
 Calendar queries expand yearly dates only inside the requested range, limited to 366 days per request.
 A yearly date has no occurrence before its start date. Agenda reads, reminder state, and reminder jobs follow this rule.
-
 Include events that overlap the requested range, even when they start before it. Treat the query end as exclusive.
-
 Each person reads and enters times in their profile timezone. Luxon converts wall times to instants.
 A wall time that occurs twice at a clock change uses its first instant.
-
 Event reminder offsets are 15, 60, or 1440 minutes. Zero-offset reminders are not supported.
 All-day offsets count back from 09:00 in the reminder owner's timezone. Yearly dates follow the February 28 leap-day rule.
-
 Task due dates are dates in the viewer's timezone. A task reminder stores an explicit chosen instant.
 
 ### Access matrix
@@ -271,13 +220,9 @@ Task due dates are dates in the viewer's timezone. A task reminder stores an exp
 | Ended-pair content | No normal reads | None | None |
 
 Moving content to another pair is forbidden. Changes to author, pair, and membership slot are server-controlled.
-
 Changing an event to Private requires its author. It revokes the partner's reminders. A private event takes its author's color.
-
 Changing it back from Private requires the author and explicit sharing confirmation.
-
 RLS covers direct reads, reads through views, subscriptions, and storage objects. Test every path with a third account.
-
 Use `security_invoker` views if a view is required. Do not expose unrestricted views or storage buckets.
 
 ### Pair transactions
@@ -285,199 +230,118 @@ Use `security_invoker` views if a view is required. Do not expose unrestricted v
 #### Create and regenerate
 
 `create_pair(command_id)` creates a pending pair and membership atomically.
-
 `create_invite(pair_id, command_id)` generates a cryptographically random 12-character Crockford code and returns it once.
-
 Store only its hash. Regeneration revokes the prior live invitation. Expire it after 24 hours.
-
 The same token works in a link and manual entry. Treat it as a secret, not an account identifier.
-
 Apply verified-account and network-level rate limits to validation and acceptance. Start with five failed attempts per 15 minutes per account.
 
 #### Join
 
 `accept_invite(token, command_id)` derives the actor from verified authentication.
-
 Lock the relevant account rows in sorted ID order, then the pair and invitation rows.
-
 Check account status, expiry, revocation, self-join, active membership, and available slot within the same transaction.
-
 Insert slot `b`, mark the pair active, consume the invitation, and record the command result.
-
 Create the General list through an active-pair trigger within the join transaction.
 Create task tables before installing that trigger. Initialize General lists for existing active pairs.
-
 A unique partial index on active membership backs the account check. A unique pair/slot constraint caps capacity.
-
 Acquire the same locks during invite regeneration and pair termination. A failed transaction leaves no partial membership.
-
 Idempotent replay by the same actor returns the original pair. A different actor cannot reuse that result.
-
 Cancel an empty pending pair before joining another. A pending pair cannot contain published shared content.
 
 ### Content commands and conflicts
 
 Create commands accept `command_id`. Durable content IDs also use client UUIDs where appropriate.
-
 Use a unique `(actor, command_id, command_type)` receipt. Keep receipts for 30 days.
-
 Never create a new UUID for a retry. After receipt expiry, stable content IDs still prevent duplicate creates.
-
 Edit commands accept `expected_version`. Update only when it matches; return `CONFLICT` otherwise.
-
 Return a stable result shape: `ok`, `data`, `error.code`, and optional `error.field`.
-
 Error codes: `UNAUTHENTICATED`, `FORBIDDEN`, `VALIDATION`, `CONFLICT`, `INVITE_UNAVAILABLE`, `ALREADY_PAIRED`, `RATE_LIMITED`, `QUOTA_EXCEEDED`, `RETRYABLE`.
-
 `set_task_completed(task_id, completed, expected_version, command_id)` sets a desired state, not a toggle.
-
 Lists have unique case-insensitive names within a pair. General cannot be deleted or renamed.
-
 Delete other lists only when empty. Move tasks to General through an explicit user action before removing a nonempty list.
-
 `pin_message(message_id, command_id)` unpins the author's prior note and pins the selected message atomically.
-
 `plan_date_idea(idea_id, event_input, expected_version, command_id)` creates the shared event and links the idea atomically.
-
 Creating or editing a source record updates pending reminder work within the same transaction or an authoritative database trigger.
 
 ### Messages and realtime
 
 Use `(created_at,id)` keyset pagination. Timestamps come from the server; UUIDs break ties.
-
 Unique `(pair_id, author_id, client_id)` prevents duplicate sends after timeouts.
-
 Keep failed local sends outside the confirmed message query. Reconcile by client ID after reconnect.
-
 Subscribe only while the app is active. On reconnect, fetch the durable rows before updating unread state.
-
 Update the viewer's private read cursor when messages are visible. Never send a read receipt to the partner.
-
 Pair closure emits only a revocation signal. Revalidate access and remove content from screen and cache.
-
 Do not send message bodies through an unrestricted broadcast channel.
 
 ### Photos
 
 Limit each memory to five photos. Limit a prepared photo to 5 MiB and 2,560 pixels on its longest side.
-
 Accept prepared JPEG files only. Prepare native selections or browser file inputs before upload and remove metadata.
-
 Keep each original camera file on the person's device. The accepted prepared image becomes Deseo's full image.
-
 Create a separate thumbnail up to 512 pixels. Validate actual byte type, dimensions, size, and absence of location metadata.
-
 Reject invalid files on the server. Do not trust extension, client MIME type, or client-reported dimensions.
-
 Use a maintained file metadata parser. Do not write a custom image decoder or cryptographic format.
-
 Reserve storage against a 1 GiB pair quota, including pending uploads. Return a clear quota message before upload.
-
 Paths follow `pair_id/memory_id/photo_id/{full,thumb}.jpg`. Check all IDs against authorized database rows.
-
 Upload with no overwrite. Storage RLS permits the insert only for the author's live reservation.
 A database trigger checks that the stored size equals the reserved size.
 On retry, the client treats an existing file (409) as uploaded and sends only missing files.
 A browser retry of the same input reuses its memory, photo, and command IDs.
 Changed input reserves again with new IDs. The old reservation expires.
-
 The `finalize-memory` Edge function takes `{memoryId, commandId}`. It downloads each unvalidated file and checks its bytes with `validate-jpeg.ts`.
 Bucket `allowed_mime_types` and `file_size_limit` check only declared type and size, so this byte check stays on the server.
 The function then calls `publish_memory`. That transaction checks current membership and marks the memory published once.
 A retry skips validated photos and returns the same publish result.
-
 An object uploaded after disconnect cannot publish. Cleanup removes abandoned reservations and files after 24 hours.
-
 Policy `memory_photos_readable` lets current pair members read validated photos of published memories.
 The client signs its own links with `createSignedUrl(path, 60)`. Pending, deleted, and foreign photos return 400.
 Clear app image caches on disconnect and sign-out.
-
 Browser media uses no-store requests and in-memory blobs in the query cache. Release object URLs on removal, scope change, and sign-out.
-
 An already issued link may work until expiry. Explain this technical limit in the privacy design; never claim instant copy revocation.
-
 Delete memory metadata visibility first. Retry storage removal until completion. Keep failed cleanup visible to operations.
 
 ### Reminders and push
 
 Create one notification for each recipient and source occurrence. Create a delivery job for each active opted-in device.
-
 Use a unique `(recipient, source, occurrence, source_version, device)` delivery key.
-
 Cron claims due jobs every minute using leases and row locks. Workers skip locked jobs.
-
 A daily job materializes the next 90 days of yearly reminder occurrences. Source edits refresh the same horizon immediately.
-
 Use the occurrence's local date in its unique key. Skip past reminder times and show that state to the requester.
-
 The server expands yearly dates for agenda queries and reminder jobs. Native screens format those returned occurrences.
-
 Native screens support None, 15 minutes, one hour, or one day before.
 The web portal has no reminder, preference, or notification screens. It does not register native push devices or request browser push permission.
-
 Recheck current account status, pair membership, source existence/version, reminder preference, device status, and quiet hours before sending.
-
 Cancel superseded unsent jobs when the event changes, the task completes, or the pair ends.
-
 Use generic payload text: **You have an update in Deseo.** Put only an opaque notification ID in the data payload.
-
 Open the notification through an authenticated fetch. A revoked source shows an unavailable state.
-
 Retry transient provider failures at one, five, and fifteen minutes, bounded by source expiry.
-
 Check provider receipts after submission. Remove tokens that return `DeviceNotRegistered`.
-
 Distinguish queued, submitted, provider-accepted, failed, expired, and canceled. Provider acceptance does not prove device display.
-
 A network timeout after provider acceptance can cause a duplicate push. Do not claim exactly-once delivery.
-
 Never submit the same known accepted provider ticket again. App content remains idempotent regardless of push duplication.
-
 Quiet hours use the recipient's timezone. Defer messages until quiet hours end; expire event pushes after event start.
-
 Persist notifications for 30 days. Do not maintain a second calendar inside the notification system.
 
 ### End pair
 
 Require fresh verification within ten minutes and explicit confirmation.
-
 Atomically mark the pair ended, close memberships, revoke invitations, and cancel unsent jobs.
-
 Allow a new pair immediately after termination. Never copy the former pair's records into it.
-
 No worker purges ended-pair records yet. `purge_after` records the 30-day deadline.
 
 #### Fresh verification
 
 The browser sends an email code with Supabase Auth `signInWithOtp`. It verifies the code with `verifyOtp` in a separate in-memory client.
 That client sends the sensitive command, then signs out its session. The saved browser session does not change.
-
 `private.recently_signed_in()` accepts only a session with an `auth.mfa_amr_claims` row from the last ten minutes.
 Auth writes that row at sign-in. Token refresh does not change it, and the client cannot set it.
-
 `supabase.auth.reauthenticate()` cannot replace this check. Its nonce works only with a password change in `updateUser`.
-
 Check the JWT session ID against the current Auth session for protected reads and commands, including global sign-out enforcement.
 
-### Indexes and limits
+### Limits
 
-- Unique active `pair_members(user_id)` and unique `(pair_id, slot)`.
-- Index content foreign keys and common `(pair_id, created_at, id)` feed access.
-- Index timed events by pair and start; private reads also constrain author.
-- Index tasks by pair, list, completion, and due date.
-- Index pending jobs by due time; index cleanup work by state and expiry.
-- Index reminder source IDs and unique command/message identifiers.
-- Page lists at 50 rows. Limit agenda reads to 366 days.
-
-Inspect query plans with realistic synthetic pair data. Avoid indexing every field without a query that needs it.
-
-### Required adversarial cases
-
-Simultaneous invitation joins, one user joining two pairs, stale tokens, cross-pair IDs, private-event probes, duplicate sends, and stale edits.
-
-Also test uploads after disconnect, old media links, disabled accounts with valid JWTs, and duplicate workers.
-
-See [verification](DEVELOPMENT.md#verification) for importance ratings and required evidence.
+Page lists at 50 rows. Limit agenda reads to 366 days. Add an index only for a query that needs it.
+See [verification](DEVELOPMENT.md#verification) for required tests.
 
 ## Today summary
 
@@ -494,49 +358,26 @@ Domain owns the Result schema and `TodaySummary` type. Each application owns its
 `list_agenda` and `get_today` use the same query, `private.list_agenda`.
 For `important_dates`, the query reads only important Events. Yearly Events are always important.
 It removes other Events before it expands and converts rows. Range, overlap, leap-day, and private Event rules do not change.
-
 The shared schema reuses Event, Task, Message, and Result schemas.
 Queries validate the Pair UUID and calendar date before requesting data.
 Invalid dates raise `AppError` with code `VALIDATION` and field `date`.
 Malformed responses raise `AppError` with code `RETRYABLE`. Server Result errors retain their typed codes.
 Queries check all four arrays for foreign Pair rows before filtering ended timed Events.
 Foreign rows raise `FORBIDDEN`. Sign-out and pair change cancel reads and clear the cache.
-
-Browser Today makes two scoped data reads together: `get_today` and the Memories `latestMemory` query.
-It keeps one error state if either read fails. Calendar, Tasks, Notes, and Pair aggregation stay outside this query.
-Native Today keeps Memory loading and errors independent.
-Both applications display at most three plans. Native retains the complete filtered agenda for its count.
-Timed Events must end after the current instant. Important dates retain their full horizon.
-The viewer's profile timezone controls query dates, due Tasks, Important dates, Event rows, Notes, and header dates.
-Section order remains plans, memory, note, tasks, then important date.
+Browser Today reads `get_today` and the Memories `latestMemory` query together, with one error state.
+Both applications show at most three plans that have not ended. Section order: plans, memory, note, tasks, then important date.
 
 ## Render calculations
 
-The Important date selector scans once and keeps the first input row on a date tie.
-It preserves the input array, yearly expansion, leap-day rules, and the existing eligibility rules.
-Browser Calendar caches month dates and groups Events across the complete visible grid range.
-Cells use direct date lookups, including adjacent-month cells. Groups retain input order and exclusive ends.
-Native Calendar caches month dates, its grouping Map, and sorted agenda rows.
-Both retain current query ranges, filters, selected dates, and viewer timezone rules.
-Browser Messages caches one ID Map and cursor-ordered rows per query-page change.
-It keeps the highest Message version and the first encountered row on a version tie.
-Read tracking uses the same Map. Paging, scroll position, retries, and pending sends keep their existing behavior.
-The browser uses `brand/icon-web.webp`, a 192-pixel derivative of the retained Two voices source.
-Native assets and recorded galleries retain their source image.
+Calendar and Messages cache their grouping Maps per query change. Month cells use direct date lookups.
+Groups keep input order and exclusive ends. Messages keep the highest version per ID.
+The browser uses `brand/icon-web.webp`, a 192-pixel copy of the Two voices source.
 
 ## Feature interfaces
 
-ESLint checks Auth, Pair, Calendar, Today, Memories, Messages, Tasks, and Notifications in both applications.
-Browser rules also cover Settings.
-Cross-feature static imports, type imports, re-exports, and literal dynamic imports use public interfaces.
-Features can use their own internal files. Routes can import pages and screens; providers retain session-client access.
-UI controls cannot import feature data or backend clients.
-Domain platform restrictions and browser native-code restrictions remain active.
+ESLint enforces the [dependency rules](#dependency-rules) in both applications. Cross-feature imports use public interfaces.
 
 ## Local backend and Edge
 
-Use plain Supabase CLI commands through the [root scripts](DEVELOPMENT.md#scripts).
-One Edge process serves all functions. `supabase/dev/functions.env` lists the permitted browser origins.
-All Edge entrypoints use `supabase/functions/deno.json`, its frozen lockfile, and Deno 2.9.6.
-Run `npm run typecheck:functions` and `npm run test:functions` for local checks. Hosted bundling and runtime remain unverified.
+All Edge entrypoints use `supabase/functions/deno.json`, its frozen lockfile, and Deno 2.9.6. Hosted bundling remains unverified.
 Nothing runs in production. Edit the baseline migration in place until the first release, then add new migrations.
