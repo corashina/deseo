@@ -67,7 +67,7 @@ function IdeaEditor({ idea }: { idea: DateIdea }) {
   const noteError = errors.note?.message;
   return <>
     <PageHeader title="Edit idea" description={idea.state === 'saved' ? undefined : states[idea.state]}
-      action={idea.state === 'saved' && <Link className="button primary" to={'/events/new?idea=' + idea.id}>Plan date</Link>} />
+      action={idea.state === 'saved' && <Link className="button secondary" to={'/events/new?idea=' + idea.id}>Plan date</Link>} />
     <section className="card form-page">
       <form onSubmit={form.handleSubmit(values => save.mutate(values))}>
         <fieldset disabled={saving}>
@@ -84,14 +84,15 @@ function IdeaEditor({ idea }: { idea: DateIdea }) {
         {conflict && <Button disabled={saving} variant="secondary" type="button" onClick={() => reload.mutate()}>Reload idea and discard draft</Button>}
         <div className="actions">
           <Button variant="primary" type="submit" disabled={saving || conflict}>{save.isPending ? 'Saving…' : save.isError ? 'Retry save' : 'Save changes'}</Button>
-          <Link to={back}>Cancel</Link>
+          <Link className="button secondary" to={back}>Cancel</Link>
         </div>
       </form>
-      {idea.state !== 'archived' && <div className="idea-actions"><Button variant="secondary" disabled={saving} onClick={() => setConfirm(true)}>{archive.isError ? 'Retry archive' : 'Archive idea'}</Button></div>}
+      {idea.state !== 'archived' && <div className="form-delete"><Button variant="secondary" disabled={saving} onClick={() => setConfirm(true)}>{archive.isError ? 'Retry archive' : 'Archive idea'}</Button></div>}
     </section>
     <Dialog busy={archive.isPending} open={confirm} title="Archive this idea?" onClose={() => setConfirm(false)}>
       <p>The idea leaves your list of date ideas.</p>
-      <Button variant="primary" disabled={archive.isPending} onClick={() => archive.mutate()}>{archive.isPending ? 'Archiving…' : 'Confirm archive'}</Button>
+      <div className="actions"><Button variant="primary" disabled={archive.isPending} onClick={() => archive.mutate()}>{archive.isPending ? 'Archiving…' : 'Confirm archive'}</Button>
+      <Button variant="secondary" disabled={archive.isPending} onClick={() => setConfirm(false)}>Cancel</Button></div>
     </Dialog>
   </>;
 }

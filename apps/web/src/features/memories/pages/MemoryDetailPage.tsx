@@ -1,12 +1,12 @@
 import { RouteErrorPage } from '../../../app/RouteErrorPage';
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toAppError } from '@deseo/domain/result';
 import { memoryInputSchema, type Memory, type MemoryInput } from '@deseo/domain/memories';
 import { DateTime } from 'luxon';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useSession } from '../../../app/SessionProvider';
 import { useCommandId } from '../../../lib/command-id';
 import { useUnsavedChanges } from '../../../lib/unsaved-changes';
@@ -58,14 +58,16 @@ export function MemoryDetailPage() {
   // A caption can hold 1000 characters, so it reads as body text with its line breaks.
   return <>{author ? <PageHeader title="Edit memory" />
     : <PageHeader title={formatDate(DateTime.fromISO(memory.memoryDate), 'date', account!.locale)} description={member && <PartnerBadge name={member.displayName} slot={member.slot} />} />}
-    <section className="card memory-detail">{memory.photos.map((photo, index) => <figure key={photo.id}><div className="memory-photo" style={{ aspectRatio: photo.width + ' / ' + photo.height }}><MemoryImage photo={photo} variant="full" alt={(memory.caption ? memory.caption + ' · ' : '') + 'Photo ' + (index + 1)} /></div><figcaption><Button variant="text" disabled={busy} onClick={() => download.mutate({ path: photo.fullPath, index })}>{download.isPending && download.variables.index === index ? 'Downloading…' : 'Download photo ' + (index + 1)}</Button></figcaption></figure>)}
-      {author ? <MemoryEditor key={memory.id} memory={memory} /> : memory.caption && <p className="memory-caption preserve-lines">{memory.caption}</p>}
-      {author && <div className="actions"><Button variant="secondary" disabled={busy} onClick={() => setConfirm(true)}>{remove.isError ? 'Retry deletion' : 'Delete memory'}</Button></div>}{error && <Status error>{error}</Status>}
-    </section><Dialog busy={remove.isPending} open={confirm} title="Delete this memory?" onClose={() => setConfirm(false)}><p>Both partners will lose this memory and its photos.</p><Button variant="danger" disabled={busy} onClick={() => remove.mutate(memory.version)}>{remove.isPending ? 'Deleting…' : 'Confirm deletion'}</Button></Dialog>
+    <section className="card memory-detail">{memory.photos.map((photo, index) => <figure key={photo.id}><div className="memory-photo" style={{ aspectRatio: photo.width + ' / ' + photo.height }}><MemoryImage photo={photo} variant="full" alt={(memory.caption ? memory.caption + ' · ' : '') + 'Photo ' + (index + 1)} /></div><figcaption><Button variant="text" disabled={busy} onClick={() => download.mutate({ path: photo.fullPath, index })}>{memory.photos.length > 1 ? 'Download photo ' + (index + 1) : 'Download photo'}</Button></figcaption></figure>)}
+      {author ? <MemoryEditor key={memory.id} memory={memory} remove={<Button className="memory-delete" variant="secondary" disabled={busy} onClick={() => setConfirm(true)}>{remove.isError ? 'Retry deletion' : 'Delete memory'}</Button>} />
+        : memory.caption && <p className="memory-caption preserve-lines">{memory.caption}</p>}
+      {error && <Status error>{error}</Status>}
+    </section><Dialog busy={remove.isPending} open={confirm} title="Delete this memory?" onClose={() => setConfirm(false)}><p>Both partners will lose this memory and its photos.</p><div className="actions"><Button variant="danger" disabled={busy} onClick={() => remove.mutate(memory.version)}>{remove.isPending ? 'Deleting…' : 'Confirm deletion'}</Button><Button variant="secondary" disabled={busy} onClick={() => setConfirm(false)}>Cancel</Button></div></Dialog>
   </>;
 }
 // The author changes the date and caption here. Photos stay as published.
-function MemoryEditor({ memory }: { memory: Memory }) {
+// Save, Cancel, and Delete share one row. Delete sits at the end, away from Save.
+function MemoryEditor({ memory, remove }: { memory: Memory; remove: ReactNode }) {
   // Keep the version the draft started from. A concurrent edit then fails with CONFLICT.
   const [version, setVersion] = useState(memory.version);
   const command = useCommandId();
@@ -88,6 +90,7 @@ function MemoryEditor({ memory }: { memory: Memory }) {
     {error && <Status error>{error}</Status>}
     {save.isSuccess && !form.formState.isDirty && <p role="status">Changes saved.</p>}
     {conflict && <Button variant="secondary" type="button" disabled={saving} onClick={() => reload.mutate()}>Reload memory and discard draft</Button>}
-    <div className="actions"><Button variant="primary" type="submit" disabled={saving || conflict}>{save.isPending ? 'Saving…' : failure ? 'Retry save' : 'Save changes'}</Button></div>
+    <div className="actions"><Button variant="primary" type="submit" disabled={saving || conflict}>{save.isPending ? 'Saving…' : failure ? 'Retry save' : 'Save changes'}</Button>
+      <Link className="button secondary" to="/memories">Cancel</Link>{remove}</div>
   </form>;
 }

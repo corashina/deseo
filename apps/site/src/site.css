@@ -36,7 +36,7 @@ a:hover { text-decoration-thickness: 2px; }
 /* Type scale: display, headline, and title in DESIGN.md. */
 h1, h2, h3 { margin: 0 0 var(--space-3); overflow-wrap: anywhere; text-wrap: balance; }
 h1 { font-size: 36px; font-weight: 500; line-height: 1.2; letter-spacing: -0.02em; }
-h2 { font-size: 30px; font-weight: 500; line-height: 1.1; letter-spacing: -0.02em; }
+h2 { font-size: 24px; font-weight: 500; line-height: 1.2; letter-spacing: -0.02em; }
 h3 { font-size: 19px; font-weight: 600; line-height: 1.3; }
 p, ul, ol { margin: 0 0 var(--space-4); }
 p, li { text-wrap: pretty; }
@@ -44,7 +44,7 @@ li + li { margin-top: var(--space-2); }
 
 @media (min-width: 768px) {
   h1 { font-size: 48px; }
-  h2 { font-size: 40px; }
+  h2 { font-size: 28px; }
 }
 
 .skip {
@@ -120,14 +120,7 @@ main.wrap { padding-block-end: var(--space-10); }
   text-decoration: none;
 }
 .button:hover { background: color-mix(in srgb, var(--primary) 88%, var(--ink)); }
-.soon {
-  margin: var(--space-6) 0 0;
-  padding: var(--space-4) var(--space-5);
-  background: var(--shared-soft);
-  border-radius: var(--radius-card);
-  max-width: 480px;
-  color: var(--muted);
-}
+.soon { margin: var(--space-6) 0 0; color: var(--muted); }
 
 .preview { margin: 0; }
 .preview img {
@@ -176,8 +169,6 @@ main.wrap { padding-block-end: var(--space-10); }
 
 .page { padding-top: var(--space-6); }
 .page section { margin-top: var(--space-10); }
-/* Single-topic pages: section titles step down to the app headline size, under the 48px page title. */
-.page h2 { font-size: 24px; line-height: 1.2; }
 .page .panel { margin-top: var(--space-6); }
 
 .steps { padding-left: var(--space-6); }
@@ -211,5 +202,10 @@ main.wrap { padding-block-end: var(--space-10); }
   .preview.phone img { margin: 0; }
   .feature.wide { grid-template-columns: 1fr; }
   .panel { padding: var(--space-8); }
-  .page h2 { font-size: 28px; }
+}
+/* From 1024px the phone previews grow, and each feature's text starts at the top of its preview. */
+@media (min-width: 1024px) {
+  .preview.phone img { width: 360px; }
+  .feature { align-items: start; }
+  .feature-text { padding-top: var(--space-10); }
 }

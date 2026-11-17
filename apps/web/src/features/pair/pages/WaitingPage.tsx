@@ -27,6 +27,11 @@ export function WaitingPage() {
       setStatus('Invitation link copied.');
     } catch { setStatus('Copy the code above and send it to your partner.'); }
   }
+  // Check now always answers. When the partner has joined, the page opens Today instead.
+  async function check() {
+    await revalidate();
+    setStatus('Still waiting. Checked at ' + formatDate(DateTime.now().setZone(account!.timezone), 'time', account!.locale) + '.');
+  }
   const shown = Boolean(token) && !invite.isPending;
   const description = shown ? 'Send this code or link to your partner. Only your partner should use it.'
     : expiresAt ? 'Your code still works until it expires. Replace it only if your partner does not have it.'
@@ -43,9 +48,9 @@ export function WaitingPage() {
       <Button variant={token || expiresAt ? 'secondary' : 'primary'} disabled={invite.isPending} onClick={() => invite.mutate(pair.pairId)}>
         {invite.isPending ? 'Creating invitation…' : invite.isError ? 'Retry invitation code' : expiresAt ? 'Replace invitation code' : 'Create invitation code'}
       </Button>
-      <Button variant="text" onClick={() => void revalidate()}>Check now</Button>
+      <Button variant="text" onClick={() => void check()}>Check now</Button>
     </div>
     {invite.isError && <Status error>{toAppError(invite.error).message}</Status>}
     <div className="pair-cancel"><Button variant="text" onClick={() => setOpen(true)}>Cancel invitation</Button></div></section>
-    <Dialog busy={cancel.isPending} open={open} onClose={() => { if (!cancel.isPending) setOpen(false); }} title="Cancel this invitation?"><p>Your code will stop working. You can then invite your partner again or join their pair.</p>{cancel.isError && <Status error>{toAppError(cancel.error).message}</Status>}<Button variant="danger" disabled={cancel.isPending} onClick={() => cancel.mutate(pair.pairId)}>{cancel.isPending ? 'Canceling…' : cancel.isError ? 'Retry cancel' : 'Cancel invitation'}</Button></Dialog></>;
+    <Dialog busy={cancel.isPending} open={open} onClose={() => { if (!cancel.isPending) setOpen(false); }} title="Cancel this invitation?"><p>Your code will stop working. You can then invite your partner again or join their pair.</p>{cancel.isError && <Status error>{toAppError(cancel.error).message}</Status>}<div className="actions"><Button variant="danger" disabled={cancel.isPending} onClick={() => cancel.mutate(pair.pairId)}>{cancel.isPending ? 'Canceling…' : cancel.isError ? 'Retry cancel' : 'Cancel invitation'}</Button><Button variant="secondary" disabled={cancel.isPending} onClick={() => setOpen(false)}>Keep invitation</Button></div></Dialog></>;
 }

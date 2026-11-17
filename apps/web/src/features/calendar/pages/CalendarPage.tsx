@@ -36,7 +36,7 @@ export function CalendarPage() {
   const change = (updates: Record<string, string>) => setParams({ view, date, owner, ...updates });
   const today = DateTime.now().setZone(account.timezone).toISODate()!;
   const filter = (value: 'all' | 'a' | 'b' | 'together') => <button key={value} aria-pressed={owner === value} onClick={() => change({ owner: value })}>
-    {value !== 'all' && <span className="owner-dots" aria-hidden="true"><span className={'owner-' + value} /></span>}{value === 'all' ? 'Everyone' : names[value]}
+    {value !== 'all' && <span className="owner-dots" aria-hidden="true"><span className={'owner-' + value} /></span>}<span className="owner-name">{value === 'all' ? 'Everyone' : names[value]}</span>
   </button>;
   const add = '/events/new?date=' + date;
   return <>
