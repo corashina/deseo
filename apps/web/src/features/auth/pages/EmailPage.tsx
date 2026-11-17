@@ -19,7 +19,7 @@ export function EmailPage() {
   useEffect(() => { if (request.isSuccess) navigate('/verify'); }, [request.isSuccess, navigate]);
   return <div className="entry-page">
     <div className="entry-story"><BrandIcon className="welcome-icon" alt="Deseo Two voices" size={96} priority /><h1>Plan your days together</h1><p>Keep your plans, messages, and memories in one place.</p></div>
-    <section className="card entry-card">
+    <section className="card entry-card centered-card">
       <PageHeader title={entryIntent.invite ? 'Your invitation is ready' : <>Sign in to <span translate="no">Deseo</span></>}
         description={entryIntent.invite ? 'Sign in to review your partner’s invitation. We will send you a 6-digit code.' : 'We will send you a 6-digit code.'} />
       {entryIntent.invalidInvite && <Status error>This invitation is invalid. Ask your partner for a new code.</Status>}

@@ -14,7 +14,7 @@ export function ProfilePage() {
   // Use the browser timezone. Settings can change it later.
   const save = useMutation({ mutationFn: () => saveProfile({ displayName: name, timezone: Intl.DateTimeFormat().resolvedOptions().timeZone, locale: 'en' }), onSuccess: () => revalidate() });
   useUnsavedChanges(!save.isSuccess && Boolean(name));
-  return <section className="card form-page"><PageHeader title="Set up your profile" description="Choose the name your partner will see." />
+  return <section className="card form-page centered-card"><PageHeader title="Set up your profile" description="Choose the name your partner will see." />
     <form onSubmit={event => { event.preventDefault(); if (!save.isPending) save.mutate(); }}><fieldset disabled={save.isPending}><Field label="Your name" name="displayName" required maxLength={40} autoComplete="given-name" value={name} onChange={event => setName(event.target.value)} /></fieldset>
     {save.isError && <Status error>{toAppError(save.error).message}</Status>}<Button variant="primary" type="submit" disabled={save.isPending}>{save.isError ? 'Retry profile' : 'Save profile'}</Button></form>
     <Button variant="text" disabled={save.isPending} onClick={() => void signOut()}>Sign out</Button></section>;

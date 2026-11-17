@@ -31,7 +31,7 @@ export function WaitingPage() {
   const description = shown ? 'Send this code or link to your partner. Only your partner should use it.'
     : expiresAt ? 'Your code still works until it expires. Replace it only if your partner does not have it.'
     : 'Create a code to send to your partner.';
-  return <><section className="card form-page"><PageHeader title="Waiting for your partner" description={description} />
+  return <><section className="card form-page centered-card"><PageHeader title="Waiting for your partner" description={description} />
     {shown && <>
       <p className="invite-code" translate="no">{token}</p>
       <Button variant="primary" onClick={() => void copy()}>Copy invitation link</Button>
