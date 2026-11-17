@@ -41,6 +41,7 @@ function destination(session: ReturnType<typeof useSession>) {
   if (entryIntent.invite) return '/pair/join';
   return session.pair?.status === 'ended' ? '/pair/ended' : '/pair/start';
 }
+const recordPath = /^\/(events|tasks|ideas|memories)\//;
 function Gate({ children, kind = 'pair' }: { children: ReactNode; kind?: 'public' | 'profile' | 'pair' | 'account' }) {
   const session = useSession();
   const { pathname } = useLocation();
@@ -50,7 +51,7 @@ function Gate({ children, kind = 'pair' }: { children: ReactNode; kind?: 'public
   if (!session.account) return kind === 'profile' ? <>{children}</> : <Navigate to="/profile/setup" replace />;
   if (kind === 'account') return <>{children}</>;
   if (kind === 'profile') return <Navigate to={target} replace />;
-  const allowed = session.pair?.status === 'active' ? ['/today', '/calendar', '/events/new', '/tasks', '/memories', ...( /^\/(events|tasks|ideas|memories)\//.test(pathname) ? [pathname] : [])] : session.pair?.status === 'pending' ? ['/pair/waiting'] : session.pair?.status === 'ended' ? ['/pair/ended', '/pair/start', '/pair/join'] : ['/pair/start', '/pair/join'];
+  const allowed = session.pair?.status === 'active' ? ['/today', '/calendar', '/events/new', '/tasks', '/memories', ...(recordPath.test(pathname) ? [pathname] : [])] : session.pair?.status === 'pending' ? ['/pair/waiting'] : session.pair?.status === 'ended' ? ['/pair/ended', '/pair/start', '/pair/join'] : ['/pair/start', '/pair/join'];
   return allowed.includes(pathname) ? <>{children}</> : <Navigate to={target} replace />;
 }
 function Entry() { const session = useSession(); return <Navigate to={destination(session)} replace />; }
