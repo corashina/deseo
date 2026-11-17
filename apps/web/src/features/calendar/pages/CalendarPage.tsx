@@ -19,7 +19,7 @@ import { IdeasSection } from '../ideas/components/IdeasSection';
 import '../../../styles/calendar.css';
 export function CalendarPage() {
   const { account, pair } = useSession(); const [params, setParams] = useSearchParams(); const from = useFrom();
-  const parsed = DateTime.fromISO(params.get('date') ?? '', { zone: pair && 'timezone' in pair ? pair.timezone : 'Europe/Warsaw' });
+  const parsed = DateTime.fromISO(params.get('date') ?? '', { zone: account!.timezone });
   const date = parsed.isValid ? parsed.toISODate()! : DateTime.now().setZone(account!.timezone).toISODate()!;
   const [defaultView] = useState(() => window.matchMedia('(max-width:767px)').matches ? 'agenda' : 'month');
   const view = ['month', 'agenda'].includes(params.get('view') ?? '') ? params.get('view')! : defaultView;

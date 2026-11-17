@@ -20,8 +20,8 @@ set local role authenticated;
 select public.register_device('{"installationId":"90000000-0000-4000-8000-000000000001","token":"ExpoPushToken[jobs-one]","platform":"android","permission":"allowed"}');
 select public.save_notification_preferences('{"messageAlerts":true,"timezone":"UTC"}',0);
 reset role;
-insert into public.events(id,pair_id,created_by,who,title,timezone,starts_at,ends_at) values
- ('91000000-0000-4000-8000-000000000001','30000000-0000-4000-8000-000000000001','10000000-0000-4000-8000-000000000001','together','Soon','UTC',now()+interval '15 minutes',now()+interval '1 hour');
+insert into public.events(id,pair_id,created_by,who,title,starts_at,ends_at) values
+ ('91000000-0000-4000-8000-000000000001','30000000-0000-4000-8000-000000000001','10000000-0000-4000-8000-000000000001','together','Soon',now()+interval '15 minutes',now()+interval '1 hour');
 set local role authenticated;
 select public.set_reminder('{"id":"92000000-0000-4000-8000-000000000001","pairId":"30000000-0000-4000-8000-000000000001","eventId":"91000000-0000-4000-8000-000000000001","minutesBefore":15,"active":true}','93000000-0000-4000-8000-000000000001');
 reset role;
@@ -84,8 +84,8 @@ set local role authenticated;
 select public.register_device('{"installationId":"90000000-0000-4000-8000-000000000003","token":"ExpoPushToken[jobs-three]","platform":"ios","permission":"allowed"}');
 reset role;
 select is(private.yearly_date(2027,2,29),'2027-02-28'::date,'Leap day follows February 28 rule');
-insert into public.events(id,pair_id,created_by,who,title,timezone,start_date,end_date_exclusive,repeat,repeat_month,repeat_day,important_date)
- values('91000000-0000-4000-8000-000000000003','30000000-0000-4000-8000-000000000002','10000000-0000-4000-8000-000000000004','together','Annual','Europe/Warsaw',current_date+10,current_date+11,'yearly',extract(month from current_date+10),extract(day from current_date+10),true);
+insert into public.events(id,pair_id,created_by,who,title,start_date,end_date_exclusive,repeat,repeat_month,repeat_day,important_date)
+ values('91000000-0000-4000-8000-000000000003','30000000-0000-4000-8000-000000000002','10000000-0000-4000-8000-000000000004','together','Annual',current_date+10,current_date+11,'yearly',extract(month from current_date+10),extract(day from current_date+10),true);
 set local role authenticated;
 select public.set_reminder('{"id":"92000000-0000-4000-8000-000000000003","pairId":"30000000-0000-4000-8000-000000000002","eventId":"91000000-0000-4000-8000-000000000003","minutesBefore":60,"active":true}','93000000-0000-4000-8000-000000000003');
 reset role;
@@ -98,9 +98,9 @@ update public.events set who='private',version=version+1 where id='91000000-0000
 select ok((select not active from public.reminders where id='92000000-0000-4000-8000-000000000003'),'Private source disables partner reminder');
 select is((select count(*)::integer from private.notification_jobs j join public.notifications n on n.id=j.notification_id where n.source_id='91000000-0000-4000-8000-000000000003' and j.state='queued'),0,'Private source leaves no queued partner job');
 -- Simulate elapsed time by moving the fixture's original due instant into the past.
-insert into public.events(id,pair_id,created_by,who,title,timezone,starts_at,ends_at) values
- ('91000000-0000-4000-8000-000000000006','30000000-0000-4000-8000-000000000002','10000000-0000-4000-8000-000000000003','private','Deferred reminder','UTC',now()+interval '15 minutes',now()+interval '1 hour'),
- ('91000000-0000-4000-8000-000000000007','30000000-0000-4000-8000-000000000002','10000000-0000-4000-8000-000000000003','private','New past reminder','UTC',now()+interval '10 minutes',now()+interval '1 hour');
+insert into public.events(id,pair_id,created_by,who,title,starts_at,ends_at) values
+ ('91000000-0000-4000-8000-000000000006','30000000-0000-4000-8000-000000000002','10000000-0000-4000-8000-000000000003','private','Deferred reminder',now()+interval '15 minutes',now()+interval '1 hour'),
+ ('91000000-0000-4000-8000-000000000007','30000000-0000-4000-8000-000000000002','10000000-0000-4000-8000-000000000003','private','New past reminder',now()+interval '10 minutes',now()+interval '1 hour');
 set local role authenticated;
 select public.save_notification_preferences(jsonb_build_object('messageAlerts',true,'timezone','UTC',
  'quietStart',to_char((now() at time zone 'UTC')-interval '1 hour','HH24:MI'),
@@ -197,8 +197,8 @@ update public.messages set body=null,deleted_at=now(),pinned_at=null,version=ver
 set local role authenticated;
 select is(public.resolve_notification((select id from public.notifications where pair_id='30000000-0000-4000-8000-000000000002' and kind='message'))->'error'->>'code','FORBIDDEN','Deleted message has no allowed destination');
 reset role;
-insert into public.events(id,pair_id,created_by,who,title,timezone,start_date,end_date_exclusive,repeat,repeat_month,repeat_day,important_date)
- values('91000000-0000-4000-8000-000000000005','30000000-0000-4000-8000-000000000002','10000000-0000-4000-8000-000000000003','private','Outside horizon','Europe/Warsaw',current_date+100,current_date+101,'yearly',extract(month from current_date+100),extract(day from current_date+100),true);
+insert into public.events(id,pair_id,created_by,who,title,start_date,end_date_exclusive,repeat,repeat_month,repeat_day,important_date)
+ values('91000000-0000-4000-8000-000000000005','30000000-0000-4000-8000-000000000002','10000000-0000-4000-8000-000000000003','private','Outside horizon',current_date+100,current_date+101,'yearly',extract(month from current_date+100),extract(day from current_date+100),true);
 insert into public.reminders(id,user_id,pair_id,event_id,minutes_before,active) values
  ('92000000-0000-4000-8000-000000000005','10000000-0000-4000-8000-000000000003','30000000-0000-4000-8000-000000000002','91000000-0000-4000-8000-000000000005',60,true);
 select is((select count(*)::integer from public.notifications where source_id='91000000-0000-4000-8000-000000000005'),0,'Yearly horizon excludes day 100');

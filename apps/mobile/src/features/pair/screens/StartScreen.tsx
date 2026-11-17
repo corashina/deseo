@@ -9,13 +9,13 @@ import { useCore } from '../context';
 import { createPair } from '../commands';
 
 export function StartScreen() {
-  const { account, refresh, online } = useCore();
+  const { refresh, online } = useCore();
   const commandId = useRef(randomUUID());
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string>();
   const create = async () => {
     setBusy(true); setError(undefined);
-    const result = await createPair(account.timezone, commandId.current);
+    const result = await createPair(commandId.current);
     if (!result.ok) { setError('We could not create your pair. Try again.'); setBusy(false); return; }
     await refresh(); router.replace('/');
   };

@@ -32,10 +32,10 @@ function ActiveCalendar({ account, pair, online, refresh }: { account: Core['acc
   const styles = useStyles();
   const router = useRouter();
   useCalendarSignals(account.id, pair.pairId, refresh);
-  const today = DateTime.now().setZone(pair.timezone).startOf('day');
+  const today = DateTime.now().setZone(account.timezone).startOf('day');
   const datesRange = { pairId: pair.pairId, from: today.toISODate()!, to: today.plus({ days: 366 }).toISODate()! };
   const important = useQuery({ queryKey: [...calendarKeys.all(account.id, pair.pairId), 'important', datesRange.from, datesRange.to], queryFn: () => listImportantDates(pair.pairId, datesRange.from, datesRange.to) });
-  const nextDate = nextImportantDate(important.data ?? [], pair.timezone);
+  const nextDate = nextImportantDate(important.data ?? [], account.timezone);
   const [month, setMonth] = useState(() => DateTime.now().setZone(account.timezone).startOf('month'));
   const [view, setView] = useState<'agenda' | 'month'>('agenda');
   const [selectedDate, setSelectedDate] = useState(() => DateTime.now().setZone(account.timezone).toISODate()!);
@@ -69,14 +69,14 @@ function ActiveCalendar({ account, pair, online, refresh }: { account: Core['acc
   const filters = (['all', viewerSlot, viewerSlot === 'a' ? 'b' : 'a', 'together'] as const).map(owner => ({ value: owner,
     owner: owner === 'all' ? undefined : owner,
     label: owner === 'all' ? 'Everyone' : owner === 'together' ? 'Together' : owner === viewerSlot ? `Me · ${names[owner]}` : names[owner] }));
-  const countdown = nextDate?.temporal.kind === 'allDay' ? importantDateCountdown(nextDate.temporal.startDate, pair.timezone) : null;
+  const countdown = nextDate?.temporal.kind === 'allDay' ? importantDateCountdown(nextDate.temporal.startDate, account.timezone) : null;
   return <Screen title="Calendar" action={<Button label="Add event" icon="add" compact onPress={() => router.push('/events/new')} />}
     refreshing={agenda.isRefetching} onRefresh={() => { void agenda.refetch(); void important.refetch(); }}>
     {!online && <Status tone="warning" message="You are offline. Refresh your calendar when you reconnect." />}
     {important.isError && <Status message="We could not load important dates." tone="error" actionLabel="Retry" onAction={() => { void important.refetch(); }} />}
     {nextDate && nextDate.temporal.kind === 'allDay' && countdown !== null && <Pressable accessibilityRole="button" accessibilityLabel={`Open important date: ${nextDate.title}`}
       onPress={() => router.push({ pathname: '/events/[eventId]', params: { eventId: nextDate.id } })} style={({ pressed }) => [theme.ui.card, pressed && styles.pressed]}>
-      <Countdown days={countdown} title={nextDate.title} date={DateTime.fromISO(nextDate.temporal.startDate, { zone: pair.timezone }).toLocaleString(DateTime.DATE_HUGE)} />
+      <Countdown days={countdown} title={nextDate.title} date={DateTime.fromISO(nextDate.temporal.startDate, { zone: account.timezone }).toLocaleString(DateTime.DATE_HUGE)} />
     </Pressable>}
     <Button label="Saved date ideas" variant="text" icon="bulb-outline" trailingIcon="chevron-forward" onPress={() => router.push('/ideas')} />
     <View style={styles.monthBar}>

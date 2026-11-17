@@ -59,12 +59,8 @@ function ActiveDetail({ eventId, account, pair, online, refresh }: { eventId: st
     {event.repeat === 'yearly' && <Status message="This date repeats yearly. Edits and deletion apply to the series. February 29 uses February 28 in non-leap years." />}
     {!online && <Status tone="warning" message="You are offline. Reconnect before you change this event." />}
     <View style={theme.ui.card}>
-      <DetailRow icon="calendar-outline" note={[event.temporal.kind === 'allDay' && 'All day',
-        event.temporal.kind === 'timed' && account.timezone !== event.timezone && `In ${event.timezone}: ${eventDateLabel(event, event.timezone)}`]}>
+      <DetailRow icon="calendar-outline" note={event.temporal.kind === 'allDay' ? 'All day' : undefined}>
         {eventDateLabel(event, account.timezone)}
-      </DetailRow>
-      <DetailRow icon="globe-outline" note={event.temporal.kind === 'timed' && account.timezone !== event.timezone ? `Your timezone: ${account.timezone}` : undefined}>
-        {`Event timezone: ${event.timezone}`}
       </DetailRow>
       <DetailRow icon="people-outline"><Badge owner={owner} label={name} /></DetailRow>
       <DetailRow icon={event.who === 'private' ? 'lock-closed-outline' : 'eye-outline'}>
@@ -75,7 +71,7 @@ function ActiveDetail({ eventId, account, pair, online, refresh }: { eventId: st
     </View>
     {error && <Status tone="error" message={error.code === 'CONFLICT' ? 'Your partner changed this event. Reload it before you delete it.' : 'We could not delete this event.'}
       actionLabel={error.code === 'CONFLICT' ? 'Reload saved version' : 'Retry delete'} onAction={() => { void (error.code === 'CONFLICT' ? reload() : remove()); }} />}
-    <ReminderControl eventId={event.id} sourceVersion={event.version} timezone={event.timezone} allDay={event.temporal.kind === 'allDay'} />
+    <ReminderControl eventId={event.id} sourceVersion={event.version} timezone={account.timezone} allDay={event.temporal.kind === 'allDay'} />
     <Button label={event.repeat === 'yearly' ? 'Edit series' : 'Edit event'} disabled={!online || deleting} onPress={() => router.push({ pathname: '/events/[eventId]/edit', params: { eventId } })} />
     <Button label="Delete event" variant="danger" disabled={!online || deleting} loading={deleting} onPress={() => Alert.alert(`Delete “${event.title}”?`, 'You will remove this event.', [
       { text: 'Cancel', style: 'cancel' }, { text: 'Delete event', style: 'destructive', onPress: () => { void remove(); } },

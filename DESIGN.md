@@ -474,7 +474,7 @@ Show times with a numeric hour, such as 7:00 PM, in every place. On a later day 
 A tap on a day brings that day's events into view.
 Group overlapping events without hiding owners. Format dates through `Intl` in the user's locale.
 Keep all-day dates as dates. Never shift them through UTC conversion.
-Show an IANA timezone only when it differs from the viewer's profile timezone. The event form keeps it in More details.
+Show every date and time in the viewer's profile timezone. Do not show timezone names on events.
 
 **Memories.** Use a feed with month headings. Show image, caption, date, and author. Thumbnails download near the viewport, four at a time.
 The memory screen uses the date as its title and shows the full caption under the photos. Each photo box keeps its shape while it loads. Delete is a secondary button; the dialog holds the destructive one.

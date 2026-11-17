@@ -18,7 +18,7 @@ import '../../../styles/planning.css';
 export function TodayPage() {
   const { account, pair } = useSession();
   const pairId = pair?.status === 'active' ? pair.pairId : '';
-  const zone = pair?.status === 'active' ? pair.timezone : 'UTC';
+  const zone = account!.timezone;
   const date = DateTime.now().setZone(zone).toISODate()!;
   const query = useQuery({ queryKey: todayKeys.day(account!.id, pairId, date), queryFn: () => getToday(pairId, date) });
   if (pair?.status !== 'active') return null;
@@ -29,8 +29,7 @@ export function TodayPage() {
   return <div className="today-page">
     <PageHeader
       title="Today"
-      eyebrow={formatDate(DateTime.fromISO(date), 'weekday', locale)}
-      description={zone !== account!.timezone ? <span translate="no">{zone}</span> : undefined} />
+      eyebrow={formatDate(DateTime.fromISO(date), 'weekday', locale)} />
     <div className="today-layout">
       <div className="today-conversation">
         {/* An empty row holds the chips' place while Today loads, so the conversation does not jump. */}
