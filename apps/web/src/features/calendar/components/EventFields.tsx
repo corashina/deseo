@@ -1,5 +1,5 @@
 import { useEffect, useId, useRef } from 'react';
-import type { UseFormReturn } from 'react-hook-form';
+import { useWatch, type UseFormReturn } from 'react-hook-form';
 import { wallTimeChoices, type EventFormValues } from '@deseo/domain/calendar';
 import { Field } from '../../../components/ui/Field';
 import { TimezoneField } from '../../../components/ui/TimezoneField';
@@ -9,7 +9,9 @@ const timeFields = ['start', 'end'] as const;
 export function EventFields({ form, names, slot, author, locked, planning = false }: {
   form: UseFormReturn<EventFormValues>; names: OwnerNames; slot: 'a' | 'b'; author: boolean; locked: boolean; planning?: boolean;
 }) {
-  const values = form.watch();
+  // Read only the values these fields use. Typing a title, location, or description then does not render them again.
+  const values = useWatch({ control: form.control, compute: ({ allDay, startDate, startTime, endDate, endTime, timezone, owner, visibility, importantDate, repeat, location, description }) =>
+    ({ allDay, startDate, startTime, endDate, endTime, timezone, owner, visibility, importantDate, repeat, details: Boolean(location || description) }) });
   const { register, formState: { errors } } = form;
   const prefix = useId();
   const details = useRef<HTMLDetailsElement>(null);
@@ -81,7 +83,7 @@ export function EventFields({ form, names, slot, author, locked, planning = fals
       </select>
       {(errors.owner || errors.visibility) && <span className="field-error" role="alert" id={prefix + 'who-error'}>{errors.owner?.message ?? errors.visibility?.message}</span>}
     </label>
-    <details className="event-details" ref={details} open={Boolean(values.location || values.description || values.importantDate || values.repeat === 'yearly') || undefined}>
+    <details className="event-details" ref={details} open={Boolean(values.details || values.importantDate || values.repeat === 'yearly') || undefined}>
       <summary>More details</summary>
       <div className="event-details-content">
         <TimezoneField {...register('timezone', { onChange: () => { clearOffset('start'); clearOffset('end'); } })} required error={error('timezone')} />

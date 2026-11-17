@@ -22,8 +22,8 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const revalidate = useCallback(async () => {
     const request = ++generation.current;
     try {
-      const session = await restoreSession();
-      const pair = session?.account ? await getPairContext() : null;
+      const session = await restoreSession(getPairContext);
+      const pair = session?.account ? await session.next : null;
       if (request !== generation.current) return;
       const nextScope = session ? scopeOf(session.userId, session.account, pair) : null;
       // Privacy rule: clear private caches before another account or pair can show.

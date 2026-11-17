@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useInfiniteQuery, useMutation, useQuery } from '@tanstack/react-query';
-import { compareMessageCursors, messageBodySchema, type Message, type MessageCursor } from '@deseo/domain/messages';
+import { compareMessageCursors, type Message, type MessageCursor } from '@deseo/domain/messages';
 import { toAppError } from '@deseo/domain/result';
 import { useSession } from '../../../app/SessionProvider';
 import { Button } from '../../../components/ui/Button';
@@ -41,16 +41,15 @@ export function Conversation() {
   const lastRead = useRef<MessageCursor | null>(null);
   const [readError, setReadError] = useState(false);
   const [readAttempt, setReadAttempt] = useState(0);
-  const [body, setBody] = useState('');
   const [unsent, setUnsent] = useState<readonly Unsent[]>([]);
   const [deleting, setDeleting] = useState<Message | null>(null);
-  useUnsavedChanges(Boolean(body) || unsent.length > 0);
+  useUnsavedChanges(unsent.length > 0);
   const action = useMutation({
     mutationFn: ({ kind, id }: { kind: 'pin' | 'unpin' | 'delete'; id: string }) => (kind === 'delete' ? deleteMessage : kind === 'pin' ? pinMessage : unpinMessage)(id),
     onSuccess: () => setDeleting(null),
   });
   const { mutate } = action;
-  // Stable callbacks let unchanged message rows skip a render while the composer types.
+  // Stable callbacks let unchanged message rows skip a render when the conversation updates.
   const pin = useCallback((message: Message) => mutate({ kind: message.pinnedAt ? 'unpin' : 'pin', id: message.id }), [mutate]);
   const busy = action.isPending;
   const error = action.isError ? toAppError(action.error).message : '';
@@ -67,11 +66,10 @@ export function Conversation() {
       setUnsent(rows => rows.map(row => row.clientId === item.clientId ? { ...row, failed: true } : row));
     }
   }
-  function send() {
-    if (!messageBodySchema.safeParse(body).success) return;
+  // The composer checks the body before it calls send.
+  function send(body: string) {
     const item = { clientId: crypto.randomUUID(), body, failed: false };
     setUnsent(rows => [...rows, item]);
-    setBody('');
     void deliver(item);
   }
 
@@ -134,7 +132,7 @@ export function Conversation() {
         <div className="conversation" ref={list} onScroll={event => { const element = event.currentTarget; scrollPosition.current = element.scrollTop; following.current = element.scrollHeight - element.scrollTop - element.clientHeight <= 24; setAtLatest(following.current); }} aria-label="Conversation messages">{messages.length ? messages.map(message => <MessageRow key={message.id} message={message} name={member(message).displayName} slot={member(message).slot} own={message.authorId === accountId} latest={message.id === latestOwnId} disabled={busy} timezone={account!.timezone} locale={account!.locale} onPin={pin} onDelete={setDeleting} {...failure(message, false)} />) : <section className="card"><h2>Start your conversation</h2><p>Send a message to your partner.</p></section>}</div>
       </>}
     {unsent.map(item => <article className={'message-row own-message pending-send partner-' + ownSlot} key={item.clientId} data-testid="pending-send"><p className="preserve-lines">{item.body}</p>{item.failed ? <><Status error>Not sent</Status><Button variant="secondary" onClick={() => void deliver(item)}>Retry</Button></> : <Status>Sending…</Status>}</article>)}
-    <Composer body={body} onChange={setBody} onSend={send} disabled={false} />
+    <Composer onSend={send} disabled={false} />
     <Dialog busy={busy} title="Delete message?" open={Boolean(deleting)} onClose={() => { if (!busy) setDeleting(null); }}><p>Delete your message from this conversation and pinned notes.</p>{error && deleting && <Status error>{error}</Status>}<Button variant="danger" disabled={busy} onClick={() => deleting && action.mutate({ kind: 'delete', id: deleting.id })}>Confirm deletion</Button><Button variant="secondary" disabled={busy} onClick={() => setDeleting(null)}>Cancel</Button></Dialog>
   </section>;
 }

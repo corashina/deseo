@@ -25,11 +25,12 @@ export async function publishMemory(reservation: Memory, photos: PreparedBrowser
     onProgress('Uploading photo ' + (index + 1) + ' of ' + photos.length + '…');
     const photo = reservation.photos[index];
     if (photo.validated) continue;
-    for (const variant of ['full', 'thumb'] as const) {
+    // The full photo and its thumbnail upload at the same time.
+    await Promise.all((['full', 'thumb'] as const).map(async variant => {
       const { error } = await client.storage.from('memory-photos').upload(photo[`${variant}Path`], local[variant],
         { contentType: 'image/jpeg', cacheControl: '0', upsert: false, metadata: { sessionId } });
       if (error && (error as { statusCode?: string }).statusCode !== '409') throw error;
-    }
+    }));
   }
   onProgress('Publishing memory…');
   const { data, error } = await client.functions.invoke('finalize-memory',
