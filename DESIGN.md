@@ -467,7 +467,7 @@ Keyboard order matches the visual order.
 Each event shows title, time, and owner name, plus location when set.
 The selected day fills its number with `primary`. Today gets a 2px `link` ring. Cells stay clear, so event colors keep their meaning.
 In a month cell, a title keeps two lines and the owner one line. Below 768px, each day shows owner dots in place of events, and the day button names the count.
-Events open details before editing. Date ideas and tasks open their edit form. Explain invalid end times beside the time field.
+Events, date ideas, and tasks open their edit form. Explain invalid end times beside the time field.
 The event and idea screens show an eyebrow, the title, and the owner badge or state. Delete and Archive are secondary buttons; the dialog holds the final action.
 Return links and Cancel go back to the page the person came from, with the same month, view, and filter.
 Show times with a numeric hour, such as 7:00 PM, in every place. On a later day of a timed event, show Until and the end time, or Continues.

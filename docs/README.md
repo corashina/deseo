@@ -129,6 +129,7 @@ Store the inclusive all-day end as an exclusive end date.
 Important dates default to the pair timezone. Timed events default to the creator's timezone.
 When the stored version changed, show a conflict screen. Offer Reload saved version or return to the draft.
 Never overwrite the partner's edit silently. Never merge text fields.
+Opening an event shows its edit form with Delete event.
 Delete through a confirmation that names the event. The server cancels its future reminder jobs.
 
 Date ideas list saved ideas under the calendar, newest first. A title field adds an idea. Each row has Plan date.
@@ -169,8 +170,8 @@ Use a feed grouped by month. Each entry shows date, photo, caption, and author.
 Add memory opens a file input. Select one to five photos. The date is required; the caption is optional, up to 1,000 characters.
 Show each photo's upload state. Publish only after every photo completes.
 Allow removing a failed photo before submission. Browser drafts last while the form stays open.
-The detail view shows full images. Downloads need an explicit action.
-The author can change the caption or delete the memory. Saved copies stay outside Deseo after deletion.
+The memory page shows full images. Downloads need an explicit action.
+For the author, the date and caption fields follow the photos, with Save changes and Delete memory. Saved copies stay outside Deseo after deletion.
 
 ### Settings
 

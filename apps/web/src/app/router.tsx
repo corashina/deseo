@@ -25,7 +25,6 @@ const TaskDetailPage = lazyPage(() => import('../features/tasks/pages/TaskDetail
 const IdeaPage = lazyPage(() => import('../features/calendar/ideas/pages/IdeaPage'), 'IdeaPage');
 const TodayPage = lazyPage(() => import('../features/today/pages/TodayPage'), 'TodayPage');
 const CalendarPage = lazyPage(() => import('../features/calendar/pages/CalendarPage'), 'CalendarPage');
-const EventDetailPage = lazyPage(() => import('../features/calendar/pages/EventDetailPage'), 'EventDetailPage');
 const EventFormPage = lazyPage(() => import('../features/calendar/pages/EventFormPage'), 'EventFormPage');
 const WelcomePage = lazyPage(() => import('../features/auth/pages/WelcomePage'), 'WelcomePage');
 const EmailPage = lazyPage(() => import('../features/auth/pages/EmailPage'), 'EmailPage');
@@ -119,14 +118,12 @@ const routes: RouteObject[] = [{ element: <Root />, errorElement: <RouteFailureB
   { path: '/memories', ...pairPage('Memories', MemoriesPage) },
   { path: '/memories/new', ...pairPage('Add memory', MemoryFormPage) },
   { path: '/memories/:memoryId', ...pairPage('Memory', MemoryDetailPage) },
-  { path: '/memories/:memoryId/edit', ...pairPage('Edit memory', MemoryFormPage) },
   { path: '/tasks', ...pairPage('Tasks', TasksPage) },
   { path: '/tasks/:taskId', ...pairPage('Task', TaskDetailPage) },
   { path: '/ideas/:ideaId', ...pairPage('Date idea', IdeaPage) },
   { path: '/calendar', ...pairPage('Calendar', CalendarPage) },
   { path: '/events/new', ...pairPage('Add event', EventFormPage) },
-  { path: '/events/:eventId', ...pairPage('Event', EventDetailPage) },
-  { path: '/events/:eventId/edit', ...pairPage('Edit event', EventFormPage) },
+  { path: '/events/:eventId', ...pairPage('Event', EventFormPage) },
   { path: '/invite', element: <Page title="Your invitation"><InviteEntry /></Page> },
   { path: '*', element: <Page title="Page not found"><NotFoundPage /></Page> },
 ] }];

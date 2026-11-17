@@ -27,12 +27,10 @@ export const screens: Screen[] = [
   open('/calendar', 'Calendar'),
   open('/events/new', 'Add event'),
   record(ids => `/events/${ids.event}`, 'Event'),
-  record(ids => `/events/${ids.event}/edit`, 'Edit event'),
   record(ids => `/ideas/${ids.idea}`, 'Date idea'),
   open('/memories', 'Memories'),
   open('/memories/new', 'Add memory'),
   record(ids => `/memories/${ids.memory}`, 'Memory'),
-  record(ids => `/memories/${ids.memory}/edit`, 'Edit memory'),
   open('/tasks', 'Tasks'),
   record(ids => `/tasks/${ids.task}`, 'Task'),
 ];
