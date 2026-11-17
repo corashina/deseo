@@ -62,6 +62,6 @@ export function MemoryFormPage() {
         <label className="field"><span>Caption</span><textarea rows={4} maxLength={1000} autoComplete="off" {...form.register('caption')} /></label>
       </fieldset>
       {error && <Status error>{error}</Status>}
-      <div className="actions"><Button variant="primary" type="submit" disabled={saving || prepare.isPending}>{saving ? 'Saving…' : failure ? 'Retry save' : 'Publish memory'}</Button><Link to="/memories">Cancel</Link></div>
+      <div className="actions"><Button variant="primary" type="submit" disabled={saving || prepare.isPending}>{saving ? 'Saving…' : failure ? 'Retry save' : 'Publish memory'}</Button><Link className="button secondary" to="/memories">Cancel</Link></div>
     </form></section></>;
 }

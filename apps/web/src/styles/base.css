@@ -42,6 +42,8 @@ p { text-wrap: pretty; }
 @media (max-width:767px) { .page-header { flex-direction:column; align-items:stretch; gap:16px; } .page-header > div:first-child { flex:none; } .page-header > .button { align-self:flex-start; max-width:100%; } }
 .actions { display: flex; gap: var(--space-4); flex-wrap: wrap; margin-bottom: var(--space-6); }
 .card > .actions:last-child { margin-bottom: 0; }
+/* The delete zone on an edit page sits under a divider, apart from Save. */
+.form-delete { border-top: 1px solid var(--line); padding-top: var(--space-6); margin-top: var(--space-6); }
 /* Pair screens are one left-aligned card. Start shows its two choices side by side when they fit. */
 .pair-options { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap: var(--space-6); }
 .pair-options > section { display: flex; flex-direction: column; align-items: flex-start; border-top: 1px solid var(--line); padding-top: var(--space-6); }

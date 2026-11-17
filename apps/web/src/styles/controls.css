@@ -18,10 +18,12 @@
 .field-error { color: var(--danger); }
 .field input:hover:not(:disabled), .field select:hover:not(:disabled), .field textarea:hover:not(:disabled) { border-color: var(--focus); }
 .field input[aria-invalid=true], .field select[aria-invalid=true], .field textarea[aria-invalid=true] { border-color: var(--danger); }
-.field input, .field select, .form-page .field textarea { width: 100%; min-width: 0; min-height: var(--nav-target); padding: calc(var(--space-3) - 1px) var(--space-4); border: 1px solid var(--control); border-radius: var(--radius-control); color: var(--ink); background: var(--surface); font-size: 16px; font-weight: 400; }
+.field input, .field select, .field > textarea { width: 100%; min-width: 0; min-height: var(--nav-target); padding: calc(var(--space-3) - 1px) var(--space-4); border: 1px solid var(--control); border-radius: var(--radius-control); color: var(--ink); background: var(--surface); font-size: 16px; font-weight: 400; }
 /* Inputs and selects are exactly 48px, so fields in one row line up. */
 .field input:not([type=checkbox], [type=file]), .field select { height: var(--nav-target); }
-.form-page fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
+fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
+/* Form text areas start at two lines and grow with the text, so long titles never clip. */
+.field > textarea { field-sizing: content; min-height: calc(2lh + 2 * var(--space-3)); }
 .field-check > span { display: flex; align-items: center; gap: var(--space-3); min-height: var(--nav-target); }
 .field-check input { width: 24px; height: 24px; min-height: 24px; padding: 0; margin: 0; flex-shrink: 0; accent-color: var(--primary); }
 .field-group { border: 0; padding: 0; margin: 0; min-width: 0; }
@@ -44,6 +46,7 @@
 .partner-badge { display: inline-flex; align-items: center; border-radius: var(--radius-badge); padding: 2px var(--space-2); font-size: 12px; font-weight: 600; line-height: 1.4; overflow-wrap: anywhere; }
 dialog { border: 1px solid var(--line); border-radius: var(--radius-card); padding: var(--space-6); color: var(--ink); background: var(--surface); box-shadow: var(--shadow-popover); width: min(480px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); overflow: auto; overscroll-behavior: contain; }
 dialog::backdrop { background: var(--backdrop); }
+dialog .actions:last-child { margin-bottom: 0; }
 .dialog-heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-4); margin-bottom: var(--space-6); }
 .dialog-heading h2 { margin: 0; }
 .dialog-close { margin-right: calc(-1 * var(--space-3)); }

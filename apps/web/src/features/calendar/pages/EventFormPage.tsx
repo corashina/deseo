@@ -145,15 +145,17 @@ function EventEditor({ event, idea }: { event?: Event; idea?: DateIdea }) {
           <Link className="button secondary" to={idea ? '/ideas/' + idea.id : back} state={{ from: back }}>Cancel</Link>
         </div>
       </form>
-      {event && <div className="task-delete"><Button variant="secondary" disabled={saving} onClick={() => setConfirmDelete(true)}>{remove.isError ? 'Retry deletion' : 'Delete event'}</Button></div>}
+      {event && <div className="form-delete"><Button variant="secondary" disabled={saving} onClick={() => setConfirmDelete(true)}>{remove.isError ? 'Retry deletion' : 'Delete event'}</Button></div>}
     </section>
     <Dialog busy={remove.isPending} title="Delete this event?" open={confirmDelete} onClose={() => setConfirmDelete(false)}>
       <p>{event?.who === 'private' ? 'You will lose access to this event.' : 'Both partners will lose access to this event.'}</p>
-      <Button variant="danger" disabled={remove.isPending} onClick={() => remove.mutate()}>Confirm deletion</Button>
+      <div className="actions"><Button variant="danger" disabled={remove.isPending} onClick={() => remove.mutate()}>Confirm deletion</Button>
+      <Button variant="secondary" disabled={remove.isPending} onClick={() => setConfirmDelete(false)}>Cancel</Button></div>
     </Dialog>
     <Dialog busy={saving} open={Boolean(sharing)} title="Share this event?" onClose={() => setSharing(null)}>
       <p>Your partner will see this event.</p>
-      <Button variant="primary" onClick={confirmSharing}>Share event</Button>
+      <div className="actions"><Button variant="primary" onClick={confirmSharing}>Share event</Button>
+      <Button variant="secondary" onClick={() => setSharing(null)}>Cancel</Button></div>
     </Dialog>
   </>;
 }

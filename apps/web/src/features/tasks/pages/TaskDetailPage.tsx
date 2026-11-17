@@ -82,14 +82,15 @@ function TaskEditor({ task, lists }: { task: Task; lists: TaskList[] }) {
         {conflict && <Button disabled={saving} variant="secondary" type="button" onClick={() => { remove.reset(); reload.mutate(); }}>Reload task and discard draft</Button>}
         <div className="actions">
           <Button variant="primary" type="submit" disabled={saving || conflict}>{save.isPending ? 'Saving…' : failure ? 'Retry save' : 'Save changes'}</Button>
-          <Link to={'/tasks?list=' + task.listId}>Cancel</Link>
+          <Link className="button secondary" to={'/tasks?list=' + task.listId}>Cancel</Link>
         </div>
       </form>
-      <div className="task-delete"><Button variant="secondary" disabled={saving} onClick={() => setConfirm(true)}>{remove.isError ? 'Retry deletion' : 'Delete task'}</Button></div>
+      <div className="form-delete"><Button variant="secondary" disabled={saving} onClick={() => setConfirm(true)}>{remove.isError ? 'Retry deletion' : 'Delete task'}</Button></div>
     </section>
     <Dialog busy={remove.isPending} open={confirm} title="Delete this task?" onClose={() => setConfirm(false)}>
       <p>Both partners will lose this task.</p>
-      <Button variant="danger" disabled={remove.isPending} onClick={() => remove.mutate()}>Confirm deletion</Button>
+      <div className="actions"><Button variant="danger" disabled={remove.isPending} onClick={() => remove.mutate()}>Confirm deletion</Button>
+      <Button variant="secondary" disabled={remove.isPending} onClick={() => setConfirm(false)}>Cancel</Button></div>
     </Dialog>
   </>;
 }

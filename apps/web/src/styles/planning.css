@@ -48,7 +48,6 @@
   .quick-add > .field:not(:first-of-type) { order: 2; flex-basis: 120px; }
   .quick-add > .status { order: 3; }
 }
-.task-delete, .idea-actions { border-top: 1px solid var(--line); padding-top: var(--space-6); margin-top: var(--space-6); margin-bottom: 0; }
 /* Date ideas under the calendar: a title link with its note, and Plan date beside it. */
 .ideas-section { margin-top: var(--space-8); }
 .ideas-section > h2 { margin: 0; }

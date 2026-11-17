@@ -53,7 +53,7 @@ function AddIdea({ pairId }: { pairId: string }) {
   useUnsavedChanges(Boolean(title));
   return <form className="quick-add" onSubmit={event => { event.preventDefault(); if (!add.isPending) add.mutate(); }}>
     <Field label="New idea" name="title" value={title} required maxLength={120} disabled={add.isPending} onChange={event => setTitle(event.target.value)} />
-    <Button variant="primary" type="submit" disabled={add.isPending}>{add.isPending ? 'Saving…' : add.isError ? 'Retry idea' : 'Add idea'}</Button>
+    <Button variant="secondary" type="submit" disabled={add.isPending}>{add.isPending ? 'Saving…' : add.isError ? 'Retry idea' : 'Add idea'}</Button>
     {add.isError && <Status error>{toAppError(add.error).message}</Status>}
   </form>;
 }

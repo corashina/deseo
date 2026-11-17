@@ -59,7 +59,7 @@ export function MemoryDetailPage() {
     <section className="card memory-detail">{memory.photos.map((photo, index) => <figure key={photo.id}><div className="memory-photo" style={{ aspectRatio: photo.width + ' / ' + photo.height }}><MemoryImage photo={photo} variant="full" alt={(memory.caption ? memory.caption + ' · ' : '') + 'Photo ' + (index + 1)} /></div><figcaption><Button variant="text" disabled={busy} onClick={() => download.mutate({ path: photo.fullPath, index })}>Download photo {index + 1}</Button></figcaption></figure>)}
       {author ? <MemoryEditor key={memory.id} memory={memory} /> : memory.caption && <p className="memory-caption preserve-lines">{memory.caption}</p>}
       {author && <div className="actions"><Button variant="secondary" disabled={busy} onClick={() => setConfirm(true)}>{remove.isError ? 'Retry deletion' : 'Delete memory'}</Button></div>}{error && <Status error>{error}</Status>}
-    </section><Dialog busy={remove.isPending} open={confirm} title="Delete this memory?" onClose={() => setConfirm(false)}><p>Both partners will lose this memory and its photos.</p><Button variant="danger" disabled={busy} onClick={() => remove.mutate(memory.version)}>Confirm deletion</Button></Dialog>
+    </section><Dialog busy={remove.isPending} open={confirm} title="Delete this memory?" onClose={() => setConfirm(false)}><p>Both partners will lose this memory and its photos.</p><div className="actions"><Button variant="danger" disabled={busy} onClick={() => remove.mutate(memory.version)}>Confirm deletion</Button><Button variant="secondary" disabled={busy} onClick={() => setConfirm(false)}>Cancel</Button></div></Dialog>
   </>;
 }
 // The author changes the date and caption here. Photos stay as published.
