@@ -49,6 +49,16 @@ p { text-wrap: pretty; }
 .pair-options > section > .button { margin-top: auto; }
 .pair-cancel { border-top: 1px solid var(--line); padding-top: var(--space-4); }
 .invite-code { font-size: 28px; font-weight: 500; line-height: 1.2; font-variant-numeric: tabular-nums; letter-spacing: .08em; background: var(--shared-soft); padding: var(--space-6); border-radius: var(--radius-control); margin-bottom: 0; overflow-wrap: anywhere; }
+/* Sign-in, entry, and pair cards center their content. Field labels stay at the start, except the code field. */
+.centered-card { text-align: center; }
+.centered-card .page-header { justify-content: center; }
+.centered-card .page-header p { margin-inline: auto; }
+.centered-card .actions { justify-content: center; }
+.centered-card .pair-options > section { align-items: center; }
+.centered-card > :is(a, button) { margin-inline: var(--space-2); }
+.centered-card .pair-cancel > .button.text { margin-left: 0; }
+.centered-card .field { text-align: start; }
+.centered-card .field:has(.code-input) { align-items: center; text-align: center; }
 .entry-container { padding: var(--space-8); min-height: 100dvh; }
 .entry-brand { display: flex; align-items: center; justify-content: center; gap: var(--space-3); margin: max(0px, 8vh - var(--space-8)) 0 var(--space-6); font-size: 19px; font-weight: 600; }
 .entry-brand picture, .entry-brand img { display: block; border-radius: var(--radius-control); }
@@ -57,10 +67,10 @@ p { text-wrap: pretty; }
 .entry-container > .form-page { max-width: 480px; margin-top: 0; }
 .entry-container > .form-page form > .button { width: 100%; }
 .entry-page { min-height: calc(100dvh - 2 * var(--space-8)); display: grid; grid-template-columns: 1.1fr 1fr; gap: var(--space-10); align-items: center; max-width: 1200px; margin: auto; }
-.entry-story { padding: var(--space-10); background: var(--sidebar); border-radius: var(--radius-card); }
-.entry-story h1 { font-size: 48px; font-weight: 500; line-height: 1.2; letter-spacing: -.02em; max-width: 12ch; margin: 0 0 var(--space-6); }
-.entry-story > p { max-width: 400px; color: var(--muted); font-size: 16px; margin-bottom: 0; }
-.welcome-icon { display: block; width: 96px; height: 96px; border-radius: var(--radius-card); margin-bottom: var(--space-6); }
+.entry-story { padding: var(--space-10); background: var(--sidebar); border-radius: var(--radius-card); text-align: center; }
+.entry-story h1 { font-size: 48px; font-weight: 500; line-height: 1.2; letter-spacing: -.02em; max-width: 12ch; margin: 0 auto var(--space-6); }
+.entry-story > p { max-width: 400px; color: var(--muted); font-size: 16px; margin: 0 auto; }
+.welcome-icon { display: block; width: 96px; height: 96px; border-radius: var(--radius-card); margin: 0 auto var(--space-6); }
 .entry-card { padding: var(--space-8); }
 .entry-card .page-header { margin-bottom: var(--space-6); }
 .entry-card .button { width: 100%; }

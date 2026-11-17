@@ -24,7 +24,7 @@ export function VerifyPage() {
   const pending = verify.isPending || resend.isPending;
   const codeError = invalid ? 'Enter the 6-digit code from your email.' : verify.isError ? toAppError(verify.error).message : '';
   const seconds = Math.max(0, Math.ceil((Date.parse(entryIntent.retryAt) - now) / 1000));
-  return <section className="card form-page"><PageHeader title="Check your email" description={'Enter the code sent to ' + entryIntent.email + '.'} />
+  return <section className="card form-page centered-card"><PageHeader title="Check your email" description={'Enter the code sent to ' + entryIntent.email + '.'} />
     <form ref={form} noValidate onSubmit={event => { event.preventDefault(); if (pending) return;
       const valid = /^\d{6}$/.test(code);
       setInvalid(!valid); if (valid) verify.mutate(code); else focusCode();

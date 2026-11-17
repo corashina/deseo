@@ -422,7 +422,8 @@ The icon tile follows the appearance: `brand/icon-web.webp` in light mode, `bran
 **Entry.** Sign in shows the story panel and the email card side by side from 1024px, and stacked below it.
 The other sign-in screens show the icon and name above one 480px card. The main button fills the card width.
 Profile setup offers Sign out. The sign-in code field shows six large spaced digits and says to check spam.
-Pair screens are one left-aligned card with the header inside. Start shows its two choices side by side when they fit.
+Pair screens are one card with the header inside. Start shows its two choices side by side when they fit.
+Sign-in, entry, and pair screens center their text and buttons. Field labels stay at the start; the code field is centered.
 The Join field takes the code or the invitation link. Waiting says what to send only when a code is on screen.
 On a return visit, Waiting says the code still works, and Replace is a secondary button. Waiting says that the page opens Today when the partner joins.
 Ended offers Start a new pair and Enter invitation. Your pair stays selected in the navigation on every pair screen.
