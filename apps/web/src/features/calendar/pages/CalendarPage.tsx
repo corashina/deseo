@@ -1,7 +1,7 @@
 import { DateTime } from 'luxon';
 import { CaretLeftIcon } from '@phosphor-icons/react/dist/csr/CaretLeft';
 import { CaretRightIcon } from '@phosphor-icons/react/dist/csr/CaretRight';
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useSession } from '../../../app/SessionProvider';
@@ -27,6 +27,7 @@ export function CalendarPage() {
   const range = { pairId: pair?.status === 'active' ? pair.pairId : '', from: month.startOf('week').toISODate()!, to: month.endOf('month').endOf('week').plus({ days: 1 }).toISODate()! };
   const query = useQuery({ queryKey: calendarKeys.agenda(account!.id, range), queryFn: () => listAgenda(range), enabled: pair?.status === 'active' });
   const events = useMemo(() => (query.data ?? []).filter(event => owner === 'all' || event.owner === owner), [query.data, owner]);
+  const agenda = useRef<HTMLElement>(null);
   if (pair?.status !== 'active' || !account) return null;
   const names: OwnerNames = { a: pair.members.find(member => member.slot === 'a')!.displayName, b: pair.members.find(member => member.slot === 'b')!.displayName, together: 'Together' };
   const change = (updates: Record<string, string>) => setParams({ view, date, owner, ...updates });
@@ -53,8 +54,13 @@ export function CalendarPage() {
       <div className="view-tabs owner-filters" aria-label="Event owner">{(['all', 'a', 'b', 'together'] as const).map(filter)}</div>
       {query.isPending ? <Status>Loading your calendar…</Status> : query.isError ? <><Status error>We could not load your events.</Status><Button variant="secondary" onClick={() => void query.refetch()}>Retry</Button></>
         : view === 'month' ? <>
-          <MonthGrid date={date} selected={date} today={today} events={events} names={names} timezone={account.timezone} locale={account.locale} onSelect={date => change({ date })} />
-          <section className="selected-agenda">
+          <MonthGrid date={date} selected={date} today={today} events={events} names={names} timezone={account.timezone} locale={account.locale} onSelect={date => {
+            change({ date });
+            // The day's events show below the grid. Bring them into view when they start below the window.
+            const heading = agenda.current;
+            if (heading && heading.getBoundingClientRect().top > window.innerHeight - 96) heading.scrollIntoView({ block: 'start', behavior: 'smooth' });
+          }} />
+          <section className="selected-agenda" ref={agenda}>
             <h2>{formatDate(DateTime.fromISO(date), 'weekday', account.locale)}</h2>
             <Agenda events={events} from={date} to={DateTime.fromISO(date).plus({ days: 1 }).toISODate()!} names={names} timezone={account.timezone} locale={account.locale}
               empty={<><p>Nothing planned for this day.</p><Link to={add} state={from}>Add event</Link></>} />

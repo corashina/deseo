@@ -40,7 +40,9 @@
 .task-list-actions .actions { margin: var(--space-6) 0 var(--space-4); }
 .task-list-actions .list-name-form { margin-top: var(--space-2); }
 .task-form > .actions { align-items: center; margin-top: var(--space-5); }
-@media (max-width: 1023px) {
+/* Below 760px of card width, the title and Add task share a row. Assigned to and Due date go below. */
+.quick-add-frame { container-type: inline-size; }
+@container (max-width: 759px) {
   .quick-add > .field:first-of-type { flex-basis: calc(100% - 160px); }
   .quick-add > .button { order: 1; }
   .quick-add > .field:not(:first-of-type) { order: 2; flex-basis: 120px; }
