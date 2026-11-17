@@ -28,10 +28,30 @@ main { flex: 1 0 auto; }
 img { display: block; max-width: 100%; height: auto; }
 html { -webkit-tap-highlight-color: color-mix(in srgb, var(--ink) 8%, transparent); }
 a { color: var(--link); font-weight: 600; text-underline-offset: 3px; touch-action: manipulation; }
-a:hover { text-decoration-thickness: 2px; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+/* Motion follows taste-skill 2.5.1: hover and press steps, drawn underlines, and one hero entrance. */
+:root {
+  --m-in: 150ms;
+  --m-out: 120ms;
+  --m-press: 90ms;
+  --ease: cubic-bezier(.2, .8, .2, 1);
+  --ease-enter: cubic-bezier(.22, 1, .36, 1);
+}
+
+/* Links in running text rest on a faint hairline. On hover, an ink line draws from the left. */
+main p a, main li a {
+  text-decoration: none;
+  background:
+    linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat,
+    linear-gradient(color-mix(in srgb, currentColor 35%, transparent), color-mix(in srgb, currentColor 35%, transparent)) 0 100% / 100% 1px no-repeat;
+  transition: background-size var(--m-out) var(--ease);
+}
+main p a:hover, main li a:hover { background-size: 100% 1px, 100% 1px; transition-duration: var(--m-in); }
+/* A standalone link is 48px tall. Its line sits under the text, not at the box edge. */
+main p a.go { background-position: 0 calc(100% - 12px), 0 calc(100% - 12px); }
 /* With a mouse or trackpad the page does not bounce past its edges. Touch keeps pull-to-refresh. */
 @media (pointer: fine) { html { overscroll-behavior: none; } }
-:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
 
 /* Type scale: display, headline, and title in DESIGN.md. */
 h1, h2, h3 { margin: 0 0 var(--space-3); overflow-wrap: anywhere; text-wrap: balance; }
@@ -80,13 +100,36 @@ main.wrap { padding-block-end: var(--space-10); }
   text-decoration: none;
 }
 .brand img { border-radius: var(--radius-control); }
-.site-header nav a {
+/* Navigation and footer words rest bare. On hover they darken and draw a line under the word. */
+.site-header nav a, .site-footer a {
+  position: relative;
   display: inline-flex;
   align-items: center;
   min-height: var(--nav-target);
-  padding: 0 var(--space-3);
+  color: var(--muted);
+  text-decoration: none;
+  transition: color var(--m-out) var(--ease);
 }
-.site-header nav a[aria-current="page"] { color: var(--ink); text-decoration: none; }
+.site-header nav a { padding: 0 var(--space-3); }
+.site-header nav a::after, .site-footer a::after {
+  content: "";
+  position: absolute;
+  left: var(--pad);
+  right: var(--pad);
+  bottom: 10px;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--m-out) var(--ease);
+}
+.site-header nav a { --pad: var(--space-3); }
+.site-footer a { --pad: var(--space-2); }
+.site-header nav a:hover, .site-footer a:hover { color: var(--ink); transition-duration: var(--m-in); }
+.site-header nav a:hover::after, .site-footer a:hover::after { transform: scaleX(1); transition-duration: var(--m-in); }
+/* The current page has a 2px bar under its word. */
+.site-header nav a[aria-current="page"] { color: var(--ink); }
+.site-header nav a[aria-current="page"]::after { height: 2px; transform: none; }
 
 /* A link that stands alone in its paragraph gets the full touch target. */
 .go {
@@ -118,9 +161,33 @@ main.wrap { padding-block-end: var(--space-10); }
   font-weight: 600;
   line-height: 1.4;
   text-decoration: none;
+  transition: background-color var(--m-out) var(--ease), transform var(--m-out) var(--ease);
 }
-.button:hover { background: color-mix(in srgb, var(--primary) 88%, var(--ink)); }
-.soon { margin: var(--space-6) 0 0; color: var(--muted); }
+/* A button steps up 1px on hover and sinks below rest on press. */
+@media (hover: hover) and (pointer: fine) {
+  .button:hover {
+    background: color-mix(in srgb, var(--primary) 86%, var(--ink));
+    transform: translateY(-1px);
+    transition-duration: var(--m-in);
+  }
+}
+.button:active { transform: translateY(1px) scale(.985); transition-duration: var(--m-press); }
+.fact { margin: var(--space-5) 0 0; color: var(--muted); font-size: 14px; }
+
+/* The hero enters once: the title rises line by line out of its masks, then the rest fades up. */
+.enter h1 .line { display: inline-block; overflow: clip; overflow-clip-margin: 0.1em; padding-bottom: 0.08em; vertical-align: top; }
+.enter h1 .line > span { display: inline-block; animation: rise 700ms var(--ease-enter) both; }
+.enter h1 .line + .line > span { animation-delay: 80ms; }
+.enter > :not(h1) { animation: fade-up 520ms var(--ease-enter) both; animation-delay: 420ms; }
+.enter > :not(h1) ~ :not(h1) { animation-delay: 480ms; }
+.enter > :not(h1) ~ :not(h1) ~ :not(h1) { animation-delay: 540ms; }
+.page > h1, .page > h1 + .lede { animation: fade-up 520ms var(--ease-enter) both; }
+.page > h1 + .lede { animation-delay: 60ms; }
+.settle img { animation: settle 900ms var(--ease-enter) both; }
+@keyframes rise { from { transform: translateY(105%); } }
+@keyframes fade-up { from { opacity: 0; transform: translateY(12px); } }
+@keyframes settle { from { transform: scale(.98); } }
+
 
 .preview { margin: 0; }
 .preview img {
@@ -128,18 +195,8 @@ main.wrap { padding-block-end: var(--space-10); }
   border: 1px solid var(--line);
   border-radius: var(--radius-card);
 }
+/* A phone preview is one phone screen: 390 by 844. */
 .preview.phone img { width: 300px; margin: 0 auto; }
-.preview figcaption {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
-  align-items: center;
-  justify-content: center;
-  margin-top: var(--space-3);
-  color: var(--muted);
-  font-size: 14px;
-  text-align: center;
-}
 
 .feature {
   display: grid;
@@ -148,6 +205,21 @@ main.wrap { padding-block-end: var(--space-10); }
   margin-top: var(--space-10);
 }
 .feature-text { max-width: 34em; }
+
+/* The privacy statement lights up word by word as it scrolls through the screen.
+   Without scroll timelines, every word stays at full ink. */
+.statement { margin-top: var(--space-10); view-timeline: --lights block; }
+/* The statement is the large type here, so its heading takes the title size. */
+.statement h2 { font-size: 19px; font-weight: 600; line-height: 1.3; letter-spacing: 0; color: var(--muted); }
+.lights { max-width: 22em; font-size: 28px; font-weight: 500; line-height: 1.3; letter-spacing: -0.02em; text-wrap: pretty; }
+@supports (animation-timeline: view()) {
+  .lights span {
+    animation: light linear both;
+    animation-timeline: --lights;
+    animation-range: cover calc(10% + var(--i) * 1.2%) cover calc(14% + var(--i) * 1.2%);
+  }
+}
+@keyframes light { from { color: color-mix(in srgb, var(--ink) 25%, var(--canvas)); } }
 
 .panel {
   margin-top: var(--space-10);
@@ -187,12 +259,7 @@ main.wrap { padding-block-end: var(--space-10); }
   list-style: none;
 }
 .site-footer li + li { margin-top: 0; }
-.site-footer a {
-  display: inline-flex;
-  align-items: center;
-  min-height: var(--nav-target);
-  padding: 0 var(--space-2);
-}
+.site-footer a { padding: 0 var(--space-2); }
 .site-footer p { margin: 0; color: var(--muted); }
 
 /* All previews share the right edge of the page. Text sits beside them. */
@@ -202,10 +269,26 @@ main.wrap { padding-block-end: var(--space-10); }
   .preview.phone img { margin: 0; }
   .feature.wide { grid-template-columns: 1fr; }
   .panel { padding: var(--space-8); }
+  .lights { font-size: 40px; }
+  .page h2 { font-size: 28px; }
 }
 /* From 1024px the phone previews grow, and each feature's text starts at the top of its preview. */
 @media (min-width: 1024px) {
   .preview.phone img { width: 360px; }
   .feature { align-items: start; }
   .feature-text { padding-top: var(--space-10); }
+}
+
+/* On a phone the main button spans the column. */
+@media (max-width: 599px) {
+  .hero .button { width: 100%; }
+}
+
+/* On a large screen each part of the home page fills one screen: the hero alone first, then one section per screen. */
+@media (min-width: 1024px) and (min-height: 760px) {
+  .hero { min-height: calc(100svh - 72px); padding-block: var(--space-6); }
+  .feature, .statement { min-height: 100svh; margin-top: 0; padding-block: var(--space-10); }
+  .feature { align-content: center; }
+  .statement { display: flex; flex-direction: column; justify-content: center; }
+  .feature.wide { align-content: center; }
 }

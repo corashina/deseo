@@ -22,7 +22,7 @@
 
 .event-row { --row-fill: var(--shared-soft); transition: background-color var(--duration-feedback) var(--ease), transform var(--duration-feedback) var(--ease); min-height: var(--nav-target); display: flex; gap: var(--space-3); padding: var(--space-3) var(--space-4); border-radius: var(--radius-control); margin-bottom: var(--space-2); text-decoration: none; color: var(--shared); background: var(--row-fill); min-width: 0; overflow-wrap: break-word; }
 .event-row:hover { background: color-mix(in srgb, var(--row-fill) 94%, var(--ink)); }
-.event-row:active { transform: scale(.98); }
+.event-row:active { transform: scale(.985); transition-duration: var(--duration-press); }
 .event-row.owner-a { --row-fill: var(--rose-soft); color: var(--rose); }
 .event-row.owner-b { --row-fill: var(--teal-soft); color: var(--teal); }
 .event-row-time { min-width: 56px; font-weight: 600; font-variant-numeric: tabular-nums; font-size: 14px; line-height: 1.5; flex-shrink: 0; }
