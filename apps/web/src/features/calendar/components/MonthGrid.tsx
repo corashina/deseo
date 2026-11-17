@@ -32,7 +32,7 @@ export function MonthGrid({ events, date, selected, today, onSelect, timezone, l
     return values;
   }, [events, timezone, grid]);
   // Phones show owner dots in place of the event rows. The day button names the count.
-  return <div className="month-grid" aria-label="Month calendar"><div className="month-weekdays">{grid.weekdays.map(day => <span key={day}>{day}</span>)}</div><div className="month-days">{grid.days.map(day => {
+  return <div className="month-grid" role="group" aria-label="Month calendar"><div className="month-weekdays">{grid.weekdays.map(day => <span key={day}>{day}</span>)}</div><div className="month-days">{grid.days.map(day => {
     const items = groups.get(day.date) ?? [];
     const label = day.label + (items.length ? ', ' + items.length + (items.length === 1 ? ' event' : ' events') : '');
     return <div key={day.date} className={'month-day' + (day.outside ? ' outside' : '') + (day.date === selected ? ' selected' : '')}>

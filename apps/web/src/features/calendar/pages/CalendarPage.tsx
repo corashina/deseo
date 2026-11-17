@@ -49,9 +49,9 @@ export function CalendarPage() {
           <h2>{formatDate(month, 'month', account.locale)}</h2>
           {date !== today && <Button variant="text" onClick={() => change({ date: today })}>Today</Button>}
         </div>
-        <div className="view-tabs" aria-label="Calendar view">{['month', 'agenda'].map(value => <button key={value} aria-pressed={view === value} onClick={() => change({ view: value })}>{value === 'month' ? 'Month' : 'Agenda'}</button>)}</div>
+        <div className="view-tabs" role="group" aria-label="Calendar view">{['month', 'agenda'].map(value => <button key={value} aria-pressed={view === value} onClick={() => change({ view: value })}>{value === 'month' ? 'Month' : 'Agenda'}</button>)}</div>
       </div>
-      <div className="view-tabs owner-filters" aria-label="Event owner">{(['all', 'a', 'b', 'together'] as const).map(filter)}</div>
+      <div className="view-tabs owner-filters" role="group" aria-label="Event owner">{(['all', 'a', 'b', 'together'] as const).map(filter)}</div>
       {query.isPending ? <Status>Loading your calendar…</Status> : query.isError ? <><Status error>We could not load your events.</Status><Button variant="secondary" onClick={() => void query.refetch()}>Retry</Button></>
         : view === 'month' ? <>
           <MonthGrid date={date} selected={date} today={today} events={events} names={names} timezone={account.timezone} locale={account.locale} onSelect={date => {

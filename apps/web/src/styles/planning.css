@@ -68,9 +68,10 @@
 .week-strip-name { font-size:12px; color:var(--muted); }
 .week-strip li[aria-current=date] .week-strip-name { color:var(--on-action); }
 .week-strip-number { font-size:16px; font-weight:600; font-variant-numeric:tabular-nums; }
-.next-plan { display:flex; flex-direction:column; gap:var(--space-1); margin-bottom:var(--space-6); padding:var(--space-6); border-radius:var(--radius-card); background:var(--shared-soft); color:var(--shared); text-decoration:none; overflow-wrap:anywhere; transition:transform var(--duration-feedback) var(--ease); }
-.next-plan.owner-a { background:var(--rose-soft); color:var(--rose); }
-.next-plan.owner-b { background:var(--teal-soft); color:var(--teal); }
+.next-plan { --plan-fill:var(--shared-soft); display:flex; flex-direction:column; gap:var(--space-1); margin-bottom:var(--space-6); padding:var(--space-6); border-radius:var(--radius-card); background:var(--plan-fill); color:var(--shared); text-decoration:none; overflow-wrap:anywhere; transition:background-color var(--duration-feedback) var(--ease), transform var(--duration-feedback) var(--ease); }
+.next-plan:hover { background:color-mix(in srgb, var(--plan-fill) 94%, var(--ink)); }
+.next-plan.owner-a { --plan-fill:var(--rose-soft); color:var(--rose); }
+.next-plan.owner-b { --plan-fill:var(--teal-soft); color:var(--teal); }
 .next-plan .eyebrow { color:inherit; margin:0; }
 .next-plan strong { color:var(--ink); font-size:19px; line-height:1.3; font-weight:600; }
 .next-plan:active { transform:scale(.98); }
@@ -90,4 +91,5 @@
 .day-chips { display:none; flex-wrap:wrap; gap:var(--space-2); margin-bottom:var(--space-4); min-height:var(--nav-target); }
 .day-chips a { display:inline-flex; align-items:center; max-width:100%; min-width:0; min-height:var(--nav-target); padding:var(--space-2) var(--space-4); border-radius:var(--radius-control); background:var(--sidebar); color:var(--ink); font-size:14px; font-weight:600; text-decoration:none; }
 .day-chips a > span { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.day-chips a:hover > span { text-decoration:underline; text-underline-offset:4px; }
 @media (max-width:1199px) { .today-layout { grid-template-columns:minmax(0,1fr); } .our-day { display:none; } .day-chips { display:flex; } .day-chips:empty:not(.day-chips-pending) { display:none; } }

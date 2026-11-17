@@ -27,7 +27,7 @@ export function TaskRow({ task, members, timezone, locale }: {
   const today = DateTime.now().setZone(timezone).startOf('day');
   const urgency = !due || completed ? '' : due < today ? 'overdue' : due.hasSame(today, 'day') ? 'due-today' : '';
   const dueLabel = due ? (due.hasSame(today, 'day') ? 'Due today' : due.hasSame(today.plus({ days: 1 }), 'day') ? 'Due tomorrow' : urgency === 'overdue' ? 'Overdue' : 'Due') + ' · ' + formatDate(due, due.year === today.year ? 'day' : 'dayYear', locale) : '';
-  const error = completion.isError ? toAppError(completion.error).code === 'CONFLICT' ? 'This task changed. Review it.' : 'Completion failed.' : '';
+  const error = completion.isError ? toAppError(completion.error).code === 'CONFLICT' ? 'This task changed. Review it.' : 'We could not update this task. Try again.' : '';
   return <article className={'task-row' + (completed ? ' task-completed' : '')}>
     <div className="task-row-main">
       <label className="task-check">

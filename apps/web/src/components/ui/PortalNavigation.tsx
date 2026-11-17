@@ -1,3 +1,4 @@
+import { useId } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { UsersIcon } from '@phosphor-icons/react/dist/csr/Users';
 import { HouseIcon } from '@phosphor-icons/react/dist/csr/House';
@@ -10,6 +11,8 @@ export function PortalNavigation({ destination, activePair, unreadCount, onPairO
   destination: string; activePair: boolean; unreadCount: number | undefined; onPairOpen(): void;
 }) {
   const { pathname } = useLocation();
+  const unreadId = useId();
+  const unread = unreadCount !== undefined && unreadCount > 0;
   const calendarActive = /^\/(calendar|events|ideas)(\/|$)/.test(pathname);
   return <nav className="portal-nav" aria-label="Main navigation">
     <div className="nav-group">
@@ -17,9 +20,9 @@ export function PortalNavigation({ destination, activePair, unreadCount, onPairO
         <UsersIcon size={20} aria-hidden="true" /><span className="nav-label">Your pair</span>
       </Link>}
       {activePair && <>
-        <NavLink to="/today" aria-label="Today" title="Today">
+        <NavLink to="/today" aria-label="Today" title="Today" aria-describedby={unread ? unreadId : undefined}>
           <HouseIcon size={20} aria-hidden="true" /><span className="nav-label">Today</span>
-          {unreadCount !== undefined && unreadCount > 0 && <span className="unread-count" data-testid="unread-count" aria-label={unreadCount + ' unread messages'}>{unreadCount}</span>}
+          {unread && <span className="unread-count" data-testid="unread-count" id={unreadId}>{unreadCount}<span className="visually-hidden"> unread messages</span></span>}
         </NavLink>
         <Link to="/calendar" aria-label="Calendar" title="Calendar" aria-current={calendarActive ? 'page' : undefined}>
           <CalendarBlankIcon size={20} aria-hidden="true" /><span className="nav-label">Calendar</span>
