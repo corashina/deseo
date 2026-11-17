@@ -27,7 +27,7 @@ test('capture site previews', async ({ browser, pair, signIn }) => {
   await createEvent(alex, id, { who: 'a', title: 'Coffee with Maya', starts_at: at(1, 10), ends_at: at(1, 11) });
   await createEvent(sam, id, { who: 'b', title: 'Studio time', starts_at: at(1, 14), ends_at: at(1, 16) });
   await createEvent(sam, id, { title: 'Dinner at our favorite place', starts_at: at(1, 18, 30), ends_at: at(1, 20, 30) });
-  await createEvent(alex, id, { title: 'Sunday market', starts_at: at(3, 9), ends_at: at(3, 11) });
+  await createEvent(alex, id, { title: 'Farmers market', starts_at: at(3, 9), ends_at: at(3, 11) });
   await createEvent(alex, id, { title: 'Our anniversary', starts_at: null, ends_at: null, start_date: day(12), end_date_exclusive: day(13),
     important_date: true });
   await createTask(alex, id, 'Book the train tickets', sam.id, day(0));
@@ -35,7 +35,7 @@ test('capture site previews', async ({ browser, pair, signIn }) => {
   await pinMessage(sam, await sendMessage(sam, id, 'Spare keys are in the blue bowl by the door.'));
   await sendMessage(sam, id, 'Morning! Is coffee with Maya still at 10?');
   await sendMessage(alex, id, 'Yes, at the corner café. I will be back by noon.');
-  await sendMessage(sam, id, 'Great. I booked our table for 18:30.');
+  await sendMessage(sam, id, 'Great. I booked our table for 6:30 PM.');
   await sendMessage(alex, id, 'Perfect. I will bring the umbrella.');
   await createMemory(sam, id, 'The forest path after the rain', previewPhotos[1], day(-23));
   await createMemory(alex, id, 'Fog over the lake on our first morning', previewPhotos[0], day(-9));

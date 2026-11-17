@@ -48,7 +48,6 @@
   .quick-add > .field:not(:first-of-type) { order: 2; flex-basis: 120px; }
   .quick-add > .status { order: 3; }
 }
-.task-delete, .idea-actions { border-top: 1px solid var(--line); padding-top: var(--space-6); margin-top: var(--space-6); margin-bottom: 0; }
 /* Date ideas under the calendar: a title link with its note, and Plan date beside it. */
 .ideas-section { margin-top: var(--space-8); }
 .ideas-section > h2 { margin: 0; }
@@ -94,7 +93,9 @@
 .our-day .section-heading { margin-bottom:var(--space-5); }
 .our-day .important-card { border-color:transparent; }
 .day-chips { display:none; flex-wrap:wrap; gap:var(--space-2); margin-bottom:var(--space-4); min-height:var(--nav-target); }
-.day-chips a { display:inline-flex; align-items:center; max-width:100%; min-width:0; min-height:var(--nav-target); padding:var(--space-2) var(--space-4); border-radius:var(--radius-control); background:var(--sidebar); color:var(--ink); font-size:14px; font-weight:600; text-decoration:none; }
-.day-chips a > span { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.day-chips a:hover > span { text-decoration:underline; text-underline-offset:4px; }
+.day-chips a { display:inline-flex; align-items:center; gap:var(--space-2); max-width:min(100%, 44ch); min-width:0; min-height:var(--nav-target); padding:var(--space-2) var(--space-4); border-radius:var(--radius-control); background:var(--sidebar); color:var(--ink); font-size:14px; font-weight:600; text-decoration:none; }
+.day-chips .owner-dots { min-height:0; }
+.day-chips .owner-dots span { width:8px; height:8px; }
+.day-chips a > span:last-child { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.day-chips a:hover > span:last-child { text-decoration:underline; text-underline-offset:4px; }
 @media (max-width:1199px) { .today-layout { grid-template-columns:minmax(0,1fr); } .our-day { display:none; } .day-chips { display:flex; } .day-chips:empty:not(.day-chips-pending) { display:none; } }

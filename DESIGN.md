@@ -310,7 +310,7 @@ Sources: [WCAG text contrast](https://www.w3.org/WAI/WCAG22/Understanding/contra
 Inputs and selects are 48px high, so fields in one row line up. Checkboxes use the `primary` accent.
 Use real text for labels and numbers. Use tabular numbers for times and countdowns.
 Use sentence case everywhere. Do not use uppercase labels.
-Use weights 400, 500, and 600 only in the browser. Hierarchy comes from size and color.
+Use weights 400, 500, and 600 in the browser, plus 550 for navigation labels. Hierarchy comes from size and color.
 Limit title tracking to `-0.02em`. Text below 20px has no negative tracking.
 Short strings, such as titles, labels, buttons, and captions, end without a period.
 
@@ -383,8 +383,8 @@ Use a one-pixel card border.
 | Task row | Labeled checkbox, wrapping title, owner, optional due date |
 | Date countdown | Number, unit, event name, absolute date |
 | Button | Primary, secondary, text, or destructive |
-| Input field | Visible label, input, optional hint, local error |
-| Dialog | Title, focused task, primary action, Cancel |
+| Input field | Visible label, input, optional hint, local error. Text areas start at two lines and grow with the text |
+| Dialog | Title, focused task, primary or destructive action, Cancel |
 | Status message | Plain explanation and a recovery action when available. Neutral: canvas fill and `line` border. Error: danger pair and a warning icon |
 
 Reuse EventRow, MemoryCard, NoteCard, and TaskRow across callers on each platform.
@@ -392,7 +392,7 @@ Reuse EventRow, MemoryCard, NoteCard, and TaskRow across callers on each platfor
 ### Buttons
 
 - **Primary:** `primary` fill, `on-primary` text, 600 weight, 12px corners, 48px high. Use one primary button per page or form.
-- **Secondary:** surface fill and `control` border. Use it for Cancel.
+- **Secondary:** surface fill and `control` border. Use it for Cancel on every form, and for a page button that opens a destructive dialog.
 - **Text:** `link` color, no fill or border. Use it for section links, small edits, and icon toggles in the shell.
 - **Destructive:** `danger` fill.
 - Show loading inside the button without changing its width.
@@ -413,12 +413,13 @@ View tabs and owner filters are segmented controls. The pressed segment is a rai
 Trap focus in modal dialogs. Return focus to the trigger on close. Support Escape where cancel is safe.
 Give icon-only buttons an accessible name.
 Close is an icon-only text button in the heading. A dialog with an action also has a Cancel button beside it.
+Only the final, destructive step of a flow uses the `danger` fill. Earlier steps, such as Email me a code, use the primary fill.
 
 ### Navigation
 
 Use four primary destinations: **Today, Calendar, Memories, Tasks**. Today holds the conversation.
 Show the unread message count on Today.
-Group them above Settings. Use surface fills for hover and pastel fills for the current page.
+Group them above Settings. Hover and the current page follow the Quiet Shell Rule.
 Use labeled 20px icons: Phosphor regular in the browser, Ionicons on native devices.
 On narrow screens, the header stays at the top. The menu button shows the unread count. The account avatar opens Settings, and the pair shows names only, one line each.
 In the rail, use 12px/600 labels under the icons. Touch shows no tooltips.
@@ -431,6 +432,8 @@ The other sign-in screens show the icon and name above one 480px card. The main 
 Profile setup offers Sign out. The sign-in code field shows six large spaced digits and says to check spam.
 Pair screens are one card with the header inside. Start shows its two choices side by side when they fit.
 Sign-in, entry, and pair screens center their text and buttons. Field labels stay at the start; the code field is centered.
+From 1024px, entry cards and the brand row center vertically, so the card keeps its place between steps. Pair cards center in the content region.
+Check now on Waiting always answers: it says when it last checked.
 The Join field takes the code or the invitation link. Waiting says what to send only when a code is on screen.
 On a return visit, Waiting says the code still works, and Replace is a secondary button. Waiting says that the page opens Today when the partner joins.
 Ended offers Start a new pair and Enter invitation. Your pair stays selected in the navigation on every pair screen.
@@ -438,20 +441,23 @@ Ended offers Start a new pair and Enter invitation. Your pair stays selected in 
 **Today.** Today is chat-first: the conversation in the main column and the Our day panel beside it from 1200px.
 The header shows only the date. It has no buttons; Send message is the main action.
 Today fills the window. The conversation scrolls inside its column, so the composer stays in view. The Our day panel scrolls on its own.
-The message field starts at one line and grows to five. Send message sits beside it when they fit. The conversation keeps the most height.
+The message field starts at one line and grows to five. Its label is for screen readers; the field shows Message as a placeholder. Send message sits beside it when they fit. The conversation keeps the most height.
+With a keyboard, Enter sends and Shift+Enter adds a line. Touch keyboards keep Enter for new lines.
+Latest messages floats over the bottom of the conversation, so the conversation does not change height.
 The Our day panel shows, in order: the next plan, Upcoming plans, Due tasks, the next important date, and the latest memory.
 The next plan shows a label (Now, Today, Tomorrow, or the weekday), title, time, place, and owner.
 Upcoming plans shows a seven-day strip with one dot per owner, then up to three events after the next plan.
 Upcoming plans and Due tasks are bordered cards. The important date uses the `sidebar` fill without a border and shows the day count large.
-Below 1200px, the panel becomes a row of links above the conversation: next plan, due task count, and countdown. The next plan chip names its day. Each chip keeps one line.
+Below 1200px, the panel becomes a row of links above the conversation: next plan, due task count, and countdown. The next plan chip names its day and shows its owner dot. Each chip keeps one line and stops at 44 characters.
 Keyboard order matches the visual order.
 
-**Calendar.** Show the month, owner legend, and view control above the calendar. Add event goes in the header. Date ideas follow the calendar card as a list with a title field.
+**Calendar.** Show the month, owner legend, and view control above the calendar. Add event goes in the header and is the page's one primary button. Date ideas follow the calendar card as a list with a title field; Add idea is a secondary button.
+On phones, each owner filter keeps its name on one line. Month chips break titles between words.
 Each event shows title, time, and owner name, plus location when set.
 The selected day fills its number with `primary`. Today gets a 2px `link` ring. Cells stay clear, so event colors keep their meaning.
 In a month cell, a title keeps two lines and the owner one line. Below 768px, each day shows owner dots in place of events, and the day button names the count.
 Events, date ideas, and tasks open their edit form. Explain invalid end times beside the time field.
-The event and idea screens use Edit event and Edit idea as the title, because the Title field shows the name. The idea screen adds its state. Delete and Archive are secondary buttons; the dialog holds the final action.
+The event and idea screens use Edit event and Edit idea as the title, because the Title field shows the name. The idea screen adds its state, and Plan date is a secondary button beside the title. Delete and Archive are secondary buttons under a divider; the dialog holds the final action.
 Return links and Cancel go back to the page the person came from, with the same month, view, and filter.
 Show times with a numeric hour, such as 7:00 PM, in every place. On a later day of a timed event, show Until and the end time, or Continues.
 A tap on a day brings that day's events into view.
@@ -460,7 +466,8 @@ Keep all-day dates as dates. Never shift them through UTC conversion.
 Show every date and time in the viewer's profile timezone. Do not show timezone names on events.
 
 **Memories.** Use a feed with month headings. Show image, caption, date, and author. Thumbnails download near the viewport, four at a time.
-For the partner, the memory screen uses the date as its title, with the author badge, and shows the full caption under the photos. For the author, the title is Edit memory, because the date field follows the photos. Each photo box keeps its shape while it loads. Delete is a secondary button; the dialog holds the destructive one.
+For the partner, the memory screen uses the date as its title, with the author badge, and shows the full caption under the photos. For the author, the title is Edit memory, because the date field follows the photos. Each photo box keeps its shape while it loads.
+The memory screen is at most 960px wide. The author's form puts Save changes, Cancel, and Delete memory in one row, with Delete at the end. The dialog holds the destructive button.
 Keep captions outside images. Use a 3:2 crop in cards and the full image in detail.
 The photo hint says that photos cannot change after publish. Reserve image space before loading. Show progress, failure, and Retry on the affected image.
 
@@ -469,7 +476,9 @@ Limit message width to 80%. Align the viewer's messages to the trailing edge.
 Keep sender colors stable. Use 16px message padding on narrow screens.
 Show Read only if a real read receipt exists. Notes are pinned messages, not a second text system.
 A message shows the time; older messages add the day, and the year only when it differs. Own messages end the sender line with an actions button that opens a popover menu.
-Pinned notes are compact rows above the conversation: sender eyebrow, two lines of text, and Unpin. A lone note fills the row.
+Pinned notes are compact rows above the conversation: sender eyebrow, two lines of text, and Unpin. A lone note fills the row. Own notes say From you.
+Below 768px, a note shows one line of text, and two notes share one row that scrolls sideways.
+In a run of messages from one sender, only the first message shows the name. The color carries the run.
 A failed pin, unpin, or delete shows on its message. An unsent message keeps the sender's color.
 
 **Tasks.** Each row has a checkbox, title, assignee badge in its owner color, and optional due date. A completed row names who completed it.
@@ -477,10 +486,10 @@ The checkbox has its own 48px target. The rest of the row opens the task.
 Overdue uses `danger` text and Due today uses `warning` text, never a partner color. Open tasks with a due date come first, soonest first.
 Quick add puts the title and Add task on one row. Assigned to and Due date sit beside them when the card is 760px wide or more, and below them otherwise.
 List tabs hold lists only, one line each. New list sits beside the tabs. List settings start closed.
-Completed tasks keep readable text. Delete task is a secondary button; the dialog holds the destructive one.
+Completed tasks keep readable text. Delete task and Remove list are secondary buttons; the dialog holds the destructive one.
 
 **Settings.** Profile, Your pair, and Account share one card. End this pair has its own card below it.
-Ending a pair opens a dialog that names the partner and explains the result. The email code goes out only when the person asks for it.
+End pair is a secondary button. It opens a dialog that names the partner and explains the result. The email code goes out only when the person asks for it.
 Your pair lists each member as a row: a 48px avatar, the name in the title style, and You or Your partner.
 Section intros use secondary text. The timezone field selects its value on focus, so typing a city starts a new search. A unique city name becomes its zone; any other value gets a field error.
 The end pair code step says where the code went, uses the code field style, and Enter confirms.
@@ -489,6 +498,7 @@ The end pair code step says where the code went, uses the code field style, and 
 Previews are captures of the real app with the sample pair Alex and Sam. Each preview has a dark version. Alt text names the sample pair. No caption or badge goes under a preview.
 `apps/web/tests/capture/previews.spec.ts` makes the captures. Phone previews are 2x captures of one 390 by 844 screen. All previews share the right edge.
 Narrow pages keep the left edge of the header with a 720px text column. Their section titles are 28px (24px on mobile). The footer stays at the bottom of short pages.
+Section headings use the headline role. From 1024px, phone previews are 360px wide, and feature text starts at the top of its preview.
 Make no claim that the product cannot prove. The h1 names the product type and its users. The hero has one primary button, Join with an invitation, and one line with a hard fact and the release status. On a phone the button spans the column.
 The site follows the website rules of [taste-skill](https://github.com/Leonxlnx/taste-skill) 2.5.1 in CSS only. The site has no page JavaScript.
 
