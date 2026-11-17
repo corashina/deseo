@@ -1,4 +1,4 @@
-import { useId } from 'react';
+import { useId, type SyntheticEvent } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { UsersIcon } from '@phosphor-icons/react/dist/csr/Users';
 import { HouseIcon } from '@phosphor-icons/react/dist/csr/House';
@@ -7,14 +7,19 @@ import { ImagesIcon } from '@phosphor-icons/react/dist/csr/Images';
 import { ListChecksIcon } from '@phosphor-icons/react/dist/csr/ListChecks';
 import { GearSixIcon } from '@phosphor-icons/react/dist/csr/GearSix';
 
-export function PortalNavigation({ destination, activePair, unreadCount, onPairOpen }: {
-  destination: string; activePair: boolean; unreadCount: number | undefined; onPairOpen(): void;
+export function PortalNavigation({ destination, activePair, unreadCount, onPairOpen, preload }: {
+  destination: string; activePair: boolean; unreadCount: number | undefined; onPairOpen(): void; preload(pathname: string): void;
 }) {
   const { pathname } = useLocation();
   const unreadId = useId();
   const unread = unreadCount !== undefined && unreadCount > 0;
   const calendarActive = /^\/(calendar|events|ideas)(\/|$)/.test(pathname);
-  return <nav className="portal-nav" aria-label="Main navigation">
+  // One listener on the list serves every link.
+  const startPreload = (event: SyntheticEvent) => {
+    const link = (event.target as Element).closest('a');
+    if (link) preload(link.pathname);
+  };
+  return <nav className="portal-nav" aria-label="Main navigation" onPointerOver={startPreload} onFocus={startPreload}>
     <div className="nav-group">
       {!activePair && <Link to={destination} aria-label="Your pair" title="Your pair" aria-current={pathname.startsWith('/pair/') ? 'page' : undefined} onClick={onPairOpen}>
         <UsersIcon size={20} aria-hidden="true" /><span className="nav-label">Your pair</span>

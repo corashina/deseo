@@ -26,9 +26,12 @@ export function TasksPage() {
   const tasks = useQuery({ queryKey: taskKeys.list(account!.id, pairId, listId), queryFn: () => listTasks(pairId, listId), enabled: Boolean(listId) });
   if (pair?.status !== 'active') return null;
   const select = (id: string) => { setAdding(false); setParams({ list: id }); };
+  // Split open and done tasks in one pass.
   // Open tasks with a due date come first, soonest first. Tasks without one keep their order.
-  const open = [...tasks.data?.filter(task => task.completedAt === null) ?? []].sort((a, b) => (a.dueDate ?? '9999').localeCompare(b.dueDate ?? '9999'));
-  const done = tasks.data?.filter(task => task.completedAt !== null) ?? [];
+  const open: Task[] = [];
+  const done: Task[] = [];
+  for (const task of tasks.data ?? []) (task.completedAt === null ? open : done).push(task);
+  open.sort((a, b) => (a.dueDate ?? '9999').localeCompare(b.dueDate ?? '9999'));
   const row = (task: Task) => <TaskRow key={task.id} task={task} members={pair.members} timezone={account!.timezone} locale={account!.locale} />;
   return <>
     <PageHeader title="Tasks" description="Keep shared tasks in named lists." />

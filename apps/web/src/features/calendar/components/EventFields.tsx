@@ -1,5 +1,5 @@
 import { useEffect, useId, useRef } from 'react';
-import type { UseFormReturn } from 'react-hook-form';
+import { useWatch, type UseFormReturn } from 'react-hook-form';
 import type { EventFormValues } from '@deseo/domain/calendar';
 import { Field } from '../../../components/ui/Field';
 import type { OwnerNames } from './EventRow';
@@ -7,7 +7,9 @@ import type { OwnerNames } from './EventRow';
 export function EventFields({ form, names, slot, author, locked, planning = false }: {
   form: UseFormReturn<EventFormValues>; names: OwnerNames; slot: 'a' | 'b'; author: boolean; locked: boolean; planning?: boolean;
 }) {
-  const values = form.watch();
+  // Read only the values these fields use. Typing a title, a date, or a description then does not render them again.
+  const values = useWatch({ control: form.control, compute: ({ allDay, who, importantDate, repeat, location, description }) =>
+    ({ allDay, who, importantDate, repeat, details: Boolean(location || description) }) });
   const { register, formState: { errors } } = form;
   const prefix = useId();
   const details = useRef<HTMLDetailsElement>(null);
@@ -54,7 +56,7 @@ export function EventFields({ form, names, slot, author, locked, planning = fals
       </select>
       {errors.who && <span className="field-error" role="alert" id={prefix + 'who-error'}>{errors.who.message}</span>}
     </label>
-    <details className="event-details" ref={details} open={Boolean(values.location || values.description || values.importantDate || values.repeat === 'yearly') || undefined}>
+    <details className="event-details" ref={details} open={Boolean(values.details || values.importantDate || values.repeat === 'yearly') || undefined}>
       <summary>More details</summary>
       <div className="event-details-content">
         <label className="checkbox-field"><input type="checkbox" {...register('importantDate', { onChange: event => markImportant(event.target.checked) })} {...fieldProps('importantDate', true)} />Important date</label>

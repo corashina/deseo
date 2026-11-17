@@ -17,7 +17,8 @@ import { BrandIcon } from '../components/ui/BrandIcon';
 // The rail band has no collapse toggle. Read the width in script so a resize cannot leave a stale toggle.
 const railBand = matchMedia('(min-width: 768px) and (max-width: 1023px)');
 const subscribe = (change: () => void) => { railBand.addEventListener('change', change); return () => railBand.removeEventListener('change', change); };
-export function AppShell({ children }: { children: ReactNode }) {
+// Pointing at or focusing a navigation link preloads its page.
+export function AppShell({ children, preload }: { children: ReactNode; preload(pathname: string): void }) {
   const { account, pair } = useSession();
   const accountId = account?.id ?? '';
   const slot = pair?.status === 'active' ? pair.members.find(member => member.userId === account?.id)?.slot : pair?.status === 'pending' ? pair.member.slot : undefined;
@@ -34,7 +35,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const tablet = useSyncExternalStore(subscribe, () => railBand.matches);
   useEffect(() => { setDrawer(false); }, [location.pathname]);
   const destination = pair?.status === 'pending' ? '/pair/waiting' : pair?.status === 'ended' ? '/pair/ended' : '/pair/start';
-  const navigation = <PortalNavigation destination={destination} activePair={pair?.status === 'active'} unreadCount={unread.data} onPairOpen={() => setDrawer(false)} />;
+  const navigation = <PortalNavigation destination={destination} activePair={pair?.status === 'active'} unreadCount={unread.data} onPairOpen={() => setDrawer(false)} preload={preload} />;
   const members = pair?.status === 'active' ? [...pair.members].sort((a, b) => a.slot.localeCompare(b.slot)) : [];
   const names = members.length ? members.map(member => member.displayName) : [account?.displayName ?? 'Deseo'];
   return <div className={`portal ${tablet || collapsed ? 'rail' : ''}`}><a className="skip-link" href="#main">Skip to content</a>

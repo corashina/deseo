@@ -61,7 +61,7 @@ function Frame() {
   const identity = session.userId + ':' + session.pair?.status + ':' + (session.pair && 'pairId' in session.pair ? session.pair.pairId : '');
   if (session.status === 'loading') return <div className="entry-loading"><Status>Checking your account…</Status></div>;
   if (session.status === 'error') return <section className="card form-page"><h1>We could not open your account</h1><Status error>{session.error}</Status><Button variant="primary" onClick={() => void session.revalidate()}>Retry</Button><Button variant="secondary" onClick={() => void signOut()}>Sign out</Button></section>;
-  return session.status === 'authenticated' && session.account ? <AppShell key={identity}><Outlet /></AppShell> : <div className="entry-container" key={identity}>
+  return session.status === 'authenticated' && session.account ? <AppShell key={identity} preload={preloadPage}><Outlet /></AppShell> : <div className="entry-container" key={identity}>
     {/* Sign in shows the large icon. The other entry screens keep a small brand row above the card. */}
     {pathname !== '/sign-in' && <p className="entry-brand"><BrandIcon alt="" size={40} /><span translate="no">Deseo</span></p>}
     <Outlet />
@@ -83,21 +83,22 @@ if (location.pathname === '/invite') {
 }
 const publicPage = (title: string, Component: LazyPage) => ({ element: <Page title={title}><Gate kind="public"><Component /></Gate></Page>, handle: Component.load });
 const accountPage = (title: string, Component: LazyPage) => ({ element: <Page title={title}><Gate kind="account"><Component /></Gate></Page>, handle: Component.load });
+const recordId = z.string().uuid();
+const records = [
+  ['eventId', 'Event', '/calendar', 'Return to calendar'],
+  ['taskId', 'Task', '/tasks', 'Return to tasks'],
+  ['ideaId', 'Idea', '/calendar', 'Return to calendar'],
+  ['memoryId', 'Memory', '/memories', 'Return to memories'],
+] as const;
 function RecordRoute({ children }: { children: ReactNode }) {
   const { pathname } = useLocation();
   const params = useParams();
   const [search] = useSearchParams();
-  const records = [
-    ['eventId', 'Event', '/calendar', 'Return to calendar'],
-    ['taskId', 'Task', '/tasks', 'Return to tasks'],
-    ['ideaId', 'Idea', '/calendar', 'Return to calendar'],
-    ['memoryId', 'Memory', '/memories', 'Return to memories'],
-  ];
   for (const [key, title, returnTo, returnLabel] of records) {
-    if (params[key] && !z.string().uuid().safeParse(params[key]).success)
+    if (params[key] && !recordId.safeParse(params[key]).success)
       return <RouteErrorPage title={title} returnTo={returnTo} returnLabel={returnLabel} />;
   }
-  if (pathname === '/events/new' && search.has('idea') && !z.string().uuid().safeParse(search.get('idea')).success)
+  if (pathname === '/events/new' && search.has('idea') && !recordId.safeParse(search.get('idea')).success)
     return <RouteErrorPage title="Idea" returnTo="/calendar" returnLabel="Return to calendar" />;
   return <Fragment key={pathname}>{children}</Fragment>;
 }
@@ -126,7 +127,10 @@ const routes: RouteObject[] = [{ element: <Root />, errorElement: <RouteFailureB
   { path: '*', element: <Page title="Page not found"><NotFoundPage /></Page> },
 ] }];
 export const router = createBrowserRouter(routes);
-// Fetch the page chunk for the first URL while the session check runs.
-// The lazy page reports a failed fetch, so ignore it here.
-const initialPage: LazyPage['load'] | undefined = matchRoutes(routes, location)?.at(-1)?.route.handle;
-initialPage?.().catch(() => undefined);
+// Fetch a page chunk before the router needs it. The lazy page reports a failed fetch, so ignore it here.
+function preloadPage(pathname: string) {
+  const load: LazyPage['load'] | undefined = matchRoutes(routes, pathname)?.at(-1)?.route.handle;
+  load?.().catch(() => undefined);
+}
+// The first URL loads while the session check runs.
+preloadPage(location.pathname);

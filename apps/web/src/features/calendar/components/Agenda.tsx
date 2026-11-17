@@ -8,7 +8,10 @@ import { formatDate } from '../../../lib/format';
 // One day shows its events without a day heading, because the caller names the day.
 export function Agenda({ events, from, to, timezone, locale, names, empty }: { events: AgendaItem[]; from: string; to: string; timezone: string; locale: string; names: OwnerNames; empty: ReactNode }) {
   const days = new Map<string, AgendaItem[]>();
-  for (const event of events) for (const date of agendaDates(event, timezone, from, to)) days.set(date, [...(days.get(date) ?? []), event]);
+  for (const event of events) for (const date of agendaDates(event, timezone, from, to)) {
+    const items = days.get(date);
+    if (items) items.push(event); else days.set(date, [event]);
+  }
   if (days.size === 0) return <div className="empty-state">{empty}</div>;
   const rows = (day: string, items: AgendaItem[]) => items.map(event => <EventRow key={event.id} event={event} names={names} timezone={timezone} locale={locale} day={day} />);
   if (DateTime.fromISO(from).plus({ days: 1 }).toISODate() === to) return <div className="agenda">{rows(from, [...days.values()][0])}</div>;
