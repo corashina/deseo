@@ -16,9 +16,10 @@ import { Button } from '../../../components/ui/Button';
 import { Status } from '../../../components/ui/Status';
 import { Dialog } from '../../../components/ui/Dialog';
 import { calendarKeys, getEvent } from '../queries';
-import { createEvent, updateEvent } from '../commands';
+import { createEvent, deleteEvent, updateEvent } from '../commands';
 import { EventFields } from '../components/EventFields';
-import { ownerNames } from '../components/EventRow';
+import { eventOwner, ownerNames } from '../components/EventRow';
+import { PartnerBadge } from '../../../components/ui/PartnerBadge';
 import { useReturnTo } from '../../../lib/return-to';
 import '../../../styles/calendar.css';
 
@@ -60,6 +61,7 @@ function EventEditor({ event, idea }: { event?: Event; idea?: DateIdea }) {
   const [version, setVersion] = useState(idea?.version ?? event?.version);
   const command = useCommandId();
   const [sharing, setSharing] = useState<EventFormValues | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const [now] = useState(() => DateTime.now().setZone(account.timezone));
   const date = DateTime.fromISO(params.get('date') ?? '');
   const form = useForm<EventFormValues>({
@@ -96,16 +98,18 @@ function EventEditor({ event, idea }: { event?: Event; idea?: DateIdea }) {
     },
     onSuccess: () => save.reset(),
   });
-  const failure = save.isError ? toAppError(save.error) : null;
+  const remove = useMutation({ mutationFn: () => deleteEvent(event!.id, version!), onSuccess: () => navigate(back), onSettled: () => setConfirmDelete(false) });
+  const failure = save.isError ? toAppError(save.error) : remove.isError ? toAppError(remove.error) : null;
   const conflict = failure?.code === 'CONFLICT';
   const error = reload.isError ? toAppError(reload.error).message
     : conflict ? (idea ? 'This idea changed. Your draft is kept.' : 'This event changed. Your draft is kept.')
     : failure?.message ?? '';
-  const saving = save.isPending || reload.isPending;
+  const saving = save.isPending || reload.isPending || remove.isPending;
   useUnsavedChanges(!save.isSuccess && form.formState.isDirty);
+  // Navigate after the save clears the unsaved-changes guard, so no false prompt shows.
   useEffect(() => {
-    if (save.isSuccess) navigate('/events/' + id, { replace: true, state: { from: back } });
-  }, [save.isSuccess, navigate, id, back]);
+    if (save.isSuccess) navigate(back, { replace: true });
+  }, [save.isSuccess, navigate, back]);
 
   function submitValues(values: EventFormValues) {
     if (event?.who === 'private' && values.who !== 'private') setSharing(values);
@@ -119,8 +123,10 @@ function EventEditor({ event, idea }: { event?: Event; idea?: DateIdea }) {
   }
 
   const names = ownerNames(pair.members, account.id);
+  const owner = event && eventOwner(event, names);
   return <>
-    <PageHeader title={event ? 'Edit event' : idea ? 'Plan date' : 'Add event'} />
+    {event && owner ? <PageHeader eyebrow="Event" title={event.title} description={<PartnerBadge name={names[owner]} slot={owner} />} />
+      : <PageHeader title={idea ? 'Plan date' : 'Add event'} />}
     <section className="card form-page">
       <form onSubmit={form.handleSubmit(submitValues)}>
         <EventFields form={form} names={names} slot={names.self} author={!event || event.authorId === account.id} locked={saving} planning={Boolean(idea)} />
@@ -139,10 +145,15 @@ function EventEditor({ event, idea }: { event?: Event; idea?: DateIdea }) {
           <Button variant="primary" disabled={saving || conflict} type="submit">
             {saving ? 'Saving…' : failure ? 'Retry save' : event ? 'Save changes' : 'Save event'}
           </Button>
-          <Link className="button secondary" to={event ? '/events/' + event.id : idea ? '/ideas/' + idea.id : back} state={{ from: back }}>Cancel</Link>
+          <Link className="button secondary" to={idea ? '/ideas/' + idea.id : back} state={{ from: back }}>Cancel</Link>
         </div>
       </form>
+      {event && <div className="task-delete"><Button variant="secondary" disabled={saving} onClick={() => setConfirmDelete(true)}>{remove.isError ? 'Retry deletion' : 'Delete event'}</Button></div>}
     </section>
+    <Dialog busy={remove.isPending} title="Delete this event?" open={confirmDelete} onClose={() => setConfirmDelete(false)}>
+      <p>{event?.who === 'private' ? 'You will lose access to this event.' : 'Both partners will lose access to this event.'}</p>
+      <Button variant="danger" disabled={remove.isPending} onClick={() => remove.mutate()}>Confirm deletion</Button>
+    </Dialog>
     <Dialog busy={saving} open={Boolean(sharing)} title="Share this event?" onClose={() => setSharing(null)}>
       <p>Your partner will see this event.</p>
       <Button variant="primary" onClick={confirmSharing}>Share event</Button>
