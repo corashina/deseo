@@ -32,7 +32,8 @@
 /* In a month cell a title keeps two lines and the owner one, so one event does not stretch its week. */
 .day-events .event-row { flex-direction: column; gap: 0; padding: var(--space-1) var(--space-2); font-size: 14px; border-radius: var(--radius-badge); }
 .day-events .event-row-time, .day-events .event-row-content > span { font-size: 12px; min-width: 0; }
-.day-events .event-row-content > strong { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+/* Narrow month chips break titles between words, never inside one. */
+.day-events .event-row-content > strong { overflow-wrap: normal; hyphens: auto; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
 .day-events .event-row-content > span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 .selected-agenda { margin-top: var(--space-8); scroll-margin-top: calc(72px + var(--space-4)); }
@@ -67,8 +68,10 @@
   .calendar-toolbar { gap: var(--space-3); }
   .calendar-date-controls { width: 100%; }
   .calendar-date-controls h2 { flex: 1; }
-  /* Four owner filters sit in two even rows. */
+  /* Four owner filters sit in two even rows. Each name keeps one line, so the calendar starts higher. */
   .owner-filters { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); width: 100%; }
+  .owner-filters button { min-width: 0; }
+  .owner-name { min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
   .month-day { min-height: 72px; padding: 0; }
   .month-weekdays span { justify-self: stretch; width: auto; max-width: none; padding: var(--space-2) 0; }
   .day-number { width: 100%; border-radius: var(--radius-badge); margin-bottom: 0; }
