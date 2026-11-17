@@ -11,6 +11,8 @@
 .month-weekdays span { justify-self: start; box-sizing: content-box; width: var(--nav-target); max-width: calc(100% - 2 * var(--space-2)); padding: var(--space-3) var(--space-2); font-size: 12px; font-weight: 600; color: var(--muted); text-align: center; }
 .month-days { border-top: 1px solid var(--line); border-left: 1px solid var(--line); }
 .month-day { min-width: 0; min-height: 142px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: var(--space-2); }
+/* Weeks start on Monday, so the last two cells of each row are the weekend. */
+.month-day:nth-child(7n+6), .month-day:nth-child(7n) { background: var(--canvas); }
 .month-day.outside .day-number { color: var(--muted); font-weight: 500; }
 .day-number { display: block; font-weight: 600; font-variant-numeric: tabular-nums; min-height: var(--nav-target); width: var(--nav-target); max-width: 100%; margin-bottom: var(--space-1); border-radius: 50%; border: 0; background: transparent; color: var(--ink); cursor: pointer; transition: background-color var(--duration-feedback) var(--ease); }
 .day-number:hover { background: var(--sidebar); }

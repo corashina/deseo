@@ -11,7 +11,7 @@ button, input, textarea, select { font: inherit; }
 select { background-color: var(--surface); color: var(--ink); }
 a { color: var(--link); text-underline-offset: 4px; }
 h1, h2, h3, p { margin-top: 0; overflow-wrap: anywhere; }
-h1 { font-size: 40px; line-height: 1.1; letter-spacing: -.02em; margin-bottom: 12px; font-weight: 500; text-wrap: balance; }
+h1 { font-size: 28px; line-height: 1.2; letter-spacing: -.02em; margin-bottom: 12px; font-weight: 500; text-wrap: balance; }
 h2 { font-size: 19px; line-height: 1.3; font-weight: 600; }
 h2, h3 { text-wrap: balance; }
 p { text-wrap: pretty; }
@@ -46,14 +46,13 @@ p { text-wrap: pretty; }
 .pair-options h2 { margin-bottom: var(--space-2); }
 .pair-options > section > .button { margin-top: auto; }
 .pair-cancel { border-top: 1px solid var(--line); padding-top: var(--space-4); }
-.invite-code { font-size: 30px; font-weight: 500; line-height: 1.2; font-variant-numeric: tabular-nums; letter-spacing: .08em; background: var(--shared-soft); padding: var(--space-6); border-radius: var(--radius-control); margin-bottom: 0; overflow-wrap: anywhere; }
+.invite-code { font-size: 28px; font-weight: 500; line-height: 1.2; font-variant-numeric: tabular-nums; letter-spacing: .08em; background: var(--shared-soft); padding: var(--space-6); border-radius: var(--radius-control); margin-bottom: 0; overflow-wrap: anywhere; }
 .entry-container { padding: var(--space-8); min-height: 100dvh; }
 .entry-brand { display: flex; align-items: center; justify-content: center; gap: var(--space-3); margin: max(0px, 8vh - var(--space-8)) 0 var(--space-6); font-size: 19px; font-weight: 600; }
 .entry-brand picture, .entry-brand img { display: block; border-radius: var(--radius-control); }
 .entry-loading { min-height: 100dvh; display: grid; place-content: center; }
-/* Entry screens share one card: 480px wide, a 30px title, and a full-width main button. */
+/* Entry screens share one card: 480px wide and a full-width main button. */
 .entry-container > .form-page { max-width: 480px; margin-top: 0; }
-:is(.entry-container > .form-page, .entry-card) h1 { font-size: 30px; }
 .entry-container > .form-page form > .button { width: 100%; }
 .entry-page { min-height: calc(100dvh - 2 * var(--space-8)); display: grid; grid-template-columns: 1.1fr 1fr; gap: var(--space-10); align-items: center; max-width: 1200px; margin: auto; }
 .entry-story { padding: var(--space-10); background: var(--sidebar); border-radius: var(--radius-card); }
@@ -65,5 +64,5 @@ p { text-wrap: pretty; }
 .entry-card .button { width: 100%; margin-bottom: var(--space-6); }
 .entry-card .muted { margin-bottom: 0; }
 @media (max-width: 1023px) { .entry-page { grid-template-columns: minmax(0, 1fr); max-width: 560px; align-content: start; } }
-@media (max-width: 767px) { h1 { font-size: 30px; } .card { padding: var(--space-5); } .entry-container { padding: var(--space-4); } .entry-page { gap: var(--space-6); padding: var(--space-8) 0; } .entry-story { padding: var(--space-6); } .entry-story h1 { font-size: 36px; } .welcome-icon { width: 64px; height: 64px; margin-bottom: var(--space-4); } .entry-card { padding: var(--space-5); } .page-header { margin-bottom: var(--space-6); } }
+@media (max-width: 767px) { h1 { font-size: 24px; } .card { padding: var(--space-5); } .entry-container { padding: var(--space-4); } .entry-page { gap: var(--space-6); padding: var(--space-8) 0; } .entry-story { padding: var(--space-6); } .entry-story h1 { font-size: 36px; } .welcome-icon { width: 64px; height: 64px; margin-bottom: var(--space-4); } .entry-card { padding: var(--space-5); } .page-header { margin-bottom: var(--space-6); } }
 .visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
