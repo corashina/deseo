@@ -27,6 +27,11 @@ export function WaitingPage() {
       setStatus('Invitation link copied.');
     } catch { setStatus('Copy the code above and send it to your partner.'); }
   }
+  // Check now always answers. When the partner has joined, the page opens Today instead.
+  async function check() {
+    await revalidate();
+    setStatus('Still waiting. Checked at ' + formatDate(DateTime.now().setZone(account!.timezone), 'time', account!.locale) + '.');
+  }
   const shown = Boolean(token) && !invite.isPending;
   const description = shown ? 'Send this code or link to your partner. Only your partner should use it.'
     : expiresAt ? 'Your code still works until it expires. Replace it only if your partner does not have it.'
@@ -43,7 +48,7 @@ export function WaitingPage() {
       <Button variant={token || expiresAt ? 'secondary' : 'primary'} disabled={invite.isPending} onClick={() => invite.mutate(pair.pairId)}>
         {invite.isPending ? 'Creating invitation…' : invite.isError ? 'Retry invitation code' : expiresAt ? 'Replace invitation code' : 'Create invitation code'}
       </Button>
-      <Button variant="text" onClick={() => void revalidate()}>Check now</Button>
+      <Button variant="text" onClick={() => void check()}>Check now</Button>
     </div>
     {invite.isError && <Status error>{toAppError(invite.error).message}</Status>}
     <div className="pair-cancel"><Button variant="text" onClick={() => setOpen(true)}>Cancel invitation</Button></div></section>
