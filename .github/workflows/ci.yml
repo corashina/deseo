@@ -57,7 +57,8 @@ jobs:
       - name: Install packages and start Supabase
         run: |
           supabase start --exclude studio,vector,logflare,imgproxy,supavisor > "$RUNNER_TEMP/supabase.log" 2>&1 &
-          npm ci
+          # Mobile packages triple the install time, and these jobs do not use them.
+          npm ci --workspace @deseo/web --include-workspace-root
           wait $! || { cat "$RUNNER_TEMP/supabase.log"; exit 1; }
       - run: supabase test db --local
       - name: Check generated database types
@@ -95,7 +96,8 @@ jobs:
         run: |
           sudo ss -tanp | grep -E ':5572[0-9]\b' || true
           supabase start --exclude studio,vector,logflare,imgproxy,supavisor > "$RUNNER_TEMP/supabase.log" 2>&1 &
-          npm ci
+          # Mobile packages triple the install time, and these jobs do not use them.
+          npm ci --workspace @deseo/web --include-workspace-root
           npm exec --workspace @deseo/web -- playwright install --with-deps chromium
           wait $! || {
             cat "$RUNNER_TEMP/supabase.log"
