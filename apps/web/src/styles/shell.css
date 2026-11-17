@@ -1,7 +1,7 @@
 .portal { --sidebar-width: 256px; min-height: 100dvh; }
 .sidebar { position: fixed; inset: 0 auto 0 0; width: var(--sidebar-width); background: var(--sidebar); border-right: 1px solid var(--line); display: flex; flex-direction: column; padding: var(--space-6) var(--space-3) var(--space-4); gap: var(--space-6); overflow-y: auto; }
 /* The 23px wordmark is a lockup value beside the 40px icon. */
-.brand { display: flex; align-items: center; gap: var(--space-3); padding-left: var(--space-1); font-size: 23px; letter-spacing: -.025em; font-weight: 700; min-height: var(--nav-target); }
+.brand { display: flex; align-items: center; gap: var(--space-3); padding-left: var(--space-1); font-size: 23px; letter-spacing: -.02em; font-weight: 600; min-height: var(--nav-target); }
 .brand img { display: block; width: 40px; height: 40px; border-radius: var(--radius-control); }
 .brand .collapse-toggle { margin-left: auto; padding: 0; min-width: var(--nav-target); }
 .portal-nav, .nav-group { display: grid; gap: var(--space-1); }

@@ -74,39 +74,37 @@ typography:
   display:
     fontFamily: "Manrope Variable, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif"
     fontSize: "48px"
-    fontWeight: 700
+    fontWeight: 500
     lineHeight: 1.2
-    letterSpacing: "-0.03em"
+    letterSpacing: "-0.02em"
   display-mobile:
     fontFamily: "Manrope Variable, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif"
     fontSize: "36px"
-    fontWeight: 700
+    fontWeight: 500
     lineHeight: 1.2
-    letterSpacing: "-0.03em"
+    letterSpacing: "-0.02em"
   headline:
     fontFamily: "Manrope Variable, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif"
     fontSize: "40px"
-    fontWeight: 800
+    fontWeight: 500
     lineHeight: 1.1
-    letterSpacing: "-0.035em"
+    letterSpacing: "-0.02em"
   headline-mobile:
     fontFamily: "Manrope Variable, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif"
     fontSize: "30px"
-    fontWeight: 800
+    fontWeight: 500
     lineHeight: 1.1
-    letterSpacing: "-0.035em"
+    letterSpacing: "-0.02em"
   title:
     fontFamily: "Manrope Variable, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif"
     fontSize: "19px"
-    fontWeight: 700
+    fontWeight: 600
     lineHeight: 1.3
-    letterSpacing: "-0.015em"
   eyebrow:
     fontFamily: "Manrope Variable, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif"
     fontSize: "12px"
-    fontWeight: 700
+    fontWeight: 600
     lineHeight: 1.5
-    letterSpacing: "0.06em"
   body:
     fontFamily: "Manrope Variable, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif"
     fontSize: "16px"
@@ -212,6 +210,7 @@ The owner approved pastel styling, the [Two voices icon](brand/icon-source.png),
 The look is calm and personal: pastel fills, dark text, and names beside every owner color.
 
 Planning screens are compact. Personal screens give photos and notes more space.
+The type, label, depth, and motion rules follow [unslop](https://github.com/heydamir/unslop) by Damir Sokolovsky (CC BY 4.0).
 
 | User need | Interface treatment |
 |---|---|
@@ -226,7 +225,7 @@ Planning screens are compact. Personal screens give photos and notes more space.
 
 - Pastel fills with dark text and dark essential boundaries.
 - A stable color for each partner, always shown with a name.
-- Flat cards with one-pixel borders; shadows only on popovers, dialogs, selected navigation, and the next plan card.
+- Flat cards with one-pixel borders; shadows only on popovers, dialogs, and selected navigation.
 - Manrope type in the browser and real text for labels and numbers.
 
 ### Platforms
@@ -313,18 +312,18 @@ Sources: [WCAG text contrast](https://www.w3.org/WAI/WCAG22/Understanding/contra
 
 **Body Font:** Manrope in the browser, bundled through `@fontsource-variable/manrope`. The system sans-serif stack is the fallback. Native screens use the system font.
 
-**Character:** rounded and friendly, with heavy titles. Names, dates, and photos carry the personality.
+**Character:** rounded and friendly, with calm titles. Names, dates, and photos carry the personality.
 
 ### Hierarchy
 
 | Role | Desktop | Mobile | Weight / line height |
 |---|---|---|---|
-| Browser welcome title (display) | 48px | 36px | 700 / 1.2 |
-| Browser page title (headline) | 40px | 30px | 800 / 1.1 |
-| Entry card title | 30px | 30px | 800 / 1.1 |
+| Browser welcome title (display) | 48px | 36px | 500 / 1.2 |
+| Browser page title (headline) | 40px | 30px | 500 / 1.1 |
+| Entry card title | 30px | 30px | 500 / 1.1 |
 | Native page title | 28dp | 28dp | 700 / 34dp |
-| Section title (title) | 19px | 19px | 700 / 1.3 |
-| Eyebrow above a title (eyebrow) | 12px | 12px | 700 / 1.5, uppercase |
+| Section title (title) | 19px | 19px | 600 / 1.3 |
+| Eyebrow above a title (eyebrow) | 12px | 12px | 600 / 1.5 |
 | Body and input | 16px | 16px | 400 / 1.5 |
 | Button | 15px | 15px | 600 / 1.4 |
 | Secondary text | 14px | 14px | 400 / 1.5 |
@@ -334,8 +333,10 @@ Sources: [WCAG text contrast](https://www.w3.org/WAI/WCAG22/Understanding/contra
 
 Inputs and selects are 48px high, so fields in one row line up. Checkboxes use the `primary` accent.
 Use real text for labels and numbers. Use tabular numbers for times and countdowns.
-Use uppercase only for short decorative labels. Keep instructions and controls in sentence case.
-Limit title tracking to `-0.035em`.
+Use sentence case everywhere. Do not use uppercase labels.
+Use weights 400, 500, and 600 only in the browser. Hierarchy comes from size and color.
+Limit title tracking to `-0.02em`. Text below 20px has no negative tracking.
+Short strings, such as titles, labels, buttons, and captions, end without a period.
 
 ## Layout
 
@@ -369,14 +370,13 @@ Surfaces are flat. A one-pixel `line` border separates cards from the canvas.
 
 - **Popover** (`box-shadow: 0 8px 24px var(--shadow)`): popovers and dialogs.
 - **Selected** (`box-shadow: 0 2px 8px var(--shadow)`): the selected navigation item.
-- **Next plan glow** (`box-shadow: 0 12px 40px -16px` in the owner accent): the next plan card on Today.
 - **Backdrop** (`backdrop`): the scrim behind modal dialogs.
 
-**The Flat Card Rule.** Reserve shadows for popovers, dialogs, selected navigation, and the next plan card.
+**The Flat Card Rule.** Reserve shadows for popovers, dialogs, and selected navigation. Never color a shadow.
 
 ### Motion
 
-Use 140ms transitions for feedback and 200ms for panels, with `cubic-bezier(.2, .8, .2, 1)`. Animate opacity or transform.
+Use 140ms transitions for feedback and 200ms for panels, with `cubic-bezier(.2, .8, .2, 1)`. Animate opacity or transform. A press scales to 0.98.
 Avoid looping animation, parallax, and decorative counters.
 
 ## Shapes
