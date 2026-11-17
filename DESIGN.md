@@ -355,8 +355,15 @@ Surfaces are flat. A one-pixel `line` border separates cards from the canvas.
 
 ### Motion
 
-Use 140ms transitions for feedback and 200ms for panels, with `cubic-bezier(.2, .8, .2, 1)`. Animate opacity or transform. A press scales to 0.98.
-Avoid looping animation, parallax, and decorative counters.
+Use 150ms transitions in, 120ms out, 90ms for a press, and 200ms for panels, with `cubic-bezier(.2, .8, .2, 1)`. Animate opacity or transform.
+These hover and press steps follow [taste-skill](https://github.com/Leonxlnx/taste-skill) 2.5.1 by Leonxlnx (MIT). Hover moves only with a fine pointer.
+
+- A filled or outlined button steps up 1px on hover. A press sinks it 1px below rest and scales it to 0.985. A text button changes only its fill.
+- A linked card lifts 2px and its border darkens one step. A photo in a linked card zooms to 1.03 inside its frame over 600ms.
+- An event row changes its fill. A press scales it to 0.985.
+- The focus ring is 2px, 2px off the control.
+
+Avoid looping animation, parallax, and decorative counters. Scrolling moves nothing, except the one site statement below.
 
 ## Shapes
 
@@ -479,10 +486,16 @@ Section intros use secondary text. The timezone field selects its value on focus
 The end pair code step says where the code went, uses the code field style, and Enter confirms.
 
 **Site.** The site uses the portal tokens, Manrope, and the same type scale. Each page has a light and a dark browser bar color.
-Previews are captures of the real app with the sample pair Alex and Sam. Each preview has a dark version and a Preview badge.
-`apps/web/tests/capture/previews.spec.ts` makes the captures. Phone previews are 2x captures at 390px. All previews share the right edge.
+Previews are captures of the real app with the sample pair Alex and Sam. Each preview has a dark version. Alt text names the sample pair. No caption or badge goes under a preview.
+`apps/web/tests/capture/previews.spec.ts` makes the captures. Phone previews are 2x captures of one 390 by 844 screen. All previews share the right edge.
 Narrow pages keep the left edge of the header with a 720px text column. The footer stays at the bottom of short pages.
-Make no claim that the product cannot prove. The hero has one primary button, Join with an invitation, and one line of release status.
+Make no claim that the product cannot prove. The h1 names the product type and its users. The hero has one primary button, Join with an invitation, and one line with a hard fact and the release status. On a phone the button spans the column.
+The site follows the website rules of [taste-skill](https://github.com/Leonxlnx/taste-skill) 2.5.1 in CSS only. The site has no page JavaScript.
+
+- From 1024 by 760px, the home hero fills the first screen alone, and each home section fills one screen.
+- The hero enters once on load: the title rises line by line out of its masks, then the text and button fade up 12px, and the preview settles from 0.98. Other pages fade their title and lead up once.
+- The privacy statement is the one scroll moment. Its words light up one by one through a CSS scroll timeline. Without scroll timelines, it shows at full ink.
+- Links in text rest on a faint hairline, and an ink line draws from the left on hover. Navigation and footer words rest bare and draw a line under the word. The current page has a 2px bar.
 
 ### States
 

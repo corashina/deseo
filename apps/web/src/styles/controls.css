@@ -1,13 +1,17 @@
 .button { min-height: var(--nav-target); max-width: 100%; border: 1px solid var(--action-border); border-radius: var(--radius-control); padding: var(--space-3) var(--space-4); font-size: 15px; font-weight: 600; display: inline-flex; justify-content: center; align-items: center; gap: var(--space-2); cursor: pointer; text-decoration: none; line-height: 1.4; transition: background-color var(--duration-feedback) var(--ease), color var(--duration-feedback) var(--ease), border-color var(--duration-feedback) var(--ease), transform var(--duration-feedback) var(--ease); }
 .button.primary { background: var(--primary); color: var(--on-primary); border-color: var(--primary); }
-.button.primary:hover:not(:disabled) { background: color-mix(in srgb, var(--primary) 88%, var(--ink)); }
+.button.primary:hover:not(:disabled) { background: color-mix(in srgb, var(--primary) 86%, var(--ink)); }
 .button.secondary { background: var(--surface); color: var(--ink); border-color: var(--control); }
 .button.danger { background: var(--danger); color: var(--on-primary); border-color: var(--danger); }
 .button.text { background: transparent; color: var(--link); border-color: transparent; }
 .button.text:hover:not(:disabled) { background: var(--sidebar); }
-.button.secondary:hover:not(:disabled) { background: var(--sidebar); }
+.button.secondary:hover:not(:disabled) { background: var(--sidebar); border-color: var(--ink); }
 .button.danger:hover:not(:disabled) { background: var(--danger-soft); color: var(--danger); }
-.button:active:not(:disabled) { transform: scale(.98); }
+/* Motion follows taste-skill 2.5.1: a filled or outlined button steps up 1px on hover and sinks below rest on press.
+   Text buttons keep still and only change fill. */
+@media (hover: hover) and (pointer: fine) { .button:not(.text):hover:not(:disabled) { transform: translateY(-1px); } }
+.button:active:not(:disabled) { transform: translateY(1px) scale(.985); transition-duration: var(--duration-press); }
+.button.text:active:not(:disabled) { transform: scale(.985); }
 .button:disabled { opacity: .6; cursor: default; }
 .field input, .field select, .field textarea, .message-composer textarea { caret-color: var(--focus); }
 .field input:focus-visible, .field select:focus-visible, .field textarea:focus-visible { border-color: var(--focus); }

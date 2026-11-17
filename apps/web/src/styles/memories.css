@@ -1,16 +1,21 @@
 .memory-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-6); }
 .memory-month { margin-bottom: var(--space-8); }
 .memory-month > h2 { margin-bottom: var(--space-5); }
-.card.memory-card { position: relative; padding: 0; overflow: hidden; }
+.card.memory-card { position: relative; padding: 0; overflow: hidden; transition: transform var(--duration-out) var(--ease), border-color var(--duration-out) var(--ease); }
+/* A linked memory lifts 2px and its border darkens a step. The photo zooms inside its frame. */
+@media (hover: hover) and (pointer: fine) {
+  .card.memory-card:has(.memory-card-link:hover) { transform: translateY(-2px); border-color: var(--control); transition-duration: var(--duration-feedback); }
+  .memory-card:has(.memory-card-link:hover) .memory-cover img { transform: scale(1.03); transition-duration: var(--duration-image); }
+}
 .memory-card-link { color: var(--ink); text-decoration: none; display: block; }
 .memory-card-link::after { content: ''; position: absolute; inset: 0; border-radius: var(--radius-card); }
 .memory-card-link:hover h3 { color: var(--link); }
 .memory-card-link h3 { transition: color var(--duration-feedback) var(--ease); }
-.memory-card:has(.memory-card-link:focus-visible) { outline: 3px solid var(--focus); outline-offset: 3px; }
+.memory-card:has(.memory-card-link:focus-visible) { outline: 2px solid var(--focus); outline-offset: 2px; }
 .memory-card-link:focus-visible { outline: none; }
-.memory-cover { position: relative; display: grid; background: var(--shared-soft); }
+.memory-cover { position: relative; display: grid; overflow: hidden; background: var(--shared-soft); }
 .memory-cover::before { content: ''; aspect-ratio: 3 / 2; grid-area: 1 / 1; }
-.memory-cover img { position: absolute; width: 100%; height: 100%; object-fit: cover; display: block; }
+.memory-cover img { position: absolute; width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 400ms var(--ease); }
 .memory-card-copy { padding: var(--space-6); }
 /* A card shows three lines of the caption. The detail screen shows all of it. */
 .memory-card-copy h3 { margin: 0 0 var(--space-3); font-size: 16px; font-weight: 600; line-height: 1.5; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
@@ -35,7 +40,7 @@
 .photo-selection { margin-bottom: var(--space-5); }
 .photo-picker { position: relative; font-size: 16px; }
 .photo-picker input[type='file'] { position: absolute; inset: 0; height: 100%; padding: 0; opacity: 0; cursor: pointer; }
-.photo-picker:focus-within { outline: 3px solid var(--focus); outline-offset: 3px; }
+.photo-picker:focus-within { outline: 2px solid var(--focus); outline-offset: 2px; }
 .photo-picker:has(input:disabled) { opacity: .6; cursor: default; }
 .button.photo-picker:has(input:disabled):hover { background: var(--surface); }
 .photo-picker input:disabled { cursor: default; }

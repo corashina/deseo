@@ -41,9 +41,9 @@ test('capture site previews', async ({ browser, pair, signIn }) => {
   await createMemory(alex, id, 'Fog over the lake on our first morning', previewPhotos[0], day(-9));
   mkdirSync(out, { recursive: true });
 
-  // Phones at 2x density. The large-screen Today at 1x is already sharp at its display size.
+  // Phones at 2x density, one phone screen tall. The large-screen Today at 1x is already sharp at its display size.
   const shots = [
-    { width: 390, height: 960, scale: 2, screens: [['today', '/today', 'Today'], ['calendar', '/calendar?date=' + day(1), 'Calendar'],
+    { width: 390, height: 844, scale: 2, screens: [['today', '/today', 'Today'], ['calendar', '/calendar?date=' + day(1), 'Calendar'],
       ['memories', '/memories', 'Memories']] },
     { width: 1440, height: 1100, scale: 1, screens: [['today', '/today', 'Today']] },
   ];
