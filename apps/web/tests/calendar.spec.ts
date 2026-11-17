@@ -21,7 +21,7 @@ test('B sees the shared event and cannot open the private event', async ({ page,
     await expect(partner.getByRole('link', { name: /Concert night/ }).first()).toBeVisible();
     await expect(partner.locator('body')).not.toContainText('Dentist visit');
     await partner.goto('/events/' + ids[0]);
-    await expect(partner.getByRole('heading', { name: 'Concert night', exact: true })).toBeVisible();
+    await expect(partner.getByLabel('Title', { exact: true })).toHaveValue('Concert night');
     await partner.goto('/events/' + ids[1]);
     await expect(partner.getByRole('link', { name: 'Return to calendar' })).toBeVisible();
     await expect(partner.locator('body')).not.toContainText('Dentist visit');

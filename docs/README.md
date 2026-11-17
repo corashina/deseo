@@ -142,7 +142,7 @@ When the future event is deleted, the idea returns to Saved. Do not scrape links
 Start with one General list. Allow named lists. General cannot be renamed or deleted.
 The list tabs end with New list. A named list shows List settings: Rename and Remove list.
 Remove list moves its tasks to General, then removes the empty list, after one confirmation.
-Each row shows a checkbox, title, assignee, and optional due date. The whole label is the target.
+Each row shows a checkbox, title, and the assignee and due date when set. The whole label is the target.
 Quick add is the only add path. It needs a title; assignee and due date are optional. Either member can complete any task.
 Opening a task shows its edit form with Delete.
 Keep completed tasks in a collapsed group. Clear the checkbox to reopen a task.

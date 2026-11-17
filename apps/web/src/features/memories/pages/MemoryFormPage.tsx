@@ -54,7 +54,7 @@ export function MemoryFormPage() {
   useEffect(() => {
     if (save.data) navigate('/memories/' + save.data.id, { replace: true });
   }, [save.data, navigate]);
-  return <><PageHeader title="Add memory" description="Keep a moment with photos, a date, and a caption." />
+  return <><PageHeader title="Add memory" />
     <section className="card form-page memory-form"><form onSubmit={form.handleSubmit(values => save.mutate(values))}>
       <PhotoSelection photos={photos} disabled={saving} preparing={prepare.isPending} onSelect={files => { if (files.length) prepare.mutate(files); }} onRemove={photoId => setPhotos(current => current.filter(photo => photo.id !== photoId))} progress={progress} />
       <fieldset disabled={saving || prepare.isPending}>

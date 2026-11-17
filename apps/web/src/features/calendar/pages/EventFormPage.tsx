@@ -18,8 +18,7 @@ import { Dialog } from '../../../components/ui/Dialog';
 import { calendarKeys, getEvent } from '../queries';
 import { createEvent, deleteEvent, updateEvent } from '../commands';
 import { EventFields } from '../components/EventFields';
-import { eventOwner, ownerNames } from '../components/EventRow';
-import { PartnerBadge } from '../../../components/ui/PartnerBadge';
+import { ownerNames } from '../components/EventRow';
 import { useReturnTo } from '../../../lib/return-to';
 import '../../../styles/calendar.css';
 
@@ -123,10 +122,8 @@ function EventEditor({ event, idea }: { event?: Event; idea?: DateIdea }) {
   }
 
   const names = ownerNames(pair.members, account.id);
-  const owner = event && eventOwner(event, names);
   return <>
-    {event && owner ? <PageHeader eyebrow="Event" title={event.title} description={<PartnerBadge name={names[owner]} slot={owner} />} />
-      : <PageHeader title={idea ? 'Plan date' : 'Add event'} />}
+    <PageHeader title={idea ? 'Plan date' : event ? 'Edit event' : 'Add event'} />
     <section className="card form-page">
       <form onSubmit={form.handleSubmit(submitValues)}>
         <EventFields form={form} names={names} slot={names.self} author={!event || event.authorId === account.id} locked={saving} planning={Boolean(idea)} />

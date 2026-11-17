@@ -40,7 +40,7 @@ export function CalendarPage() {
   </button>;
   const add = '/events/new?date=' + date;
   return <>
-    <PageHeader title="Calendar" action={<Link className="button primary" to={add} state={from}>Add event</Link>} />
+    <PageHeader title="Calendar" hideTitle action={<Link className="button primary" to={add} state={from}>Add event</Link>} />
     <section className="card calendar-card">
       <div className="calendar-toolbar">
         <div className="calendar-date-controls">
@@ -63,7 +63,7 @@ export function CalendarPage() {
           <section className="selected-agenda" ref={agenda}>
             <h2>{formatDate(DateTime.fromISO(date), 'weekday', account.locale)}</h2>
             <Agenda events={events} from={date} to={DateTime.fromISO(date).plus({ days: 1 }).toISODate()!} names={names} timezone={account.timezone} locale={account.locale}
-              empty={<><p>Nothing planned for this day.</p><Link to={add} state={from}>Add event</Link></>} />
+              empty={<p>Nothing planned for this day.</p>} />
           </section>
         </>
         : <Agenda events={events} from={month.toISODate()!} to={month.plus({ months: 1 }).toISODate()!} names={names} timezone={account.timezone} locale={account.locale} empty={<p>Nothing planned this month.</p>} />}

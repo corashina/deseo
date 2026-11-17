@@ -29,7 +29,7 @@ test('A invites, B joins, and C cannot read the pair', async ({ page, browser, a
     if (member.error) throw member.error;
     const eventId = await createEvent(a, member.data.pair_id, { title: 'Picnic by the river' });
     await partner.goto('/events/' + eventId);
-    await expect(partner.getByRole('heading', { name: 'Picnic by the river', exact: true })).toBeVisible();
+    await expect(partner.getByLabel('Title', { exact: true })).toHaveValue('Picnic by the river');
 
     const other = await pair(['Cara', 'Dan']);
     const outsider = await contexts[1].newPage();

@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { AppError, toAppError } from '@deseo/domain/result';
 import { memoryInputSchema, type Memory, type MemoryInput } from '@deseo/domain/memories';
 import { DateTime } from 'luxon';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useSession } from '../../../app/SessionProvider';
 import { useCommandId } from '../../../lib/command-id';
 import { useUnsavedChanges } from '../../../lib/unsaved-changes';
@@ -19,7 +19,6 @@ import { getMemory, memoryKeys } from '../queries';
 import { deleteMemory, updateMemory } from '../commands';
 import { MemoryImage } from '../components/MemoryImage';
 import { memoryPhotoQuery } from '../media';
-import { memoryTitle } from '../title';
 import { PartnerBadge } from '../../../components/ui/PartnerBadge';
 import '../../../styles/memories.css';
 export function MemoryDetailPage() {
@@ -53,11 +52,13 @@ export function MemoryDetailPage() {
   if (query.data.state !== 'published') return <RouteErrorPage title="Memory" returnTo="/memories" returnLabel="Return to memories" />;
   const memory = query.data; const author = memory.createdBy === account!.id;
   const member = pair?.status === 'active' ? pair.members.find(item => item.userId === memory.createdBy) : undefined;
-  // The date is the title. A caption can hold 1000 characters, so it reads as body text with its line breaks.
-  return <><PageHeader eyebrow="Memory" title={formatDate(DateTime.fromISO(memory.memoryDate), 'date', account!.locale)} description={member && <PartnerBadge name={member.displayName} slot={member.slot} />} />
-    <section className="card memory-detail">{memory.photos.map((photo, index) => <figure key={photo.id}><div className="memory-photo" style={{ aspectRatio: photo.width + ' / ' + photo.height }}><MemoryImage photo={photo} variant="full" alt={memoryTitle(memory) + ' · Photo ' + (index + 1)} /></div><figcaption><Button variant="text" disabled={busy} onClick={() => download.mutate({ path: photo.fullPath, index })}>Download photo {index + 1}</Button></figcaption></figure>)}
+  // The author edits the date below, so the title names the page. The partner sees the date as the title.
+  // A caption can hold 1000 characters, so it reads as body text with its line breaks.
+  return <>{author ? <PageHeader title="Edit memory" />
+    : <PageHeader title={formatDate(DateTime.fromISO(memory.memoryDate), 'date', account!.locale)} description={member && <PartnerBadge name={member.displayName} slot={member.slot} />} />}
+    <section className="card memory-detail">{memory.photos.map((photo, index) => <figure key={photo.id}><div className="memory-photo" style={{ aspectRatio: photo.width + ' / ' + photo.height }}><MemoryImage photo={photo} variant="full" alt={(memory.caption ? memory.caption + ' · ' : '') + 'Photo ' + (index + 1)} /></div><figcaption><Button variant="text" disabled={busy} onClick={() => download.mutate({ path: photo.fullPath, index })}>Download photo {index + 1}</Button></figcaption></figure>)}
       {author ? <MemoryEditor key={memory.id} memory={memory} /> : memory.caption && <p className="memory-caption preserve-lines">{memory.caption}</p>}
-      <div className="actions"><Link to="/memories">Return to memories</Link>{author && <Button variant="secondary" disabled={busy} onClick={() => setConfirm(true)}>{remove.isError ? 'Retry deletion' : 'Delete memory'}</Button>}</div>{error && <Status error>{error}</Status>}
+      {author && <div className="actions"><Button variant="secondary" disabled={busy} onClick={() => setConfirm(true)}>{remove.isError ? 'Retry deletion' : 'Delete memory'}</Button></div>}{error && <Status error>{error}</Status>}
     </section><Dialog busy={remove.isPending} open={confirm} title="Delete this memory?" onClose={() => setConfirm(false)}><p>Both partners will lose this memory and its photos.</p><Button variant="danger" disabled={busy} onClick={() => remove.mutate(memory.version)}>Confirm deletion</Button></Dialog>
   </>;
 }

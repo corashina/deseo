@@ -29,6 +29,7 @@ export function TodayPage() {
   return <div className="today-page">
     <PageHeader
       title="Today"
+      hideTitle
       eyebrow={formatDate(DateTime.fromISO(date), 'weekday', locale)} />
     <div className="today-layout">
       <div className="today-conversation">

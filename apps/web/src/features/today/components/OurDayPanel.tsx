@@ -35,10 +35,9 @@ export function OurDayPanel({ data, important, days, date, zone, locale, names, 
     {important && <section className="card important-card" data-testid="today-important-date">
       <span className="eyebrow">Next important date</span>
       <p className="countdown">{days === 0 ? 'Today' : days === 1 ? 'Tomorrow' : <><strong>{days}</strong> days</>}</p>
-      <h2>{important.title}</h2>
+      <h2><Link to={'/events/' + important.id}>{important.title}</Link></h2>
       {important.temporal.kind === 'allDay' && <p><time dateTime={important.temporal.startDate}>
         {formatDate(DateTime.fromISO(important.temporal.startDate, { zone }), 'date', locale)}</time></p>}
-      <Link to={'/events/' + important.id}>View date</Link>
     </section>}
     {data.memory ? <section data-testid="today-memory"><h2>Latest memory</h2><MemoryCard memory={data.memory} author={members.find(member => member.userId === data.memory?.createdBy)} locale={locale} /></section>
       : <section className="card today-intro" data-testid="today-intro"><h2>Keep a moment together</h2><p>Add a photo with a date and a caption.</p><div className="today-intro-actions"><Link to="/memories/new">Add memory</Link></div></section>}
