@@ -11,7 +11,7 @@ test('ending a pair requires a fresh code and removes both viewers access', asyn
     const second = await partner.newPage();
     await signIn(second, b);
     await second.goto('/events/' + eventId);
-    await expect(second.getByRole('heading', { name: 'Dinner together', exact: true })).toBeVisible();
+    await expect(second.getByLabel('Title', { exact: true })).toHaveValue('Dinner together');
     await signIn(page, a);
     await page.goto('/settings');
     await expect(page.getByLabel('Email verification code')).toHaveCount(0);

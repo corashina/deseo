@@ -34,7 +34,7 @@ export function TasksPage() {
   open.sort((a, b) => (a.dueDate ?? '9999').localeCompare(b.dueDate ?? '9999'));
   const row = (task: Task) => <TaskRow key={task.id} task={task} members={pair.members} timezone={account!.timezone} locale={account!.locale} />;
   return <>
-    <PageHeader title="Tasks" description="Keep shared tasks in named lists." />
+    <PageHeader title="Tasks" hideTitle />
     <section className="card">
       {lists.isPending ? <Status>Loading lists…</Status> : lists.isError ? <>
         <Status error>We could not load lists.</Status>
@@ -52,7 +52,7 @@ export function TasksPage() {
           </> : tasks.data.length ? <>
             {open.map(row)}
             {done.length > 0 && <details className="completed-tasks"><summary>Completed ({done.length})</summary>{done.map(row)}</details>}
-          </> : <p className="muted">No tasks in this list yet. Add one above.</p>}
+          </> : <p className="muted">No tasks in this list yet.</p>}
           {list && !list.isGeneral && tasks.data && <ListSettings key={list.id} list={list} taskCount={tasks.data.length} onRemoved={() => select(lists.data.find(item => item.isGeneral)!.id)} />}
         </>}
       </>}

@@ -64,7 +64,7 @@ function TaskEditor({ task, lists }: { task: Task; lists: TaskList[] }) {
     if (save.data) navigate('/tasks?list=' + save.data.listId, { replace: true });
   }, [save.data, navigate]);
   return <>
-    <PageHeader title="Edit task" description="Choose a list, a person, and a due date." />
+    <PageHeader title="Edit task" />
     <section className="card form-page">
       <form className="task-form" onSubmit={form.handleSubmit(values => save.mutate(values))}>
         <fieldset disabled={saving}>

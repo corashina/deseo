@@ -66,7 +66,7 @@ function IdeaEditor({ idea }: { idea: DateIdea }) {
   const errors = form.formState.errors;
   const noteError = errors.note?.message;
   return <>
-    <PageHeader eyebrow="Date idea" title={idea.title} description={idea.state === 'saved' ? undefined : states[idea.state]}
+    <PageHeader title="Edit idea" description={idea.state === 'saved' ? undefined : states[idea.state]}
       action={idea.state === 'saved' && <Link className="button primary" to={'/events/new?idea=' + idea.id}>Plan date</Link>} />
     <section className="card form-page">
       <form onSubmit={form.handleSubmit(values => save.mutate(values))}>

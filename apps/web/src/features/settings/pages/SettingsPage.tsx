@@ -19,7 +19,7 @@ import '../../../styles/settings.css';
 export function SettingsPage() {
   const { account, pair } = useSession();
   const partner = pair?.status === 'active' ? pair.members.find(member => member.userId !== account!.id)?.displayName : undefined;
-  return <><PageHeader title="Settings" description="Manage your profile, pair, and account." />
+  return <><PageHeader title="Settings" hideTitle />
     <div className="card form-page settings-page">
       <ProfileSection />
       <section className="settings-section" aria-labelledby="settings-pair"><h2 id="settings-pair">Your pair</h2>

@@ -368,10 +368,10 @@ Use a one-pixel card border.
 | Component | Anatomy and behavior |
 |---|---|
 | App shell | Responsive navigation, page header, content region |
-| Page header | One heading, short context, one main action |
+| Page header | One heading and one main action. Navigation screens hide the heading for screen readers only, because the navigation names them. No context line repeats the heading or the fields |
 | Partner badge | Stable owner color and visible name. Together uses the lilac pair |
 | Event row | Time column, tinted body, owner strip, title, metadata |
-| Memory card | Reserved image area, caption up to three lines, author badge, date, photo count |
+| Memory card | Reserved image area, caption up to three lines when set, author badge, date, photo count |
 | Note card | Warm fill, sender, short text |
 | Task row | Labeled checkbox, wrapping title, owner, optional due date |
 | Date countdown | Number, unit, event name, absolute date |
@@ -428,10 +428,9 @@ On a return visit, Waiting says the code still works, and Replace is a secondary
 Ended offers Start a new pair and Enter invitation. Your pair stays selected in the navigation on every pair screen.
 
 **Today.** Today is chat-first: the conversation in the main column and the Our day panel beside it from 1200px.
-Show the date in the eyebrow above the title. The header has no buttons; Send message is the main action.
+The header shows only the date. It has no buttons; Send message is the main action.
 Today fills the window. The conversation scrolls inside its column, so the composer stays in view. The Our day panel scrolls on its own.
 The message field starts at one line and grows to five. Send message sits beside it when they fit. The conversation keeps the most height.
-Under the composer, show Add event, Add task, and Add memory as text links.
 The Our day panel shows, in order: the next plan, Upcoming plans, Due tasks, the next important date, and the latest memory.
 The next plan shows a label (Now, Today, Tomorrow, or the weekday), title, time, place, and owner.
 Upcoming plans shows a seven-day strip with one dot per owner, then up to three events after the next plan.
@@ -444,7 +443,7 @@ Each event shows title, time, and owner name, plus location when set.
 The selected day fills its number with `primary`. Today gets a 2px `link` ring. Cells stay clear, so event colors keep their meaning.
 In a month cell, a title keeps two lines and the owner one line. Below 768px, each day shows owner dots in place of events, and the day button names the count.
 Events, date ideas, and tasks open their edit form. Explain invalid end times beside the time field.
-The event and idea screens show an eyebrow, the title, and the owner badge or state. Delete and Archive are secondary buttons; the dialog holds the final action.
+The event and idea screens use Edit event and Edit idea as the title, because the Title field shows the name. The idea screen adds its state. Delete and Archive are secondary buttons; the dialog holds the final action.
 Return links and Cancel go back to the page the person came from, with the same month, view, and filter.
 Show times with a numeric hour, such as 7:00 PM, in every place. On a later day of a timed event, show Until and the end time, or Continues.
 A tap on a day brings that day's events into view.
@@ -453,7 +452,7 @@ Keep all-day dates as dates. Never shift them through UTC conversion.
 Show every date and time in the viewer's profile timezone. Do not show timezone names on events.
 
 **Memories.** Use a feed with month headings. Show image, caption, date, and author. Thumbnails download near the viewport, four at a time.
-The memory screen uses the date as its title and shows the full caption under the photos. Each photo box keeps its shape while it loads. Delete is a secondary button; the dialog holds the destructive one.
+For the partner, the memory screen uses the date as its title, with the author badge, and shows the full caption under the photos. For the author, the title is Edit memory, because the date field follows the photos. Each photo box keeps its shape while it loads. Delete is a secondary button; the dialog holds the destructive one.
 Keep captions outside images. Use a 3:2 crop in cards and the full image in detail.
 The photo hint says that photos cannot change after publish. Reserve image space before loading. Show progress, failure, and Retry on the affected image.
 

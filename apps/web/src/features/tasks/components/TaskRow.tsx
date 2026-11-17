@@ -41,7 +41,7 @@ export function TaskRow({ task, members, timezone, locale }: {
       <Link className="task-row-content" to={'/tasks/' + task.id}>
         <span className="task-title">{task.title}</span>
         <span className="task-metadata">
-          {assignee ? <PartnerBadge name={assignee.displayName} slot={assignee.slot} /> : <span>Unassigned</span>}
+          {assignee && <PartnerBadge name={assignee.displayName} slot={assignee.slot} />}
           {task.dueDate && <time className={urgency} dateTime={task.dueDate}>{dueLabel}</time>}
           {completedBy && <span>Done by {completedBy.displayName}</span>}
         </span>
