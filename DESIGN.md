@@ -85,15 +85,15 @@ typography:
     letterSpacing: "-0.02em"
   headline:
     fontFamily: "Manrope Variable, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif"
-    fontSize: "40px"
+    fontSize: "28px"
     fontWeight: 500
-    lineHeight: 1.1
+    lineHeight: 1.2
     letterSpacing: "-0.02em"
   headline-mobile:
     fontFamily: "Manrope Variable, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif"
-    fontSize: "30px"
+    fontSize: "24px"
     fontWeight: 500
-    lineHeight: 1.1
+    lineHeight: 1.2
     letterSpacing: "-0.02em"
   title:
     fontFamily: "Manrope Variable, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif"
@@ -225,7 +225,8 @@ The type, label, depth, and motion rules follow [unslop](https://github.com/heyd
 
 - Pastel fills with dark text and dark essential boundaries.
 - A stable color for each partner, always shown with a name.
-- Flat cards with one-pixel borders; shadows only on popovers, dialogs, and selected navigation.
+- One page ground for the sidebar, header, and content. Color goes on partners, events, and actions, not on navigation.
+- Flat cards with one-pixel borders; shadows only on popovers and dialogs.
 - Manrope type in the browser and real text for labels and numbers.
 
 ### Platforms
@@ -247,7 +248,7 @@ The frontmatter holds both palettes: light keys have no suffix, and dark keys en
 ### Primary
 
 - **Plum Primary** (`primary` #60527C, dark #BBA4F7; `on-primary` #FFFFFF, dark #1A1526): the one main button of a page. `on-primary` is also the danger button text.
-- **Lilac Action** (`action` #DDD4EE, dark #3A3056): selected navigation and selected dates. `action-hover` (#D2C6E7) on hover.
+- **Lilac Action** (`action` #DDD4EE, dark #3A3056): selected dates. `action-hover` (#D2C6E7) on hover.
 - **Deep Plum Text on Action** (`on-action` #413852): text on pastel action surfaces.
 - **Plum Action Border** (`action-border` #786A8B): pastel action boundary.
 - **Plum Link** (`link` #60527C): text buttons and links.
@@ -268,7 +269,7 @@ The frontmatter holds both palettes: light keys have no suffix, and dark keys en
 - **Muted** (`muted` #6C6475): secondary text and timestamps.
 - **Line** (`line` #E5DEE8): decorative dividers and card borders.
 - **Control** (`control` #8B8293): input and checkbox boundaries.
-- **Pale Lavender Sidebar** (`sidebar` #F3EEF7): navigation surface.
+- **Pale Lavender Fill** (`sidebar` #F3EEF7): hover fills, the important date, the welcome story, and the message composer.
 - **Focus** (`focus` #68518C): focus ring.
 
 ### Status
@@ -319,8 +320,7 @@ Sources: [WCAG text contrast](https://www.w3.org/WAI/WCAG22/Understanding/contra
 | Role | Desktop | Mobile | Weight / line height |
 |---|---|---|---|
 | Browser welcome title (display) | 48px | 36px | 500 / 1.2 |
-| Browser page title (headline) | 40px | 30px | 500 / 1.1 |
-| Entry card title | 30px | 30px | 500 / 1.1 |
+| Browser page title (headline) | 28px | 24px | 500 / 1.2 |
 | Native page title | 28dp | 28dp | 700 / 34dp |
 | Section title (title) | 19px | 19px | 600 / 1.3 |
 | Eyebrow above a title (eyebrow) | 12px | 12px | 600 / 1.5 |
@@ -369,10 +369,13 @@ Surfaces are flat. A one-pixel `line` border separates cards from the canvas.
 ### Shadow Vocabulary
 
 - **Popover** (`box-shadow: 0 8px 24px var(--shadow)`): popovers and dialogs.
-- **Selected** (`box-shadow: 0 2px 8px var(--shadow)`): the selected navigation item.
 - **Backdrop** (`backdrop`): the scrim behind modal dialogs.
 
-**The Flat Card Rule.** Reserve shadows for popovers, dialogs, and selected navigation. Never color a shadow.
+**The Flat Card Rule.** Reserve shadows for popovers and dialogs. Never color a shadow. A surface gets a border or a shadow, never both.
+
+**The Quiet Shell Rule.** The sidebar, the drawer, and the header sit on `canvas`. The current navigation item is a neutral pill: `ink` at 7% with `ink` text. Hover is `ink` at 4%.
+
+**The Working Screen Rule.** Portal screens are worked in, not read once. Page titles stay at 32px or less, and the next plan title uses the section title size. In the month grid, weekend cells use `canvas`, one tone step from the card. These rules follow the app-screen chapter of [taste-skill](https://github.com/Leonxlnx/taste-skill) 2.1.5 by Leonxlnx (MIT). Its violet ban does not apply: the lavender palette is the brand.
 
 ### Motion
 
