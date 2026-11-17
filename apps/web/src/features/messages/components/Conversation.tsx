@@ -25,14 +25,16 @@ export function Conversation() {
     queryFn: ({ pageParam }) => listMessages(pairId, pageParam), initialPageParam: undefined as string | undefined,
     getNextPageParam: page => page.nextCursor ?? undefined });
   const notes = useQuery({ queryKey: messageKeys.notes(accountId, pairId), queryFn: () => listPinnedNotes(pairId) });
-  const { messagesById, messages } = useMemo(() => {
+  const { messagesById, messages, latestOwnId } = useMemo(() => {
     const messagesById = new Map<string, Message>();
     for (const page of conversation.data?.pages ?? []) for (const message of page.items) {
       if ((messagesById.get(message.id)?.version ?? 0) < message.version) messagesById.set(message.id, message);
     }
-    return { messagesById, messages: [...messagesById.values()].sort(compareMessageCursors) };
-  }, [conversation.data?.pages]);
-  const latestOwnId = messages.filter(message => message.authorId === accountId).at(-1)?.id;
+    const messages = [...messagesById.values()].sort(compareMessageCursors);
+    let latestOwnId: string | undefined;
+    for (let index = messages.length - 1; index >= 0 && !latestOwnId; index--) if (messages[index].authorId === accountId) latestOwnId = messages[index].id;
+    return { messagesById, messages, latestOwnId };
+  }, [conversation.data?.pages, accountId]);
   const list = useRef<HTMLDivElement>(null);
   const mountedList = useRef<HTMLDivElement | null>(null);
   const scrollPosition = useRef<number | null>(null);
@@ -98,9 +100,12 @@ export function Conversation() {
     let active = true;
     const observer = new IntersectionObserver(entries => {
       if (!active || document.visibilityState === 'hidden') return;
-      const visible = entries.filter(entry => entry.isIntersecting).map(entry =>
-        messagesById.get((entry.target as HTMLElement).dataset.messageId!)).filter((message): message is Message => Boolean(message));
-      const newest = visible.sort(compareMessageCursors).at(-1);
+      // Keep the newest visible message in one pass. A sort is not needed for one value.
+      let newest: Message | undefined;
+      for (const entry of entries) {
+        const message = entry.isIntersecting ? messagesById.get((entry.target as HTMLElement).dataset.messageId!) : undefined;
+        if (message && (!newest || compareMessageCursors(message, newest) > 0)) newest = message;
+      }
       if (!newest || lastRead.current && compareMessageCursors(newest, lastRead.current) <= 0) return;
       lastRead.current = newest;
       setReadCursor(accountId, pairId, { id: newest.id, createdAt: newest.createdAt }).then(

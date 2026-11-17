@@ -1,4 +1,4 @@
-import { useEffect, useId, useState, useSyncExternalStore, type ReactNode } from 'react';
+import { useId, useState, useSyncExternalStore, type ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useSession } from './SessionProvider';
 import { Avatar } from '../components/ui/Avatar';
@@ -29,25 +29,27 @@ export function AppShell({ children, preload }: { children: ReactNode; preload(p
   useMemorySignals(accountId, pair);
   useTaskSignals(accountId, pair);
   const location = useLocation();
-  const [drawer, setDrawer] = useState(false);
+  // The drawer belongs to the page that opened it. A page change closes it without an effect.
+  const [drawerPath, setDrawerPath] = useState<string | null>(null);
+  const drawer = drawerPath === location.pathname;
+  const closeDrawer = () => setDrawerPath(null);
   const unreadId = useId();
   const drawerId = useId();
   const [collapsed, setCollapsed] = useState(false);
   const tablet = useSyncExternalStore(subscribe, () => railBand.matches);
-  useEffect(() => { setDrawer(false); }, [location.pathname]);
   const destination = pair?.status === 'pending' ? '/pair/waiting' : pair?.status === 'ended' ? '/pair/ended' : '/pair/start';
-  const navigation = <PortalNavigation destination={destination} activePair={pair?.status === 'active'} unreadCount={unread.data} onPairOpen={() => setDrawer(false)} preload={preload} />;
+  const navigation = <PortalNavigation destination={destination} activePair={pair?.status === 'active'} unreadCount={unread.data} onPairOpen={closeDrawer} preload={preload} />;
   const members = pair?.status === 'active' ? [...pair.members].sort((a, b) => a.slot.localeCompare(b.slot)) : [];
   const names = members.length ? members.map(member => member.displayName) : [account?.displayName ?? 'Deseo'];
   return <div className={`portal ${tablet || collapsed ? 'rail' : ''}`}><a className="skip-link" href="#main">Skip to content</a>
-    <aside className="sidebar"><div className="brand"><BrandIcon alt="" size={40} /><span className="nav-label" translate="no">Deseo</span>{!tablet && <Button className="collapse-toggle" variant="text" aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'} onClick={() => setCollapsed(!collapsed)}>{collapsed ? <CaretRightIcon size={20} aria-hidden="true" /> : <CaretLeftIcon size={20} aria-hidden="true" />}</Button>}</div>{navigation}</aside>
+    <aside className="sidebar"><div className="brand"><BrandIcon alt="" size={40} /><span className="nav-label" translate="no">Deseo</span>{!tablet && <Button className="collapse-toggle" variant="text" aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'} onClick={() => setCollapsed(value => !value)}>{collapsed ? <CaretRightIcon size={20} aria-hidden="true" /> : <CaretLeftIcon size={20} aria-hidden="true" />}</Button>}</div>{navigation}</aside>
     <div className="portal-body"><header className="topbar">
-      <Button variant="text" className="drawer-toggle" aria-label="Open navigation" aria-expanded={drawer} aria-controls={drawerId} aria-describedby={unread.data ? unreadId : undefined} onClick={() => setDrawer(true)}><ListIcon size={20} aria-hidden="true" />{Boolean(unread.data) && <span className="unread-count" id={unreadId}>{unread.data}<span className="visually-hidden"> unread messages</span></span>}</Button>
+      <Button variant="text" className="drawer-toggle" aria-label="Open navigation" aria-expanded={drawer} aria-controls={drawerId} aria-describedby={unread.data ? unreadId : undefined} onClick={() => setDrawerPath(location.pathname)}><ListIcon size={20} aria-hidden="true" />{Boolean(unread.data) && <span className="unread-count" id={unreadId}>{unread.data}<span className="visually-hidden"> unread messages</span></span>}</Button>
       <div className="topbar-pair"><span className="pair-avatars" aria-hidden="true">{members.length ? members.map(member => <Avatar key={member.userId} slot={member.slot} name={member.displayName} />) : account && <Avatar slot={slot} name={account.displayName} />}</span>
         <span className="topbar-label" translate="no">{names.map((name, index) => <span key={index}>{index > 0 && ' + '}{name}</span>)}</span></div>
       {account && <Link className="button secondary mobile-account" to="/settings" aria-label="Settings"><Avatar slot={slot} name={account.displayName} /></Link>}
     </header>
     <main id="main" tabIndex={-1}>{children}</main></div>
-    <Dialog id={drawerId} title="Navigation" closedBy="any" open={drawer} onClose={() => setDrawer(false)} className="navigation-drawer">{navigation}</Dialog>
+    <Dialog id={drawerId} title="Navigation" closedBy="any" open={drawer} onClose={closeDrawer} className="navigation-drawer">{navigation}</Dialog>
   </div>;
 }
