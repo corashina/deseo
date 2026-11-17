@@ -43,19 +43,28 @@ jobs:
           sudo sysctl -w net.ipv4.ip_local_port_range="32768 49999"
           sudo sysctl -w net.ipv4.ip_local_reserved_ports="55720-55729"
       - uses: actions/checkout@v4
+      # Install the CLI before npm ci, so Supabase starts while packages install.
+      - id: versions
+        run: echo "supabase=$(jq -r .devDependencies.supabase package.json)" >> "$GITHUB_OUTPUT"
+      - uses: supabase/setup-cli@v1
+        with:
+          version: ${{ steps.versions.outputs.supabase }}
       - uses: actions/setup-node@v4
         with:
           node-version-file: .node-version
           cache: npm
       - run: npm install --global npm@11.16.0
-      - run: npm ci
-      - run: npx supabase start --exclude studio,vector,logflare,imgproxy,supavisor
-      - run: npx supabase test db --local
+      - name: Install packages and start Supabase
+        run: |
+          supabase start --exclude studio,vector,logflare,imgproxy,supavisor > "$RUNNER_TEMP/supabase.log" 2>&1 &
+          npm ci
+          wait $! || { cat "$RUNNER_TEMP/supabase.log"; exit 1; }
+      - run: supabase test db --local
       - name: Check generated database types
         run: |
           npm run gen:types
           git diff --exit-code packages/domain/src/database.types.ts
-      - run: node --experimental-strip-types --test supabase/tests/planning-races.test.ts
+      - run: node --experimental-strip-types --test --test-force-exit supabase/tests/planning-races.test.ts
       - run: npm run typecheck:functions
       - run: npm run test:functions
 
@@ -71,16 +80,25 @@ jobs:
           sudo sysctl -w net.ipv4.ip_local_port_range="32768 49999"
           sudo sysctl -w net.ipv4.ip_local_reserved_ports="55720-55729"
       - uses: actions/checkout@v4
+      # Install the CLI before npm ci, so Supabase starts while packages install.
+      - id: versions
+        run: echo "supabase=$(jq -r .devDependencies.supabase package.json)" >> "$GITHUB_OUTPUT"
+      - uses: supabase/setup-cli@v1
+        with:
+          version: ${{ steps.versions.outputs.supabase }}
       - uses: actions/setup-node@v4
         with:
           node-version-file: .node-version
           cache: npm
       - run: npm install --global npm@11.16.0
-      - run: npm ci
-      - name: Start Supabase
+      - name: Install packages and browser, start Supabase
         run: |
           sudo ss -tanp | grep -E ':5572[0-9]\b' || true
-          npx supabase start --exclude studio,vector,logflare,imgproxy,supavisor || {
+          supabase start --exclude studio,vector,logflare,imgproxy,supavisor > "$RUNNER_TEMP/supabase.log" 2>&1 &
+          npm ci
+          npm exec --workspace @deseo/web -- playwright install --with-deps chromium
+          wait $! || {
+            cat "$RUNNER_TEMP/supabase.log"
             echo "Sockets on the local stack ports after the failure:"
             sudo ss -tanp | grep -E ':5572[0-9]\b' || true
             docker ps -a
@@ -90,11 +108,9 @@ jobs:
         run: |
           nohup npm run functions > "$RUNNER_TEMP/functions.log" 2>&1 &
           timeout 120 bash -c "until grep -q 'Serving functions' '$RUNNER_TEMP/functions.log'; do sleep 1; done" || { cat "$RUNNER_TEMP/functions.log"; exit 1; }
-      - run: npx playwright install --with-deps chromium
-        working-directory: apps/web
       - name: Run browser tests
         run: |
-          npx supabase status -o json > "$RUNNER_TEMP/status.json"
+          supabase status -o json > "$RUNNER_TEMP/status.json"
           export VITE_SUPABASE_URL=$(jq -r .API_URL "$RUNNER_TEMP/status.json")
           export VITE_SUPABASE_PUBLISHABLE_KEY=$(jq -r .PUBLISHABLE_KEY "$RUNNER_TEMP/status.json")
           npm run test --workspace @deseo/web

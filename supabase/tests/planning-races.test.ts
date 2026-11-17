@@ -1,5 +1,6 @@
 // Importance: 100. Real Auth and concurrent requests check atomic writes and access revocation.
-// Run after local migrations: node --experimental-strip-types --test supabase/tests/planning-races.test.ts
+// Run after local migrations: node --experimental-strip-types --test --test-force-exit supabase/tests/planning-races.test.ts
+// Force exit: realtime-js disconnect leaves a 10 s timer that holds the process open.
 import assert from 'node:assert/strict';
 import { randomUUID, randomBytes } from 'node:crypto';
 import test from 'node:test';

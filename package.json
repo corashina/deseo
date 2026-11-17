@@ -22,7 +22,7 @@
     "gen:types": "supabase gen types typescript --local --schema public > packages/domain/src/database.types.ts",
     "lint": "eslint apps/mobile/src apps/web packages/domain/src",
     "typecheck": "npm run typecheck --workspaces --if-present",
-    "test": "npm run test --workspaces --if-present && supabase test db --local && node --experimental-strip-types --test supabase/tests/planning-races.test.ts",
+    "test": "npm run test --workspaces --if-present && supabase test db --local && node --experimental-strip-types --test --test-force-exit supabase/tests/planning-races.test.ts",
     "typecheck:functions": "npm exec --yes --package deno@2.9.6 -- deno check --frozen --config supabase/functions/deno.json supabase/functions/finalize-memory/index.ts supabase/functions/cleanup/index.ts supabase/functions/dispatch-notifications/index.ts supabase/functions/check-push-receipts/index.ts",
     "test:functions": "npm exec --yes --package deno@2.9.6 -- deno test --frozen --config supabase/functions/deno.json supabase/functions/finalize-memory/validate-jpeg.test.ts"
   },
