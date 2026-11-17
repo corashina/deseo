@@ -1,28 +1,27 @@
-import { useEffect, useRef, type ReactNode } from 'react';
+import { useEffect, useId, useRef, type ReactNode } from 'react';
 import { XIcon } from '@phosphor-icons/react/dist/csr/X';
 import { Button } from './Button';
-export function Dialog({ open, onClose, title, children, className = '', busy = false }: { open: boolean; onClose(): void; title: string; children: ReactNode; className?: string; busy?: boolean }) {
+// A native modal dialog. The browser keeps focus out of the page and returns it to the trigger on close.
+// closedBy "any" also closes it on a click outside, where the browser supports it.
+export function Dialog({ open, onClose, title, children, id, className = '', busy = false, closedBy }: {
+  open: boolean; onClose(): void; title: string; children: ReactNode; id?: string; className?: string; busy?: boolean; closedBy?: 'any';
+}) {
   const dialog = useRef<HTMLDialogElement>(null);
-  const trigger = useRef<HTMLElement | null>(null);
+  const headingId = useId();
   useEffect(() => {
     const node = dialog.current;
     if (!node) return;
     if (open && !node.open) {
-      trigger.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
       node.showModal();
       node.querySelector<HTMLElement>('button:not(:disabled)')?.focus();
     }
-    if (!open && node.open) { node.close(); if (trigger.current?.isConnected) trigger.current.focus(); }
+    if (!open && node.open) node.close();
   }, [open]);
-  return <dialog ref={dialog} aria-label={title} className={className} onCancel={event => { event.preventDefault(); if (!busy) onClose(); }} onKeyDown={event => {
-    if (event.key !== 'Tab') return;
-    // Native modal inertness blocks the page; wrap boundaries before focus reaches browser chrome.
-    const controls = Array.from(event.currentTarget.querySelectorAll<HTMLElement>('button:not(:disabled), a[href], input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex="0"]')).filter(node => node.getClientRects().length > 0);
-    const first = controls[0]; const last = controls.at(-1);
-    if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
-    else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
-  }}>
-    <div className="dialog-heading"><h2>{title}</h2><Button className="dialog-close" variant="text" disabled={busy} aria-label={'Close ' + title.toLowerCase()} title="Close" onClick={onClose}><XIcon size={20} weight="bold" aria-hidden="true" /></Button></div>
+  // Escape and a click outside send cancel. Keep the dialog open, and let the owner decide.
+  return <dialog ref={dialog} id={id} aria-labelledby={headingId} className={className} closedby={closedBy}
+    onCancel={event => { event.preventDefault(); if (!busy) onClose(); }}
+    onClose={() => { if (open) onClose(); }}>
+    <div className="dialog-heading"><h2 id={headingId}>{title}</h2><Button className="dialog-close" variant="text" disabled={busy} aria-label={'Close ' + title.toLowerCase()} title="Close" onClick={onClose}><XIcon size={20} weight="bold" aria-hidden="true" /></Button></div>
     {children}
   </dialog>;
 }

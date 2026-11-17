@@ -7,6 +7,8 @@
 - Lean on the dependencies already in the project before writing your own implementation or adding packages. Do not assume a library lacks a capability without checking its documentation and types.
 - Make architectural decisions for the long term. Do not accept a stopgap that only works for now and is meant to be replaced later.
 - Avoid allocations and repeated setup in per-frame update and render paths.
+- Browser support: use Baseline Newly available features without fallbacks. Use Limited availability features only as enhancements.
+- A browser fallback adds 20 lines or less and no packages. Do not add polyfills.
 - Do not implement reduced-motion variants or `prefers-reduced-motion` handling unless the user explicitly requests it.
 - Before implementing tests, give it a rating 0-100 in terms of importance and implement only those that score 90 or higher.
 - Use the [unslop skill](https://github.com/michael-denyer/pstack-claude/blob/main/plugins/pstack/skills/unslop/SKILL.md) when you write or edit UI text, documentation, and code comments.
