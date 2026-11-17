@@ -26,6 +26,6 @@ export function MemoriesPage() {
   }
   return <><PageHeader title="Memories" hideTitle action={<Link className="button primary" to="/memories/new">Add memory</Link>} />
     {query.isPending ? loading : query.isError ? <><Status error>We could not load your memories.</Status><Button variant="secondary" onClick={() => void query.refetch()}>Retry</Button></> : months.size ? [...months].map(([month, memories]) => <section className="memory-month" key={month}><h2>{formatDate(DateTime.fromISO(month + '-01'), 'month', account!.locale)}</h2><div className="memory-grid">{memories.map(memory => <MemoryCard key={memory.id} memory={memory} author={pair?.status === 'active' ? pair.members.find(member => member.userId === memory.createdBy) : undefined} locale={account!.locale} />)}</div></section>) : <section className="card"><h2>Your first memory</h2><p>Add a photo, a date, and a caption.</p></section>}
-    {query.hasNextPage && <Button variant="secondary" disabled={query.isFetchingNextPage} onClick={() => void query.fetchNextPage()}>Load older memories</Button>}
+    {query.hasNextPage && <Button variant="secondary" disabled={query.isFetchingNextPage} onClick={() => void query.fetchNextPage()}>{query.isFetchingNextPage ? 'Loading memories…' : 'Load older memories'}</Button>}
   </>;
 }

@@ -27,12 +27,12 @@ export function VerifyPage() {
       setInvalid(!valid); if (valid) verify.mutate(code); else focusCode();
     }}><Field className="code-input" label="Sign-in code" hint="No email after a minute? Check your spam folder." name="code" spellCheck={false} inputMode="numeric" autoComplete="one-time-code" maxLength={6} disabled={pending} value={code} error={codeError} onChange={event => { entryIntent.codeDraft = event.target.value; setCode(event.target.value); }} />
     {resend.isError && <Status error>{toAppError(resend.error).message}</Status>}<Button variant="primary" type="submit" disabled={pending}>{verify.isPending ? 'Checking…' : 'Sign in'}</Button></form>
-    <div className="actions"><ResendButton retryAt={entryIntent.retryAt} disabled={pending} onResend={() => { verify.reset(); resend.mutate(); }} /><Link to="/sign-in">Use another email</Link></div></section>;
+    <div className="actions"><ResendButton retryAt={entryIntent.retryAt} disabled={pending} sending={resend.isPending} onResend={() => { verify.reset(); resend.mutate(); }} /><Link to="/sign-in">Use another email</Link></div></section>;
 }
 const secondsUntil = (time: string) => Math.max(0, Math.ceil((Date.parse(time) - Date.now()) / 1000));
 // The countdown ticks here, so the form does not render each second. The timer stops at zero.
 // A new code gives a new retry time, which starts a new countdown.
-function ResendButton({ retryAt, disabled, onResend }: { retryAt: string; disabled: boolean; onResend(): void }) {
+function ResendButton({ retryAt, disabled, sending, onResend }: { retryAt: string; disabled: boolean; sending: boolean; onResend(): void }) {
   const [seconds, setSeconds] = useState(() => secondsUntil(retryAt));
   useEffect(() => {
     const tick = () => { const next = secondsUntil(retryAt); setSeconds(next); return next; };
@@ -40,5 +40,5 @@ function ResendButton({ retryAt, disabled, onResend }: { retryAt: string; disabl
     const timer = setInterval(() => { if (!tick()) clearInterval(timer); }, 1000);
     return () => clearInterval(timer);
   }, [retryAt]);
-  return <Button variant="secondary" disabled={disabled || seconds > 0} onClick={onResend}>{seconds ? 'Resend code in ' + seconds + 's' : 'Resend code'}</Button>;
+  return <Button variant="secondary" disabled={disabled || seconds > 0} onClick={onResend}>{sending ? 'Sending…' : seconds ? 'Resend code in ' + seconds + 's' : 'Resend code'}</Button>;
 }

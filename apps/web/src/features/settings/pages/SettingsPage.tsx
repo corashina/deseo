@@ -63,7 +63,7 @@ function ProfileSection() {
         onBlur={() => { const zone = resolveTimezone(input.timezone); if (zone && zone !== input.timezone) change({ timezone: zone }); }} />
     </fieldset>{message && <Status error={save.isError}>{message}</Status>}
     <div className="actions">{conflict && <Button disabled={busy} variant="secondary" onClick={() => discard.mutate()}>Discard changes and reload</Button>}
-    <Button variant="primary" type="submit" disabled={busy || conflict}>{save.isError && toAppError(save.error).code === 'RETRYABLE' ? 'Retry profile' : 'Save profile'}</Button></div></form>
+    <Button variant="primary" type="submit" disabled={busy || conflict}>{save.isPending ? 'Saving…' : save.isError && toAppError(save.error).code === 'RETRYABLE' ? 'Retry profile' : 'Save profile'}</Button></div></form>
   </section>;
 }
 
@@ -72,8 +72,8 @@ function AccountSection() {
   return <section className="settings-section" aria-labelledby="settings-account"><h2 id="settings-account">Account</h2>
     <p className="muted">Signing out removes private content and unsent changes from this browser.</p>
     {leave.isError && <Status error>Sign-out failed. Try again.</Status>}
-    <div className="actions"><Button variant="secondary" disabled={leave.isPending} onClick={() => leave.mutate('local')}>Sign out on this browser</Button>
-    <Button variant="secondary" disabled={leave.isPending} onClick={() => leave.mutate('global')}>Sign out on all devices</Button></div>
+    <div className="actions"><Button variant="secondary" disabled={leave.isPending} onClick={() => leave.mutate('local')}>{leave.isPending && leave.variables === 'local' ? 'Signing out…' : 'Sign out on this browser'}</Button>
+    <Button variant="secondary" disabled={leave.isPending} onClick={() => leave.mutate('global')}>{leave.isPending && leave.variables === 'global' ? 'Signing out…' : 'Sign out on all devices'}</Button></div>
   </section>;
 }
 
@@ -105,7 +105,7 @@ function EndPairSection({ pairId, partner }: { pairId: string; partner: string }
   const close = () => { if (!busy) setOpen(false); };
   return <section className="card form-page settings-danger" aria-labelledby="settings-end-pair"><h2 id="settings-end-pair">End this pair</h2>
     <p className="muted">Either person can end this pair. Both people lose shared access. Your next pair starts empty.</p>
-    {attempt ? <Button variant="danger" disabled={busy} onClick={() => disconnect.mutate()}>Retry ending pair</Button>
+    {attempt ? <Button variant="danger" disabled={busy} onClick={() => disconnect.mutate()}>{disconnect.isPending ? 'Ending pair…' : 'Retry ending pair'}</Button>
       : <Button variant="danger" disabled={busy} onClick={() => setOpen(true)}>End pair</Button>}
     {error && !open && <Status error>{error}</Status>}
     <Dialog busy={busy} title="End this pair?" open={open} onClose={close}>
@@ -117,9 +117,9 @@ function EndPairSection({ pairId, partner }: { pairId: string; partner: string }
         <Status>We sent a 6-digit code to your email.</Status>
         <Field className="code-input" label="Email verification code" hint="No email after a minute? Check your spam folder." name="code" spellCheck={false} disabled={busy} inputMode="numeric" autoComplete="one-time-code" value={code} maxLength={6} error={codeError} onChange={event => { setCodeError(''); setCode(event.target.value); }} />
         {error && <Status error>{error}</Status>}
-        <div className="actions"><Button variant="danger" type="submit" disabled={busy}>Confirm ending pair</Button>
+        <div className="actions"><Button variant="danger" type="submit" disabled={busy}>{disconnect.isPending ? 'Ending pair…' : 'Confirm ending pair'}</Button>
         <Button variant="secondary" disabled={busy} onClick={close}>Cancel</Button>
-        <Button variant="text" disabled={busy} onClick={() => send.mutate()}>Send a new code</Button></div>
+        <Button variant="text" disabled={busy} onClick={() => send.mutate()}>{send.isPending ? 'Sending code…' : 'Send a new code'}</Button></div>
       </form> : <>
         <p>To confirm, we email you a 6-digit code.</p>
         {error && <Status error>{error}</Status>}
