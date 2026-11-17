@@ -2,7 +2,8 @@ import { RouteErrorPage } from '../../../app/RouteErrorPage';
 import { useState, type ReactNode } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
-import { AppError, toAppError } from '@deseo/domain/result';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { toAppError } from '@deseo/domain/result';
 import { memoryInputSchema, type Memory, type MemoryInput } from '@deseo/domain/memories';
 import { DateTime } from 'luxon';
 import { Link, useNavigate, useParams } from 'react-router-dom';
@@ -18,6 +19,7 @@ import { Dialog } from '../../../components/ui/Dialog';
 import { getMemory, memoryKeys } from '../queries';
 import { deleteMemory, updateMemory } from '../commands';
 import { MemoryImage } from '../components/MemoryImage';
+import { MemoryFields } from '../components/MemoryFields';
 import { memoryPhotoQuery } from '../media';
 import { PartnerBadge } from '../../../components/ui/PartnerBadge';
 import '../../../styles/memories.css';
@@ -60,7 +62,7 @@ export function MemoryDetailPage() {
       {author ? <MemoryEditor key={memory.id} memory={memory} remove={<Button className="memory-delete" variant="secondary" disabled={busy} onClick={() => setConfirm(true)}>{remove.isError ? 'Retry deletion' : 'Delete memory'}</Button>} />
         : memory.caption && <p className="memory-caption preserve-lines">{memory.caption}</p>}
       {error && <Status error>{error}</Status>}
-    </section><Dialog busy={remove.isPending} open={confirm} title="Delete this memory?" onClose={() => setConfirm(false)}><p>Both partners will lose this memory and its photos.</p><div className="actions"><Button variant="danger" disabled={busy} onClick={() => remove.mutate(memory.version)}>Confirm deletion</Button><Button variant="secondary" disabled={busy} onClick={() => setConfirm(false)}>Cancel</Button></div></Dialog>
+    </section><Dialog busy={remove.isPending} open={confirm} title="Delete this memory?" onClose={() => setConfirm(false)}><p>Both partners will lose this memory and its photos.</p><div className="actions"><Button variant="danger" disabled={busy} onClick={() => remove.mutate(memory.version)}>{remove.isPending ? 'Deleting…' : 'Confirm deletion'}</Button><Button variant="secondary" disabled={busy} onClick={() => setConfirm(false)}>Cancel</Button></div></Dialog>
   </>;
 }
 // The author changes the date and caption here. Photos stay as published.
@@ -69,14 +71,10 @@ function MemoryEditor({ memory, remove }: { memory: Memory; remove: ReactNode })
   // Keep the version the draft started from. A concurrent edit then fails with CONFLICT.
   const [version, setVersion] = useState(memory.version);
   const command = useCommandId();
-  const form = useForm<MemoryInput>({ defaultValues: { caption: memory.caption, memoryDate: memory.memoryDate } });
+  const form = useForm<MemoryInput>({ resolver: zodResolver(memoryInputSchema), defaultValues: { caption: memory.caption, memoryDate: memory.memoryDate } });
   const reset = (current: Memory) => { form.reset({ caption: current.caption, memoryDate: current.memoryDate }); setVersion(current.version); };
   const save = useMutation({
-    mutationFn: (values: MemoryInput) => {
-      const parsed = memoryInputSchema.safeParse(values);
-      if (!parsed.success) throw new AppError({ code: 'VALIDATION', message: parsed.error.issues[0].message });
-      return updateMemory(memory.id, parsed.data, version, command.idFor({ input: parsed.data, version }));
-    },
+    mutationFn: (values: MemoryInput) => updateMemory(memory.id, values, version, command.idFor({ input: values, version })),
     onSuccess: saved => { command.reset(); reset(saved); },
   });
   const reload = useMutation({ mutationFn: () => getMemory(memory.pairId, memory.id), onSuccess: current => { reset(current); save.reset(); } });
@@ -87,8 +85,7 @@ function MemoryEditor({ memory, remove }: { memory: Memory; remove: ReactNode })
   useUnsavedChanges(form.formState.isDirty);
   return <form className="memory-edit" onSubmit={form.handleSubmit(values => save.mutate(values))}>
     <fieldset disabled={saving}>
-      <label className="field"><span>Memory date</span><input type="date" autoComplete="off" required {...form.register('memoryDate')} /></label>
-      <label className="field"><span>Caption</span><textarea rows={4} maxLength={1000} autoComplete="off" {...form.register('caption')} /></label>
+      <MemoryFields form={form} />
     </fieldset>
     {error && <Status error>{error}</Status>}
     {save.isSuccess && !form.formState.isDirty && <p role="status">Changes saved.</p>}

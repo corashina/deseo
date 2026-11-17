@@ -488,9 +488,9 @@ Section intros use secondary text. The timezone field selects its value on focus
 The end pair code step says where the code went, uses the code field style, and Enter confirms.
 
 **Site.** The site uses the portal tokens, Manrope, and the same type scale. Each page has a light and a dark browser bar color.
-Previews are captures of the real app with the sample pair Alex and Sam. Each preview has a dark version and a Preview badge.
+Previews are captures of the real app with the sample pair Alex and Sam. Each preview has a dark version and a caption that starts with "Preview of".
 `apps/web/tests/capture/previews.spec.ts` makes the captures. Phone previews are 2x captures at 390px. All previews share the right edge.
-Narrow pages keep the left edge of the header with a 720px text column. The footer stays at the bottom of short pages.
+Narrow pages keep the left edge of the header with a 720px text column. Their section titles are 28px (24px on mobile). The footer stays at the bottom of short pages.
 Section headings use the headline role. From 1024px, phone previews are 360px wide, and feature text starts at the top of its preview.
 Make no claim that the product cannot prove. The hero has one primary button, Join with an invitation, and one line of release status.
 

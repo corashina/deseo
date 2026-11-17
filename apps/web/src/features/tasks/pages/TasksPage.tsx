@@ -118,13 +118,13 @@ function ListSettings({ list, taskCount, onRemoved }: { list: TaskList; taskCoun
     <summary>List settings</summary>
     <form className="list-name-form" onSubmit={event => { event.preventDefault(); if (!busy) rename.mutate(); }}>
       <Field label="New list name" name="listName" value={name} maxLength={40} required disabled={busy} onChange={event => setName(event.target.value)} />
-      <Button variant="primary" disabled={busy} type="submit">{rename.isError ? 'Retry rename' : 'Rename list'}</Button>
+      <Button variant="primary" disabled={busy} type="submit">{rename.isPending ? 'Saving…' : rename.isError ? 'Retry rename' : 'Rename list'}</Button>
     </form>
     <div className="actions"><Button variant="secondary" disabled={busy} onClick={() => setConfirm(true)}>{remove.isError ? 'Retry removal' : 'Remove list'}</Button></div>
     {error && <Status error>{error}</Status>}
     <Dialog busy={remove.isPending} open={confirm} title="Remove this list?" onClose={() => setConfirm(false)}>
       <p>{taskCount ? 'Its tasks move to General. The list is removed for both partners.' : 'This empty list is removed for both partners.'}</p>
-      <div className="actions"><Button variant="danger" disabled={remove.isPending} onClick={() => remove.mutate()}>Confirm removal</Button>
+      <div className="actions"><Button variant="danger" disabled={remove.isPending} onClick={() => remove.mutate()}>{remove.isPending ? 'Removing…' : 'Confirm removal'}</Button>
       <Button variant="secondary" disabled={remove.isPending} onClick={() => setConfirm(false)}>Cancel</Button></div>
     </Dialog>
   </details>;

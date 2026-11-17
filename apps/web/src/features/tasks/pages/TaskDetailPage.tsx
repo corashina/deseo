@@ -89,7 +89,7 @@ function TaskEditor({ task, lists }: { task: Task; lists: TaskList[] }) {
     </section>
     <Dialog busy={remove.isPending} open={confirm} title="Delete this task?" onClose={() => setConfirm(false)}>
       <p>Both partners will lose this task.</p>
-      <div className="actions"><Button variant="danger" disabled={remove.isPending} onClick={() => remove.mutate()}>Confirm deletion</Button>
+      <div className="actions"><Button variant="danger" disabled={remove.isPending} onClick={() => remove.mutate()}>{remove.isPending ? 'Deleting…' : 'Confirm deletion'}</Button>
       <Button variant="secondary" disabled={remove.isPending} onClick={() => setConfirm(false)}>Cancel</Button></div>
     </Dialog>
   </>;

@@ -10,7 +10,7 @@
 .month-weekdays, .month-days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); }
 .month-weekdays span { justify-self: start; box-sizing: content-box; width: var(--nav-target); max-width: calc(100% - 2 * var(--space-2)); padding: var(--space-3) var(--space-2); font-size: 12px; font-weight: 600; color: var(--muted); text-align: center; }
 .month-days { border-top: 1px solid var(--line); border-left: 1px solid var(--line); }
-.month-day { min-width: 0; min-height: 142px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: var(--space-2); }
+.month-day { min-width: 0; min-height: 144px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: var(--space-2); }
 /* Weeks start on Monday, so the last two cells of each row are the weekend. */
 .month-day:nth-child(7n+6), .month-day:nth-child(7n) { background: var(--canvas); }
 .month-day.outside .day-number { color: var(--muted); font-weight: 500; }
@@ -38,7 +38,7 @@
 
 .selected-agenda { margin-top: var(--space-8); scroll-margin-top: calc(72px + var(--space-4)); }
 .selected-agenda > h2 { margin-bottom: var(--space-4); }
-.agenda-day { display: grid; grid-template-columns: 190px minmax(0, 1fr); gap: var(--space-6); padding: var(--space-6) 0; border-bottom: 1px solid var(--line); }
+.agenda-day { display: grid; grid-template-columns: 192px minmax(0, 1fr); gap: var(--space-6); padding: var(--space-6) 0; border-bottom: 1px solid var(--line); }
 .agenda-day h3 { font-size: 16px; font-weight: 600; margin-bottom: var(--space-2); }
 .empty-state { color: var(--muted); }
 .empty-state p { margin-bottom: var(--space-1); }
@@ -54,11 +54,6 @@
 .event-details > summary { min-height: var(--nav-target); padding: var(--space-3) 0; font-weight: 600; cursor: pointer; }
 .event-details-content { padding-top: var(--space-2); }
 .event-details-content > .field-hint { margin-bottom: var(--space-6); }
-
-.event-detail dl { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: var(--space-4); margin: 0 0 var(--space-6); }
-.event-detail dt { color: var(--muted); }
-.event-detail dd { margin: 0; overflow-wrap: anywhere; white-space: pre-wrap; }
-.event-detail .actions { align-items: center; justify-content: space-between; margin-bottom: 0; }
 
 @media (max-width: 1023px) {
   .month-day { padding: var(--space-1); }
@@ -79,6 +74,4 @@
   .month-day .owner-dots { display: flex; justify-content: center; padding-bottom: var(--space-2); }
   .agenda-day { grid-template-columns: 1fr; gap: var(--space-2); padding: var(--space-4) 0; }
   .form-grid { grid-template-columns: minmax(0, 1fr); }
-  .event-detail dl { grid-template-columns: 1fr; gap: var(--space-2); }
-  .event-detail dd { margin-bottom: var(--space-4); }
 }

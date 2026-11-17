@@ -34,7 +34,7 @@ export function IdeasSection({ pairId }: { pairId: string }) {
       <Link className="idea-row" to={'/ideas/' + idea.id} state={from}><strong>{idea.title}</strong>{idea.note && <span>{idea.note}</span>}</Link>
       <Link className="button secondary" to={'/events/new?idea=' + idea.id} state={from}>Plan date</Link>
     </li>)}</ul>}
-    {query.hasNextPage && <Button variant="secondary" disabled={query.isFetchingNextPage} onClick={() => void query.fetchNextPage()}>Load more ideas</Button>}
+    {query.hasNextPage && <Button variant="secondary" disabled={query.isFetchingNextPage} onClick={() => void query.fetchNextPage()}>{query.isFetchingNextPage ? 'Loading ideas…' : 'Load more ideas'}</Button>}
   </section>;
 }
 

@@ -91,7 +91,7 @@ function IdeaEditor({ idea }: { idea: DateIdea }) {
     </section>
     <Dialog busy={archive.isPending} open={confirm} title="Archive this idea?" onClose={() => setConfirm(false)}>
       <p>The idea leaves your list of date ideas.</p>
-      <div className="actions"><Button variant="primary" disabled={archive.isPending} onClick={() => archive.mutate()}>Confirm archive</Button>
+      <div className="actions"><Button variant="primary" disabled={archive.isPending} onClick={() => archive.mutate()}>{archive.isPending ? 'Archiving…' : 'Confirm archive'}</Button>
       <Button variant="secondary" disabled={archive.isPending} onClick={() => setConfirm(false)}>Cancel</Button></div>
     </Dialog>
   </>;

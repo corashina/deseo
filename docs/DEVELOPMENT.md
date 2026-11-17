@@ -153,6 +153,10 @@ The portal follows the [Web Interface Guidelines](https://github.com/vercel-labs
 - Show counts as numerals. Format numbers with `Intl.NumberFormat`.
 - On phones, `html` scroll padding keeps focus below the sticky top bar.
 - `index.html` preloads the Manrope latin font file from `node_modules`.
+- A button that starts a request shows what runs, such as `Saving…` or `Deleting…`.
+- Memory forms show photo, date, and caption errors below their fields.
+- Profile setup stores the first English browser language, such as `en-GB`, as the locale.
+- An underlined link gets a 2px line on hover. A `summary` turns to the link color on hover.
 
 ### Impeccable review
 
