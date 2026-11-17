@@ -15,6 +15,7 @@ import { MonthGrid } from '../components/MonthGrid';
 import { Agenda } from '../components/Agenda';
 import { ownerNames } from '../components/EventRow';
 import { useFrom } from '../../../lib/return-to';
+import { IdeasSection } from '../ideas/components/IdeasSection';
 import '../../../styles/calendar.css';
 export function CalendarPage() {
   const { account, pair } = useSession(); const [params, setParams] = useSearchParams(); const from = useFrom();
@@ -39,10 +40,7 @@ export function CalendarPage() {
   </button>;
   const add = '/events/new?date=' + date;
   return <>
-    <PageHeader title="Calendar" action={<div className="actions">
-      <Link className="button secondary" to="/ideas" state={from}>Date ideas</Link>
-      <Link className="button primary" to={add} state={from}>Add event</Link>
-    </div>} />
+    <PageHeader title="Calendar" action={<Link className="button primary" to={add} state={from}>Add event</Link>} />
     <section className="card calendar-card">
       <div className="calendar-toolbar">
         <div className="calendar-date-controls">
@@ -70,5 +68,6 @@ export function CalendarPage() {
         </>
         : <Agenda events={events} from={month.toISODate()!} to={month.plus({ months: 1 }).toISODate()!} names={names} timezone={account.timezone} locale={account.locale} empty={<p>Nothing planned this month.</p>} />}
     </section>
+    <IdeasSection pairId={pair.pairId} />
   </>;
 }
