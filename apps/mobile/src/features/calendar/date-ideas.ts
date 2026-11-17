@@ -67,7 +67,7 @@ export async function planDateIdea(ideaId: string, eventInput: EventInput, expec
   try {
     z.string().uuid().parse(ideaId); z.string().uuid().parse(commandId); z.number().int().positive().parse(expectedVersion);
     const input = eventInputSchema.parse(eventInput);
-    if (input.visibility !== 'shared' || input.repeat === 'yearly') throw new AppError({ code: 'VALIDATION', message: 'Plan a shared event for this idea.' });
+    if (input.who === 'private' || input.repeat === 'yearly') throw new AppError({ code: 'VALIDATION', message: 'Plan a shared event for this idea.' });
     const scope = captureQueryScope(); const client = await getSupabase(); scope.assertCurrent();
     const response = await client.rpc('plan_date_idea', { p_idea_id: ideaId, p_event_input: eventPayload(input), p_expected_version: expectedVersion, p_command_id: commandId }).abortSignal(scope.signal);
     scope.assertCurrent(); if (response.error) return errorResult(response.error);

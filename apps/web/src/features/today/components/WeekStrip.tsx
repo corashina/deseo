@@ -1,6 +1,7 @@
 import { DateTime } from 'luxon';
 import type { Event, Owner } from '@deseo/domain/calendar';
 import { formatDate } from '../../../lib/format';
+import { eventOwner, type OwnerNames } from '../../calendar';
 
 const owners: readonly Owner[] = ['a', 'b', 'together'];
 
@@ -12,9 +13,9 @@ function eventDays(event: Event, zone: string): [string, string] {
   return [start, end];
 }
 
-export function WeekStrip({ date, events, zone, locale }: { date: string; events: readonly Event[]; zone: string; locale: string }) {
+export function WeekStrip({ date, events, names, zone, locale }: { date: string; events: readonly Event[]; names: OwnerNames; zone: string; locale: string }) {
   const first = DateTime.fromISO(date, { zone });
-  const ranges = events.map(event => ({ owner: event.owner, days: eventDays(event, zone) }));
+  const ranges = events.map(event => ({ owner: eventOwner(event, names), days: eventDays(event, zone) }));
   const days = Array.from({ length: 7 }, (_, index) => {
     const day = first.plus({ days: index });
     const iso = day.toISODate()!;

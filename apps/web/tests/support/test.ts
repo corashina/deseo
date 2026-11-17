@@ -36,7 +36,7 @@ export async function passwordSession(account: Account): Promise<SupabaseClient>
 export async function createEvent(account: Account, pairId: string, input: Record<string, unknown>): Promise<string> {
   const id = randomUUID();
   await rpc(account.client, 'create_event', {
-    p_input: { id, pair_id: pairId, owner: 'together', visibility: 'shared', timezone: 'Europe/Warsaw', repeat: 'none',
+    p_input: { id, pair_id: pairId, who: 'together', timezone: 'Europe/Warsaw', repeat: 'none',
       starts_at: '2026-12-05T11:00:00Z', ends_at: '2026-12-05T13:00:00Z', ...input },
     p_command_id: randomUUID(),
   });

@@ -31,12 +31,6 @@ export function EventFields({ form, names, slot, author, locked, planning = fals
     try { return wallTimeChoices(values[`${which}Date`], values[`${which}Time`], values.timezone); } catch { return []; }
   }
   const partner = slot === 'a' ? 'b' : 'a';
-  // One choice sets both who the event is for and who can see it. Private events belong to their author.
-  function choose(value: string) {
-    const options = { shouldDirty: true, shouldValidate: form.formState.isSubmitted };
-    form.setValue('visibility', value === 'private' ? 'private' : 'shared', options);
-    form.setValue('owner', value === 'private' ? slot : value as EventFormValues['owner'], options);
-  }
   // An important date is one all-day date. Only important dates repeat every year.
   function markImportant(checked: boolean) {
     if (checked) {
@@ -71,15 +65,14 @@ export function EventFields({ form, names, slot, author, locked, planning = fals
       })}</div>}
     </section>
     <label className="field" htmlFor={prefix + 'who'}><span id={prefix + 'who-label'}>Who</span>
-      <select id={prefix + 'who'} name="who" aria-labelledby={prefix + 'who-label'} aria-invalid={Boolean(errors.owner || errors.visibility)}
-        aria-describedby={errors.owner || errors.visibility ? prefix + 'who-error' : undefined}
-        value={values.visibility === 'private' ? 'private' : values.owner} onChange={event => choose(event.target.value)}>
+      <select id={prefix + 'who'} aria-labelledby={prefix + 'who-label'} aria-invalid={Boolean(errors.who)}
+        aria-describedby={errors.who ? prefix + 'who-error' : undefined} {...register('who')}>
         <option value="together">Together</option>
         <option value={slot}>Me</option>
         <option value={partner}>{names[partner]}</option>
-        {(author && !planning || values.visibility === 'private') && <option value="private">Private (just me)</option>}
+        {(author && !planning || values.who === 'private') && <option value="private">Private (just me)</option>}
       </select>
-      {(errors.owner || errors.visibility) && <span className="field-error" role="alert" id={prefix + 'who-error'}>{errors.owner?.message ?? errors.visibility?.message}</span>}
+      {errors.who && <span className="field-error" role="alert" id={prefix + 'who-error'}>{errors.who.message}</span>}
     </label>
     <details className="event-details" ref={details} open={Boolean(values.location || values.description || values.importantDate || values.repeat === 'yearly') || undefined}>
       <summary>More details</summary>

@@ -24,8 +24,8 @@ test.describe.configure({ timeout: 180_000 });
 
 test('capture site previews', async ({ browser, pair, signIn }) => {
   const { id, a: alex, b: sam } = await pair(['Alex', 'Sam']);
-  await createEvent(alex, id, { owner: 'a', title: 'Coffee with Maya', starts_at: at(1, 10), ends_at: at(1, 11) });
-  await createEvent(sam, id, { owner: 'b', title: 'Studio time', starts_at: at(1, 14), ends_at: at(1, 16) });
+  await createEvent(alex, id, { who: 'a', title: 'Coffee with Maya', starts_at: at(1, 10), ends_at: at(1, 11) });
+  await createEvent(sam, id, { who: 'b', title: 'Studio time', starts_at: at(1, 14), ends_at: at(1, 16) });
   await createEvent(sam, id, { title: 'Dinner at our favorite place', starts_at: at(1, 18, 30), ends_at: at(1, 20, 30) });
   await createEvent(alex, id, { title: 'Sunday market', starts_at: at(3, 9), ends_at: at(3, 11) });
   await createEvent(alex, id, { title: 'Our anniversary', starts_at: null, ends_at: null, start_date: day(12), end_date_exclusive: day(13),

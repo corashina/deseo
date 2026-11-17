@@ -467,8 +467,7 @@ create table public.events (
   id uuid primary key,
   pair_id uuid not null references public.pairs(id) on delete cascade,
   created_by uuid not null,
-  owner text not null check(owner in('a','b','together')),
-  visibility text not null check(visibility in('shared','private')),
+  who text not null check(who in('together','a','b','private')),
   title text not null check(char_length(title) between 1 and 120 and title=btrim(title)),
   timezone text not null,
   starts_at timestamptz,
@@ -487,8 +486,7 @@ create table public.events (
   unique(pair_id,id),
   foreign key(pair_id,created_by) references public.pair_members(pair_id,user_id),
   check((starts_at is not null and ends_at is not null and ends_at>starts_at and start_date is null and end_date_exclusive is null)
-    or (start_date is not null and end_date_exclusive is not null and end_date_exclusive>start_date and starts_at is null and ends_at is null)),
-  check(visibility<>'private' or owner<>'together')
+    or (start_date is not null and end_date_exclusive is not null and end_date_exclusive>start_date and starts_at is null and ends_at is null))
 );
 create index events_pair_start on public.events(pair_id,starts_at,id) where starts_at is not null;
 create index events_pair_date on public.events(pair_id,start_date,id) where start_date is not null;
@@ -502,10 +500,10 @@ revoke all on public.events from public,anon,authenticated;
 grant select on public.events to authenticated;
 grant all on public.events to service_role;
 create policy events_visible on public.events for select to authenticated
-using(pair_id=(select private.actor_pair()) and (visibility='shared' or created_by=(select private.active_actor())));
+using(pair_id=(select private.actor_pair()) and (who<>'private' or created_by=(select private.active_actor())));
 create trigger events_timezone before insert or update on public.events for each row execute function private.check_timezone();
 
--- Keep only opaque IDs for former readers. This also removes drafts after an offline visibility change.
+-- Keep only opaque IDs for former readers. This also removes drafts after an offline change to private.
 create table public.event_access_revocations (
   user_id uuid not null references auth.users(id) on delete cascade,
   pair_id uuid not null,
@@ -534,9 +532,9 @@ create trigger events_identity before update on public.events for each row execu
 -- Fixed public wrappers choose create, update, or delete. Reads remain RLS-scoped.
 create function private.event_command(p_action text,p_event_id uuid,p_input jsonb,p_expected_version integer,p_command_id uuid)
 returns jsonb language plpgsql security definer set search_path = '' as $$
-declare v_actor uuid; v_pair uuid; actor_slot text; previous public.events; result public.events; replay jsonb;
+declare v_actor uuid; v_pair uuid; previous public.events; result public.events; replay jsonb;
   request jsonb := jsonb_build_object('id',p_event_id,'input',p_input,'version',p_expected_version);
-  v_important boolean; v_repeat text; v_month integer; v_day integer; v_title text; v_owner text; v_visibility text; v_timezone text; starts timestamptz; ends timestamptz; first_date date; last_date date;
+  v_important boolean; v_repeat text; v_month integer; v_day integer; v_title text; v_who text; v_timezone text; starts timestamptz; ends timestamptz; first_date date; last_date date;
 begin
   v_actor := private.require_actor();
   if p_action not in('create','update','delete') then return private.error('VALIDATION'); end if;
@@ -554,7 +552,7 @@ begin
   perform private.lock_pair(v_pair,v_actor);
   if not private.is_member(v_pair) then return private.error('FORBIDDEN'); end if;
   select * into previous from public.events where id=p_event_id for update;
-  if previous.id is not null and previous.visibility='private' and previous.created_by<>v_actor then
+  if previous.id is not null and previous.who='private' and previous.created_by<>v_actor then
     return private.error('FORBIDDEN');
   end if;
   replay := private.receipt(v_actor,p_command_id,'event_'||p_action,request);
@@ -567,7 +565,7 @@ begin
     return private.save_receipt(v_actor,p_command_id,'event_create',v_pair,request,to_jsonb(previous));
   end if;
   if p_action<>'create' then
-    if previous.id is null or previous.pair_id<>v_pair or (previous.visibility='private' and previous.created_by<>v_actor)
+    if previous.id is null or previous.pair_id<>v_pair or (previous.who='private' and previous.created_by<>v_actor)
       then return private.error('FORBIDDEN'); end if;
     if p_expected_version is null or p_expected_version<>previous.version then return private.error('CONFLICT'); end if;
   end if;
@@ -576,21 +574,18 @@ begin
     return private.save_receipt(v_actor,p_command_id,'event_delete',v_pair,request,jsonb_build_object('id',p_event_id));
   end if;
   if (p_input->>'id')::uuid is distinct from p_event_id or (p_input->>'pair_id')::uuid is distinct from v_pair then return private.error('VALIDATION','id'); end if;
-  v_title := btrim(p_input->>'title'); v_owner := p_input->>'owner'; v_visibility := p_input->>'visibility'; v_timezone := p_input->>'timezone';
+  v_title := btrim(p_input->>'title'); v_who := p_input->>'who'; v_timezone := p_input->>'timezone';
   if v_title is null or char_length(v_title) not between 1 and 120 then return private.error('VALIDATION','title'); end if;
-  if v_owner is null or v_owner not in('a','b','together') then return private.error('VALIDATION','owner'); end if;
-  if v_visibility is null or v_visibility not in('shared','private') then return private.error('VALIDATION','visibility'); end if;
+  if v_who is null or v_who not in('together','a','b','private') then return private.error('VALIDATION','who'); end if;
   if not exists(select 1 from pg_catalog.pg_timezone_names where name=v_timezone) then return private.error('VALIDATION','timezone'); end if;
   if char_length(p_input->>'location')>200 then return private.error('VALIDATION','location'); end if;
   if char_length(p_input->>'description')>2000 then return private.error('VALIDATION','description'); end if;
   v_repeat := coalesce(p_input->>'repeat','none');
   v_important := coalesce((p_input->>'important_date')::boolean,false) or v_repeat='yearly';
   if v_repeat not in('none','yearly') then return private.error('VALIDATION','repeat'); end if;
-  select slot into actor_slot from public.pair_members where pair_id=v_pair and user_id=v_actor and left_at is null;
-  if v_visibility='private' and v_owner<>actor_slot then return private.error('VALIDATION','owner'); end if;
-  if p_action='update' and previous.visibility<>v_visibility then
+  if p_action='update' and (previous.who='private')<>(v_who='private') then
     if previous.created_by<>v_actor then return private.error('FORBIDDEN'); end if;
-    if v_visibility='shared' and (p_input->>'confirm_shared')::boolean is distinct from true then return private.error('VALIDATION','confirm_shared'); end if;
+    if v_who<>'private' and (p_input->>'confirm_shared')::boolean is distinct from true then return private.error('VALIDATION','confirm_shared'); end if;
   end if;
   starts := (p_input->>'starts_at')::timestamptz; ends := (p_input->>'ends_at')::timestamptz;
   first_date := (p_input->>'start_date')::date; last_date := (p_input->>'end_date_exclusive')::date;
@@ -603,20 +598,20 @@ begin
     v_month := extract(month from first_date)::integer; v_day := extract(day from first_date)::integer;
   end if;
   if p_action='create' then
-    insert into public.events(id,pair_id,created_by,owner,visibility,title,timezone,starts_at,ends_at,start_date,end_date_exclusive,location,description,repeat,repeat_month,repeat_day,important_date)
-    values(p_event_id,v_pair,v_actor,v_owner,v_visibility,v_title,v_timezone,starts,ends,first_date,last_date,p_input->>'location',p_input->>'description',v_repeat,v_month,v_day,v_important) returning * into result;
+    insert into public.events(id,pair_id,created_by,who,title,timezone,starts_at,ends_at,start_date,end_date_exclusive,location,description,repeat,repeat_month,repeat_day,important_date)
+    values(p_event_id,v_pair,v_actor,v_who,v_title,v_timezone,starts,ends,first_date,last_date,p_input->>'location',p_input->>'description',v_repeat,v_month,v_day,v_important) returning * into result;
   else
-    update public.events set owner=v_owner,visibility=v_visibility,title=v_title,timezone=v_timezone,starts_at=starts,ends_at=ends,
+    update public.events set who=v_who,title=v_title,timezone=v_timezone,starts_at=starts,ends_at=ends,
       start_date=first_date,end_date_exclusive=last_date,location=p_input->>'location',description=p_input->>'description',
       important_date=v_important,repeat=v_repeat,repeat_month=v_month,repeat_day=v_day,version=version+1,updated_at=now() where id=p_event_id returning * into result;
-    if previous.visibility='shared' and v_visibility='private' then
+    if previous.who<>'private' and v_who='private' then
       insert into public.event_access_revocations(user_id,pair_id,event_id)
       select user_id,v_pair,p_event_id from public.pair_members where pair_id=v_pair and left_at is null and user_id<>v_actor
       on conflict(user_id,event_id) do update set revoked_at=now();
       -- The updated event is hidden by RLS. Notify the former reader through their own profile.
       update public.profiles set updated_at=now(),version=version+1
       where user_id in(select user_id from public.pair_members where pair_id=v_pair and left_at is null and user_id<>v_actor);
-    elsif previous.visibility='private' and v_visibility='shared' then
+    elsif previous.who='private' and v_who<>'private' then
       delete from public.event_access_revocations where event_id=p_event_id;
     end if;
   end if;
@@ -1869,12 +1864,12 @@ begin
   if (p_event_input->>'pair_id')::uuid is distinct from pair then return private.error('FORBIDDEN'); end if;
   replay:=private.receipt(actor,p_command_id,'idea_plan',request);
   if replay is not null then
-    if replay->>'ok'='true' and not exists(select 1 from public.events where id=event_id and pair_id=pair and visibility='shared') then
+    if replay->>'ok'='true' and not exists(select 1 from public.events where id=event_id and pair_id=pair and who<>'private') then
       return private.error('FORBIDDEN'); end if;
     return replay;
   end if;
   if p_expected_version is null or idea.version<>p_expected_version or idea.state<>'saved' then return private.error('CONFLICT'); end if;
-  if p_event_input->>'visibility' is distinct from 'shared' or coalesce(p_event_input->>'repeat','none')<>'none' then return private.error('VALIDATION','visibility'); end if;
+  if coalesce(p_event_input->>'who','private')='private' or coalesce(p_event_input->>'repeat','none')<>'none' then return private.error('VALIDATION','who'); end if;
   if event_id is null then return private.error('VALIDATION','id'); end if;
   if exists(select 1 from public.events where id=event_id) then return private.error('CONFLICT'); end if;
   event_result:=private.event_command('create',null,p_event_input,null,p_command_id);
@@ -1892,7 +1887,7 @@ create function private.idea_event_lifecycle() returns trigger language plpgsql 
 declare future boolean;
 begin
   if tg_op='UPDATE' then
-    if new.visibility='private' and exists(select 1 from public.date_ideas where linked_event_id=new.id) then
+    if new.who='private' and exists(select 1 from public.date_ideas where linked_event_id=new.id) then
       raise exception using message='FORBIDDEN',errcode='P0001'; end if;
     return new;
   end if;
@@ -1903,7 +1898,7 @@ begin
   return old;
 end;
 $$;
-create trigger idea_event_lifecycle before update of visibility or delete on public.events for each row execute function private.idea_event_lifecycle();
+create trigger idea_event_lifecycle before update of who or delete on public.events for each row execute function private.idea_event_lifecycle();
 
 -- Send no row, ID, title, note, or link. Only current members can join this topic.
 create function private.idea_signal() returns trigger language plpgsql security definer set search_path = '' as $$
@@ -2114,7 +2109,7 @@ begin
  if (event is null)=(task is null) or reminder_id is null or jsonb_typeof(p_input->'active') is distinct from 'boolean'
  then return private.error('VALIDATION'); end if;
  if event is not null and not exists(select 1 from public.events where id=event and pair_id=pair
-   and (visibility='shared' or created_by=actor)) then return private.error('FORBIDDEN'); end if;
+   and (who<>'private' or created_by=actor)) then return private.error('FORBIDDEN'); end if;
  if task is not null and not exists(select 1 from public.tasks where id=task and pair_id=pair
    and (completed_at is null or (p_input->>'active')::boolean=false))
  then return private.error('FORBIDDEN'); end if;
@@ -2142,7 +2137,7 @@ begin
  if (p_event_id is null)=(p_task_id is null) then return private.error('VALIDATION'); end if;
  select * into r from public.reminders where user_id=actor and
  (event_id=p_event_id or task_id=p_task_id) and private.is_member(pair_id)
- and (event_id is null or exists(select 1 from public.events e where e.id=event_id and (e.visibility='shared' or e.created_by=actor)));
+ and (event_id is null or exists(select 1 from public.events e where e.id=event_id and (e.who<>'private' or e.created_by=actor)));
  return jsonb_build_object('ok',true,'data',case when r.id is null then null else private.reminder_json(r) end);
 exception when sqlstate 'P0001' then return private.error(sqlerrm);
 end; $$;
@@ -2235,7 +2230,7 @@ create function private.notification_source_allowed(n public.notifications,p_che
 language sql stable security definer set search_path='' as $$
  select private.notification_member(n.user_id,n.pair_id) and case n.kind
  when 'event' then exists(select 1 from public.events e where e.id=n.source_id and e.pair_id=n.pair_id
-   and (not p_check_version or e.version=n.source_version) and (e.visibility='shared' or e.created_by=n.user_id))
+   and (not p_check_version or e.version=n.source_version) and (e.who<>'private' or e.created_by=n.user_id))
  when 'task' then exists(select 1 from public.tasks t where t.id=n.source_id and t.pair_id=n.pair_id
    and (not p_check_version or (t.version=n.source_version and t.completed_at is null)))
  when 'message' then exists(select 1 from public.messages m where m.id=n.source_id and m.pair_id=n.pair_id
@@ -2307,7 +2302,7 @@ begin
    perform private.enqueue_notification(r.user_id,r.pair_id,'task',t.id,(r.remind_at at time zone
      (select timezone from public.pairs where id=r.pair_id))::date::text,t.version,r.id,r.version,r.remind_at,r.remind_at+interval '1 day');
  else
-   select * into e from public.events where id=r.event_id and pair_id=r.pair_id and (visibility='shared' or created_by=r.user_id);
+   select * into e from public.events where id=r.event_id and pair_id=r.pair_id and (who<>'private' or created_by=r.user_id);
    if not found then return; end if;
    if e.repeat='yearly' then
      local_today:=(now() at time zone e.timezone)::date;
@@ -2356,7 +2351,7 @@ begin
    end if;
  else
    if tg_table_name='events' then
-     if new.visibility='private' then
+     if new.who='private' then
        update public.reminders set active=false,version=version+1 where event_id=new.id and user_id<>new.created_by and active;
      end if;
    end if;

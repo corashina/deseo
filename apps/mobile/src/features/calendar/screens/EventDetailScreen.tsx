@@ -53,7 +53,8 @@ function ActiveDetail({ eventId, account, pair, online, refresh }: { eventId: st
   if (query.isError) return <Screen title="Event"><Status tone="error" message="We could not load this event." actionLabel="Retry" onAction={() => { void query.refetch(); }} /></Screen>;
   const event = query.data;
   if (!event) return <Screen title="Event"><Status message="This event is unavailable. It may have been deleted or made private." /></Screen>;
-  const name = event.owner === 'together' ? 'Together' : pair.members.find((member) => member.slot === event.owner)!.displayName;
+  const owner = event.who === 'private' ? pair.members.find((member) => member.userId === account.id)!.slot : event.who;
+  const name = owner === 'together' ? 'Together' : pair.members.find((member) => member.slot === owner)!.displayName;
   return <Screen title={event.title} refreshing={query.isRefetching} onRefresh={() => { void query.refetch(); }}>
     {event.repeat === 'yearly' && <Status message="This date repeats yearly. Edits and deletion apply to the series. February 29 uses February 28 in non-leap years." />}
     {!online && <Status tone="warning" message="You are offline. Reconnect before you change this event." />}
@@ -65,9 +66,9 @@ function ActiveDetail({ eventId, account, pair, online, refresh }: { eventId: st
       <DetailRow icon="globe-outline" note={event.temporal.kind === 'timed' && account.timezone !== event.timezone ? `Your timezone: ${account.timezone}` : undefined}>
         {`Event timezone: ${event.timezone}`}
       </DetailRow>
-      <DetailRow icon="people-outline"><Badge owner={event.owner} label={name} /></DetailRow>
-      <DetailRow icon={event.visibility === 'private' ? 'lock-closed-outline' : 'eye-outline'}>
-        {event.visibility === 'private' ? 'Private · Only you can see this event.' : 'Shared · Both partners can see this event.'}
+      <DetailRow icon="people-outline"><Badge owner={owner} label={name} /></DetailRow>
+      <DetailRow icon={event.who === 'private' ? 'lock-closed-outline' : 'eye-outline'}>
+        {event.who === 'private' ? 'Private · Only you can see this event.' : 'Shared · Both partners can see this event.'}
       </DetailRow>
       {event.location ? <DetailRow icon="location-outline">{event.location}</DetailRow> : null}
       {event.description ? <DetailRow icon="document-text-outline">{event.description}</DetailRow> : null}

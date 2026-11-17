@@ -29,7 +29,7 @@ export async function archiveIdea(id: string, expectedVersion: number): Promise<
 }
 export async function planDateIdea(ideaId: string, eventInput: EventInput, expectedVersion: number, commandId: string): Promise<Event> {
   const input = eventInputSchema.parse(eventInput);
-  if (input.visibility !== 'shared' || input.repeat === 'yearly')
+  if (input.who === 'private' || input.repeat === 'yearly')
     throw new AppError({ code: 'VALIDATION', message: 'Plan a shared event for this idea.' });
   const event = await callRpc('plan_date_idea', { p_idea_id: z.string().uuid().parse(ideaId), p_event_input: eventPayload(input), p_expected_version: version.parse(expectedVersion), p_command_id: commandId }, eventRowSchema);
   await invalidate(['calendar'], ['today']);

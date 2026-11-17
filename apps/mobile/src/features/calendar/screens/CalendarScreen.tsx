@@ -16,9 +16,10 @@ import { useCalendarSignals } from '../realtime';
 import { agendaDates, importantDateCountdown, nextImportantDate } from '@deseo/domain/calendar';
 import { listImportantDates } from '../important-dates';
 import { calendarKeys, listAgenda } from '../queries';
-import type { Owner } from '@deseo/domain/calendar';
+import type { Event, Owner } from '@deseo/domain/calendar';
 
 const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+const ownerOf = (event: Event, self: 'a' | 'b'): Owner => event.who === 'private' ? self : event.who;
 export function CalendarScreen() {
   const core = useCore();
   if (core.pair.status !== 'active') return <Screen title="Calendar"><Status message="Connect with your partner to open Calendar." /></Screen>;
@@ -49,7 +50,7 @@ function ActiveCalendar({ account, pair, online, refresh }: { account: Core['acc
   const { groupsByDate, groups } = useMemo(() => {
     const values = new Map<string, NonNullable<typeof agenda.data>>();
     for (const event of agenda.data ?? []) {
-      if (filter !== 'all' && event.owner !== filter) continue;
+      if (filter !== 'all' && ownerOf(event, viewerSlot) !== filter) continue;
       for (const date of agendaDates(event, account.timezone, from, to)) {
         const items = values.get(date) ?? [];
         items.push(event);
@@ -95,7 +96,7 @@ function ActiveCalendar({ account, pair, online, refresh }: { account: Core['acc
           style={styles.cell} onPress={() => setSelectedDate(date)}>
           {({ pressed }) => <View style={[styles.day, selected && styles.selected, pressed && !selected && styles.dayPressed]}>
             <Text style={[theme.typography.body, styles.dayNumber, date === todayIso && styles.today, selected && styles.selectedText]}>{Number(date.slice(-2))}</Text>
-            <View style={styles.dots}>{events?.slice(0, 3).map(event => <View key={event.id} style={[styles.dot, { backgroundColor: theme.ownerTones[event.owner].accent }]} />)}</View>
+            <View style={styles.dots}>{events?.slice(0, 3).map(event => <View key={event.id} style={[styles.dot, { backgroundColor: theme.ownerTones[ownerOf(event, viewerSlot)].accent }]} />)}</View>
           </View>}
         </Pressable>;
       })}

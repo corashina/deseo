@@ -41,16 +41,16 @@ async function ensureAccount(email: string, id: string, name: string) {
 }
 export async function populatePortalPair(anna: SupabaseClient, marek: SupabaseClient, pairId: string, annaId: string, marekId: string,
   fixed: typeof FIXED_IDS = FIXED_IDS, commandId = fixtureContentCommandId): Promise<FixtureIds> {
-  async function event(id: string, title: string, owner: string, temporal: Record<string, unknown>, extra = {}) {
+  async function event(id: string, title: string, who: string, temporal: Record<string, unknown>, extra = {}) {
     const old = await anna.from('events').select('id').eq('id', id).maybeSingle();
     if (old.error) throw old.error;
-    if (!old.data) await fixtureCommand(anna, 'create_event', { p_input: { id, pair_id: pairId, title, owner, visibility: 'shared', timezone: 'Europe/Warsaw', repeat: 'none', ...temporal, ...extra }, p_command_id: commandId(Number.parseInt(id.slice(-6), 16)) });
+    if (!old.data) await fixtureCommand(anna, 'create_event', { p_input: { id, pair_id: pairId, title, who, timezone: 'Europe/Warsaw', repeat: 'none', ...temporal, ...extra }, p_command_id: commandId(Number.parseInt(id.slice(-6), 16)) });
   }
   await event(fixed.sharedEventId, 'Dinner together', 'together', { starts_at: '2026-10-05T17:00:00Z', ends_at: '2026-10-05T19:00:00Z' }, { location: 'Our kitchen', description: 'Pasta, candles, and time to talk.' });
   await event(fixed.walkEventId, 'Weekend walk', 'together', { start_date: '2026-10-10', end_date_exclusive: '2026-10-12' }, { location: 'Citadel Park' });
   await event(fixed.annaEventId, 'Anna’s yoga', 'a', { starts_at: '2026-10-06T16:00:00Z', ends_at: '2026-10-06T17:00:00Z' });
   await event(fixed.marekEventId, 'Marek’s cycling', 'b', { starts_at: '2026-10-07T15:00:00Z', ends_at: '2026-10-07T17:00:00Z' });
-  await event(fixed.privateEventId, 'Anna’s private appointment', 'a', { starts_at: '2026-10-08T10:00:00Z', ends_at: '2026-10-08T11:00:00Z' }, { visibility: 'private' });
+  await event(fixed.privateEventId, 'Anna’s private appointment', 'private', { starts_at: '2026-10-08T10:00:00Z', ends_at: '2026-10-08T11:00:00Z' });
   await event(fixed.breakEventId, 'Autumn break', 'together', { start_date: '2026-09-30', end_date_exclusive: '2026-10-07' });
   await event(fixed.importantEventId, 'Our anniversary', 'together', { start_date: '2024-10-18', end_date_exclusive: '2024-10-19' }, { repeat: 'yearly', important_date: true });
   for (const [id, title, note] of [[fixed.ideaId, 'Pottery evening', 'Try a workshop together.'], [fixed.secondIdeaId, 'Picnic by the lake', 'Pack sandwiches and a blanket.']]) {

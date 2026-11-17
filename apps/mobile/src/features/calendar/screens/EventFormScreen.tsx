@@ -50,7 +50,6 @@ function FormEntry({ eventId, ideaId, ...core }: ActiveProps & { eventId?: strin
 function EventForm({ account, pair, online, event, idea, reload, reloadIdea }: ActiveProps & { event?: Event; idea?: DateIdea; reloadIdea: () => Promise<{ data?: DateIdea | null }>; reload: () => Promise<{ data?: Event | null }> }) {
   const theme = useTheme();
   const router = useRouter();
-  const slot = pair.members.find((member) => member.userId === account.id)!.slot;
   const [now] = useState(() => DateTime.now().setZone(account.timezone));
   const draft: Draft<EventFormValues, EventInput, Event> = useDraft<EventFormValues, EventInput, Event>({
     accountId: account.id, pairId: pair.pairId, key: idea ? `calendar:plan:${idea.id}` : `calendar:${event?.id ?? 'new'}`,
@@ -58,7 +57,7 @@ function EventForm({ account, pair, online, event, idea, reload, reloadIdea }: A
     initial: { id: event?.id, expectedVersion: idea?.version ?? event?.version, values: event ? eventToForm(event) : {
       title: idea?.title ?? '', allDay: false, repeat: 'none', importantDate: false, startDate: now.toISODate()!, endDate: now.plus({ hours: 1 }).toISODate()!,
       startTime: now.toFormat('HH:mm'), endTime: now.plus({ hours: 1 }).toFormat('HH:mm'),
-      timezone: account.timezone, owner: 'together', visibility: 'shared', location: '', description: idea?.note ?? '',
+      timezone: account.timezone, who: 'together', location: '', description: idea?.note ?? '',
     } },
     toInput: (values, identity) => toEventInput({ ...values, id: identity.id, pairId: pair.pairId }),
     command: (input, identity) => idea ? planDateIdea(idea.id, input, identity.expectedVersion!, identity.commandId)
@@ -74,7 +73,7 @@ function EventForm({ account, pair, online, event, idea, reload, reloadIdea }: A
   const values = form.watch();
   const isAuthor = !event || event.authorId === account.id;
   const locked = frozen || saving || !ready;
-  const confirmShare = (input: EventInput) => event?.visibility === 'private' && input.visibility === 'shared'
+  const confirmShare = (input: EventInput) => event?.who === 'private' && input.who !== 'private'
     ? new Promise<EventInput | null>(resolve => Alert.alert('Share this event?', 'Your partner will see its title, dates, location, and description.', [
       { text: 'Cancel', style: 'cancel', onPress: () => resolve(null) }, { text: 'Share event', onPress: () => resolve({ ...input, confirmShared: true }) },
     ]))
@@ -138,18 +137,10 @@ function EventForm({ account, pair, online, event, idea, reload, reloadIdea }: A
     </View>
     <View style={theme.ui.stack}>
       <Text accessibilityRole="header" style={theme.typography.section}>Sharing</Text>
-      <Text style={theme.typography.headline}>Visibility</Text>
-      <View style={theme.ui.row}>{(['shared', 'private'] as const).map((visibility) => <Button key={visibility} label={visibility === 'shared' ? 'Shared' : 'Private'}
-        disabled={locked || !isAuthor || !!idea} variant={values.visibility === visibility ? 'primary' : 'secondary'} onPress={() => {
-          form.setValue('visibility', visibility, { shouldDirty: true });
-          if (visibility === 'private') form.setValue('owner', slot, { shouldDirty: true });
-        }} />)}</View>
-      <Text style={theme.typography.secondary}>{values.visibility === 'private' ? 'Only you can see this event.' : 'Both partners can see this event.'}</Text>
-      <Text style={theme.typography.headline}>People</Text>
-      <View style={theme.ui.row}>{pair.members.map((member) => <Button key={member.slot} label={member.displayName} disabled={locked || (values.visibility === 'private' && member.slot !== slot)}
-        variant={values.owner === member.slot ? 'primary' : 'secondary'} onPress={() => form.setValue('owner', member.slot, { shouldDirty: true })} />)}
-        <Button label="Together" disabled={locked || values.visibility === 'private'} variant={values.owner === 'together' ? 'primary' : 'secondary'} onPress={() => form.setValue('owner', 'together', { shouldDirty: true })} />
-      </View>
+      <View style={theme.ui.row}>{(['together', ...pair.members.map((member) => member.slot), 'private'] as const).map((who) => <Button key={who}
+        label={who === 'together' ? 'Together' : who === 'private' ? 'Private' : pair.members.find((member) => member.slot === who)!.displayName}
+        disabled={locked || (who === 'private' && (!isAuthor || !!idea))} variant={values.who === who ? 'primary' : 'secondary'}
+        onPress={() => form.setValue('who', who, { shouldDirty: true })} />)}</View>
     </View>
     <View style={theme.ui.stack}>
       <Text accessibilityRole="header" style={theme.typography.section}>Details</Text>

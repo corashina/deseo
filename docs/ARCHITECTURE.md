@@ -209,7 +209,7 @@ Generate database types from the actual schema. Keep database checks authoritati
 | `pairs` | ID, state `pending/active/ended`, timezone, created/ended timestamps, purge deadline |
 | `pair_members` | Pair, user, stable slot `a/b`, joined/left timestamps; unique active membership per user |
 | `pair_invites` | Pair, token hash, creator, expiry, accepted/revoked time; only one live invite per pending pair |
-| `events` | Pair, author, owner `a/b/together`, visibility `shared/private`, title, temporal fields, optional location/description |
+| `events` | Pair, author, who `together/a/b/private`, title, temporal fields, optional location/description |
 | `date_ideas` | Pair, author, title 1–120, note ≤1,000, HTTPS link ≤2,048, state `saved/planned/archived`, linked event |
 | `task_lists` | Pair, name 1–40, creation time; General list exists once per pair |
 | `tasks` | Pair, list, title 1–200, optional assignee, optional due date, completed time/person, version |
@@ -271,9 +271,9 @@ Task due dates are dates in the pair timezone. A task reminder stores an explici
 
 Moving content to another pair is forbidden. Changes to author, pair, and membership slot are server-controlled.
 
-Changing an event to Private requires its author. Reset owner to the author and revoke the partner's reminders.
+Changing an event to Private requires its author. It revokes the partner's reminders. A private event takes its author's color.
 
-Changing it back to Shared requires the author and explicit visibility confirmation.
+Changing it back from Private requires the author and explicit sharing confirmation.
 
 RLS covers direct reads, reads through views, subscriptions, and storage objects. Test every path with a third account.
 

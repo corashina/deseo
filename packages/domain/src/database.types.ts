@@ -76,13 +76,13 @@ isOneToOne: false
                   ]
                 },"events": {
                   Row: {
-                    "created_at": string,"created_by": string,"description": string | null,"end_date_exclusive": string | null,"ends_at": string | null,"id": string,"important_date": boolean,"location": string | null,"owner": string,"pair_id": string,"repeat": string,"repeat_day": number | null,"repeat_month": number | null,"start_date": string | null,"starts_at": string | null,"timezone": string,"title": string,"updated_at": string,"version": number,"visibility": string
+                    "created_at": string,"created_by": string,"description": string | null,"end_date_exclusive": string | null,"ends_at": string | null,"id": string,"important_date": boolean,"location": string | null,"pair_id": string,"repeat": string,"repeat_day": number | null,"repeat_month": number | null,"start_date": string | null,"starts_at": string | null,"timezone": string,"title": string,"updated_at": string,"version": number,"who": string
                   }
                   Insert: {
-                    "created_at"?: string,"created_by": string,"description"?: string | null,"end_date_exclusive"?: string | null,"ends_at"?: string | null,"id": string,"important_date"?: boolean,"location"?: string | null,"owner": string,"pair_id": string,"repeat"?: string,"repeat_day"?: number | null,"repeat_month"?: number | null,"start_date"?: string | null,"starts_at"?: string | null,"timezone": string,"title": string,"updated_at"?: string,"version"?: number,"visibility": string
+                    "created_at"?: string,"created_by": string,"description"?: string | null,"end_date_exclusive"?: string | null,"ends_at"?: string | null,"id": string,"important_date"?: boolean,"location"?: string | null,"pair_id": string,"repeat"?: string,"repeat_day"?: number | null,"repeat_month"?: number | null,"start_date"?: string | null,"starts_at"?: string | null,"timezone": string,"title": string,"updated_at"?: string,"version"?: number,"who": string
                   }
                   Update: {
-                    "created_at"?: string,"created_by"?: string,"description"?: string | null,"end_date_exclusive"?: string | null,"ends_at"?: string | null,"id"?: string,"important_date"?: boolean,"location"?: string | null,"owner"?: string,"pair_id"?: string,"repeat"?: string,"repeat_day"?: number | null,"repeat_month"?: number | null,"start_date"?: string | null,"starts_at"?: string | null,"timezone"?: string,"title"?: string,"updated_at"?: string,"version"?: number,"visibility"?: string
+                    "created_at"?: string,"created_by"?: string,"description"?: string | null,"end_date_exclusive"?: string | null,"ends_at"?: string | null,"id"?: string,"important_date"?: boolean,"location"?: string | null,"pair_id"?: string,"repeat"?: string,"repeat_day"?: number | null,"repeat_month"?: number | null,"start_date"?: string | null,"starts_at"?: string | null,"timezone"?: string,"title"?: string,"updated_at"?: string,"version"?: number,"who"?: string
                   }
                   Relationships: [
                     {
