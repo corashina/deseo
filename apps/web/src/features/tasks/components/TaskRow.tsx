@@ -33,6 +33,7 @@ export function TaskRow({ task, members, timezone, locale }: {
       <label className="task-check">
         <input
           type="checkbox"
+          name="completed"
           aria-label={'Complete ' + task.title}
           checked={completed}
           disabled={completion.isPending}

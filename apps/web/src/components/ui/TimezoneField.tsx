@@ -21,7 +21,7 @@ export function TimezoneField(props: Omit<ComponentProps<typeof Field>, 'label' 
   const listId = useId();
   return <>
     {/* Focus selects the value, so typing a city starts a new search without clearing the field first. */}
-    <Field {...props} label="Timezone" list={listId} hint="Type a city, such as Warsaw." onFocus={event => { event.currentTarget.select(); props.onFocus?.(event); }} />
+    <Field name="timezone" {...props} label="Timezone" list={listId} hint="Type a city, such as Warsaw." onFocus={event => { event.currentTarget.select(); props.onFocus?.(event); }} />
     <datalist id={listId}>{options}</datalist>
   </>;
 }
