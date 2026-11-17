@@ -3,6 +3,7 @@ html { scroll-padding-block: 24px; -webkit-tap-highlight-color: color-mix(in srg
 /* With a mouse or trackpad the page does not bounce past its edges. Touch keeps pull-to-refresh. */
 @media (pointer: fine) { html { overscroll-behavior: none; } }
 input, textarea { caret-color: var(--focus); }
+::placeholder { color: var(--muted); opacity: 1; }
 button, a, input, select, textarea, summary { touch-action: manipulation; }
 button, a, input, select, textarea, summary, [tabindex] { scroll-margin-block: 24px; }
 textarea { resize: vertical; }
@@ -46,6 +47,8 @@ p { text-wrap: pretty; }
 @media (max-width:767px) { .page-header { flex-direction:column; align-items:stretch; gap:16px; } .page-header > div:first-child { flex:none; } .page-header > .button { align-self:flex-start; max-width:100%; } }
 .actions { display: flex; gap: var(--space-4); flex-wrap: wrap; margin-bottom: var(--space-6); }
 .card > .actions:last-child { margin-bottom: 0; }
+/* The delete zone on an edit page sits under a divider, apart from Save. */
+.form-delete { border-top: 1px solid var(--line); padding-top: var(--space-6); margin-top: var(--space-6); }
 /* Pair screens are one left-aligned card. Start shows its two choices side by side when they fit. */
 .pair-options { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap: var(--space-6); }
 .pair-options > section { display: flex; flex-direction: column; align-items: flex-start; border-top: 1px solid var(--line); padding-top: var(--space-6); }
@@ -61,6 +64,7 @@ p { text-wrap: pretty; }
 .centered-card .pair-options > section { align-items: center; }
 .centered-card > :is(a, button) { margin-inline: var(--space-2); }
 .centered-card .pair-cancel > .button.text { margin-left: 0; }
+.centered-card > .button.text { margin-inline: var(--space-2); }
 .centered-card .field { text-align: start; }
 .centered-card .field:has(.code-input) { align-items: center; text-align: center; }
 .entry-container { padding: var(--space-8); min-height: 100dvh; }
@@ -78,6 +82,8 @@ p { text-wrap: pretty; }
 .entry-card { padding: var(--space-8); }
 .entry-card .page-header { margin-bottom: var(--space-6); }
 .entry-card .button { width: 100%; }
+/* From 1024px every entry card sits at the same height: the brand row and card center as a group, like the sign-in page. */
+@media (min-width: 1024px) { .entry-container:has(> .form-page) { display: flex; flex-direction: column; justify-content: center; } .entry-container:has(> .form-page) > .entry-brand { margin-top: 0; } }
 @media (max-width: 1023px) { .entry-page { grid-template-columns: minmax(0, 1fr); max-width: 560px; align-content: start; } }
 @media (max-width: 767px) { h1 { font-size: 24px; } .card { padding: var(--space-5); } .entry-container { padding: var(--space-4); } .entry-page { gap: var(--space-6); padding: var(--space-8) 0; } .entry-story { padding: var(--space-6); } .entry-story h1 { font-size: 36px; } .welcome-icon { width: 64px; height: 64px; margin-bottom: var(--space-4); } .entry-card { padding: var(--space-5); } .page-header { margin-bottom: var(--space-6); } }
 .visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }

@@ -106,7 +106,7 @@ function EndPairSection({ pairId, partner }: { pairId: string; partner: string }
   return <section className="card form-page settings-danger" aria-labelledby="settings-end-pair"><h2 id="settings-end-pair">End this pair</h2>
     <p className="muted">Either person can end this pair. Both people lose shared access. Your next pair starts empty.</p>
     {attempt ? <Button variant="danger" disabled={busy} onClick={() => disconnect.mutate()}>{disconnect.isPending ? 'Ending pair…' : 'Retry ending pair'}</Button>
-      : <Button variant="danger" disabled={busy} onClick={() => setOpen(true)}>End pair</Button>}
+      : <Button variant="secondary" disabled={busy} onClick={() => setOpen(true)}>End pair</Button>}
     {error && !open && <Status error>{error}</Status>}
     <Dialog busy={busy} title="End this pair?" open={open} onClose={close}>
       <p>You and {partner} lose access to your shared events, tasks, messages, and memories. You cannot undo this.</p>
@@ -123,7 +123,7 @@ function EndPairSection({ pairId, partner }: { pairId: string; partner: string }
       </form> : <>
         <p>To confirm, we email you a 6-digit code.</p>
         {error && <Status error>{error}</Status>}
-        <div className="actions"><Button variant="danger" disabled={busy} onClick={() => send.mutate()}>{send.isPending ? 'Sending code…' : 'Email me a code'}</Button>
+        <div className="actions"><Button variant="primary" disabled={busy} onClick={() => send.mutate()}>{send.isPending ? 'Sending code…' : 'Email me a code'}</Button>
         <Button variant="secondary" disabled={busy} onClick={close}>Cancel</Button></div>
       </>}
     </Dialog>

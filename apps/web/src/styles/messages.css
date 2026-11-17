@@ -11,6 +11,10 @@
 .message-row.partner-b { background:var(--teal-soft); }
 .message-row.partner-a strong { color:var(--rose); }
 .message-row.partner-b strong { color:var(--teal); }
+/* In a run of messages from one sender, only the first shows the name. Screen readers still hear it. */
+.message-row.partner-a + .message-row.partner-a .message-meta strong, .message-row.partner-b + .message-row.partner-b .message-meta strong { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
+.latest-messages { position:sticky; bottom:0; align-self:center; height:0; }
+.latest-messages > .button { position:relative; top:calc(-1 * var(--nav-target) - var(--space-2)); box-shadow:var(--shadow-popover); border-color:transparent; }
 .own-message { align-self:flex-end; border-bottom-right-radius:var(--radius-control); }
 .message-row:not(.own-message) { border-bottom-left-radius:var(--radius-control); }
 .message-meta { display:flex; flex-wrap:wrap; align-items:center; gap:var(--space-1) var(--space-3); margin-bottom:var(--space-2); }
@@ -41,12 +45,16 @@
 .notes-strip { display:grid; grid-template-columns:repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap:var(--space-3); margin-bottom:var(--space-4); }
 .note-card { display:flex; flex-wrap:wrap; align-items:center; gap:var(--space-1) var(--space-3); min-width:0; padding:var(--space-3) var(--space-4); background:var(--note); border:1px solid var(--note-line); border-radius:var(--radius-control); }
 .note-card-copy { flex:1 1 160px; min-width:0; }
-.note-card .eyebrow { margin-bottom:0; }
+.note-card .eyebrow { margin-bottom:0; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
 .note-card p { margin:0; overflow:hidden; display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2; white-space:pre-wrap; overflow-wrap:anywhere; }
 .note-card .message-error { flex-basis:100%; margin-top:0; }
 .pending-send { align-self:flex-end; margin:0 0 var(--space-4); }
 .pending-send .status { padding:0; border:0; margin-bottom:var(--space-3); font-size:14px; background:transparent; }
 @media(max-width:767px) {
+  /* Phones keep the log tall: each note keeps one line, and two notes share one row that scrolls sideways. */
+  .note-card p { -webkit-line-clamp:1; }
+  .notes-strip:has(> :nth-child(2)) { grid-template-columns:none; grid-auto-flow:column; grid-auto-columns:85%; overflow-x:auto; scroll-snap-type:x mandatory; overscroll-behavior-x:contain; }
+  .notes-strip > * { scroll-snap-align:start; }
   .message-row { padding:var(--space-4); }
   .message-row + .message-row { margin-top:var(--space-4); }
   .message-row.partner-a + .message-row.partner-a, .message-row.partner-b + .message-row.partner-b { margin-top:var(--space-2); }
