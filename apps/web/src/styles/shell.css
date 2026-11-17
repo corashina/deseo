@@ -1,26 +1,26 @@
 .portal { --sidebar-width: 256px; min-height: 100dvh; }
-.sidebar { position: fixed; inset: 0 auto 0 0; width: var(--sidebar-width); background: var(--sidebar); border-right: 1px solid var(--line); display: flex; flex-direction: column; padding: var(--space-6) var(--space-3) var(--space-4); gap: var(--space-6); overflow-y: auto; }
+.sidebar { position: fixed; inset: 0 auto 0 0; width: var(--sidebar-width); background: var(--canvas); border-right: 1px solid var(--line); display: flex; flex-direction: column; padding: var(--space-6) var(--space-3) var(--space-4); gap: var(--space-6); overflow-y: auto; }
 /* The 23px wordmark is a lockup value beside the 40px icon. */
-.brand { display: flex; align-items: center; gap: var(--space-3); padding-left: var(--space-1); font-size: 23px; letter-spacing: -.025em; font-weight: 700; min-height: var(--nav-target); }
+.brand { display: flex; align-items: center; gap: var(--space-3); padding-left: var(--space-1); font-size: 23px; letter-spacing: -.02em; font-weight: 600; min-height: var(--nav-target); }
 .brand img { display: block; width: 40px; height: 40px; border-radius: var(--radius-control); }
 .brand .collapse-toggle { margin-left: auto; padding: 0; min-width: var(--nav-target); }
 .portal-nav, .nav-group { display: grid; gap: var(--space-1); }
 .nav-settings { margin-top: var(--space-4); padding-top: var(--space-4); border-top: 1px solid var(--line); }
 .portal-nav a { display: flex; align-items: center; gap: var(--space-3); min-height: var(--nav-target); font-size: 15px; font-weight: 550; line-height: 1.4; padding: var(--space-3) var(--space-4); border: 1px solid transparent; border-radius: var(--radius-control); text-decoration: none; color: var(--muted); overflow-wrap: anywhere; transition: background-color var(--duration-feedback) var(--ease), color var(--duration-feedback) var(--ease); }
-.portal-nav a:hover { background: var(--surface); color: var(--ink); }
-.portal-nav a[aria-current="page"] { background: var(--action); color: var(--on-action); font-weight: 600; box-shadow: var(--shadow-selected); }
+.portal-nav a:hover { background: color-mix(in srgb, var(--ink) 4%, transparent); color: var(--ink); }
+.portal-nav a[aria-current="page"] { background: color-mix(in srgb, var(--ink) 7%, transparent); color: var(--ink); font-weight: 600; }
 .unread-count { margin-left: auto; background: var(--shared-soft); color: var(--shared); border-radius: var(--radius-badge); padding: 2px var(--space-2); font-size: 12px; font-weight: 600; line-height: 1.4; font-variant-numeric: tabular-nums; }
 .portal-body { margin-left: var(--sidebar-width); min-width: 0; }
-.topbar { min-height: 72px; border-bottom: 1px solid var(--line); padding: var(--space-3) var(--space-8); display: flex; align-items: center; gap: var(--space-4); background: var(--surface); }
+.topbar { min-height: 72px; border-bottom: 1px solid var(--line); padding: var(--space-3) var(--space-8); display: flex; align-items: center; gap: var(--space-4); background: var(--canvas); }
 .topbar-pair { display: flex; align-items: center; gap: var(--space-3); flex: 1 1 0; min-width: 0; }
 .pair-avatars { display: inline-flex; flex-shrink: 0; padding-right: var(--space-1); }
-.pair-avatars .avatar + .avatar { margin-left: calc(-1 * var(--space-2)); outline: 3px solid var(--surface); }
+.pair-avatars .avatar + .avatar { margin-left: calc(-1 * var(--space-2)); outline: 3px solid var(--canvas); }
 .topbar-label { color: var(--ink); font-size: 15px; font-weight: 600; line-height: 1.4; overflow-wrap: anywhere; min-width: 0; }
 .portal main { max-width: calc(var(--content-width) + 2 * var(--space-8)); margin: 0 auto; padding: var(--space-8); }
 .drawer-toggle, .mobile-account { display: none !important; }
 .skip-link { position: fixed; left: var(--space-3); top: -100px; z-index: 20; background: var(--surface); padding: var(--space-3); }
 .skip-link:focus { top: var(--space-3); }
-.navigation-drawer { margin: 0; height: 100dvh; max-height: 100dvh; width: min(320px, 90vw); border-radius: 0; background: var(--sidebar); }
+.navigation-drawer { margin: 0; height: 100dvh; max-height: 100dvh; width: min(320px, 90vw); border-radius: 0; background: var(--canvas); }
 .mobile-account { width: var(--nav-target); padding: 7px; }
 
 /* Rail: the 768px band, and the collapsed sidebar from 1024px. Labels sit under the icons, because touch shows no tooltips. */

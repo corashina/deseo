@@ -76,7 +76,8 @@ function QuickAdd({ pairId, listId }: { pairId: string; listId: string }) {
   });
   useUnsavedChanges(Boolean(title));
   if (pair?.status !== 'active') return null;
-  return <form className="quick-add" onSubmit={event => { event.preventDefault(); if (!add.isPending) add.mutate(); }}>
+  // The frame measures the space the form has, so the layout follows the card width, not the window.
+  return <div className="quick-add-frame"><form className="quick-add" onSubmit={event => { event.preventDefault(); if (!add.isPending) add.mutate(); }}>
     <Field label="New task" name="title" value={title} required maxLength={200} disabled={add.isPending} onChange={event => setTitle(event.target.value)} />
     <label className="field"><span>Assigned to</span><select name="assigneeId" value={assigneeId} disabled={add.isPending} onChange={event => setAssigneeId(event.target.value)}>
       <option value="">Unassigned</option>
@@ -85,7 +86,7 @@ function QuickAdd({ pairId, listId }: { pairId: string; listId: string }) {
     <Field label="Due date (optional)" name="dueDate" type="date" value={dueDate} disabled={add.isPending} onChange={event => setDueDate(event.target.value)} />
     <Button variant="primary" type="submit" disabled={add.isPending}>{add.isPending ? 'Saving…' : add.isError ? 'Retry task' : 'Add task'}</Button>
     {add.isError && <Status error>{toAppError(add.error).message}</Status>}
-  </form>;
+  </form></div>;
 }
 function NewList({ pairId, onCreated }: { pairId: string; onCreated(id: string): void }) {
   const [name, setName] = useState('');
