@@ -13,7 +13,7 @@ import { calendarKeys, listAgenda } from '../queries';
 
 import { MonthGrid } from '../components/MonthGrid';
 import { Agenda } from '../components/Agenda';
-import type { OwnerNames } from '../components/EventRow';
+import { ownerNames } from '../components/EventRow';
 import { useFrom } from '../../../lib/return-to';
 import '../../../styles/calendar.css';
 export function CalendarPage() {
@@ -26,10 +26,12 @@ export function CalendarPage() {
   const month = DateTime.fromISO(date).startOf('month');
   const range = { pairId: pair?.status === 'active' ? pair.pairId : '', from: month.startOf('week').toISODate()!, to: month.endOf('month').endOf('week').plus({ days: 1 }).toISODate()! };
   const query = useQuery({ queryKey: calendarKeys.agenda(account!.id, range), queryFn: () => listAgenda(range), enabled: pair?.status === 'active' });
-  const events = useMemo(() => (query.data ?? []).filter(event => owner === 'all' || event.owner === owner), [query.data, owner]);
+  const self = pair?.status === 'active' ? pair.members.find(member => member.userId === account!.id)?.slot : undefined;
+  // A private event is the viewer's own, so a person filter for the viewer shows it.
+  const events = useMemo(() => (query.data ?? []).filter(event => owner === 'all' || event.who === owner || (event.who === 'private' && owner === self)), [query.data, owner, self]);
   const agenda = useRef<HTMLElement>(null);
   if (pair?.status !== 'active' || !account) return null;
-  const names: OwnerNames = { a: pair.members.find(member => member.slot === 'a')!.displayName, b: pair.members.find(member => member.slot === 'b')!.displayName, together: 'Together' };
+  const names = ownerNames(pair.members, account.id);
   const change = (updates: Record<string, string>) => setParams({ view, date, owner, ...updates });
   const today = DateTime.now().setZone(account.timezone).toISODate()!;
   const filter = (value: 'all' | 'a' | 'b' | 'together') => <button key={value} aria-pressed={owner === value} onClick={() => change({ owner: value })}>

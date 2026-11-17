@@ -197,7 +197,7 @@ test('shared planning concurrency and account isolation', { timeout: 180_000 }, 
     const calendarSignalsBeforeCreate = calendarSignals.length;
     const idea = success(await rpc<Idea>(a.client, 'create_date_idea', { p_input: ideaInput, p_command_id: randomUUID() }));
     await expectSignal(calendarSignals, calendarSignalsBeforeCreate);
-    const eventInput = { id: randomUUID(), pair_id: pairId, title: ideaInput.title, owner: 'together', visibility: 'shared',
+    const eventInput = { id: randomUUID(), pair_id: pairId, title: ideaInput.title, who: 'together',
       timezone: 'Europe/Warsaw', location: null, description: ideaInput.note, confirm_shared: false,
       starts_at: '2099-10-04T16:00:00Z', ends_at: '2099-10-04T17:00:00Z', start_date: null, end_date_exclusive: null, repeat: 'none' };
     const plan = { p_idea_id: idea.id, p_event_input: eventInput, p_expected_version: idea.version, p_command_id: randomUUID() };

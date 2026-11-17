@@ -18,6 +18,7 @@ import { Dialog } from '../../../components/ui/Dialog';
 import { calendarKeys, getEvent } from '../queries';
 import { createEvent, updateEvent } from '../commands';
 import { EventFields } from '../components/EventFields';
+import { ownerNames } from '../components/EventRow';
 import { useReturnTo } from '../../../lib/return-to';
 import '../../../styles/calendar.css';
 
@@ -68,7 +69,7 @@ function EventEditor({ event, idea }: { event?: Event; idea?: DateIdea }) {
       startDate: date.isValid ? date.toISODate()! : now.toISODate()!,
       endDate: date.isValid ? date.toISODate()! : now.toISODate()!,
       startTime: '18:00', endTime: '19:00', timezone: account.timezone,
-      owner: 'together', visibility: 'shared', location: '', description: idea?.note ?? '', repeat: 'none', importantDate: false,
+      who: 'together', location: '', description: idea?.note ?? '', repeat: 'none', importantDate: false,
     },
   });
   const save = useMutation({
@@ -107,7 +108,7 @@ function EventEditor({ event, idea }: { event?: Event; idea?: DateIdea }) {
   }, [save.isSuccess, navigate, id, back]);
 
   function submitValues(values: EventFormValues) {
-    if (event?.visibility === 'private' && values.visibility === 'shared') setSharing(values);
+    if (event?.who === 'private' && values.who !== 'private') setSharing(values);
     else save.mutate({ values, confirmShared: false });
   }
 
@@ -117,17 +118,12 @@ function EventEditor({ event, idea }: { event?: Event; idea?: DateIdea }) {
     save.mutate({ values, confirmShared: true });
   }
 
-  const names = {
-    a: pair.members.find(member => member.slot === 'a')!.displayName,
-    b: pair.members.find(member => member.slot === 'b')!.displayName,
-    together: 'Together',
-  };
-  const slot = pair.members.find(member => member.userId === account.id)!.slot;
+  const names = ownerNames(pair.members, account.id);
   return <>
     <PageHeader title={event ? 'Edit event' : idea ? 'Plan date' : 'Add event'} />
     <section className="card form-page">
       <form onSubmit={form.handleSubmit(submitValues)}>
-        <EventFields form={form} names={names} slot={slot} author={!event || event.authorId === account.id} locked={saving} planning={Boolean(idea)} />
+        <EventFields form={form} names={names} slot={names.self} author={!event || event.authorId === account.id} locked={saving} planning={Boolean(idea)} />
         {error && <Status error>{error}</Status>}
         {conflict && (
           <Button

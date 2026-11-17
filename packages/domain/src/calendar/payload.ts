@@ -1,7 +1,7 @@
 import type { EventInput } from './types';
 
 export function eventPayload(input: EventInput) {
-  return { id: input.id, pair_id: input.pairId, title: input.title, owner: input.owner, visibility: input.visibility,
+  return { id: input.id, pair_id: input.pairId, title: input.title, who: input.who,
     timezone: input.timezone, location: input.location || null, description: input.description || null,
     repeat: input.repeat ?? 'none', important_date: input.importantDate === true || input.repeat === 'yearly',
     confirm_shared: input.confirmShared === true,

@@ -13,6 +13,7 @@ import { Button } from '../../../components/ui/Button';
 import { Dialog } from '../../../components/ui/Dialog';
 import { PartnerBadge } from '../../../components/ui/PartnerBadge';
 import { useReturnTo } from '../../../lib/return-to';
+import { eventOwner, ownerNames } from '../components/EventRow';
 import { calendarKeys, getEvent } from '../queries';
 import { deleteEvent } from '../commands';
 import '../../../styles/calendar.css';
@@ -42,11 +43,8 @@ export function EventDetailPage() {
   if (!event || pair?.status !== 'active') {
     return <RouteErrorPage title="Event" returnTo="/calendar" returnLabel="Return to calendar" />;
   }
-  const names = {
-    a: pair.members.find(member => member.slot === 'a')!.displayName,
-    b: pair.members.find(member => member.slot === 'b')!.displayName,
-    together: 'Together',
-  };
+  const names = ownerNames(pair.members, account!.id);
+  const owner = eventOwner(event, names);
   let time: string;
   if (event.temporal.kind === 'allDay') {
     time = event.repeat === 'yearly'
@@ -57,19 +55,19 @@ export function EventDetailPage() {
     const end = DateTime.fromISO(event.temporal.endsAt).setZone(event.timezone);
     time = formatRange(start, end, 'dateTime', account!.locale);
   }
-  const editable = event.visibility === 'shared' || event.authorId === account!.id;
+  const editable = event.who !== 'private' || event.authorId === account!.id;
   return <>
     <PageHeader
       eyebrow="Event"
       title={event.title}
-      description={<PartnerBadge name={names[event.owner]} slot={event.owner} />}
+      description={<PartnerBadge name={names[owner]} slot={owner} />}
       action={editable && <Link className="button secondary" to={'/events/' + event.id + '/edit'} state={{ from: back }}>Edit event</Link>}
     />
     <section className="card event-detail">
       <dl>
         <dt>When</dt><dd>{time}</dd>
         {event.timezone !== account!.timezone && <><dt>Timezone</dt><dd translate="no">{event.timezone}</dd></>}
-        <dt>Visibility</dt><dd>{event.visibility === 'private' ? 'Private to you' : 'Shared with your partner'}</dd>
+        <dt>Visibility</dt><dd>{event.who === 'private' ? 'Private to you' : 'Shared with your partner'}</dd>
         {event.importantDate && <><dt>Important date</dt><dd>Yes</dd></>}
         {event.location && <><dt>Location</dt><dd>{event.location}</dd></>}
         {event.description && <><dt>Description</dt><dd>{event.description}</dd></>}
@@ -81,7 +79,7 @@ export function EventDetailPage() {
       </div>
     </section>
     <Dialog busy={remove.isPending} title="Delete this event?" open={confirm} onClose={() => setConfirm(false)}>
-      <p>{event.visibility === 'private' ? 'You will lose access to this event.' : 'Both partners will lose access to this event.'}</p>
+      <p>{event.who === 'private' ? 'You will lose access to this event.' : 'Both partners will lose access to this event.'}</p>
       <Button variant="danger" disabled={remove.isPending} onClick={() => remove.mutate(event.version)}>Confirm deletion</Button>
     </Dialog>
   </>;

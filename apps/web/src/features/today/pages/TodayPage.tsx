@@ -6,7 +6,7 @@ import { PageHeader } from '../../../components/ui/PageHeader';
 import { Button } from '../../../components/ui/Button';
 import { Status } from '../../../components/ui/Status';
 import { formatDate } from '../../../lib/format';
-import { nextImportantDate } from '../../calendar';
+import { nextImportantDate, ownerNames } from '../../calendar';
 import { Conversation } from '../../messages';
 import { getToday, todayKeys } from '../queries';
 import { OurDayPanel } from '../components/OurDayPanel';
@@ -23,7 +23,7 @@ export function TodayPage() {
   const query = useQuery({ queryKey: todayKeys.day(account!.id, pairId, date), queryFn: () => getToday(pairId, date) });
   if (pair?.status !== 'active') return null;
   const locale = account!.locale;
-  const names = { a: pair.members.find(member => member.slot === 'a')!.displayName, b: pair.members.find(member => member.slot === 'b')!.displayName, together: 'Together' };
+  const names = ownerNames(pair.members, account!.id);
   const important = query.data ? nextImportantDate(query.data.importantDates, zone) : undefined;
   const days = important?.temporal.kind === 'allDay' ? importantDateCountdown(important.temporal.startDate, zone) : null;
   return <div className="today-page">

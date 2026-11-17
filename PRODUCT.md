@@ -105,7 +105,7 @@ Use these terms in code, documentation, and UI text.
 | Event | A dated plan, either timed or all-day |
 | Shared event | An event both partners can view and edit |
 | Private event | An event only its author can view and edit |
-| Owner label | Who an event concerns: one person or both; it does not grant access |
+| Who | Whom an event is for: one person, both, or Private for its author only |
 | Important date | An all-day event marked for a countdown; it can repeat yearly |
 | Date idea | A saved activity the pair may schedule later |
 | Task | An item someone can complete |

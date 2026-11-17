@@ -27,16 +27,17 @@ export function eventDateLabel(event: AgendaItem, timezone: string): string {
 export function EventRow({ event, viewerTimezone, ownerNames, onPress }: EventRowProps) {
   const theme = useTheme();
   const styles = useStyles();
-  const ownerName = event.owner === 'together' ? 'Together' : ownerNames[event.owner];
+  const owner = event.who === 'private' ? 'together' : event.who;
+  const ownerName = owner === 'together' ? 'Together' : ownerNames[owner];
   const temporal = event.temporal;
   const time = temporal.kind === 'allDay' ? 'All day' : DateTime.fromISO(temporal.startsAt).setZone(viewerTimezone).toLocaleString(DateTime.TIME_SIMPLE);
-  const tone = theme.ownerTones[event.owner];
+  const tone = theme.ownerTones[owner];
   const body = <>
     <Text style={theme.typography.headline}>{event.title}</Text>
     <View style={styles.metadata}>
       <Text style={[theme.typography.badge, { color: tone.color }]}>{ownerName}</Text>
       {event.importantDate && <View style={styles.meta}><Ionicons name="star-outline" size={14} color={theme.colors.muted} /><Text style={theme.typography.secondary}>Important date{event.repeat === 'yearly' ? ' · Yearly' : ''}</Text></View>}
-      {event.visibility === 'private' && <View style={styles.meta}><Ionicons name="lock-closed-outline" size={14} color={theme.colors.muted} /><Text style={theme.typography.secondary}>Private</Text></View>}
+      {event.who === 'private' && <View style={styles.meta}><Ionicons name="lock-closed-outline" size={14} color={theme.colors.muted} /><Text style={theme.typography.secondary}>Private</Text></View>}
     </View>
     {event.location ? <View style={styles.meta}><Ionicons name="location-outline" size={14} color={theme.colors.muted} /><Text style={theme.typography.secondary}>{event.location}</Text></View> : null}
   </>;
@@ -44,7 +45,7 @@ export function EventRow({ event, viewerTimezone, ownerNames, onPress }: EventRo
   return <View style={styles.row}>
     <Text style={[theme.typography.secondary, styles.time]}>{time}</Text>
     {onPress
-      ? <Pressable accessibilityRole="button" accessibilityLabel={`${event.title}. ${eventDateLabel(event, viewerTimezone)}. ${ownerName}. ${event.visibility}`}
+      ? <Pressable accessibilityRole="button" accessibilityLabel={`${event.title}. ${eventDateLabel(event, viewerTimezone)}. ${ownerName}. ${event.who === 'private' ? 'private' : 'shared'}`}
         onPress={onPress} style={({ pressed }) => [tint, pressed && styles.pressed]}>{body}</Pressable>
       : <View style={tint}>{body}</View>}
   </View>;
