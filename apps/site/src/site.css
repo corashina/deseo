@@ -126,21 +126,8 @@ main.wrap { padding-block-end: var(--space-10); }
   background: var(--shared-soft);
   border-radius: var(--radius-card);
   max-width: 480px;
+  color: var(--muted);
 }
-.soon .badge { margin-right: var(--space-2); }
-
-.badge {
-  display: inline-block;
-  padding: 2px var(--space-2);
-  border-radius: var(--radius-badge);
-  background: var(--surface);
-  color: var(--on-action);
-  border: 1px solid var(--action-border);
-  font-size: 12px;
-  font-weight: 600;
-  line-height: 1.4;
-}
-.badge + h2 { margin-top: var(--space-2); }
 
 .preview { margin: 0; }
 .preview img {
@@ -189,6 +176,8 @@ main.wrap { padding-block-end: var(--space-10); }
 
 .page { padding-top: var(--space-6); }
 .page section { margin-top: var(--space-10); }
+/* Single-topic pages: section titles step down to the app headline size, under the 48px page title. */
+.page h2 { font-size: 24px; line-height: 1.2; }
 .page .panel { margin-top: var(--space-6); }
 
 .steps { padding-left: var(--space-6); }
@@ -222,4 +211,5 @@ main.wrap { padding-block-end: var(--space-10); }
   .preview.phone img { margin: 0; }
   .feature.wide { grid-template-columns: 1fr; }
   .panel { padding: var(--space-8); }
+  .page h2 { font-size: 28px; }
 }
