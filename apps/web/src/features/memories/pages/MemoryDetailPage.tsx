@@ -62,7 +62,7 @@ export function MemoryDetailPage() {
       {author ? <MemoryEditor key={memory.id} memory={memory} remove={<Button className="memory-delete" variant="secondary" disabled={busy} onClick={() => setConfirm(true)}>{remove.isError ? 'Retry deletion' : 'Delete memory'}</Button>} />
         : memory.caption && <p className="memory-caption preserve-lines">{memory.caption}</p>}
       {error && <Status error>{error}</Status>}
-    </section><Dialog busy={remove.isPending} open={confirm} title="Delete this memory?" onClose={() => setConfirm(false)}><p>Both partners will lose this memory and its photos.</p><div className="actions"><Button variant="danger" disabled={busy} onClick={() => remove.mutate(memory.version)}>{remove.isPending ? 'Deleting…' : 'Confirm deletion'}</Button><Button variant="secondary" disabled={busy} onClick={() => setConfirm(false)}>Cancel</Button></div></Dialog>
+    </section><Dialog busy={remove.isPending} open={confirm} title="Delete this memory?" onClose={() => setConfirm(false)}><p>Both partners will lose this memory and its photos.</p><div className="actions"><Button variant="danger" disabled={busy} onClick={() => remove.mutate(memory.version)}>{remove.isPending ? 'Deleting…' : 'Confirm deletion'}</Button><Button variant="secondary" data-autofocus disabled={busy} onClick={() => setConfirm(false)}>Cancel</Button></div></Dialog>
   </>;
 }
 // The author changes the date and caption here. Photos stay as published.

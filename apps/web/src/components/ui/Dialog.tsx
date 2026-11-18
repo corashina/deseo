@@ -3,6 +3,8 @@ import { XIcon } from '@phosphor-icons/react/dist/csr/X';
 import { Button } from './Button';
 // A native modal dialog. The browser keeps focus out of the page and returns it to the trigger on close.
 // closedBy "any" also closes it on a click outside, where the browser supports it.
+// The browser focuses the first control, which is Close. Mark the safe action with data-autofocus to focus it instead.
+// React does not write the autofocus attribute, so this file moves focus.
 export function Dialog({ open, onClose, title, children, id, className = '', busy = false, closedBy }: {
   open: boolean; onClose(): void; title: string; children: ReactNode; id?: string; className?: string; busy?: boolean; closedBy?: 'any';
 }) {
@@ -13,7 +15,7 @@ export function Dialog({ open, onClose, title, children, id, className = '', bus
     if (!node) return;
     if (open && !node.open) {
       node.showModal();
-      node.querySelector<HTMLElement>('button:not(:disabled)')?.focus();
+      node.querySelector<HTMLElement>('[data-autofocus]')?.focus();
     }
     if (!open && node.open) node.close();
   }, [open]);

@@ -25,7 +25,7 @@ export function EmailPage() {
       {entryIntent.invalidInvite && <Status error>This invitation is invalid. Ask your partner for a new code.</Status>}
       {globalFailure && <Status error><p>This browser is signed out. Other sessions may still be active.</p><p>Sign in to the same account. In Settings, choose Sign out on all devices again.</p></Status>}
       <form onSubmit={event => { event.preventDefault(); if (!request.isPending) request.mutate(email); }}>
-        <Field label="Email address" name="email" spellCheck={false} type="email" autoComplete="email" required value={email} disabled={request.isPending} onChange={event => { entryIntent.emailDraft = event.target.value; setEmail(event.target.value); }} />
+        <Field label="Email address" name="email" spellCheck={false} autoCorrect="off" enterKeyHint="send" type="email" autoComplete="email" required value={email} disabled={request.isPending} onChange={event => { entryIntent.emailDraft = event.target.value; setEmail(event.target.value); }} />
         {request.isError && <Status error>{toAppError(request.error).message}</Status>}
         <Button variant="primary" type="submit" disabled={request.isPending}>{request.isPending ? 'Sending…' : request.isError ? 'Retry' : 'Send code'}</Button>
       </form>

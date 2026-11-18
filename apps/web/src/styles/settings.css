@@ -6,9 +6,9 @@
 .paired-members { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap: var(--space-4); margin: var(--space-4) 0 0; padding: 0; list-style: none; }
 .paired-members li { display: flex; align-items: center; gap: var(--space-4); min-width: 0; }
 .paired-members li > div { min-width: 0; }
-.paired-members .avatar { width: var(--nav-target); height: var(--nav-target); font-size: 19px; font-weight: 600; }
-.paired-members h3 { margin: 0; font-size: 19px; line-height: 1.3; font-weight: 600; }
-.paired-members p { margin: 0; color: var(--muted); font-size: 14px; }
+.paired-members .avatar { width: var(--nav-target); height: var(--nav-target); font-size: 1.1875rem; font-weight: 600; }
+.paired-members h3 { margin: 0; font-size: 1.1875rem; line-height: 1.3; font-weight: 600; }
+.paired-members p { margin: 0; color: var(--muted); font-size: .875rem; }
 .paired-members + p { margin: var(--space-4) 0 0; }
 /* Ending a pair sits in its own card below normal edits. */
 .settings-danger { margin-top: var(--space-6); }

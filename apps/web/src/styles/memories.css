@@ -18,8 +18,8 @@
 .memory-cover img { position: absolute; width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 400ms var(--ease); }
 .memory-card-copy { padding: var(--space-6); }
 /* A card shows three lines of the caption. The detail screen shows all of it. */
-.memory-card-copy h3 { margin: 0 0 var(--space-3); font-size: 16px; font-weight: 600; line-height: 1.5; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
-.memory-meta { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); margin: 0; font-size: 14px; color: var(--muted); }
+.memory-card-copy h3 { margin: 0 0 var(--space-3); font-size: 1rem; font-weight: 600; line-height: 1.5; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 3; line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.memory-meta { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); margin: 0; font-size: .875rem; color: var(--muted); }
 .memory-placeholder .memory-card-copy { min-height: 104px; }
 .memory-image-state { min-width: 0; min-height: 180px; padding: var(--space-6); display: grid; align-content: center; gap: var(--space-3); }
 .memory-cover .memory-image-state { grid-area: 1 / 1; }
@@ -42,7 +42,7 @@
 .memory-form .actions { margin-bottom: 0; }
 .memory-form p[role='status']:empty { margin: 0; }
 .photo-selection { margin-bottom: var(--space-5); }
-.photo-picker { position: relative; font-size: 16px; }
+.photo-picker { position: relative; font-size: 1rem; }
 .photo-picker input[type='file'] { position: absolute; inset: 0; height: 100%; padding: 0; opacity: 0; cursor: pointer; }
 .photo-picker:focus-within { outline: 2px solid var(--focus); outline-offset: 2px; }
 .photo-picker:has(input[aria-invalid=true]) { border-color: var(--danger); }
