@@ -1,101 +1,106 @@
-.section-heading { display:flex; gap:16px; align-items:center; justify-content:space-between; flex-wrap:wrap; margin-bottom:24px; }
-.section-heading h2 { margin:0; }
-/* Task row: a 48px checkbox target, then the title and metadata as one link to the task. */
-.task-row { padding: var(--space-4) 0; border-bottom: 1px solid var(--line); overflow-wrap: anywhere; }
-.task-row:last-child { border-bottom: 0; }
-.task-row-main { display: flex; align-items: flex-start; gap: var(--space-2); }
-.task-check { display: flex; align-items: center; justify-content: center; flex-shrink: 0; width: var(--nav-target); height: var(--nav-target); margin: calc(-1 * var(--space-3)) 0 0 calc(-1 * var(--space-3)); border-radius: var(--radius-control); cursor: pointer; }
-.task-check:hover:has(input:not(:disabled)) { background: var(--canvas); }
-.task-check:has(input:focus-visible) { outline: 2px solid var(--focus); outline-offset: 2px; }
-.task-check:has(input:disabled) { cursor: default; }
-.task-row input[type=checkbox] { width: 24px; height: 24px; margin: 0; flex-shrink: 0; accent-color: var(--primary); cursor: pointer; }
-.task-row input:disabled { cursor: default; }
-.task-row-content { flex: 1; min-width: 0; min-height: var(--nav-target); display: flex; flex-direction: column; gap: var(--space-1); color: var(--ink); text-decoration: none; border-radius: var(--radius-badge); }
-.task-row-content:hover .task-title { text-decoration: underline; text-underline-offset: 4px; }
-.task-title { font-weight: 600; }
-.task-metadata { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-1) var(--space-4); color: var(--muted); font-size: .875rem; }
-.task-metadata time { margin-left: auto; font-variant-numeric: tabular-nums; }
-.task-metadata .overdue { color: var(--danger); font-weight: 600; }
-.task-metadata .due-today { color: var(--warning); font-weight: 600; }
-.task-completed .task-title { text-decoration: line-through; color: var(--muted); }
-.task-error { margin: var(--space-3) 0 0 calc(var(--nav-target) - var(--space-3) + var(--space-2)); }
-.task-error .status { margin-bottom: var(--space-3); }
-.completed-tasks > summary, .task-list-actions > summary { min-height: var(--nav-target); padding: var(--space-3) 0; font-weight: 600; cursor: pointer; }
-/* Quick add: title and Add task on one row; who and when beside them on wide screens, below them on narrow ones. */
-.quick-add { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--space-4); margin: var(--space-6) 0; }
-.quick-add > .field { flex: 1 1 0; min-width: 0; margin: 0; }
-.quick-add > .field:first-of-type { flex-grow: 2; }
-.quick-add > .button { flex: none; }
-.quick-add > .status { flex-basis: 100%; margin: 0; }
-.list-name-form { display: flex; align-items: flex-end; gap: var(--space-4); flex-wrap: wrap; width: 100%; margin: var(--space-6) 0; }
-.list-name-form .field { flex: 1 1 180px; min-width: 0; margin: 0; }
-.list-name-form > .status { flex-basis: 100%; margin: 0; }
-/* List tabs hold lists only. New list sits beside them. A long list name keeps one line. */
-.task-lists { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-4); }
-.task-lists .view-tabs { max-width: 100%; }
-.task-lists .view-tabs button { min-width: 0; max-width: 100%; }
-.task-lists .view-tabs button > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 24ch; }
-.task-lists .button.text[aria-pressed=true] { background: var(--sidebar); }
-.task-list-actions { border-top: 1px solid var(--line); margin-top: var(--space-6); }
-.task-list-actions .actions { margin: var(--space-6) 0 var(--space-4); }
-.task-list-actions .list-name-form { margin-top: var(--space-2); }
-.task-form > .actions { align-items: center; margin-top: var(--space-5); }
-/* Below 760px of card width, the title and Add task share a row. Assigned to and Due date go below. */
-.quick-add-frame { container-type: inline-size; }
-@container (max-width: 759px) {
-  .quick-add > .field:first-of-type { flex-basis: calc(100% - 160px); }
-  .quick-add > .button { order: 1; }
-  .quick-add > .field:not(:first-of-type) { order: 2; flex-basis: 120px; }
-  .quick-add > .status { order: 3; }
-}
-/* Date ideas under the calendar: a title link with its note, and Plan date beside it. */
-.ideas-section { margin-top: var(--space-8); }
-.ideas-section > h2 { margin: 0; }
-.idea-list { list-style: none; margin: 0; padding: 0; }
-.idea-list li { display: flex; align-items: center; gap: var(--space-4); padding: var(--space-4) 0; border-bottom: 1px solid var(--line); }
-.idea-list li:last-child { border-bottom: 0; }
-.idea-row { flex: 1; min-width: 0; min-height: var(--nav-target); display: flex; flex-direction: column; justify-content: center; gap: var(--space-1); color: var(--ink); text-decoration: none; overflow-wrap: anywhere; }
-.idea-row:hover strong { text-decoration: underline; text-underline-offset: 4px; }
-.idea-row span { color: var(--muted); font-size: .875rem; display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-.important-card { background:var(--sidebar); border-color:var(--line); }
-.important-card h2 { margin-bottom:var(--space-2); }
-.important-card p { margin-bottom:var(--space-3); }
-.important-card .countdown { margin:var(--space-2) 0 var(--space-1); font-size:1.1875rem; font-weight:600; color:var(--link); }
-.important-card .countdown strong { font-size:2.25rem; line-height:1.1; font-weight:500; letter-spacing:-.02em; }
-@media (max-width:767px) { .section-heading { margin-bottom:16px; } }
+@layer pages {
+  .section-heading { display:flex; gap:16px; align-items:center; justify-content:space-between; flex-wrap:wrap; margin-block-end:24px; }
+  .section-heading h2 { margin:0; }
+  /* Task row: a 48px checkbox target, then the title and metadata as one link to the task. */
+  .task-row { padding: var(--space-4) 0; border-block-end: 1px solid var(--line); overflow-wrap: anywhere; }
+  .task-row:last-child { border-block-end: 0; }
+  .task-row-main { display: flex; align-items: flex-start; gap: var(--space-2); }
+  .task-check { display: flex; align-items: center; justify-content: center; flex-shrink: 0; inline-size: var(--nav-target); block-size: var(--nav-target); margin-block: calc(-1 * var(--space-3)) 0; margin-inline: calc(-1 * var(--space-3)) 0; border-radius: var(--radius-control); corner-shape: squircle; cursor: pointer; }
+  .task-check:hover:has(input:not(:disabled)) { background: var(--canvas); }
+  .task-check:has(input:focus-visible) { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .task-check:has(input:disabled) { cursor: default; }
+  .task-row input[type=checkbox] { inline-size: 24px; block-size: 24px; margin: 0; flex-shrink: 0; cursor: pointer; }
+  .task-row input:disabled { cursor: default; }
+  .task-row-content { flex: 1; min-inline-size: 0; min-block-size: var(--nav-target); display: flex; flex-direction: column; gap: var(--space-1); color: var(--ink); text-decoration: none; border-radius: var(--radius-badge); corner-shape: squircle; }
+  .task-row-content:hover .task-title { text-decoration: underline; text-underline-offset: 4px; }
+  .task-title { font-weight: 600; }
+  .task-metadata { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-1) var(--space-4); color: var(--muted); font-size: .875rem; }
+  .task-metadata time { margin-inline-start: auto; font-variant-numeric: tabular-nums; }
+  .task-metadata .overdue { color: var(--danger); font-weight: 600; }
+  .task-metadata .due-today { color: var(--warning); font-weight: 600; }
+  .task-completed .task-title { text-decoration: line-through; color: var(--muted); }
+  .task-error { margin-block: var(--space-3) 0; margin-inline: calc(var(--nav-target) - var(--space-3) + var(--space-2)) 0; }
+  .task-error .status { margin-block-end: var(--space-3); }
+  .completed-tasks > summary, .task-list-actions > summary { min-block-size: var(--nav-target); padding: var(--space-3) 0; font-weight: 600; cursor: pointer; }
+  /* Quick add: title and Add task on one row; who and when beside them on wide screens, below them on narrow ones. */
+  .quick-add { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--space-4); margin: var(--space-6) 0; }
+  .quick-add > .field { flex: 1 1 0; min-inline-size: 0; margin: 0; }
+  .quick-add > .field:first-of-type { flex-grow: 2; }
+  .quick-add > .button { flex: none; }
+  .quick-add > .status { flex-basis: 100%; margin: 0; }
+  .list-name-form { display: flex; align-items: flex-end; gap: var(--space-4); flex-wrap: wrap; inline-size: 100%; margin: var(--space-6) 0; }
+  .list-name-form .field { flex: 1 1 180px; min-inline-size: 0; margin: 0; }
+  .list-name-form > .status { flex-basis: 100%; margin: 0; }
+  /* List tabs hold lists only. New list sits beside them. A long list name keeps one line. */
+  .task-lists { display: flex; flex-wrap: wrap; flex-wrap: balance; align-items: center; gap: var(--space-2) var(--space-4); }
+  .task-lists .view-tabs { max-inline-size: 100%; }
+  .task-lists .view-tabs button { min-inline-size: 0; max-inline-size: 100%; }
+  .task-lists .view-tabs button > span { min-inline-size: 0; overflow: clip; text-overflow: ellipsis; white-space: nowrap; max-inline-size: 24ch; }
+  .task-lists .button.text[aria-pressed=true] { background: var(--sidebar); }
+  .task-list-actions { border-block-start: 1px solid var(--line); margin-block-start: var(--space-6); }
+  .task-list-actions .actions { margin: var(--space-6) 0 var(--space-4); }
+  .task-list-actions .list-name-form { margin-block-start: var(--space-2); }
+  .task-form > .actions { align-items: center; margin-block-start: var(--space-5); }
+  /* Below 760px of card width, the title and Add task share a row. Assigned to and Due date go below. */
+  .quick-add-frame { container-type: inline-size; }
+  @container (inline-size < 47.5em) {
+    .quick-add > .field:first-of-type { flex-basis: calc(100% - 160px); }
+    .quick-add > .button { order: 1; }
+    .quick-add > .field:not(:first-of-type) { order: 2; flex-basis: 120px; }
+    .quick-add > .status { order: 3; }
+  }
+  /* Date ideas under the calendar: a title link with its note, and Plan date beside it. */
+  .ideas-section { margin-block-start: var(--space-8); }
+  .ideas-section > h2 { margin: 0; }
+  .idea-list { list-style: none; margin: 0; padding: 0; }
+  .idea-list li { display: flex; align-items: center; gap: var(--space-4); padding: var(--space-4) 0; border-block-end: 1px solid var(--line); }
+  .idea-list li:last-child { border-block-end: 0; }
+  .idea-row { flex: 1; min-inline-size: 0; min-block-size: var(--nav-target); display: flex; flex-direction: column; justify-content: center; gap: var(--space-1); color: var(--ink); text-decoration: none; overflow-wrap: anywhere; }
+  .idea-row:hover strong { text-decoration: underline; text-underline-offset: 4px; }
+  .idea-row span { color: var(--muted); font-size: .875rem; display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: clip; }
+  .important-card { background:var(--sidebar); border-color:var(--line); }
+  .important-card h2 { margin-block-end:var(--space-2); }
+  .important-card p { margin-block-end:var(--space-3); }
+  .important-card .countdown { margin:var(--space-2) 0 var(--space-1); font-size:1.1875rem; font-weight:600; color:var(--link); }
+  .important-card .countdown strong { font-size:2.25rem; line-height:1.1; font-weight:500; letter-spacing:-.02em; }
+  @media (width < 48em) { .section-heading { margin-block-end:16px; } }
 
-.today-intro-actions { display:flex; flex-wrap:wrap; gap:var(--space-4); }
-.week-strip { list-style:none; margin:0 0 var(--space-5); padding:0; display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:var(--space-1); }
-.week-strip li { display:flex; flex-direction:column; align-items:center; gap:var(--space-1); padding:var(--space-2) 0; border-radius:var(--radius-control); border:1px solid transparent; }
-.week-strip li[aria-current=date] { background:var(--action); border-color:var(--action-border); color:var(--on-action); }
-.week-strip-name { font-size:.75rem; color:var(--muted); }
-.week-strip li[aria-current=date] .week-strip-name { color:var(--on-action); }
-.week-strip-number { font-size:1rem; font-weight:600; font-variant-numeric:tabular-nums; }
-.next-plan { --plan-fill:var(--shared-soft); display:flex; flex-direction:column; gap:var(--space-1); margin-bottom:var(--space-6); padding:var(--space-6); border-radius:var(--radius-card); background:var(--plan-fill); color:var(--shared); text-decoration:none; overflow-wrap:anywhere; transition:background-color var(--duration-feedback) var(--ease), transform var(--duration-feedback) var(--ease); }
-.next-plan:hover { background:color-mix(in srgb, var(--plan-fill) 94%, var(--ink)); }
-.next-plan.owner-a { --plan-fill:var(--rose-soft); color:var(--rose); }
-.next-plan.owner-b { --plan-fill:var(--teal-soft); color:var(--teal); }
-.next-plan .eyebrow { color:inherit; margin:0; }
-.next-plan strong { color:var(--ink); font-size:1.1875rem; line-height:1.3; font-weight:600; }
-@media (hover: hover) and (pointer: fine) { .next-plan:hover { transform:translateY(-2px); } }
-.next-plan:active { transform:scale(.985); transition-duration:var(--duration-press); }
-.today-layout { display:grid; grid-template-columns:minmax(0,1fr) 360px; grid-template-rows:minmax(0,1fr); gap:var(--space-6); flex:1; min-height:0; }
-.today-layout > * { min-width:0; min-height:0; }
-.today-page { flex:1; min-height:0; display:flex; flex-direction:column; }
-.today-page > .page-header { margin-bottom:var(--space-6); }
-.today-conversation { display:flex; flex-direction:column; }
-.today-conversation > .conversation-page { flex:1; }
-/* The panel scrolls on its own. The padding keeps focus rings inside its edge. */
-.our-day { display:grid; gap:var(--space-6); align-content:start; overflow-y:auto; margin:calc(-1 * var(--space-2)); padding:var(--space-2); }
-.our-day .next-plan { margin-bottom:0; }
-.our-day .event-row:last-child { margin-bottom:0; }
-.our-day .task-row:last-child { border-bottom:0; padding-bottom:0; }
-.our-day .section-heading { margin-bottom:var(--space-5); }
-.our-day .important-card { border-color:transparent; }
-.day-chips { display:none; flex-wrap:wrap; gap:var(--space-2); margin-bottom:var(--space-4); min-height:var(--nav-target); }
-.day-chips a { display:inline-flex; align-items:center; gap:var(--space-2); max-width:min(100%, 44ch); min-width:0; min-height:var(--nav-target); padding:var(--space-2) var(--space-4); border-radius:var(--radius-control); background:var(--sidebar); color:var(--ink); font-size:.875rem; font-weight:600; text-decoration:none; }
-.day-chips .owner-dots { min-height:0; }
-.day-chips .owner-dots span { width:8px; height:8px; }
-.day-chips a > span:last-child { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.day-chips a:hover > span:last-child { text-decoration:underline; text-underline-offset:4px; }
-@media (max-width:1199px) { .today-layout { grid-template-columns:minmax(0,1fr); } .our-day { display:none; } .day-chips { display:flex; } .day-chips:empty:not(.day-chips-pending) { display:none; } }
+  .today-intro-actions { display:flex; flex-wrap:wrap; flex-wrap: balance; gap:var(--space-4); }
+  .week-strip { list-style:none; margin:0 0 var(--space-5); padding:0; display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:var(--space-1); }
+  .week-strip li { display:flex; flex-direction:column; align-items:center; gap:var(--space-1); padding:var(--space-2) 0; border-radius:var(--radius-control); corner-shape: squircle; border:1px solid transparent; }
+  .week-strip li[aria-current=date] { background:var(--action); border-color:var(--action-border); color:var(--on-action); }
+  .week-strip-name { font-size:.75rem; color:var(--muted); }
+  .week-strip li[aria-current=date] .week-strip-name { color:var(--on-action); }
+  .week-strip-number { font-size:1rem; font-weight:600; font-variant-numeric:tabular-nums; }
+  .next-plan { --plan-fill:var(--shared-soft); display:flex; flex-direction:column; gap:var(--space-1); margin-block-end:var(--space-6); padding:var(--space-6); border-radius:var(--radius-card); corner-shape: squircle; background:var(--plan-fill); color:var(--shared); text-decoration:none; overflow-wrap:anywhere; transition:background-color var(--duration-feedback) var(--ease), translate var(--duration-feedback) var(--ease), scale var(--duration-feedback) var(--ease); }
+  .next-plan:hover { background:color-mix(in srgb, var(--plan-fill) 94%, var(--ink)); }
+  .next-plan.owner-a { --plan-fill:var(--rose-soft); color:var(--rose); }
+  .next-plan.owner-b { --plan-fill:var(--teal-soft); color:var(--teal); }
+  .next-plan .eyebrow { color:inherit; margin:0; }
+  .next-plan strong { color:var(--ink); font-size:1.1875rem; line-height:1.3; font-weight:600; }
+  @media (hover: hover) and (pointer: fine) { .next-plan:hover { translate:0 -2px; } }
+  .next-plan:active { translate:none; scale:.985; transition-duration:var(--duration-press); }
+  .today-layout { display:grid; grid-template-columns:minmax(0,1fr) 360px; grid-template-rows:minmax(0,1fr); gap:var(--space-6); flex:1; min-block-size:0; }
+  .today-layout > * { min-inline-size:0; min-block-size:0; }
+  .today-page { flex:1; min-block-size:0; display:flex; flex-direction:column; }
+  .today-page > .page-header { margin-block-end:var(--space-6); }
+  .today-conversation { display:flex; flex-direction:column; }
+  .today-conversation > .conversation-page { flex:1; }
+  /* The panel scrolls on its own. The padding keeps focus rings inside its edge. */
+  .our-day { display:flex; flex-direction:column; overflow-y:auto; margin:calc(-1 * var(--space-2)); padding:var(--space-2); }
+  /* Margins, not a gap, space the sections, so the scroll hint shadows take no room. */
+  .our-day > * { flex-shrink:0; }
+  .our-day > * + * { margin-block-start:var(--space-6); }
+  .our-day .next-plan { margin-block-end:0; }
+  .our-day .event-row:last-child { margin-block-end:0; }
+  .our-day .task-row:last-child { border-block-end:0; padding-block-end:0; }
+  .our-day .section-heading { margin-block-end:var(--space-5); }
+  .our-day .important-card { border-color:transparent; }
+  .day-chips { display:none; flex-wrap:wrap; flex-wrap: balance; gap:var(--space-2); margin-block-end:var(--space-4); min-block-size:var(--nav-target); }
+  .day-chips a { display:inline-flex; align-items:center; gap:var(--space-2); max-inline-size:min(100%, 44ch); min-inline-size:0; min-block-size:var(--nav-target); padding:var(--space-2) var(--space-4); border-radius:var(--radius-control); corner-shape: squircle; background:var(--sidebar); color:var(--ink); font-size:.875rem; font-weight:600; text-decoration:none; }
+  .day-chips .owner-dots { min-block-size:0; }
+  .day-chips .owner-dots span { inline-size:8px; block-size:8px; }
+  .day-chips a > span:last-child { min-inline-size:0; overflow:clip; text-overflow:ellipsis; white-space:nowrap; }
+  .day-chips a:hover > span:last-child { text-decoration:underline; text-underline-offset:4px; }
+  @media (width < 75em) { .today-layout { grid-template-columns:minmax(0,1fr); } .our-day { display:none; } .day-chips { display:flex; } .day-chips:empty:not(.day-chips-pending) { display:none; } }
+}

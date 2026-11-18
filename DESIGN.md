@@ -230,7 +230,7 @@ Follow [the screen guide](docs/README.md#screens) for routes and flows.
 ## Colors
 
 Define colors once in `brand/tokens.json`. Use semantic tokens in components.
-`brand/tokens-css.ts` maps them to CSS variables for the portal and the site. CSS variables use kebab case: `actionHover` becomes `--action-hover`.
+`brand/tokens-css.ts` maps them to CSS variables for the portal and the site. Each variable is `light-dark(light, dark)`, so the color scheme picks the palette. Checkboxes use `primary`, and scrollbars use a `control` thumb on a clear track. CSS variables use kebab case: `actionHover` becomes `--action-hover`.
 Native code reads colors through `useTheme()` or `makeStyles()` in `apps/mobile/src/theme`. Do not import `tokens.json` in components.
 The frontmatter holds both palettes: light keys have no suffix, and dark keys end in `-dark`.
 
@@ -317,7 +317,7 @@ Short strings, such as titles, labels, buttons, and captions, end without a peri
 
 ## Layout
 
-Build from one column. Set breakpoints by available space.
+Build from one column. Set breakpoints by available space. CSS sets them in em (px / 16), so larger text moves a screen to the narrower layout.
 
 | Width | Shell | Content |
 |---|---|---|
@@ -356,20 +356,23 @@ Surfaces are flat. A one-pixel `line` border separates cards from the canvas.
 
 ### Motion
 
-Use 150ms transitions in, 120ms out, 90ms for a press, and 200ms for panels, with `cubic-bezier(.2, .8, .2, 1)`. Animate opacity or transform.
+Use 150ms transitions in, 120ms out, 90ms for a press, and 200ms for panels, with `cubic-bezier(.2, .8, .2, 1)`. Animate opacity, translate, or scale. Use the individual properties, not `transform`.
 These hover and press steps follow [taste-skill](https://github.com/Leonxlnx/taste-skill) 2.5.1 by Leonxlnx (MIT). Hover moves only with a fine pointer.
 
 - A filled or outlined button steps up 1px on hover. A press sinks it 1px below rest and scales it to 0.985. A text button changes only its fill.
 - A linked card lifts 2px and its border darkens one step. A photo in a linked card zooms to 1.03 inside its frame over 600ms.
 - An event row changes its fill. A press scales it to 0.985.
 - The focus ring is 2px, 2px off the control.
-- A dialog fades in and scales from 0.98 over 200ms. The navigation drawer slides in from the left. Both close at once.
+- A dialog fades in and scales from 0.98 over 200ms, and fades out over 120ms.
+- The navigation drawer is a sideways scroller with two snap stops. It slides in from the left, a swipe or a fling closes it, and the backdrop dims with its position.
+- A scroll area shows a soft shadow at an edge while more content lies past it. A row of notes that scrolls sideways fades at its edges instead.
 
 Avoid looping animation, parallax, and decorative counters. Scrolling moves nothing, except the one site statement below.
 
 ## Shapes
 
 Use 20px card corners, 12px control corners, and 8px badges. Use circles for avatars.
+Rounded corners are squircles (`corner-shape: squircle`) where the browser supports them. Other browsers draw round corners.
 Use a one-pixel card border.
 
 ## Components
@@ -413,7 +416,7 @@ View tabs and owner filters are segmented controls. The pressed segment is a rai
 ### Dialogs
 
 Use the native modal dialog. The browser keeps focus off the page and returns it to the trigger. Do not add a focus trap. Support Escape where cancel is safe. A click outside closes the navigation drawer.
-Give icon-only buttons an accessible name.
+Give icon-only buttons an accessible name and a tooltip with the same text: a `Hint` popover opened with `interestfor`. Do not use the `title` attribute.
 Close is an icon-only text button in the heading. A dialog with an action also has a Cancel button beside it.
 A destructive dialog opens with focus on Cancel. Mark the control with `data-autofocus`.
 Only the final, destructive step of a flow uses the `danger` fill. Earlier steps, such as Email me a code, use the primary fill.
@@ -425,7 +428,7 @@ Show the unread message count on Today.
 Group them above Settings. Hover and the current page follow the Quiet Shell Rule.
 Use labeled 20px icons: Phosphor regular in the browser, Ionicons on native devices.
 On narrow screens, the header stays at the top. The menu button shows the unread count. The account avatar opens Settings, and the pair shows names only, one line each.
-In the rail, use 12px/600 labels under the icons. Touch shows no tooltips.
+In the rail, use 12px/600 labels under the icons. Touch shows no tooltips. A navigation link takes its name from its label.
 The icon tile follows the appearance: `brand/icon-web.webp` in light mode, `brand/icon-web-dark.webp` in dark mode.
 
 ### Screens

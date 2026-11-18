@@ -124,6 +124,9 @@ Keep navigation and account controls outside route loading boundaries.
 Load route pages with React lazy and Suspense. The route boundary reports loading and handles load failures.
 Keep shared form rules in `controls.css` and shared text wrapping in `base.css`.
 Each page loads its feature styles. Do not depend on a previously visited feature's stylesheet.
+Put each stylesheet in one cascade layer. `tokens.css` declares the order: `reset`, `base`, `components` (`controls.css`), `shell`, and `pages` (feature styles). A later layer wins, so use no `!important` to win between files.
+Do not style `*`. Use logical properties, such as `margin-inline-start` and `inline-size`, and set breakpoints in `em`, so layouts follow the text size.
+A built portal page carries a Content Security Policy: its own scripts and styles, Supabase connections, and Trusted Types with no policy. Do not write HTML strings into the page.
 Keep one router blocker with memory-scoped dirty registrations. Retain unresolved input when the user cancels leaving.
 Do not add service workers, offline content storage, browser push, or installation prompts.
 

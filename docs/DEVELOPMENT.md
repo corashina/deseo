@@ -280,6 +280,7 @@ Use content-free metrics only. Do not collect message text, captions, event titl
 - [ ] Verify app links, install handoff, and web account deletion.
 - [ ] Replace prototype site imagery with screenshots of the release candidate.
 - [ ] Configure web hosting: Brotli, `Cache-Control: public, max-age=31536000, immutable` for `/assets/*`, and `no-cache` for `index.html`.
+- [ ] Send security headers from web hosting: `Strict-Transport-Security`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: no-referrer`, `Cross-Origin-Opener-Policy: same-origin`, a `Permissions-Policy` that turns off unused features, and `Content-Security-Policy: frame-ancestors 'none'`. A meta tag cannot set `frame-ancestors`.
 - [ ] Check privacy disclosures against SDKs, processors, storage, and retention.
 - [ ] Verify backups, restore, and queue and deletion alerts.
 - [ ] Review the candidate with the owner before publishing.

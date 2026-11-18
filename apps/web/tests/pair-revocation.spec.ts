@@ -26,6 +26,8 @@ test('ending a pair requires a fresh code and removes both viewers access', asyn
     await dialog.getByRole('button', { name: 'Confirm ending pair', exact: true }).click();
     await expect(dialog.getByRole('alert')).toHaveText('The code is invalid or expired. Request a new code.');
     await page.getByRole('button', { name: 'Close end this pair?', exact: true }).click();
+    // The dialog fades out before it leaves the page.
+    await expect(dialog).toBeHidden();
     await expect(page.getByRole('alert')).toHaveText('The code is invalid or expired. Request a new code.');
     await page.getByRole('button', { name: 'End pair', exact: true }).click();
     await dialog.getByLabel('Email verification code').fill(await readLocalCode(a.email));
