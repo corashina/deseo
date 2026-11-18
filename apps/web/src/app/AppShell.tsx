@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { useSession } from './SessionProvider';
 import { Avatar } from '../components/ui/Avatar';
 import { Button } from '../components/ui/Button';
-import { Dialog } from '../components/ui/Dialog';
+import { NavigationDrawer } from '../components/ui/NavigationDrawer';
 import { useMessageSignals, useUnreadCount } from '../features/messages';
 // Import the signal modules, not the feature indexes, so the first load skips feature components and styles.
 import { useCalendarSignals } from '../features/calendar/realtime';
@@ -14,8 +14,9 @@ import { CaretLeftIcon } from '@phosphor-icons/react/dist/csr/CaretLeft';
 import { CaretRightIcon } from '@phosphor-icons/react/dist/csr/CaretRight';
 import { ListIcon } from '@phosphor-icons/react/dist/csr/List';
 import { BrandIcon } from '../components/ui/BrandIcon';
+import { Hint } from '../components/ui/Hint';
 // The rail band has no collapse toggle. Read the width in script so a resize cannot leave a stale toggle.
-const railBand = matchMedia('(min-width: 768px) and (max-width: 1023px)');
+const railBand = matchMedia('(48em <= width < 64em)');
 const subscribe = (change: () => void) => { railBand.addEventListener('change', change); return () => railBand.removeEventListener('change', change); };
 // Pointing at or focusing a navigation link preloads its page.
 export function AppShell({ children, preload }: { children: ReactNode; preload(pathname: string): void }) {
@@ -39,17 +40,17 @@ export function AppShell({ children, preload }: { children: ReactNode; preload(p
   const tablet = useSyncExternalStore(subscribe, () => railBand.matches);
   const destination = pair?.status === 'pending' ? '/pair/waiting' : pair?.status === 'ended' ? '/pair/ended' : '/pair/start';
   const navigation = <PortalNavigation destination={destination} activePair={pair?.status === 'active'} unreadCount={unread.data} onPairOpen={closeDrawer} preload={preload} />;
-  const members = pair?.status === 'active' ? [...pair.members].sort((a, b) => a.slot.localeCompare(b.slot)) : [];
+  const members = pair?.status === 'active' ? pair.members.toSorted((a, b) => a.slot.localeCompare(b.slot)) : [];
   const names = members.length ? members.map(member => member.displayName) : [account?.displayName ?? 'Deseo'];
   return <div className={`portal ${tablet || collapsed ? 'rail' : ''}`}><a className="skip-link" href="#main">Skip to content</a>
-    <aside className="sidebar"><div className="brand"><BrandIcon alt="" size={40} /><span className="nav-label" translate="no">Deseo</span>{!tablet && <Button className="collapse-toggle" variant="text" aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'} onClick={() => setCollapsed(value => !value)}>{collapsed ? <CaretRightIcon size={20} aria-hidden="true" /> : <CaretLeftIcon size={20} aria-hidden="true" />}</Button>}</div>{navigation}</aside>
+    <aside className="sidebar"><div className="brand"><BrandIcon alt="" size={40} /><span className="nav-label" translate="no">Deseo</span>{!tablet && <><Button className="collapse-toggle" variant="text" aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'} {...{ interestfor: 'collapse-hint' }} onClick={() => setCollapsed(value => !value)}>{collapsed ? <CaretRightIcon size={20} aria-hidden="true" /> : <CaretLeftIcon size={20} aria-hidden="true" />}</Button><Hint id="collapse-hint">{collapsed ? 'Expand sidebar' : 'Collapse sidebar'}</Hint></>}</div>{navigation}</aside>
     <div className="portal-body"><header className="topbar">
-      <Button variant="text" className="drawer-toggle" aria-label="Open navigation" aria-expanded={drawer} aria-controls={drawerId} aria-describedby={unread.data ? unreadId : undefined} onClick={() => setDrawerPath(location.pathname)}><ListIcon size={20} aria-hidden="true" />{Boolean(unread.data) && <span className="unread-count" id={unreadId}>{unread.data}<span className="visually-hidden"> unread messages</span></span>}</Button>
+      <Button variant="text" className="drawer-toggle" aria-label="Open navigation" {...{ interestfor: 'drawer-hint' }} aria-expanded={drawer} aria-controls={drawerId} aria-describedby={unread.data ? unreadId : undefined} onClick={() => setDrawerPath(location.pathname)}><ListIcon size={20} aria-hidden="true" />{Boolean(unread.data) && <span className="unread-count" id={unreadId}>{unread.data}<span className="visually-hidden"> unread messages</span></span>}</Button><Hint id="drawer-hint">Open navigation</Hint>
       <div className="topbar-pair"><span className="pair-avatars" aria-hidden="true">{members.length ? members.map(member => <Avatar key={member.userId} slot={member.slot} name={member.displayName} />) : account && <Avatar slot={slot} name={account.displayName} />}</span>
         <span className="topbar-label" translate="no">{names.map((name, index) => <span key={index}>{index > 0 && ' + '}{name}</span>)}</span></div>
-      {account && <Link className="button secondary mobile-account" to="/settings" aria-label="Settings"><Avatar slot={slot} name={account.displayName} /></Link>}
+      {account && <><Link className="button secondary mobile-account" to="/settings" aria-label="Settings" {...{ interestfor: 'account-hint' }}><Avatar slot={slot} name={account.displayName} /></Link><Hint id="account-hint">Settings</Hint></>}
     </header>
     <main id="main" tabIndex={-1}>{children}</main></div>
-    <Dialog id={drawerId} title="Navigation" closedBy="any" open={drawer} onClose={closeDrawer} className="navigation-drawer">{navigation}</Dialog>
+    <NavigationDrawer id={drawerId} open={drawer} onClose={closeDrawer}>{navigation}</NavigationDrawer>
   </div>;
 }

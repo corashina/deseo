@@ -1,299 +1,311 @@
 @import '@fontsource-variable/manrope';
 
-/* Colors, spacing, and radius come from brand/tokens.json. vite.config.js adds them to each page. */
-:root {
-  color-scheme: light dark;
-  --gutter: var(--space-4);
-  --font: "Manrope Variable", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+/* Layers in priority order. Rules in a later layer win. */
+@layer reset, site;
+
+/* Sizes include padding and border. The rule names the element types it resets. */
+@layer reset {
+  :where(html, body, header, nav, main, footer, section, div, a, img, picture, p, h1, h2, h3, ul, ol, li, figure, span) { box-sizing: border-box; }
 }
 
-@media (min-width: 768px) {
-  :root { --gutter: var(--space-8); }
-}
-
-* { box-sizing: border-box; }
-
-/* The footer stays at the bottom of short pages. */
-body {
-  display: flex;
-  flex-direction: column;
-  min-height: 100dvh;
-  margin: 0;
-  background: var(--canvas);
-  color: var(--ink);
-  font: 400 1rem/1.5 var(--font);
-  /* Manrope's x-height is .54 of its size. Before Manrope loads, the system font gets the same x-height, so text keeps its size. */
-  font-size-adjust: .54;
-}
-
-/* Moving between site pages crossfades, where the browser supports it. */
-@view-transition { navigation: auto; }
-main { flex: 1 0 auto; }
-
-img { display: block; max-width: 100%; height: auto; }
-html { -webkit-tap-highlight-color: color-mix(in srgb, var(--ink) 8%, transparent); }
-a { color: var(--link); font-weight: 600; text-underline-offset: 3px; touch-action: manipulation; }
-:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
-
-/* Motion follows taste-skill 2.5.1: hover and press steps, drawn underlines, and one hero entrance. */
-:root {
-  --m-in: 150ms;
-  --m-out: 120ms;
-  --m-press: 90ms;
-  --ease: cubic-bezier(.2, .8, .2, 1);
-  --ease-enter: cubic-bezier(.22, 1, .36, 1);
-}
-
-/* Links in running text rest on a faint hairline. On hover, an ink line draws from the left. */
-main p a, main li a {
-  text-decoration: none;
-  background:
-    linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat,
-    linear-gradient(color-mix(in srgb, currentColor 35%, transparent), color-mix(in srgb, currentColor 35%, transparent)) 0 100% / 100% 1px no-repeat;
-  transition: background-size var(--m-out) var(--ease);
-}
-main p a:hover, main li a:hover { background-size: 100% 1px, 100% 1px; transition-duration: var(--m-in); }
-/* A standalone link is 48px tall. Its line sits under the text, not at the box edge. */
-main p a.go { background-position: 0 calc(100% - 12px), 0 calc(100% - 12px); }
-/* With a mouse or trackpad the page does not bounce past its edges. Touch keeps pull-to-refresh. */
-@media (pointer: fine) { html { overscroll-behavior: none; } }
-
-/* Type scale: display, headline, and title in DESIGN.md. */
-h1, h2, h3 { margin: 0 0 var(--space-3); overflow-wrap: anywhere; text-wrap: balance; }
-h1 { font-size: 2.25rem; font-weight: 500; line-height: 1.2; letter-spacing: -0.02em; }
-h2 { font-size: 1.5rem; font-weight: 500; line-height: 1.2; letter-spacing: -0.02em; }
-h3 { font-size: 1.1875rem; font-weight: 600; line-height: 1.3; }
-p, ul, ol { margin: 0 0 var(--space-4); }
-p, li { text-wrap: pretty; }
-li + li { margin-top: var(--space-2); }
-
-@media (min-width: 768px) {
-  h1 { font-size: 3rem; }
-  h2 { font-size: 1.75rem; }
-}
-
-.skip {
-  position: absolute;
-  left: var(--space-4);
-  top: -64px;
-  padding: var(--space-3) var(--space-4);
-  background: var(--surface);
-  border-radius: var(--radius-control);
-}
-.skip:focus { top: var(--space-4); }
-
-.wrap { width: 100%; max-width: 1120px; margin: 0 auto; padding-inline: var(--gutter); }
-main.wrap { padding-block-end: var(--space-10); }
-/* Narrow pages keep the left edge of the header and footer. */
-.narrow > * { max-width: 720px; }
-
-.site-header .wrap {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-4);
-  min-height: 72px;
-}
-.brand {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-3);
-  min-height: var(--nav-target);
-  color: var(--ink);
-  font-size: 1.1875rem;
-  font-weight: 600;
-  text-decoration: none;
-}
-.brand img { border-radius: var(--radius-control); }
-/* Navigation and footer words rest bare. On hover they darken and draw a line under the word. */
-.site-header nav a, .site-footer a {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  min-height: var(--nav-target);
-  color: var(--muted);
-  text-decoration: none;
-  transition: color var(--m-out) var(--ease);
-}
-.site-header nav a { padding: 0 var(--space-3); }
-.site-header nav a::after, .site-footer a::after {
-  content: "";
-  position: absolute;
-  left: var(--pad);
-  right: var(--pad);
-  bottom: 10px;
-  height: 1px;
-  background: currentColor;
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform var(--m-out) var(--ease);
-}
-.site-header nav a { --pad: var(--space-3); }
-.site-footer a { --pad: var(--space-2); }
-.site-header nav a:hover, .site-footer a:hover { color: var(--ink); transition-duration: var(--m-in); }
-.site-header nav a:hover::after, .site-footer a:hover::after { transform: scaleX(1); transition-duration: var(--m-in); }
-/* The current page has a 2px bar under its word. */
-.site-header nav a[aria-current="page"] { color: var(--ink); }
-.site-header nav a[aria-current="page"]::after { height: 2px; transform: none; }
-
-/* A link that stands alone in its paragraph gets the full touch target. */
-.go {
-  display: inline-flex;
-  align-items: center;
-  min-height: var(--nav-target);
-}
-
-.lede { font-size: 1.1875rem; color: var(--muted); max-width: 34em; }
-
-.hero {
-  display: grid;
-  gap: var(--space-8);
-  align-items: center;
-  padding-top: var(--space-6);
-}
-.hero > *, .feature > * { min-width: 0; }
-
-.button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: var(--nav-target);
-  padding: var(--space-3) var(--space-4);
-  border-radius: var(--radius-control);
-  background: var(--primary);
-  color: var(--on-primary);
-  font-size: .9375rem;
-  font-weight: 600;
-  line-height: 1.4;
-  text-decoration: none;
-  transition: background-color var(--m-out) var(--ease), transform var(--m-out) var(--ease);
-}
-/* A button steps up 1px on hover and sinks below rest on press. */
-@media (hover: hover) and (pointer: fine) {
-  .button:hover {
-    background: color-mix(in srgb, var(--primary) 86%, var(--ink));
-    transform: translateY(-1px);
-    transition-duration: var(--m-in);
+@layer site {
+  /* Colors, spacing, and radius come from brand/tokens.json. vite.config.js adds them to each page. */
+  :root {
+    color-scheme: light dark;
+    accent-color: var(--primary);
+    scrollbar-color: var(--control) transparent;
+    --gutter: var(--space-4);
+    --font: "Manrope Variable", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   }
-}
-.button:active { transform: translateY(1px) scale(.985); transition-duration: var(--m-press); }
-.fact { margin: var(--space-5) 0 0; color: var(--muted); font-size: .875rem; }
 
-/* The hero enters once: the title rises line by line out of its masks, then the rest fades up. */
-.enter h1 .line { display: inline-block; overflow: clip; overflow-clip-margin: 0.1em; padding-bottom: 0.08em; vertical-align: top; }
-.enter h1 .line > span { display: inline-block; animation: rise 700ms var(--ease-enter) both; }
-.enter h1 .line + .line > span { animation-delay: 80ms; }
-.enter > :not(h1) { animation: fade-up 520ms var(--ease-enter) both; animation-delay: 420ms; }
-.enter > :not(h1) ~ :not(h1) { animation-delay: 480ms; }
-.enter > :not(h1) ~ :not(h1) ~ :not(h1) { animation-delay: 540ms; }
-.page > h1, .page > h1 + .lede { animation: fade-up 520ms var(--ease-enter) both; }
-.page > h1 + .lede { animation-delay: 60ms; }
-.settle img { animation: settle 900ms var(--ease-enter) both; }
-@keyframes rise { from { transform: translateY(105%); } }
-@keyframes fade-up { from { opacity: 0; transform: translateY(12px); } }
-@keyframes settle { from { transform: scale(.98); } }
-
-
-.preview { margin: 0; }
-.preview img {
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-card);
-}
-/* A phone preview is one phone screen: 390 by 844. */
-.preview.phone img { width: 300px; margin: 0 auto; }
-
-.feature {
-  display: grid;
-  gap: var(--space-6);
-  align-items: center;
-  margin-top: var(--space-10);
-}
-.feature-text { max-width: 34em; }
-
-/* The privacy statement lights up word by word as it scrolls through the screen.
-   Without scroll timelines, every word stays at full ink. */
-.statement { margin-top: var(--space-10); view-timeline: --lights block; }
-/* The statement is the large type here, so its heading takes the title size. */
-.statement h2 { font-size: 1.1875rem; font-weight: 600; line-height: 1.3; letter-spacing: 0; color: var(--muted); }
-.lights { max-width: 22em; font-size: 1.75rem; font-weight: 500; line-height: 1.3; letter-spacing: -0.02em; text-wrap: pretty; }
-@supports (animation-timeline: view()) {
-  .lights span {
-    animation: light linear both;
-    animation-timeline: --lights;
-    animation-range: cover calc(10% + var(--i) * 1.2%) cover calc(14% + var(--i) * 1.2%);
+  @media (width >= 48em) {
+    :root { --gutter: var(--space-8); }
   }
-}
-@keyframes light { from { color: color-mix(in srgb, var(--ink) 25%, var(--canvas)); } }
 
-.panel {
-  margin-top: var(--space-10);
-  padding: var(--space-6);
-  border-radius: var(--radius-card);
-  background: var(--surface);
-  border: 1px solid var(--line);
-}
-.panel.rose { background: var(--rose-soft); border-color: transparent; }
-.panel.note { background: var(--note); border-color: var(--note-line); }
-.panel + .panel { margin-top: var(--space-6); }
-.panel > :last-child { margin-bottom: 0; }
+  /* The footer stays at the bottom of short pages. */
+  body {
+    display: flex;
+    flex-direction: column;
+    min-block-size: 100dvh;
+    margin: 0;
+    background: var(--canvas);
+    color: var(--ink);
+    font: 400 1rem/1.5 var(--font);
+    /* Manrope's x-height is .54 of its size. Before Manrope loads, the system font gets the same x-height, so text keeps its size. */
+    font-size-adjust: .54;
+  }
 
-.checks { padding-left: var(--space-5); }
+  /* Moving between site pages crossfades, where the browser supports it. */
+  @view-transition { navigation: auto; }
+  main { flex: 1 0 auto; }
 
-/* A question sits closer to its answer than to the answer above it. */
-.faq h3, .page h3 { margin-top: var(--space-6); }
-.page h2 + h3 { margin-top: var(--space-4); }
+  img { display: block; max-inline-size: 100%; block-size: auto; }
+  html { -webkit-tap-highlight-color: color-mix(in srgb, var(--ink) 8%, transparent); }
+  a { color: var(--link); font-weight: 600; text-underline-offset: 3px; touch-action: manipulation; }
+  :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
 
-.page { padding-top: var(--space-6); }
-.page section { margin-top: var(--space-10); }
-.page .panel { margin-top: var(--space-6); }
+  /* Motion follows taste-skill 2.5.1: hover and press steps, drawn underlines, and one hero entrance. */
+  :root {
+    --m-in: 150ms;
+    --m-out: 120ms;
+    --m-press: 90ms;
+    --ease: cubic-bezier(.2, .8, .2, 1);
+    --ease-enter: cubic-bezier(.22, 1, .36, 1);
+  }
 
-.steps { padding-left: var(--space-6); }
+  /* Links in running text rest on a faint hairline. On hover, an ink line draws from the left. */
+  main p a, main li a {
+    text-decoration: none;
+    background:
+      linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat,
+      linear-gradient(color-mix(in srgb, currentColor 35%, transparent), color-mix(in srgb, currentColor 35%, transparent)) 0 100% / 100% 1px no-repeat;
+    transition: background-size var(--m-out) var(--ease);
+  }
+  main p a:hover, main li a:hover { background-size: 100% 1px, 100% 1px; transition-duration: var(--m-in); }
+  /* A standalone link is 48px tall. Its line sits under the text, not at the box edge. */
+  main p a.go { background-position: 0 calc(100% - 12px), 0 calc(100% - 12px); }
+  /* With a mouse or trackpad the page does not bounce past its edges. Touch keeps pull-to-refresh. */
+  @media (pointer: fine) { html { overscroll-behavior: none; } }
 
-.site-footer {
-  border-top: 1px solid var(--line);
-  padding: var(--space-6) 0 var(--space-10);
-  font-size: .875rem;
-}
-.site-footer ul {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0 var(--space-2);
-  margin: 0 0 var(--space-3) calc(-1 * var(--space-2));
-  padding: 0;
-  list-style: none;
-}
-.site-footer li + li { margin-top: 0; }
-.site-footer a { padding: 0 var(--space-2); }
-.site-footer p { margin: 0; color: var(--muted); }
+  /* Type scale: display, headline, and title in DESIGN.md. */
+  h1, h2, h3 { margin: 0 0 var(--space-3); overflow-wrap: anywhere; text-wrap: balance; }
+  h1 { font-size: 2.25rem; font-weight: 500; line-height: 1.2; letter-spacing: -0.02em; }
+  h2 { font-size: 1.5rem; font-weight: 500; line-height: 1.2; letter-spacing: -0.02em; }
+  h3 { font-size: 1.1875rem; font-weight: 600; line-height: 1.3; }
+  p, ul, ol { margin: 0 0 var(--space-4); }
+  p, li { text-wrap: pretty; }
+  li + li { margin-block-start: var(--space-2); }
 
-/* All previews share the right edge of the page. Text sits beside them. */
-@media (min-width: 768px) {
-  .hero, .feature { grid-template-columns: 1fr auto; gap: var(--space-10); }
-  .hero { padding-top: var(--space-10); }
-  .preview.phone img { margin: 0; }
-  .feature.wide { grid-template-columns: 1fr; }
-  .panel { padding: var(--space-8); }
-  .lights { font-size: 2.5rem; }
-  .page h2 { font-size: 1.75rem; }
-}
-/* From 1024px the phone previews grow, and each feature's text starts at the top of its preview. */
-@media (min-width: 1024px) {
-  .preview.phone img { width: 360px; }
-  .feature { align-items: start; }
-  .feature-text { padding-top: var(--space-10); }
-}
+  @media (width >= 48em) {
+    h1 { font-size: 3rem; }
+    h2 { font-size: 1.75rem; }
+  }
 
-/* On a phone the main button spans the column. */
-@media (max-width: 599px) {
-  .hero .button { width: 100%; }
-}
+  .skip {
+    position: absolute;
+    inset-inline-start: var(--space-4);
+    inset-block-start: -64px;
+    padding: var(--space-3) var(--space-4);
+    background: var(--surface);
+    border-radius: var(--radius-control); corner-shape: squircle;
+  }
+  .skip:focus { inset-block-start: var(--space-4); }
 
-/* On a large screen each part of the home page fills one screen: the hero alone first, then one section per screen. */
-@media (min-width: 1024px) and (min-height: 760px) {
-  .hero { min-height: calc(100svh - 72px); padding-block: var(--space-6); }
-  .feature, .statement { min-height: 100svh; margin-top: 0; padding-block: var(--space-10); }
-  .feature { align-content: center; }
-  .statement { display: flex; flex-direction: column; justify-content: center; }
-  .feature.wide { align-content: center; }
+  .wrap { inline-size: 100%; max-inline-size: 1120px; margin: 0 auto; padding-inline: var(--gutter); }
+  main.wrap { padding-block-end: var(--space-10); }
+  /* Narrow pages keep the left edge of the header and footer. */
+  .narrow > * { max-inline-size: 720px; }
+
+  .site-header .wrap {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    min-block-size: 72px;
+  }
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3);
+    min-block-size: var(--nav-target);
+    color: var(--ink);
+    font-size: 1.1875rem;
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .brand img { border-radius: var(--radius-control); corner-shape: squircle; }
+  /* Navigation and footer words rest bare. On hover they darken and draw a line under the word. */
+  .site-header nav a, .site-footer a {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    min-block-size: var(--nav-target);
+    color: var(--muted);
+    text-decoration: none;
+    transition: color var(--m-out) var(--ease);
+  }
+  .site-header nav a { padding: 0 var(--space-3); }
+  .site-header nav a::after, .site-footer a::after {
+    content: "";
+    position: absolute;
+    inset-inline-start: var(--pad);
+    inset-inline-end: var(--pad);
+    inset-block-end: 10px;
+    block-size: 1px;
+    background: currentColor;
+    scale: 0 1;
+    transform-origin: left;
+    transition: scale var(--m-out) var(--ease);
+  }
+  .site-header nav a { --pad: var(--space-3); }
+  .site-footer a { --pad: var(--space-2); }
+  .site-header nav a:hover, .site-footer a:hover { color: var(--ink); transition-duration: var(--m-in); }
+  .site-header nav a:hover::after, .site-footer a:hover::after { scale: 1; transition-duration: var(--m-in); }
+  /* The current page has a 2px bar under its word. */
+  .site-header nav a[aria-current="page"] { color: var(--ink); }
+  .site-header nav a[aria-current="page"]::after { block-size: 2px; scale: none; }
+
+  /* A link that stands alone in its paragraph gets the full touch target. */
+  .go {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: var(--nav-target);
+  }
+
+  .lede { font-size: 1.1875rem; color: var(--muted); max-inline-size: 34em; }
+
+  .hero {
+    display: grid;
+    gap: var(--space-8);
+    align-items: center;
+    padding-block-start: var(--space-6);
+  }
+  .hero > *, .feature > * { min-inline-size: 0; }
+
+  .button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-block-size: var(--nav-target);
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-control); corner-shape: squircle;
+    background: var(--primary);
+    color: var(--on-primary);
+    font-size: .9375rem;
+    font-weight: 600;
+    line-height: 1.4;
+    text-decoration: none;
+    transition: background-color var(--m-out) var(--ease), translate var(--m-out) var(--ease), scale var(--m-out) var(--ease);
+  }
+  /* A button steps up 1px on hover and sinks below rest on press. */
+  @media (hover: hover) and (pointer: fine) {
+    .button:hover {
+      background: color-mix(in srgb, var(--primary) 86%, var(--ink));
+      translate: 0 -1px;
+      transition-duration: var(--m-in);
+    }
+  }
+  .button:active { translate: 0 1px; scale: .985; transition-duration: var(--m-press); }
+  .fact { margin: var(--space-5) 0 0; color: var(--muted); font-size: .875rem; }
+
+  /* The hero enters once: the title rises line by line out of its masks, then the rest fades up. */
+  .enter h1 .line { display: inline-block; overflow: clip; overflow-clip-margin: 0.1em; padding-block-end: 0.08em; vertical-align: top; }
+  .enter h1 .line > span { display: inline-block; animation: rise 700ms var(--ease-enter) both; }
+  .enter h1 .line + .line > span { animation-delay: 80ms; }
+  .enter > :not(h1) { animation: fade-up 520ms var(--ease-enter) both; animation-delay: 420ms; }
+  .enter > :not(h1) ~ :not(h1) { animation-delay: 480ms; }
+  .enter > :not(h1) ~ :not(h1) ~ :not(h1) { animation-delay: 540ms; }
+  .page > h1, .page > h1 + .lede { animation: fade-up 520ms var(--ease-enter) both; }
+  .page > h1 + .lede { animation-delay: 60ms; }
+  .settle img { animation: settle 900ms var(--ease-enter) both; }
+  @keyframes rise { from { translate: 0 105%; } }
+  @keyframes fade-up { from { opacity: 0; translate: 0 12px; } }
+  @keyframes settle { from { scale: .98; } }
+
+
+  .preview { margin: 0; }
+  .preview img {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card); corner-shape: squircle;
+  }
+  /* A phone preview is one phone screen: 390 by 844. */
+  .preview.phone img { inline-size: 300px; margin: 0 auto; }
+
+  .feature {
+    display: grid;
+    gap: var(--space-6);
+    align-items: center;
+    margin-block-start: var(--space-10);
+  }
+  .feature-text { max-inline-size: 34em; }
+
+  /* The privacy statement lights up word by word as it scrolls through the screen.
+     Without scroll timelines, every word stays at full ink. */
+  .statement { margin-block-start: var(--space-10); view-timeline: --lights block; }
+  /* The statement is the large type here, so its heading takes the title size. */
+  .statement h2 { font-size: 1.1875rem; font-weight: 600; line-height: 1.3; letter-spacing: 0; color: var(--muted); }
+  .lights { max-inline-size: 22em; font-size: 1.75rem; font-weight: 500; line-height: 1.3; letter-spacing: -0.02em; text-wrap: pretty; }
+  @supports (animation-timeline: view()) {
+    .lights span {
+      animation: light linear both;
+      animation-timeline: --lights;
+      animation-range: cover calc(10% + var(--i) * 1.2%) cover calc(14% + var(--i) * 1.2%);
+    }
+  }
+  @keyframes light { from { color: color-mix(in srgb, var(--ink) 25%, var(--canvas)); } }
+
+  .panel {
+    margin-block-start: var(--space-10);
+    padding: var(--space-6);
+    border-radius: var(--radius-card); corner-shape: squircle;
+    background: var(--surface);
+    border: 1px solid var(--line);
+  }
+  .panel.rose { background: var(--rose-soft); border-color: transparent; }
+  .panel.note { background: var(--note); border-color: var(--note-line); }
+  .panel + .panel { margin-block-start: var(--space-6); }
+  .panel > :last-child { margin-block-end: 0; }
+
+  .checks { padding-inline-start: var(--space-5); }
+
+  /* A question sits closer to its answer than to the answer above it. */
+  .faq h3, .page h3 { margin-block-start: var(--space-6); }
+  .page h2 + h3 { margin-block-start: var(--space-4); }
+
+  .page { padding-block-start: var(--space-6); }
+  .page section { margin-block-start: var(--space-10); }
+  .page .panel { margin-block-start: var(--space-6); }
+
+  .steps { padding-inline-start: var(--space-6); }
+
+  .site-footer {
+    border-block-start: 1px solid var(--line);
+    padding: var(--space-6) 0 var(--space-10);
+    font-size: .875rem;
+  }
+  .site-footer ul {
+    display: flex;
+    flex-wrap: wrap;
+    flex-wrap: balance;
+    gap: 0 var(--space-2);
+    margin-block: 0 var(--space-3);
+    margin-inline: calc(-1 * var(--space-2)) 0;
+    padding: 0;
+    list-style: none;
+  }
+  .site-footer li + li { margin-block-start: 0; }
+  .site-footer a { padding: 0 var(--space-2); }
+  .site-footer p { margin: 0; color: var(--muted); }
+
+  /* All previews share the right edge of the page. Text sits beside them. */
+  @media (width >= 48em) {
+    .hero, .feature { grid-template-columns: 1fr auto; gap: var(--space-10); }
+    .hero { padding-block-start: var(--space-10); }
+    .preview.phone img { margin: 0; }
+    .feature.wide { grid-template-columns: 1fr; }
+    .panel { padding: var(--space-8); }
+    .lights { font-size: 2.5rem; }
+    .page h2 { font-size: 1.75rem; }
+  }
+  /* From 1024px the phone previews grow, and each feature's text starts at the top of its preview. */
+  @media (width >= 64em) {
+    .preview.phone img { inline-size: 360px; }
+    .feature { align-items: start; }
+    .feature-text { padding-block-start: var(--space-10); }
+  }
+
+  /* On a phone the main button spans the column. */
+  @media (width < 37.5em) {
+    .hero .button { inline-size: 100%; }
+  }
+
+  /* On a large screen each part of the home page fills one screen: the hero alone first, then one section per screen. */
+  @media (width >= 64em) and (height >= 47.5em) {
+    .hero { min-block-size: calc(100svh - 72px); padding-block: var(--space-6); }
+    .feature, .statement { min-block-size: 100svh; margin-block-start: 0; padding-block: var(--space-10); }
+    .feature { align-content: center; }
+    .statement { display: flex; flex-direction: column; justify-content: center; }
+    .feature.wide { align-content: center; }
+  }
 }

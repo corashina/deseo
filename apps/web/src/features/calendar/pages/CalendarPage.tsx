@@ -7,6 +7,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { useSession } from '../../../app/SessionProvider';
 import { PageHeader } from '../../../components/ui/PageHeader';
 import { Button } from '../../../components/ui/Button';
+import { Hint } from '../../../components/ui/Hint';
 import { Status } from '../../../components/ui/Status';
 import { formatDate } from '../../../lib/format';
 import { calendarKeys, listAgenda } from '../queries';
@@ -21,7 +22,7 @@ export function CalendarPage() {
   const { account, pair } = useSession(); const [params, setParams] = useSearchParams(); const from = useFrom();
   const parsed = DateTime.fromISO(params.get('date') ?? '', { zone: account!.timezone });
   const date = parsed.isValid ? parsed.toISODate()! : DateTime.now().setZone(account!.timezone).toISODate()!;
-  const [defaultView] = useState(() => window.matchMedia('(max-width:767px)').matches ? 'agenda' : 'month');
+  const [defaultView] = useState(() => matchMedia('(width < 48em)').matches ? 'agenda' : 'month');
   const view = ['month', 'agenda'].includes(params.get('view') ?? '') ? params.get('view')! : defaultView;
   const owner = ['a', 'b', 'together'].includes(params.get('owner') ?? '') ? params.get('owner')! : 'all';
   const month = DateTime.fromISO(date).startOf('month');
@@ -44,8 +45,8 @@ export function CalendarPage() {
     <section className="card calendar-card">
       <div className="calendar-toolbar">
         <div className="calendar-date-controls">
-          <Button variant="secondary" aria-label="Previous month" onClick={() => change({ date: month.minus({ months: 1 }).toISODate()! })}><CaretLeftIcon size={20} aria-hidden="true" /></Button>
-          <Button variant="secondary" aria-label="Next month" onClick={() => change({ date: month.plus({ months: 1 }).toISODate()! })}><CaretRightIcon size={20} aria-hidden="true" /></Button>
+          <Button variant="secondary" aria-label="Previous month" {...{ interestfor: 'previous-month-hint' }} onClick={() => change({ date: month.minus({ months: 1 }).toISODate()! })}><CaretLeftIcon size={20} aria-hidden="true" /></Button><Hint id="previous-month-hint">Previous month</Hint>
+          <Button variant="secondary" aria-label="Next month" {...{ interestfor: 'next-month-hint' }} onClick={() => change({ date: month.plus({ months: 1 }).toISODate()! })}><CaretRightIcon size={20} aria-hidden="true" /></Button><Hint id="next-month-hint">Next month</Hint>
           <h2>{formatDate(month, 'month', account.locale)}</h2>
           {date !== today && <Button variant="text" onClick={() => change({ date: today })}>Today</Button>}
         </div>

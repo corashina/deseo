@@ -1,2 +1,13 @@
-/* Manrope's x-height is .54 of its size. Before Manrope loads, the system font gets the same x-height, so text keeps its size. */
-:root { --content-width: 1440px; --form-width: 720px; --message-width: 960px; font-family: 'Manrope Variable', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size-adjust: .54; --shadow-popover: 0 8px 24px var(--shadow); --duration-feedback: 150ms; --duration-out: 120ms; --duration-press: 90ms; --duration-panel: 200ms; --duration-image: 600ms; --ease: cubic-bezier(.2, .8, .2, 1); color-scheme: light dark; }
+/* Layers in priority order. A later layer wins over an earlier one, whatever the selector specificity. */
+@layer reset, base, components, shell, pages;
+
+/* Sizes include padding and border. The rule names the element types, so it does not reach into other components. */
+@layer reset {
+  :where(html, body, div, span, main, aside, header, nav, section, article, search, form, fieldset, label, p, h1, h2, h3, ul, ol, li, figure, figcaption, details, summary, dialog, a, button, input, select, textarea, img, picture, strong, time) { box-sizing: border-box; }
+}
+
+@layer base {
+  /* Manrope's x-height is .54 of its size. Before Manrope loads, the system font gets the same x-height, so text keeps its size. */
+  /* Checkboxes and scrollbars take the brand colors in both appearances. The thumb keeps 3:1 contrast with the page. */
+  :root { --content-width: 1440px; --form-width: 720px; --message-width: 960px; font-family: 'Manrope Variable', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size-adjust: .54; --shadow-popover: 0 8px 24px var(--shadow); --duration-feedback: 150ms; --duration-out: 120ms; --duration-press: 90ms; --duration-panel: 200ms; --duration-image: 600ms; --ease: cubic-bezier(.2, .8, .2, 1); color-scheme: light dark; accent-color: var(--primary); scrollbar-color: var(--control) transparent; }
+}

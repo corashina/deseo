@@ -1,55 +1,63 @@
-.conversation-page { display:flex; flex-direction:column; min-width:0; min-height:0; }
-.conversation-page > * { flex-shrink:0; }
-.conversation { display:flex; flex-direction:column; }
-/* The list scrolls inside the column. The line marks its top edge. The inline padding keeps focus rings visible. */
-.conversation-page > .conversation { flex:1 1 auto; min-height:160px; overflow-y:auto; margin:0 calc(-1 * var(--space-2)) var(--space-4); padding:var(--space-4) var(--space-2) var(--space-2); border-top:1px solid var(--line); }
-.conversation > * { flex-shrink:0; }
-.message-row { position:relative; width:fit-content; max-width:80%; border-radius:var(--radius-card); padding:var(--space-4) var(--space-5); overflow-wrap:anywhere; }
-.message-row + .message-row { margin-top:var(--space-6); }
-.message-row.partner-a + .message-row.partner-a, .message-row.partner-b + .message-row.partner-b { margin-top:var(--space-2); }
-.message-row.partner-a { background:var(--rose-soft); }
-.message-row.partner-b { background:var(--teal-soft); }
-.message-row.partner-a strong { color:var(--rose); }
-.message-row.partner-b strong { color:var(--teal); }
-/* In a run of messages from one sender, only the first shows the name. Screen readers still hear it. */
-.message-row.partner-a + .message-row.partner-a .message-meta strong, .message-row.partner-b + .message-row.partner-b .message-meta strong { position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap; }
-.latest-messages { position:sticky; bottom:0; align-self:center; height:0; }
-.latest-messages > .button { position:relative; top:calc(-1 * var(--nav-target) - var(--space-2)); box-shadow:var(--shadow-popover); border-color:transparent; }
-.own-message { align-self:flex-end; border-bottom-right-radius:var(--radius-control); }
-.message-row:not(.own-message) { border-bottom-left-radius:var(--radius-control); }
-.message-meta { display:flex; flex-wrap:wrap; align-items:center; gap:var(--space-1) var(--space-3); margin-bottom:var(--space-2); }
-.message-meta time, .message-state { font-size:.875rem; font-variant-numeric:tabular-nums; }
-.message-row p { margin-bottom:var(--space-2); max-width:65ch; }
-.message-row p:last-child { margin-bottom:0; }
-.message-row.partner-a .message-meta time, .message-row.partner-a .message-state { color:var(--rose); }
-.message-row.partner-b .message-meta time, .message-row.partner-b .message-state { color:var(--teal); }
-.message-state { display:block; }
-/* The actions button sits at the end of the sender line. Its 48px target overlaps the bubble padding. */
-.message-actions { margin:calc(-1 * var(--space-3)) calc(-1 * var(--space-3)) calc(-1 * var(--space-3)) auto; }
-.message-error { margin-top:var(--space-3); }
-.message-error .status { margin-bottom:var(--space-2); }
-.message-composer { margin-top:0; padding:var(--space-3) var(--space-4); background:var(--sidebar); }
-.message-composer .field { margin-bottom:0; }
-.composer-row { display:flex; flex-wrap:wrap; gap:var(--space-3); align-items:flex-end; }
-.composer-row > .button { flex-shrink:0; }
-.message-composer textarea { flex:1 1 160px; min-width:0; min-height:var(--nav-target); max-height:calc(5lh + 2 * var(--space-3) + 2px); field-sizing:content; resize:none; line-height:1.4; border:1px solid var(--control); border-radius:var(--radius-control); padding:var(--space-3) var(--space-4); color:var(--ink); background:var(--surface); font-size:1rem; font-weight:400; }
-.composer-footer .muted { font-variant-numeric:tabular-nums; }
-.composer-footer { display:flex; justify-content:flex-end; }
-/* Pinned notes: one compact row each. A note fills the row when it is alone. */
-.notes-strip { display:grid; grid-template-columns:repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap:var(--space-3); margin-bottom:var(--space-4); }
-.note-card { display:flex; flex-wrap:wrap; align-items:center; gap:var(--space-1) var(--space-3); min-width:0; padding:var(--space-3) var(--space-4); background:var(--note); border:1px solid var(--note-line); border-radius:var(--radius-control); }
-.note-card-copy { flex:1 1 160px; min-width:0; }
-.note-card .eyebrow { margin-bottom:0; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
-.note-card p { margin:0; overflow:hidden; display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2; line-clamp:2; white-space:pre-wrap; overflow-wrap:anywhere; }
-.note-card .message-error { flex-basis:100%; margin-top:0; }
-.pending-send { align-self:flex-end; margin:0 0 var(--space-4); }
-.pending-send .status { padding:0; border:0; margin-bottom:var(--space-3); font-size:.875rem; background:transparent; }
-@media(max-width:767px) {
-  /* Phones keep the log tall: each note keeps one line, and two notes share one row that scrolls sideways. */
-  .note-card p { -webkit-line-clamp:1; line-clamp:1; }
-  .notes-strip:has(> :nth-child(2)) { grid-template-columns:none; grid-auto-flow:column; grid-auto-columns:85%; overflow-x:auto; scroll-snap-type:x mandatory; overscroll-behavior-x:contain; }
-  .notes-strip > * { scroll-snap-align:start; }
-  .message-row { padding:var(--space-4); }
-  .message-row + .message-row { margin-top:var(--space-4); }
-  .message-row.partner-a + .message-row.partner-a, .message-row.partner-b + .message-row.partner-b { margin-top:var(--space-2); }
+@layer pages {
+  .conversation-page { display:flex; flex-direction:column; min-inline-size:0; min-block-size:0; }
+  .conversation-page > * { flex-shrink:0; }
+  .conversation { display:flex; flex-direction:column; }
+  /* The list scrolls inside the column. The line marks its top edge. The inline padding keeps focus rings visible. */
+  .conversation-page > .conversation { flex:1 1 auto; min-block-size:160px; overflow-y:auto; margin:0 calc(-1 * var(--space-2)) var(--space-4); padding:var(--space-4) var(--space-2) var(--space-2); border-block-start:1px solid var(--line); }
+  .conversation > * { flex-shrink:0; }
+  .message-row { position:relative; inline-size:fit-content; max-inline-size:80%; border-radius:var(--radius-card); corner-shape: squircle; padding:var(--space-4) var(--space-5); overflow-wrap:anywhere; }
+  .message-row + .message-row { margin-block-start:var(--space-6); }
+  .message-row.partner-a + .message-row.partner-a, .message-row.partner-b + .message-row.partner-b { margin-block-start:var(--space-2); }
+  .message-row.partner-a { background:var(--rose-soft); }
+  .message-row.partner-b { background:var(--teal-soft); }
+  .message-row.partner-a strong { color:var(--rose); }
+  .message-row.partner-b strong { color:var(--teal); }
+  /* In a run of messages from one sender, only the first shows the name. Screen readers still hear it. */
+  .message-row.partner-a + .message-row.partner-a .message-meta strong, .message-row.partner-b + .message-row.partner-b .message-meta strong { position:absolute; inline-size:1px; block-size:1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap; }
+  .latest-messages { position:sticky; inset-block-end:0; align-self:center; block-size:0; }
+  .latest-messages > .button { position:relative; inset-block-start:calc(-1 * var(--nav-target) - var(--space-2)); box-shadow:var(--shadow-popover); border-color:transparent; }
+  .own-message { align-self:flex-end; border-end-end-radius:var(--radius-control); }
+  .message-row:not(.own-message) { border-end-start-radius:var(--radius-control); }
+  .message-meta { display:flex; flex-wrap:wrap; align-items:center; gap:var(--space-1) var(--space-3); margin-block-end:var(--space-2); }
+  .message-meta time, .message-state { font-size:.875rem; font-variant-numeric:tabular-nums; }
+  .message-row p { margin-block-end:var(--space-2); max-inline-size:65ch; }
+  .message-row p:last-child { margin-block-end:0; }
+  .message-row.partner-a .message-meta time, .message-row.partner-a .message-state { color:var(--rose); }
+  .message-row.partner-b .message-meta time, .message-row.partner-b .message-state { color:var(--teal); }
+  .message-state { display:block; }
+  /* The actions button sits at the end of the sender line. Its 48px target overlaps the bubble padding. */
+  .message-actions { margin-block:calc(-1 * var(--space-3)); margin-inline:auto calc(-1 * var(--space-3)); }
+  .message-error { margin-block-start:var(--space-3); }
+  .message-error .status { margin-block-end:var(--space-2); }
+  .message-composer { margin-block-start:0; padding:var(--space-3) var(--space-4); background:var(--sidebar); }
+  .message-composer .field { margin-block-end:0; }
+  .composer-row { display:flex; flex-wrap:wrap; gap:var(--space-3); align-items:flex-end; }
+  .composer-row > .button { flex-shrink:0; }
+  .message-composer textarea { flex:1 1 160px; min-inline-size:0; min-block-size:var(--nav-target); max-block-size:calc(5lh + 2 * var(--space-3) + 2px); field-sizing:content; resize:none; line-height:1.4; border:1px solid var(--control); border-radius:var(--radius-control); corner-shape: squircle; padding:var(--space-3) var(--space-4); color:var(--ink); background:var(--surface); font-size:max(1rem, 1em); font-weight:400; }
+  .composer-footer .muted { font-variant-numeric:tabular-nums; }
+  .composer-footer { display:flex; justify-content:flex-end; }
+  /* Pinned notes: one compact row each. A note fills the row when it is alone. */
+  .notes-strip { display:grid; grid-template-columns:repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap:var(--space-3); margin-block-end:var(--space-4); }
+  .note-card { display:flex; flex-wrap:wrap; align-items:center; gap:var(--space-1) var(--space-3); min-inline-size:0; padding:var(--space-3) var(--space-4); background:var(--note); border:1px solid var(--note-line); border-radius:var(--radius-control); corner-shape: squircle; }
+  .note-card-copy { flex:1 1 160px; min-inline-size:0; }
+  .note-card .eyebrow { margin-block-end:0; overflow:clip; white-space:nowrap; text-overflow:ellipsis; }
+  .note-card p { margin:0; overflow:clip; display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2; line-clamp:2; white-space:pre-wrap; overflow-wrap:anywhere; }
+  .note-card .message-error { flex-basis:100%; margin-block-start:0; }
+  .pending-send { align-self:flex-end; margin:0 0 var(--space-4); }
+  .pending-send .status { padding:0; border:0; margin-block-end:var(--space-3); font-size:.875rem; background:transparent; }
+  @media (width < 48em) {
+    /* Phones keep the log tall: each note keeps one line, and two notes share one row that scrolls sideways. */
+    .note-card p { -webkit-line-clamp:1; line-clamp:1; }
+    .notes-strip:has(> :nth-child(2)) { grid-template-columns:none; grid-auto-flow:column; grid-auto-columns:85%; overflow-x:auto; scroll-snap-type:x mandatory; overscroll-behavior-inline:contain; }
+    .notes-strip > * { scroll-snap-align:start; }
+    /* The row fades at an edge while more notes lie past it. Each fade grows over the first or last 3rem of scrolling. */
+    .notes-strip:has(> :nth-child(2)) { --fade-size:3rem; scroll-padding-inline:var(--fade-size); mask:linear-gradient(black, black) no-clip subtract, linear-gradient(to right, black, transparent) 0 0 / var(--fade-start) 100% no-repeat no-clip, linear-gradient(to right, transparent, black) 100% 0 / var(--fade-end) 100% no-repeat no-clip; animation:notes-fade-start linear both, notes-fade-end linear both; animation-timeline:scroll(self inline); animation-range:0 var(--fade-size), calc(100% - var(--fade-size)) 100%; }
+    .message-row { padding:var(--space-4); }
+    .message-row + .message-row { margin-block-start:var(--space-4); }
+    .message-row.partner-a + .message-row.partner-a, .message-row.partner-b + .message-row.partner-b { margin-block-start:var(--space-2); }
+  }
 }
+@property --fade-start { syntax: '<length>'; inherits: false; initial-value: 0px; }
+@property --fade-end { syntax: '<length>'; inherits: false; initial-value: 0px; }
+@keyframes notes-fade-start { to { --fade-start: var(--fade-size); } }
+@keyframes notes-fade-end { from { --fade-end: var(--fade-size); } }

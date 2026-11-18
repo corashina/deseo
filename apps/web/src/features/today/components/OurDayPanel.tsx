@@ -17,7 +17,7 @@ export function OurDayPanel({ data, important, days, date, zone, locale, names, 
   date: string; zone: string; locale: string; names: OwnerNames; members: readonly PairMember[];
 }) {
   const later = data.agenda.slice(1, 4);
-  return <aside className="our-day" aria-label="Our day">
+  return <aside className="our-day scroll-hints" aria-label="Our day">
     {data.agenda[0] && <NextPlanCard event={data.agenda[0]} names={names} zone={zone} locale={locale} />}
     <section className="card" data-testid="today-events">
       <div className="section-heading"><h2>Upcoming plans</h2><Link to="/calendar">View calendar</Link></div>

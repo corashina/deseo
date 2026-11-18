@@ -1,4 +1,5 @@
 import { useId, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
+import { Hint } from './Hint';
 
 // Native focusgroup gives arrow keys and menu roles. Other browsers get the same from this file.
 const nativeFocusGroup = 'focusGroup' in HTMLElement.prototype;
@@ -11,6 +12,7 @@ export function Menu({ label, trigger, items, disabled = false, className = '' }
 }) {
   const menuId = useId();
   const triggerId = useId();
+  const hintId = useId();
   const button = useRef<HTMLButtonElement>(null);
   const menu = useRef<HTMLDivElement>(null);
   const keyboardOpen = useRef(false);
@@ -39,8 +41,8 @@ export function Menu({ label, trigger, items, disabled = false, className = '' }
   }
 
   return <div className={'menu ' + className}>
-    <button ref={button} id={triggerId} type="button" className="menu-trigger" aria-label={label} title={label} aria-haspopup="menu" aria-expanded={expanded}
-      disabled={disabled} {...{ commandfor: menuId, command: 'toggle-popover' }}
+    <button ref={button} id={triggerId} type="button" className="menu-trigger" aria-label={label} aria-haspopup="menu" aria-expanded={expanded}
+      disabled={disabled} {...{ commandfor: menuId, command: 'toggle-popover', interestfor: hintId }}
       onClick={event => { if (event.detail === 0) keyboardOpen.current = true; }}
       onKeyDown={event => {
         if (event.key !== 'ArrowDown') return;
@@ -48,6 +50,7 @@ export function Menu({ label, trigger, items, disabled = false, className = '' }
         keyboardOpen.current = true;
         if (expanded) entries()[0]?.focus(); else button.current!.click();
       }}>{trigger}</button>
+    <Hint id={hintId}>{label}</Hint>
     <div ref={menu} id={menuId} popover="auto" className="menu-popover" onKeyDown={moveFocus} onToggle={event => {
       const open = event.newState === 'open';
       setExpanded(open);

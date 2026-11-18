@@ -1,60 +1,76 @@
-.portal { --sidebar-width: 256px; min-height: 100dvh; }
-.sidebar { position: fixed; inset: 0 auto 0 0; width: var(--sidebar-width); background: var(--canvas); border-right: 1px solid var(--line); display: flex; flex-direction: column; padding: var(--space-6) var(--space-3) var(--space-4); gap: var(--space-6); overflow-y: auto; }
-/* The 23px wordmark is a lockup value beside the 40px icon. */
-.brand { display: flex; align-items: center; gap: var(--space-3); padding-left: var(--space-1); font-size: 1.4375rem; letter-spacing: -.02em; font-weight: 600; min-height: var(--nav-target); }
-.brand img { display: block; width: 40px; height: 40px; border-radius: var(--radius-control); }
-.brand .collapse-toggle { margin-left: auto; padding: 0; min-width: var(--nav-target); }
-.portal-nav, .nav-group { display: grid; gap: var(--space-1); }
-.nav-settings { margin-top: var(--space-4); padding-top: var(--space-4); border-top: 1px solid var(--line); }
-.portal-nav a { display: flex; align-items: center; gap: var(--space-3); min-height: var(--nav-target); font-size: .9375rem; font-weight: 550; line-height: 1.4; padding: var(--space-3) var(--space-4); border: 1px solid transparent; border-radius: var(--radius-control); text-decoration: none; color: var(--muted); overflow-wrap: anywhere; transition: background-color var(--duration-feedback) var(--ease), color var(--duration-feedback) var(--ease); }
-.portal-nav a:hover { background: color-mix(in srgb, var(--ink) 4%, transparent); color: var(--ink); }
-.portal-nav a[aria-current="page"] { background: color-mix(in srgb, var(--ink) 7%, transparent); color: var(--ink); font-weight: 600; }
-.unread-count { margin-left: auto; background: var(--shared-soft); color: var(--shared); border-radius: var(--radius-badge); padding: 2px var(--space-2); font-size: .75rem; font-weight: 600; line-height: 1.4; font-variant-numeric: tabular-nums; }
-.portal-body { margin-left: var(--sidebar-width); min-width: 0; }
-.topbar { min-height: 72px; border-bottom: 1px solid var(--line); padding: var(--space-3) var(--space-8); display: flex; align-items: center; gap: var(--space-4); background: var(--canvas); }
-.topbar-pair { display: flex; align-items: center; gap: var(--space-3); flex: 1 1 0; min-width: 0; }
-.pair-avatars { display: inline-flex; flex-shrink: 0; padding-right: var(--space-1); }
-.pair-avatars .avatar + .avatar { margin-left: calc(-1 * var(--space-2)); outline: 3px solid var(--canvas); }
-.topbar-label { color: var(--ink); font-size: .9375rem; font-weight: 600; line-height: 1.4; overflow-wrap: anywhere; min-width: 0; }
-.portal main { max-width: calc(var(--content-width) + 2 * var(--space-8)); margin: 0 auto; padding: var(--space-8); }
-.drawer-toggle, .mobile-account { display: none !important; }
-.skip-link { position: fixed; left: var(--space-3); top: -100px; z-index: 20; background: var(--surface); padding: var(--space-3); }
-.skip-link:focus { top: var(--space-3); }
-.navigation-drawer { margin: 0; height: 100dvh; max-height: 100dvh; width: min(320px, 90vw); border-radius: 0; background: var(--canvas); }
-/* The drawer slides in from the left edge, in place of the dialog fade and scale. */
-@starting-style { .navigation-drawer[open] { opacity: 1; transform: translateX(-100%); } }
-.mobile-account { width: var(--nav-target); padding: 7px; }
+@layer shell {
+  .portal { --sidebar-width: 256px; min-block-size: 100dvh; }
+  .sidebar { position: fixed; inset-block: 0; inset-inline: 0 auto; inline-size: var(--sidebar-width); background: var(--canvas); border-inline-end: 1px solid var(--line); display: flex; flex-direction: column; padding: var(--space-6) var(--space-3) var(--space-4); gap: var(--space-6); overflow-y: auto; }
+  /* The 23px wordmark is a lockup value beside the 40px icon. */
+  .brand { display: flex; align-items: center; gap: var(--space-3); padding-inline-start: var(--space-1); font-size: 1.4375rem; letter-spacing: -.02em; font-weight: 600; min-block-size: var(--nav-target); }
+  .brand img { display: block; inline-size: 40px; block-size: 40px; border-radius: var(--radius-control); corner-shape: squircle; }
+  .brand .collapse-toggle { margin-inline-start: auto; padding: 0; min-inline-size: var(--nav-target); }
+  .portal-nav, .nav-group { display: grid; gap: var(--space-1); }
+  .nav-settings { margin-block-start: var(--space-4); padding-block-start: var(--space-4); border-block-start: 1px solid var(--line); }
+  .portal-nav a { display: flex; align-items: center; gap: var(--space-3); min-block-size: var(--nav-target); font-size: .9375rem; font-weight: 550; line-height: 1.4; padding: var(--space-3) var(--space-4); border: 1px solid transparent; border-radius: var(--radius-control); corner-shape: squircle; text-decoration: none; color: var(--muted); overflow-wrap: anywhere; transition: background-color var(--duration-feedback) var(--ease), color var(--duration-feedback) var(--ease); }
+  .portal-nav a:hover { background: color-mix(in srgb, var(--ink) 4%, transparent); color: var(--ink); }
+  .portal-nav a[aria-current="page"] { background: color-mix(in srgb, var(--ink) 7%, transparent); color: var(--ink); font-weight: 600; }
+  .unread-count { margin-inline-start: auto; background: var(--shared-soft); color: var(--shared); border-radius: var(--radius-badge); corner-shape: squircle; padding: 2px var(--space-2); font-size: .75rem; font-weight: 600; line-height: 1.4; font-variant-numeric: tabular-nums; }
+  .portal-body { margin-inline-start: var(--sidebar-width); min-inline-size: 0; }
+  .topbar { min-block-size: 72px; border-block-end: 1px solid var(--line); padding: var(--space-3) var(--space-8); display: flex; align-items: center; gap: var(--space-4); background: var(--canvas); }
+  .topbar-pair { display: flex; align-items: center; gap: var(--space-3); flex: 1 1 0; min-inline-size: 0; }
+  .pair-avatars { display: inline-flex; flex-shrink: 0; padding-inline-end: var(--space-1); }
+  .pair-avatars .avatar + .avatar { margin-inline-start: calc(-1 * var(--space-2)); outline: 3px solid var(--canvas); }
+  .topbar-label { color: var(--ink); font-size: .9375rem; font-weight: 600; line-height: 1.4; overflow-wrap: anywhere; min-inline-size: 0; }
+  .portal main { max-inline-size: calc(var(--content-width) + 2 * var(--space-8)); margin: 0 auto; padding: var(--space-8); }
+  .drawer-toggle, .mobile-account { display: none; }
+  .skip-link { position: fixed; inset-inline-start: var(--space-3); inset-block-start: -100px; z-index: 20; background: var(--surface); padding: var(--space-3); }
+  .skip-link:focus { inset-block-start: var(--space-3); }
+  /* The drawer dialog covers the window. Its scroller holds the sheet and an empty spacer as wide as the window.
+     Scroll snap stops at the sheet (open) or at the spacer (closed), so a swipe drags the sheet and a fling closes it. */
+  .navigation-drawer { --drawer-width: min(20rem, 90%); --drawer-backdrop: 0; inset: 0; inline-size: auto; block-size: auto; max-inline-size: none; max-block-size: none; margin: 0; padding: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; overflow: visible; opacity: 1; scale: none; transition: none; }
+  .navigation-drawer::backdrop { opacity: var(--drawer-backdrop); transition: none; }
+  .drawer-scroller { display: grid; grid-template-columns: var(--drawer-width) 100%; block-size: 100%; overflow-x: scroll; overscroll-behavior: none; scrollbar-width: none; scroll-snap-type: x mandatory; scroll-behavior: smooth; }
+  /* The spacer is the closed stop. The drawer opens at this stop, and the script scrolls the sheet into view. */
+  .drawer-scroller::after { content: ''; scroll-snap-align: end; scroll-initial-target: nearest; }
+  /* svh keeps the sheet height still while a phone address bar slides in or out during a swipe. */
+  .drawer-sheet { block-size: 100svh; overflow-y: auto; overscroll-behavior: contain; padding: var(--space-6); background: var(--canvas); scroll-snap-align: start; }
+  /* The backdrop dims with the scroll position: fully at the open stop, not at all at the closed stop. */
+  @supports (animation-timeline: scroll()) {
+    .navigation-drawer { timeline-scope: --drawer-fade; animation: drawer-backdrop linear both; animation-timeline: --drawer-fade; }
+    .drawer-scroller { scroll-timeline: --drawer-fade inline; }
+  }
+  .mobile-account { inline-size: var(--nav-target); padding: 7px; }
 
-/* Rail: the 768px band, and the collapsed sidebar from 1024px. Labels sit under the icons, because touch shows no tooltips. */
-.portal.rail { --sidebar-width: 72px; }
-.rail .sidebar { padding-inline: var(--space-1); }
-.rail .brand { flex-direction: column; padding-left: 0; gap: var(--space-2); }
-.rail .brand .nav-label { display: none; }
-.rail .brand .collapse-toggle { margin-left: 0; }
-.rail .sidebar .portal-nav a { flex-direction: column; justify-content: center; gap: var(--space-1); padding: var(--space-2) 0; font-size: .75rem; font-weight: 600; text-align: center; overflow-wrap: normal; position: relative; }
-.rail .sidebar .unread-count { position: absolute; top: var(--space-1); right: var(--space-2); padding: 0 var(--space-1); }
-@media (max-width: 1023px) {
-  .portal main { padding: var(--space-6); }
-  .topbar { padding: var(--space-3) var(--space-6); }
+  /* Rail: the 768px band, and the collapsed sidebar from 1024px. Labels sit under the icons, because touch shows no tooltips. */
+  .portal.rail { --sidebar-width: 72px; }
+  .rail .sidebar { padding-inline: var(--space-1); }
+  .rail .brand { flex-direction: column; padding-inline-start: 0; gap: var(--space-2); }
+  .rail .brand .nav-label { display: none; }
+  .rail .brand .collapse-toggle { margin-inline-start: 0; }
+  .rail .sidebar .portal-nav a { flex-direction: column; justify-content: center; gap: var(--space-1); padding: var(--space-2) 0; font-size: .75rem; font-weight: 600; text-align: center; overflow-wrap: normal; position: relative; }
+  .rail .sidebar .unread-count { position: absolute; inset-block-start: var(--space-1); inset-inline-end: var(--space-2); padding: 0 var(--space-1); }
+  @media (width < 64em) {
+    .portal main { padding: var(--space-6); }
+    .topbar { padding: var(--space-3) var(--space-6); }
+  }
+  @media (width < 48em) {
+    .portal, .portal.rail { --sidebar-width: 0px; }
+    .sidebar { display: none; }
+    .drawer-toggle, .mobile-account { display: inline-flex; }
+    /* The menu stays in reach on long screens. Scrolling to a focused control keeps it below the 72px bar. */
+    html { scroll-padding-block-start: calc(72px + 24px); }
+    .topbar { position: sticky; inset-block-start: 0; z-index: 10; padding: var(--space-3) var(--space-4); gap: var(--space-3); }
+    .drawer-toggle { position: relative; padding: 0; min-inline-size: var(--nav-target); }
+    .drawer-toggle .unread-count { position: absolute; inset-block-start: 0; inset-inline-end: 0; padding: 0 var(--space-1); }
+    /* The account button shows the own avatar, so the pair shows names only. Each name keeps one line. */
+    .pair-avatars { display: none; }
+    .topbar-label > span { display: block; overflow: clip; text-overflow: ellipsis; white-space: nowrap; }
+    .portal main { padding: var(--space-6) var(--space-4); }
+  }
+  /* In the app, form cards line up with the page title. */
+  .portal main .form-page { margin: 0 0 var(--space-6); }
+  /* Pair cards have no page title to line up with, so they center in the content region. */
+  .portal main .centered-card { margin-inline: auto; }
+  /* Today fills the window. The conversation scrolls inside it, so the composer stays in view. */
+  .portal-body:has(.today-page) { display: flex; flex-direction: column; block-size: 100dvh; }
+  .portal-body:has(.today-page) > main { flex: 1; min-block-size: 0; inline-size: 100%; display: flex; flex-direction: column; overflow-y: auto; }
 }
-@media (max-width: 767px) {
-  .portal, .portal.rail { --sidebar-width: 0px; }
-  .sidebar { display: none; }
-  .drawer-toggle, .mobile-account { display: inline-flex !important; }
-  /* The menu stays in reach on long screens. Scrolling to a focused control keeps it below the 72px bar. */
-  html { scroll-padding-top: calc(72px + 24px); }
-  .topbar { position: sticky; top: 0; z-index: 10; padding: var(--space-3) var(--space-4); gap: var(--space-3); }
-  .drawer-toggle { position: relative; padding: 0; min-width: var(--nav-target); }
-  .drawer-toggle .unread-count { position: absolute; top: 0; right: 0; padding: 0 var(--space-1); }
-  /* The account button shows the own avatar, so the pair shows names only. Each name keeps one line. */
-  .pair-avatars { display: none; }
-  .topbar-label > span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .portal main { padding: var(--space-6) var(--space-4); }
-}
-/* In the app, form cards line up with the page title. */
-.portal main .form-page { margin: 0 0 var(--space-6); }
-/* Pair cards have no page title to line up with, so they center in the content region. */
-.portal main .centered-card { margin-inline: auto; }
-/* Today fills the window. The conversation scrolls inside it, so the composer stays in view. */
-.portal-body:has(.today-page) { display: flex; flex-direction: column; height: 100dvh; }
-.portal-body:has(.today-page) > main { flex: 1; min-height: 0; width: 100%; display: flex; flex-direction: column; overflow-y: auto; }
+/* Registered, so the backdrop opacity interpolates while the drawer scrolls. */
+@property --drawer-backdrop { syntax: '<number>'; inherits: true; initial-value: 0; }
+@keyframes drawer-backdrop { from { --drawer-backdrop: 1; } to { --drawer-backdrop: 0; } }

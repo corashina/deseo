@@ -4,18 +4,14 @@ import { RouterProvider } from 'react-router-dom';
 import { queryClient } from './lib/query-client';
 import { getSupabase } from './lib/supabase';
 import { router } from './app/router';
-import { tokenCss } from '../../../brand/tokens-css.ts';
 import '@fontsource-variable/manrope/index.css';
+// Token variables from brand/tokens.json. vite.config.ts builds this stylesheet.
+import 'virtual:tokens.css';
 import './styles/tokens.css';
 import './styles/base.css';
 // Controls load before the shell, so shell rules can refine them.
 import './styles/controls.css';
 import './styles/shell.css';
-// One style element holds both palettes.
-const style = document.createElement('style');
-style.id = 'tokens';
-style.textContent = tokenCss;
-document.head.append(style);
 const root = createRoot(document.getElementById('root')!);
 try {
   getSupabase();

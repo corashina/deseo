@@ -1,82 +1,98 @@
-.button { min-height: var(--nav-target); max-width: 100%; border: 1px solid var(--action-border); border-radius: var(--radius-control); padding: var(--space-3) var(--space-4); font-size: .9375rem; font-weight: 600; display: inline-flex; justify-content: center; align-items: center; gap: var(--space-2); cursor: pointer; text-decoration: none; line-height: 1.4; transition: background-color var(--duration-feedback) var(--ease), color var(--duration-feedback) var(--ease), border-color var(--duration-feedback) var(--ease), transform var(--duration-feedback) var(--ease); }
-.button.primary { background: var(--primary); color: var(--on-primary); border-color: var(--primary); }
-.button.primary:hover:not(:disabled) { background: color-mix(in srgb, var(--primary) 86%, var(--ink)); }
-.button.secondary { background: var(--surface); color: var(--ink); border-color: var(--control); }
-.button.danger { background: var(--danger); color: var(--on-primary); border-color: var(--danger); }
-.button.text { background: transparent; color: var(--link); border-color: transparent; }
-.button.text:hover:not(:disabled) { background: var(--sidebar); }
-.button.secondary:hover:not(:disabled) { background: var(--sidebar); border-color: var(--ink); }
-.button.danger:hover:not(:disabled) { background: var(--danger-soft); color: var(--danger); }
-/* Motion follows taste-skill 2.5.1: a filled or outlined button steps up 1px on hover and sinks below rest on press.
-   Text buttons keep still and only change fill. */
-@media (hover: hover) and (pointer: fine) { .button:not(.text):hover:not(:disabled) { transform: translateY(-1px); } }
-.button:active:not(:disabled) { transform: translateY(1px) scale(.985); transition-duration: var(--duration-press); }
-.button.text:active:not(:disabled) { transform: scale(.985); }
-.button:disabled { opacity: .6; cursor: default; }
-.field input, .field select, .field textarea, .message-composer textarea { caret-color: var(--focus); }
-.field input:focus-visible, .field select:focus-visible, .field textarea:focus-visible { border-color: var(--focus); }
-.field { display: flex; flex-direction: column; gap: var(--space-2); margin-bottom: var(--space-5); font-weight: 600; }
-.field > span:first-child { font-size: .875rem; }
-.field-hint, .field-error { font-size: .875rem; font-weight: 400; margin: 0; }
-.field-hint { color: var(--muted); }
-.field-error { color: var(--danger); }
-.field input:hover:not(:disabled), .field select:hover:not(:disabled), .field textarea:hover:not(:disabled) { border-color: var(--focus); }
-.field input[aria-invalid=true], .field select[aria-invalid=true], .field textarea[aria-invalid=true] { border-color: var(--danger); }
-/* Inputs and selects are one line tall: 48px at the default text size. They grow with larger text, and fields in one row line up. */
-.field input:not([type=checkbox], [type=file]), .field select { height: calc(1.5em + 2 * var(--space-3)); }
-.field input, .field select, .field > textarea { width: 100%; min-width: 0; min-height: var(--nav-target); padding: calc(var(--space-3) - 1px) var(--space-4); border: 1px solid var(--control); border-radius: var(--radius-control); color: var(--ink); background: var(--surface); font-size: 1rem; font-weight: 400; }
-fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
-/* Form text areas start at two lines and grow with the text, so long titles never clip. */
-.field > textarea { field-sizing: content; min-height: calc(2lh + 2 * var(--space-3)); }
-.field-check > span { display: flex; align-items: center; gap: var(--space-3); min-height: var(--nav-target); }
-.field-check input { width: 24px; height: 24px; min-height: 24px; padding: 0; margin: 0; flex-shrink: 0; accent-color: var(--primary); }
-.field-group { border: 0; padding: 0; margin: 0; min-width: 0; }
-/* Neutral status stays neutral: the lilac soft fill means Together. */
-.status { display: flex; align-items: flex-start; gap: var(--space-2); margin: 0 0 var(--space-4); line-height: 1.5; padding: var(--space-3) var(--space-4); border: 1px solid var(--line); border-radius: var(--radius-control); background: var(--canvas); overflow-wrap: anywhere; }
-.status > div { min-width: 0; }
-.status > svg { margin-top: 2px; }
-.status > div > :last-child { margin-bottom: 0; }
-.status.error { color: var(--danger); background: var(--danger-soft); border-color: transparent; }
-.avatar { display: inline-flex; width: 32px; height: 32px; border-radius: 50%; align-items: center; justify-content: center; flex-shrink: 0; font-size: .875rem; font-weight: 600; }
-.slot-a { background: var(--rose-soft); color: var(--rose); }
-.slot-b { background: var(--teal-soft); color: var(--teal); }
-.slot-together { background: var(--shared-soft); color: var(--shared); }
-/* Owner dots: one dot per owner with plans on that day. */
-.owner-dots { display: flex; gap: var(--space-1); min-height: 6px; }
-.owner-dots span { width: 6px; height: 6px; border-radius: 50%; background: var(--shared-accent); }
-.owner-dots .owner-a { background: var(--rose-accent); }
-.owner-dots .owner-b { background: var(--teal-accent); }
-/* Partner badge: a name in its owner color. */
-.partner-badge { display: inline-flex; align-items: center; border-radius: var(--radius-badge); padding: 2px var(--space-2); font-size: .75rem; font-weight: 600; line-height: 1.4; overflow-wrap: anywhere; }
-dialog { border: 1px solid var(--line); border-radius: var(--radius-card); padding: var(--space-6); color: var(--ink); background: var(--surface); box-shadow: var(--shadow-popover); width: min(480px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); overflow: auto; overscroll-behavior: contain; }
-/* Both rules keep scroll gestures over the backdrop or inside a dialog from scrolling the page behind it. */
-dialog::backdrop { background: var(--backdrop); overflow: hidden; overscroll-behavior: contain; }
-/* A dialog fades and scales in over 200ms, and the backdrop fades in with it. A dialog closes at once. */
-dialog[open], dialog[open]::backdrop { transition: opacity var(--duration-panel) var(--ease), transform var(--duration-panel) var(--ease); }
-@starting-style {
-  dialog[open] { opacity: 0; transform: scale(.98); }
-  dialog[open]::backdrop { opacity: 0; }
+@layer components {
+  .button { min-block-size: var(--nav-target); max-inline-size: 100%; border: 1px solid var(--action-border); border-radius: var(--radius-control); corner-shape: squircle; padding: var(--space-3) var(--space-4); font-size: .9375rem; font-weight: 600; display: inline-flex; justify-content: safe center; align-items: safe center; gap: var(--space-2); cursor: pointer; text-decoration: none; line-height: 1.4; transition: background-color var(--duration-feedback) var(--ease), color var(--duration-feedback) var(--ease), border-color var(--duration-feedback) var(--ease), translate var(--duration-feedback) var(--ease), scale var(--duration-feedback) var(--ease); }
+  .button.primary { background: var(--primary); color: var(--on-primary); border-color: var(--primary); }
+  .button.primary:hover:not(:disabled) { background: color-mix(in srgb, var(--primary) 86%, var(--ink)); }
+  .button.secondary { background: var(--surface); color: var(--ink); border-color: var(--control); }
+  .button.danger { background: var(--danger); color: var(--on-primary); border-color: var(--danger); }
+  .button.text { background: transparent; color: var(--link); border-color: transparent; }
+  .button.text:hover:not(:disabled) { background: var(--sidebar); }
+  .button.secondary:hover:not(:disabled) { background: var(--sidebar); border-color: var(--ink); }
+  .button.danger:hover:not(:disabled) { background: var(--danger-soft); color: var(--danger); }
+  /* Motion follows taste-skill 2.5.1: a filled or outlined button steps up 1px on hover and sinks below rest on press.
+     Text buttons keep still and only change fill. */
+  @media (hover: hover) and (pointer: fine) { .button:not(.text):hover:not(:disabled) { translate: 0 -1px; } }
+  .button:active:not(:disabled) { translate: 0 1px; scale: .985; transition-duration: var(--duration-press); }
+  .button.text:active:not(:disabled) { translate: none; }
+  .button:disabled { opacity: .6; cursor: default; }
+  .field input, .field select, .field textarea, .message-composer textarea { caret-color: var(--focus); }
+  .field input:focus-visible, .field select:focus-visible, .field textarea:focus-visible { border-color: var(--focus); }
+  .field { display: flex; flex-direction: column; gap: var(--space-2); margin-block-end: var(--space-5); font-weight: 600; }
+  .field > span:first-child { font-size: .875rem; }
+  .field-hint, .field-error { font-size: .875rem; font-weight: 400; margin: 0; }
+  .field-hint { color: var(--muted); }
+  .field-error { color: var(--danger); }
+  .field input:hover:not(:disabled), .field select:hover:not(:disabled), .field textarea:hover:not(:disabled) { border-color: var(--focus); }
+  .field input[aria-invalid=true], .field select[aria-invalid=true], .field textarea[aria-invalid=true] { border-color: var(--danger); }
+  /* Inputs and selects are one line tall: 48px at the default text size. They grow with larger text, and fields in one row line up. */
+  .field input:not([type=checkbox], [type=file]), .field select { block-size: calc(1.5em + 2 * var(--space-3)); }
+  .field input, .field select, .field > textarea { inline-size: 100%; min-inline-size: 0; min-block-size: var(--nav-target); padding: calc(var(--space-3) - 1px) var(--space-4); border: 1px solid var(--control); border-radius: var(--radius-control); corner-shape: squircle; color: var(--ink); background: var(--surface); font-size: max(1rem, 1em); font-weight: 400; }
+  fieldset { border: 0; padding: 0; margin: 0; min-inline-size: 0; }
+  /* Form text areas start at two lines and grow with the text, so long titles never clip. */
+  .field > textarea { field-sizing: content; min-block-size: calc(2lh + 2 * var(--space-3)); }
+  .field-check > span { display: flex; align-items: center; gap: var(--space-3); min-block-size: var(--nav-target); }
+  .field-check input { inline-size: 24px; block-size: 24px; min-block-size: 24px; padding: 0; margin: 0; flex-shrink: 0; }
+  .field-group { border: 0; padding: 0; margin: 0; min-inline-size: 0; }
+  /* Neutral status stays neutral: the lilac soft fill means Together. */
+  .status { display: flex; align-items: flex-start; gap: var(--space-2); margin: 0 0 var(--space-4); line-height: 1.5; padding: var(--space-3) var(--space-4); border: 1px solid var(--line); border-radius: var(--radius-control); corner-shape: squircle; background: var(--canvas); overflow-wrap: anywhere; }
+  .status > div { min-inline-size: 0; }
+  .status > svg { margin-block-start: 2px; }
+  .status > div > :last-child { margin-block-end: 0; }
+  .status.error { color: var(--danger); background: var(--danger-soft); border-color: transparent; }
+  .avatar { display: inline-flex; inline-size: 32px; block-size: 32px; border-radius: 50%; align-items: center; justify-content: center; flex-shrink: 0; font-size: .875rem; font-weight: 600; }
+  .slot-a { background: var(--rose-soft); color: var(--rose); }
+  .slot-b { background: var(--teal-soft); color: var(--teal); }
+  .slot-together { background: var(--shared-soft); color: var(--shared); }
+  /* Owner dots: one dot per owner with plans on that day. */
+  .owner-dots { display: flex; gap: var(--space-1); min-block-size: 6px; }
+  .owner-dots span { inline-size: 6px; block-size: 6px; border-radius: 50%; background: var(--shared-accent); }
+  .owner-dots .owner-a { background: var(--rose-accent); }
+  .owner-dots .owner-b { background: var(--teal-accent); }
+  /* Partner badge: a name in its owner color. */
+  .partner-badge { display: inline-flex; align-items: center; border-radius: var(--radius-badge); corner-shape: squircle; padding: 2px var(--space-2); font-size: .75rem; font-weight: 600; line-height: 1.4; overflow-wrap: anywhere; }
+  dialog { border: 1px solid var(--line); border-radius: var(--radius-card); corner-shape: squircle; padding: var(--space-6); color: var(--ink); background: var(--surface); box-shadow: var(--shadow-popover); inline-size: min(480px, 100% - 2 * var(--space-4)); max-block-size: calc(100% - 2 * var(--space-4)); overflow: auto; overscroll-behavior: contain; contain: layout style paint; }
+  /* Both rules keep scroll gestures over the backdrop or inside a dialog from scrolling the page behind it. */
+  dialog::backdrop { background: var(--backdrop); overflow: hidden; overscroll-behavior: contain; }
+  /* A dialog fades and scales in over 200ms and fades out over 120ms. The backdrop fades with it.
+     The dialog stays in the top layer until the fade out ends. Browsers that cannot animate display close it at once. */
+  dialog, dialog::backdrop { opacity: 0; transition-property: opacity, scale, display, overlay; transition-duration: var(--duration-out); transition-timing-function: var(--ease); transition-behavior: allow-discrete; }
+  dialog { scale: .98; }
+  dialog[open], dialog[open]::backdrop { opacity: 1; transition-duration: var(--duration-panel); }
+  dialog[open] { scale: none; }
+  @starting-style {
+    dialog[open], dialog[open]::backdrop { opacity: 0; }
+    dialog[open] { scale: .98; }
+  }
+  dialog .actions:last-child { margin-block-end: 0; }
+  .dialog-heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-4); margin-block-end: var(--space-6); }
+  .dialog-heading h2 { margin: 0; }
+  .dialog-close { margin-inline-end: calc(-1 * var(--space-3)); }
+  .view-tabs { display:flex; gap:var(--space-1); flex-wrap:wrap; flex-wrap: balance; padding:var(--space-1); background:var(--canvas); border:1px solid var(--line); border-radius:var(--radius-control); corner-shape: squircle; }
+  /* Segmented control: the pressed segment is a raised surface. Owner color stays for owner segments only. */
+  .view-tabs button { display:inline-flex; align-items:safe center; justify-content:safe center; gap:var(--space-2); min-block-size:var(--nav-target); border:1px solid transparent; border-radius:var(--radius-badge); corner-shape: squircle; background:transparent; padding:var(--space-2) var(--space-4); color:var(--muted); font-size:.9375rem; font-weight:600; line-height:1.4; cursor:pointer; }
+  .view-tabs button:hover { background: var(--surface); color: var(--ink); }
+  .view-tabs button[aria-pressed=true] { background:var(--surface); border-color:var(--line); color:var(--ink); }
+  @media (width < 48em) { .view-tabs { inline-size:100%; } .view-tabs button { flex:1; padding:var(--space-2); } }
+  /* The sign-in code reads as six digits, not as a generic text field. */
+  .field input.code-input { max-inline-size: 16ch; font-size: 1.1875rem; font-weight: 600; letter-spacing: .3em; font-variant-numeric: tabular-nums; }
+  /* Menu: an icon trigger and a popover list. Anchor positioning places the list below the trigger, and flips it when it does not fit.
+     Without anchor positioning, Menu.tsx sets top and left. Set display only on the inner list: the popover hides itself when closed. */
+  .menu-trigger { display: flex; align-items: center; justify-content: center; inline-size: var(--nav-target); block-size: var(--nav-target); padding: 0; border: 0; border-radius: var(--radius-control); corner-shape: squircle; background: transparent; color: inherit; cursor: pointer; }
+  .menu-trigger:hover:not(:disabled), .menu-trigger[aria-expanded=true] { background: var(--surface); }
+  .menu-trigger:disabled { opacity: .6; cursor: default; }
+  .menu-popover { inset: auto; margin: 0; min-inline-size: 180px; padding: var(--space-1); color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-control); corner-shape: squircle; box-shadow: var(--shadow-popover); }
+  @supports (position-area: block-end) {
+    .menu-popover { position-area: block-end span-inline-start; position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline; margin-block: var(--space-1); }
+  }
+  .menu-popover > div { display: grid; }
+  .menu-popover .button { justify-content: flex-start; color: var(--ink); }
+  /* A scroll area shows a soft shadow at an edge while there is more content past it. The scrollbar stays visible, so the shadows are a hint only.
+     The space for the scrollbar stays reserved, so the content does not move when it starts to scroll. */
+  .scroll-hints { container-type: scroll-state; scrollbar-gutter: stable; }
+  .scroll-hints::before, .scroll-hints::after { content: ''; display: block; flex-shrink: 0; position: sticky; z-index: 1; block-size: .75rem; pointer-events: none; opacity: 0; transition: opacity var(--duration-panel) var(--ease); }
+  .scroll-hints::before { inset-block-start: 0; margin-block-end: -.75rem; background: radial-gradient(farthest-side at 50% 0, var(--shadow), transparent); }
+  .scroll-hints::after { inset-block-end: 0; margin-block-start: -.75rem; background: radial-gradient(farthest-side at 50% 100%, var(--shadow), transparent); }
+  @container scroll-state(scrollable: block-start) { .scroll-hints::before { opacity: 1; } }
+  @container scroll-state(scrollable: block-end) { .scroll-hints::after { opacity: 1; } }
+  /* A tooltip names an icon button. It sits below the button and flips above it when it does not fit. */
+  .hint { inset: auto; margin: 0; margin-block: var(--space-1); position-area: block-end; position-try-fallbacks: flip-block; max-inline-size: 32ch; padding: var(--space-1) var(--space-2); border: 0; border-radius: var(--radius-badge); corner-shape: squircle; background: var(--ink); color: var(--canvas); font-size: .75rem; font-weight: 600; line-height: 1.4; }
 }
-dialog .actions:last-child { margin-bottom: 0; }
-.dialog-heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-4); margin-bottom: var(--space-6); }
-.dialog-heading h2 { margin: 0; }
-.dialog-close { margin-right: calc(-1 * var(--space-3)); }
-.view-tabs { display:flex; gap:var(--space-1); flex-wrap:wrap; padding:var(--space-1); background:var(--canvas); border:1px solid var(--line); border-radius:var(--radius-control); }
-/* Segmented control: the pressed segment is a raised surface. Owner color stays for owner segments only. */
-.view-tabs button { display:inline-flex; align-items:center; justify-content:center; gap:var(--space-2); min-height:var(--nav-target); border:1px solid transparent; border-radius:var(--radius-badge); background:transparent; padding:var(--space-2) var(--space-4); color:var(--muted); font-size:.9375rem; font-weight:600; line-height:1.4; cursor:pointer; }
-.view-tabs button:hover { background: var(--surface); color: var(--ink); }
-.view-tabs button[aria-pressed=true] { background:var(--surface); border-color:var(--line); color:var(--ink); }
-@media (max-width:767px) { .view-tabs { width:100%; } .view-tabs button { flex:1; padding:var(--space-2); } }
-/* The sign-in code reads as six digits, not as a generic text field. */
-.field input.code-input { max-width: 16ch; font-size: 1.1875rem; font-weight: 600; letter-spacing: .3em; font-variant-numeric: tabular-nums; }
-/* Menu: an icon trigger and a popover list. Anchor positioning places the list below the trigger, and flips it when it does not fit.
-   Without anchor positioning, Menu.tsx sets top and left. Set display only on the inner list: the popover hides itself when closed. */
-.menu-trigger { display: flex; align-items: center; justify-content: center; width: var(--nav-target); height: var(--nav-target); padding: 0; border: 0; border-radius: var(--radius-control); background: transparent; color: inherit; cursor: pointer; }
-.menu-trigger:hover:not(:disabled), .menu-trigger[aria-expanded=true] { background: var(--surface); }
-.menu-trigger:disabled { opacity: .6; cursor: default; }
-.menu-popover { inset: auto; margin: 0; min-width: 180px; padding: var(--space-1); color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-control); box-shadow: var(--shadow-popover); }
-@supports (position-area: block-end) {
-  .menu-popover { position-area: block-end span-inline-start; position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline; margin-block: var(--space-1); }
-}
-.menu-popover > div { display: grid; }
-.menu-popover .button { justify-content: flex-start; color: var(--ink); }

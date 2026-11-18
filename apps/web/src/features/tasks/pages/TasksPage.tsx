@@ -9,6 +9,7 @@ import { useSearchParams } from 'react-router-dom';
 import { useSession } from '../../../app/SessionProvider';
 import { PageHeader } from '../../../components/ui/PageHeader';
 import { Button } from '../../../components/ui/Button';
+import { Hint } from '../../../components/ui/Hint';
 import { Dialog } from '../../../components/ui/Dialog';
 import { Status } from '../../../components/ui/Status';
 import { Field } from '../../../components/ui/Field';
@@ -41,7 +42,8 @@ export function TasksPage() {
         <Button variant="secondary" onClick={() => void lists.refetch()}>Retry</Button>
       </> : <>
         <div className="task-lists">
-          <div className="view-tabs" role="group" aria-label="Task lists">{lists.data.map(item => <button key={item.id} title={item.name} aria-pressed={item.id === listId && !adding} onClick={() => select(item.id)}><span>{item.name}</span></button>)}</div>
+          <div className="view-tabs" role="group" aria-label="Task lists">{lists.data.map(item => <button key={item.id} aria-pressed={item.id === listId && !adding} {...{ interestfor: 'list-hint-' + item.id }} onClick={() => select(item.id)}><span>{item.name}</span></button>)}</div>
+          {lists.data.map(item => <Hint key={item.id} id={'list-hint-' + item.id}>{item.name}</Hint>)}
           <Button variant="text" aria-pressed={adding} onClick={() => setAdding(true)}>New list</Button>
         </div>
         {adding ? <NewList pairId={pairId} onCreated={select} /> : <>

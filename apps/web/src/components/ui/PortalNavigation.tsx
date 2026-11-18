@@ -16,30 +16,30 @@ export function PortalNavigation({ destination, activePair, unreadCount, onPairO
   const unreadId = useId();
   const unread = unreadCount !== undefined && unreadCount > 0;
   const calendarActive = calendarPath.test(pathname);
-  // One listener on the list serves every link.
+  // One listener on the list serves every link. Each link is named by its visible label. Today keeps a label, so the unread count stays out of its name.
   const startPreload = (event: SyntheticEvent) => {
     const link = (event.target as Element).closest('a');
     if (link) preload(link.pathname);
   };
-  return <nav className="portal-nav" aria-label="Main navigation" onPointerOver={startPreload} onFocus={startPreload}>
+  return <nav className="portal-nav" aria-label="Main" onPointerOver={startPreload} onFocus={startPreload}>
     <div className="nav-group">
-      {!activePair && <Link to={destination} aria-label="Your pair" title="Your pair" aria-current={pathname.startsWith('/pair/') ? 'page' : undefined} onClick={onPairOpen}>
+      {!activePair && <Link to={destination} aria-current={pathname.startsWith('/pair/') ? 'page' : undefined} onClick={onPairOpen}>
         <UsersIcon size={20} aria-hidden="true" /><span className="nav-label">Your pair</span>
       </Link>}
       {activePair && <>
-        <NavLink to="/today" aria-label="Today" title="Today" aria-describedby={unread ? unreadId : undefined}>
+        <NavLink to="/today" aria-label="Today" aria-describedby={unread ? unreadId : undefined}>
           <HouseIcon size={20} aria-hidden="true" /><span className="nav-label">Today</span>
           {unread && <span className="unread-count" data-testid="unread-count" id={unreadId}>{unreadCount}<span className="visually-hidden"> unread messages</span></span>}
         </NavLink>
-        <Link to="/calendar" aria-label="Calendar" title="Calendar" aria-current={calendarActive ? 'page' : undefined}>
+        <Link to="/calendar" aria-current={calendarActive ? 'page' : undefined}>
           <CalendarBlankIcon size={20} aria-hidden="true" /><span className="nav-label">Calendar</span>
         </Link>
-        <NavLink to="/memories" aria-label="Memories" title="Memories"><ImagesIcon size={20} aria-hidden="true" /><span className="nav-label">Memories</span></NavLink>
-        <NavLink to="/tasks" aria-label="Tasks" title="Tasks"><ListChecksIcon size={20} aria-hidden="true" /><span className="nav-label">Tasks</span></NavLink>
+        <NavLink to="/memories"><ImagesIcon size={20} aria-hidden="true" /><span className="nav-label">Memories</span></NavLink>
+        <NavLink to="/tasks"><ListChecksIcon size={20} aria-hidden="true" /><span className="nav-label">Tasks</span></NavLink>
       </>}
     </div>
     <div className="nav-group nav-settings">
-      <NavLink to="/settings" aria-label="Settings" title="Settings"><GearSixIcon size={20} aria-hidden="true" /><span className="nav-label">Settings</span></NavLink>
+      <NavLink to="/settings"><GearSixIcon size={20} aria-hidden="true" /><span className="nav-label">Settings</span></NavLink>
     </div>
   </nav>;
 }
