@@ -125,7 +125,7 @@ function ListSettings({ list, taskCount, onRemoved }: { list: TaskList; taskCoun
     <Dialog busy={remove.isPending} open={confirm} title="Remove this list?" onClose={() => setConfirm(false)}>
       <p>{taskCount ? 'Its tasks move to General. The list is removed for both partners.' : 'This empty list is removed for both partners.'}</p>
       <div className="actions"><Button variant="danger" disabled={remove.isPending} onClick={() => remove.mutate()}>{remove.isPending ? 'Removing…' : 'Confirm removal'}</Button>
-      <Button variant="secondary" disabled={remove.isPending} onClick={() => setConfirm(false)}>Cancel</Button></div>
+      <Button variant="secondary" data-autofocus disabled={remove.isPending} onClick={() => setConfirm(false)}>Cancel</Button></div>
     </Dialog>
   </details>;
 }

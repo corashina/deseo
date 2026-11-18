@@ -21,8 +21,13 @@ body {
   margin: 0;
   background: var(--canvas);
   color: var(--ink);
-  font: 400 16px/1.5 var(--font);
+  font: 400 1rem/1.5 var(--font);
+  /* Manrope's x-height is .54 of its size. Before Manrope loads, the system font gets the same x-height, so text keeps its size. */
+  font-size-adjust: .54;
 }
+
+/* Moving between site pages crossfades, where the browser supports it. */
+@view-transition { navigation: auto; }
 main { flex: 1 0 auto; }
 
 img { display: block; max-width: 100%; height: auto; }
@@ -55,16 +60,16 @@ main p a.go { background-position: 0 calc(100% - 12px), 0 calc(100% - 12px); }
 
 /* Type scale: display, headline, and title in DESIGN.md. */
 h1, h2, h3 { margin: 0 0 var(--space-3); overflow-wrap: anywhere; text-wrap: balance; }
-h1 { font-size: 36px; font-weight: 500; line-height: 1.2; letter-spacing: -0.02em; }
-h2 { font-size: 24px; font-weight: 500; line-height: 1.2; letter-spacing: -0.02em; }
-h3 { font-size: 19px; font-weight: 600; line-height: 1.3; }
+h1 { font-size: 2.25rem; font-weight: 500; line-height: 1.2; letter-spacing: -0.02em; }
+h2 { font-size: 1.5rem; font-weight: 500; line-height: 1.2; letter-spacing: -0.02em; }
+h3 { font-size: 1.1875rem; font-weight: 600; line-height: 1.3; }
 p, ul, ol { margin: 0 0 var(--space-4); }
 p, li { text-wrap: pretty; }
 li + li { margin-top: var(--space-2); }
 
 @media (min-width: 768px) {
-  h1 { font-size: 48px; }
-  h2 { font-size: 28px; }
+  h1 { font-size: 3rem; }
+  h2 { font-size: 1.75rem; }
 }
 
 .skip {
@@ -95,7 +100,7 @@ main.wrap { padding-block-end: var(--space-10); }
   gap: var(--space-3);
   min-height: var(--nav-target);
   color: var(--ink);
-  font-size: 19px;
+  font-size: 1.1875rem;
   font-weight: 600;
   text-decoration: none;
 }
@@ -138,7 +143,7 @@ main.wrap { padding-block-end: var(--space-10); }
   min-height: var(--nav-target);
 }
 
-.lede { font-size: 19px; color: var(--muted); max-width: 34em; }
+.lede { font-size: 1.1875rem; color: var(--muted); max-width: 34em; }
 
 .hero {
   display: grid;
@@ -157,7 +162,7 @@ main.wrap { padding-block-end: var(--space-10); }
   border-radius: var(--radius-control);
   background: var(--primary);
   color: var(--on-primary);
-  font-size: 15px;
+  font-size: .9375rem;
   font-weight: 600;
   line-height: 1.4;
   text-decoration: none;
@@ -172,7 +177,7 @@ main.wrap { padding-block-end: var(--space-10); }
   }
 }
 .button:active { transform: translateY(1px) scale(.985); transition-duration: var(--m-press); }
-.fact { margin: var(--space-5) 0 0; color: var(--muted); font-size: 14px; }
+.fact { margin: var(--space-5) 0 0; color: var(--muted); font-size: .875rem; }
 
 /* The hero enters once: the title rises line by line out of its masks, then the rest fades up. */
 .enter h1 .line { display: inline-block; overflow: clip; overflow-clip-margin: 0.1em; padding-bottom: 0.08em; vertical-align: top; }
@@ -210,8 +215,8 @@ main.wrap { padding-block-end: var(--space-10); }
    Without scroll timelines, every word stays at full ink. */
 .statement { margin-top: var(--space-10); view-timeline: --lights block; }
 /* The statement is the large type here, so its heading takes the title size. */
-.statement h2 { font-size: 19px; font-weight: 600; line-height: 1.3; letter-spacing: 0; color: var(--muted); }
-.lights { max-width: 22em; font-size: 28px; font-weight: 500; line-height: 1.3; letter-spacing: -0.02em; text-wrap: pretty; }
+.statement h2 { font-size: 1.1875rem; font-weight: 600; line-height: 1.3; letter-spacing: 0; color: var(--muted); }
+.lights { max-width: 22em; font-size: 1.75rem; font-weight: 500; line-height: 1.3; letter-spacing: -0.02em; text-wrap: pretty; }
 @supports (animation-timeline: view()) {
   .lights span {
     animation: light linear both;
@@ -248,7 +253,7 @@ main.wrap { padding-block-end: var(--space-10); }
 .site-footer {
   border-top: 1px solid var(--line);
   padding: var(--space-6) 0 var(--space-10);
-  font-size: 14px;
+  font-size: .875rem;
 }
 .site-footer ul {
   display: flex;
@@ -269,8 +274,8 @@ main.wrap { padding-block-end: var(--space-10); }
   .preview.phone img { margin: 0; }
   .feature.wide { grid-template-columns: 1fr; }
   .panel { padding: var(--space-8); }
-  .lights { font-size: 40px; }
-  .page h2 { font-size: 28px; }
+  .lights { font-size: 2.5rem; }
+  .page h2 { font-size: 1.75rem; }
 }
 /* From 1024px the phone previews grow, and each feature's text starts at the top of its preview. */
 @media (min-width: 1024px) {

@@ -150,11 +150,11 @@ function EventEditor({ event, idea }: { event?: Event; idea?: DateIdea }) {
     <Dialog busy={remove.isPending} title="Delete this event?" open={confirmDelete} onClose={() => setConfirmDelete(false)}>
       <p>{event?.who === 'private' ? 'You will lose access to this event.' : 'Both partners will lose access to this event.'}</p>
       <div className="actions"><Button variant="danger" disabled={remove.isPending} onClick={() => remove.mutate()}>{remove.isPending ? 'Deleting…' : 'Confirm deletion'}</Button>
-      <Button variant="secondary" disabled={remove.isPending} onClick={() => setConfirmDelete(false)}>Cancel</Button></div>
+      <Button variant="secondary" data-autofocus disabled={remove.isPending} onClick={() => setConfirmDelete(false)}>Cancel</Button></div>
     </Dialog>
     <Dialog busy={saving} open={Boolean(sharing)} title="Share this event?" onClose={() => setSharing(null)}>
       <p>Your partner will see this event.</p>
-      <div className="actions"><Button variant="primary" onClick={confirmSharing}>Share event</Button>
+      <div className="actions"><Button variant="primary" data-autofocus onClick={confirmSharing}>Share event</Button>
       <Button variant="secondary" onClick={() => setSharing(null)}>Cancel</Button></div>
     </Dialog>
   </>;

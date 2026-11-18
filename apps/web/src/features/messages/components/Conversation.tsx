@@ -139,6 +139,6 @@ export function Conversation() {
       </>}
     {unsent.map(item => <article className={'message-row own-message pending-send partner-' + ownSlot} key={item.clientId} data-testid="pending-send"><p className="preserve-lines">{item.body}</p>{item.failed ? <><Status error>Not sent</Status><Button variant="secondary" onClick={() => void deliver(item)}>Retry</Button></> : <Status>Sending…</Status>}</article>)}
     <Composer onSend={send} disabled={false} locale={account!.locale} />
-    <Dialog busy={busy} title="Delete message?" open={Boolean(deleting)} onClose={() => { if (!busy) setDeleting(null); }}><p>Delete your message from this conversation and pinned notes.</p>{error && deleting && <Status error>{error}</Status>}<Button variant="danger" disabled={busy} onClick={() => deleting && action.mutate({ kind: 'delete', id: deleting.id })}>{busy ? 'Deleting…' : 'Confirm deletion'}</Button><Button variant="secondary" disabled={busy} onClick={() => setDeleting(null)}>Cancel</Button></Dialog>
+    <Dialog busy={busy} title="Delete message?" open={Boolean(deleting)} onClose={() => { if (!busy) setDeleting(null); }}><p>Delete your message from this conversation and pinned notes.</p>{error && deleting && <Status error>{error}</Status>}<Button variant="danger" disabled={busy} onClick={() => deleting && action.mutate({ kind: 'delete', id: deleting.id })}>{busy ? 'Deleting…' : 'Confirm deletion'}</Button><Button variant="secondary" data-autofocus disabled={busy} onClick={() => setDeleting(null)}>Cancel</Button></Dialog>
   </section>;
 }

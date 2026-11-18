@@ -38,7 +38,7 @@ export function JoinPage() {
   const tokenError = invalid ? 'Enter the 12-character code or the invitation link.' : review.isError ? toAppError(review.error).message : '';
   return <section className="card form-page centered-card"><PageHeader title={preview ? 'Join ' + preview.inviterName : 'Join your partner'} description={preview ? 'Share plans, messages, and memories. Private events stay private.' : 'Paste the code or link from your partner.'} />
     <form ref={form} onSubmit={event => { event.preventDefault(); if (!busy) start(token); }}>
-    <Field label="Invitation code or link" name="invitationCode" spellCheck={false} value={token} disabled={accept.isPending} error={tokenError} onChange={event => {
+    <Field label="Invitation code or link" name="invitationCode" spellCheck={false} autoCorrect="off" autoCapitalize="none" enterKeyHint="go" value={token} disabled={accept.isPending} error={tokenError} onChange={event => {
       setToken(event.target.value); review.reset(); accept.reset(); setInvalid(false); entryIntent.invite = null;
     }} autoComplete="off" />
     {!preview && <Button variant="primary" type="submit" disabled={busy}>{review.isPending ? 'Checking…' : 'Review invitation'}</Button>}</form>

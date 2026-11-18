@@ -25,7 +25,7 @@ export function VerifyPage() {
     <form ref={form} noValidate onSubmit={event => { event.preventDefault(); if (pending) return;
       const valid = /^\d{6}$/.test(code);
       setInvalid(!valid); if (valid) verify.mutate(code); else focusCode();
-    }}><Field className="code-input" label="Sign-in code" hint="No email after a minute? Check your spam folder." name="code" spellCheck={false} inputMode="numeric" autoComplete="one-time-code" maxLength={6} disabled={pending} value={code} error={codeError} onChange={event => { entryIntent.codeDraft = event.target.value; setCode(event.target.value); }} />
+    }}><Field className="code-input" label="Sign-in code" hint="No email after a minute? Check your spam folder." name="code" spellCheck={false} autoCorrect="off" enterKeyHint="go" inputMode="numeric" autoComplete="one-time-code" maxLength={6} disabled={pending} value={code} error={codeError} onChange={event => { entryIntent.codeDraft = event.target.value; setCode(event.target.value); }} />
     {resend.isError && <Status error>{toAppError(resend.error).message}</Status>}<Button variant="primary" type="submit" disabled={pending}>{verify.isPending ? 'Checking…' : 'Sign in'}</Button></form>
     <div className="actions"><ResendButton retryAt={entryIntent.retryAt} disabled={pending} sending={resend.isPending} onResend={() => { verify.reset(); resend.mutate(); }} /><Link to="/sign-in">Use another email</Link></div></section>;
 }

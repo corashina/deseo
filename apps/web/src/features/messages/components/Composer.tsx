@@ -24,10 +24,11 @@ export function Composer({ disabled, locale, onSend }: { disabled: boolean; loca
   }}>
     {/* The field starts at one line and grows with the text, so the conversation keeps the space. */}
     <div className="field"><label className="visually-hidden" htmlFor={id}>Message</label>
-      <div className="composer-row"><textarea ref={input} id={id} name="body" autoComplete="off" rows={1} placeholder="Message" value={body} aria-invalid={error ? true : undefined} aria-describedby={error ? id + '-error' : undefined} onChange={event => { setError(''); setBody(event.target.value); }}
+      <div className="composer-row"><textarea ref={input} id={id} name="body" autoComplete="off" enterKeyHint="send" rows={1} placeholder="Message" value={body} aria-invalid={error ? true : undefined} aria-describedby={error ? id + '-error' : undefined} onChange={event => { setError(''); setBody(event.target.value); }}
         onKeyDown={event => {
           // With a keyboard, Enter sends and Shift+Enter adds a line. Touch keyboards keep Enter for new lines.
-          if (event.key !== 'Enter' || event.shiftKey || event.nativeEvent.isComposing || !matchMedia('(pointer: fine)').matches) return;
+          // An Enter that confirms Japanese, Chinese, or Korean input does not send. Safari reports it only as key code 229.
+          if (event.key !== 'Enter' || event.shiftKey || event.nativeEvent.isComposing || event.keyCode === 229 || !matchMedia('(pointer: fine)').matches) return;
           event.preventDefault();
           event.currentTarget.form?.requestSubmit();
         }} />

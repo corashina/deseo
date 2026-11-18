@@ -8,7 +8,7 @@
 
 /* Selection is the filled day number. The cell stays clear, so a Together event keeps its color. Today gets a ring. */
 .month-weekdays, .month-days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); }
-.month-weekdays span { justify-self: start; box-sizing: content-box; width: var(--nav-target); max-width: calc(100% - 2 * var(--space-2)); padding: var(--space-3) var(--space-2); font-size: 12px; font-weight: 600; color: var(--muted); text-align: center; }
+.month-weekdays span { justify-self: start; box-sizing: content-box; width: var(--nav-target); max-width: calc(100% - 2 * var(--space-2)); padding: var(--space-3) var(--space-2); font-size: .75rem; font-weight: 600; color: var(--muted); text-align: center; }
 .month-days { border-top: 1px solid var(--line); border-left: 1px solid var(--line); }
 .month-day { min-width: 0; min-height: 144px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: var(--space-2); }
 /* Weeks start on Monday, so the last two cells of each row are the weekend. */
@@ -25,21 +25,21 @@
 .event-row:active { transform: scale(.985); transition-duration: var(--duration-press); }
 .event-row.owner-a { --row-fill: var(--rose-soft); color: var(--rose); }
 .event-row.owner-b { --row-fill: var(--teal-soft); color: var(--teal); }
-.event-row-time { min-width: 56px; font-weight: 600; font-variant-numeric: tabular-nums; font-size: 14px; line-height: 1.5; flex-shrink: 0; }
+.event-row-time { min-width: 56px; font-weight: 600; font-variant-numeric: tabular-nums; font-size: .875rem; line-height: 1.5; flex-shrink: 0; }
 .event-row-content { display: flex; flex-direction: column; min-width: 0; gap: var(--space-1); }
 .event-row-content > strong { color: var(--ink); font-weight: 600; line-height: 1.4; }
-.event-row-content > span { font-size: 14px; }
+.event-row-content > span { font-size: .875rem; }
 /* In a month cell a title keeps two lines and the owner one, so one event does not stretch its week. */
-.day-events .event-row { flex-direction: column; gap: 0; padding: var(--space-1) var(--space-2); font-size: 14px; border-radius: var(--radius-badge); }
-.day-events .event-row-time, .day-events .event-row-content > span { font-size: 12px; min-width: 0; }
+.day-events .event-row { flex-direction: column; gap: 0; padding: var(--space-1) var(--space-2); font-size: .875rem; border-radius: var(--radius-badge); }
+.day-events .event-row-time, .day-events .event-row-content > span { font-size: .75rem; min-width: 0; }
 /* Narrow month chips break titles between words, never inside one. */
-.day-events .event-row-content > strong { overflow-wrap: normal; hyphens: auto; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+.day-events .event-row-content > strong { overflow-wrap: normal; hyphens: auto; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; }
 .day-events .event-row-content > span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 .selected-agenda { margin-top: var(--space-8); scroll-margin-top: calc(72px + var(--space-4)); }
 .selected-agenda > h2 { margin-bottom: var(--space-4); }
 .agenda-day { display: grid; grid-template-columns: 192px minmax(0, 1fr); gap: var(--space-6); padding: var(--space-6) 0; border-bottom: 1px solid var(--line); }
-.agenda-day h3 { font-size: 16px; font-weight: 600; margin-bottom: var(--space-2); }
+.agenda-day h3 { font-size: 1rem; font-weight: 600; margin-bottom: var(--space-2); }
 .empty-state { color: var(--muted); }
 .empty-state p { margin-bottom: var(--space-1); }
 .empty-state a { display: inline-flex; align-items: center; min-height: var(--nav-target); }

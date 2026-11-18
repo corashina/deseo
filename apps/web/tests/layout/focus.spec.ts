@@ -86,8 +86,8 @@ async function checkDialog(page: Page, trigger: string, dialog: string) {
   await tabTo(page, trigger);
   await page.keyboard.press('Enter');
   await expect.poll(() => openDialog(page)).toBe(dialog);
-  const first = (await focusState(page))?.name;
-  expect(first).toBe('Close ' + dialog.toLowerCase());
+  // A destructive dialog opens on its safe action.
+  expect((await focusState(page))?.name).toBe('Cancel');
   for (let i = 0; i < 6; i++) {
     await page.keyboard.press('Shift+Tab');
     expect(inside(dialog)).toContain(await openDialog(page));

@@ -124,7 +124,7 @@ function EndPairSection({ pairId, partner }: { pairId: string; partner: string }
         <p>To confirm, we email you a 6-digit code.</p>
         {error && <Status error>{error}</Status>}
         <div className="actions"><Button variant="primary" disabled={busy} onClick={() => send.mutate()}>{send.isPending ? 'Sending code…' : 'Email me a code'}</Button>
-        <Button variant="secondary" disabled={busy} onClick={close}>Cancel</Button></div>
+        <Button variant="secondary" data-autofocus disabled={busy} onClick={close}>Cancel</Button></div>
       </>}
     </Dialog>
   </section>;

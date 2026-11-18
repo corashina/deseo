@@ -307,7 +307,8 @@ Sources: [WCAG text contrast](https://www.w3.org/WAI/WCAG22/Understanding/contra
 | Browser navigation label | 15px | 15px | 550 / 1.4 |
 | Native navigation label | 12dp | 12dp | 600 / 17dp |
 
-Inputs and selects are 48px high, so fields in one row line up. Checkboxes use the `primary` accent.
+The browser sizes are at the default 16px text size. CSS sets them in rem (px / 16) and does not set a root size, so text follows the browser and OS text size.
+Inputs and selects are at least 48px high. They grow with larger text. Checkboxes use the `primary` accent.
 Use real text for labels and numbers. Use tabular numbers for times and countdowns.
 Use sentence case everywhere. Do not use uppercase labels.
 Use weights 400, 500, and 600 in the browser, plus 550 for navigation labels. Hierarchy comes from size and color.
@@ -362,6 +363,7 @@ These hover and press steps follow [taste-skill](https://github.com/Leonxlnx/tas
 - A linked card lifts 2px and its border darkens one step. A photo in a linked card zooms to 1.03 inside its frame over 600ms.
 - An event row changes its fill. A press scales it to 0.985.
 - The focus ring is 2px, 2px off the control.
+- A dialog fades in and scales from 0.98 over 200ms. The navigation drawer slides in from the left. Both close at once.
 
 Avoid looping animation, parallax, and decorative counters. Scrolling moves nothing, except the one site statement below.
 
@@ -413,6 +415,7 @@ View tabs and owner filters are segmented controls. The pressed segment is a rai
 Use the native modal dialog. The browser keeps focus off the page and returns it to the trigger. Do not add a focus trap. Support Escape where cancel is safe. A click outside closes the navigation drawer.
 Give icon-only buttons an accessible name.
 Close is an icon-only text button in the heading. A dialog with an action also has a Cancel button beside it.
+A destructive dialog opens with focus on Cancel. Mark the control with `data-autofocus`.
 Only the final, destructive step of a flow uses the `danger` fill. Earlier steps, such as Email me a code, use the primary fill.
 
 ### Navigation
